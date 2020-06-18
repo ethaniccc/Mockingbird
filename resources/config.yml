@@ -1,0 +1,33 @@
+#$$\      $$\                     $$\       $$\                     $$\       $$\                 $$\ 
+#$$$\    $$$ |                    $$ |      \__|                    $$ |      \__|                $$ |
+#$$$$\  $$$$ | $$$$$$\   $$$$$$$\ $$ |  $$\ $$\ $$$$$$$\   $$$$$$\  $$$$$$$\  $$\  $$$$$$\   $$$$$$$ |
+#$$\$$\$$ $$ |$$  __$$\ $$  _____|$$ | $$  |$$ |$$  __$$\ $$  __$$\ $$  __$$\ $$ |$$  __$$\ $$  __$$ |
+#$$ \$$$  $$ |$$ /  $$ |$$ /      $$$$$$  / $$ |$$ |  $$ |$$ /  $$ |$$ |  $$ |$$ |$$ |  \__|$$ /  $$ |
+#$$ |\$  /$$ |$$ |  $$ |$$ |      $$  _$$<  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |$$ |      $$ |  $$ |
+#$$ | \_/ $$ |\$$$$$$  |\$$$$$$$\ $$ | \$$\ $$ |$$ |  $$ |\$$$$$$$ |$$$$$$$  |$$ |$$ |      \$$$$$$$ |
+#\__|     \__| \______/  \_______|\__|  \__|\__|\__|  \__| \____$$ |\_______/ \__|\__|       \_______|
+#                                                         $$\   $$ |                                  
+#                                                         \$$$$$$  |                                  
+#                                                          \______/      
+# ~ Made by @ethaniccc idot </3
+# Github: https://www.github.com/ethaniccc                               
+
+#### DO NOT TOUCH THIS ####
+version: 1.0
+
+## General Settings ##
+
+# You can choose this to be any permission you'd like so
+# that staff members get Mockingbird alerts, etc.
+alert_permission: "mockingbird.alerts"
+# Type any prefix you want for AntiCheat alerts.
+prefix: "Mockingbird >"
+
+## Combat Detections ##
+# You can choose wether to enable or disable the cheat with (true/false)
+reach: true
+
+## Speed Detections ##
+# You can choose wether to enable or disable the cheat with (true/false)
+speed: true
+inventorymove: true
