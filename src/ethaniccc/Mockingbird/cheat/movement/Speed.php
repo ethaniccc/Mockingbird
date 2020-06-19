@@ -19,9 +19,9 @@ Github: https://www.github.com/ethaniccc
 namespace ethaniccc\Mockingbird\cheat\movement;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
+use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\Player;
-use pocketmine\plugin\Plugin;
 use pocketmine\entity\Entity;
 
 function sqr($value) : float{
@@ -30,7 +30,7 @@ function sqr($value) : float{
 
 class Speed extends Cheat{
 
-    public function __construct(Plugin $plugin, string $cheatName, string $cheatType, bool $enabled = true){
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
 

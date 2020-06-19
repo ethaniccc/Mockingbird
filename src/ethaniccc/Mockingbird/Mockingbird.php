@@ -36,7 +36,7 @@ class Mockingbird extends PluginBase{
             "Speed"
         ],
         "Packet" => [
-            
+            "BadPitch"
         ]
     ];
 
@@ -77,10 +77,6 @@ class Mockingbird extends PluginBase{
             }
         }
         $this->getLogger()->info(TextFormat::GREEN . "$loadedModules modules have been loaded.");
-    }
-
-    private function getCheatClassBase() : string{
-        return "ethaniccc\\Mockingbird\\cheat\\";
     }
 
 }

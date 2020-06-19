@@ -19,7 +19,7 @@ Github: https://www.github.com/ethaniccc
 namespace ethaniccc\Mockingbird\cheat\combat;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
-use pocketmine\plugin\Plugin;
+use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\Player;
 use pocketmine\entity\Entity;
@@ -29,7 +29,7 @@ class Reach extends Cheat{
     private $lastHit = [];
     private $lastLastHit = [];
 
-    public function __construct(Plugin $plugin, string $cheatName, string $cheatType, bool $enabled = true){
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
 

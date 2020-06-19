@@ -23,7 +23,7 @@ namespace ethaniccc\Mockingbird\cheat;
 use pocketmine\event\Listener;
 use pocketmine\Player;
 use pocketmine\Server;
-use pocketmine\plugin\Plugin;
+use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\Event;
 use pocketmine\utils\TextFormat;
 
@@ -35,7 +35,7 @@ class Cheat implements Listener{
 
     private $plugin;
 
-    public function __construct(Plugin $plugin, string $cheatName, string $cheatType, bool $enabled = true){
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         $this->cheatName = $cheatName;
         $this->cheatType = $cheatType;
         $this->enabled = $enabled;
