@@ -36,6 +36,7 @@ class Aimbot extends Cheat{
     public function onEvent(EntityDamageByEntityEvent $event){
         $damager = $event->getDamager();
         $damaged = $event->getEntity();
+        if(!$damager instanceof Player) return;
         $name = $damager->getName();
         if($this->aimbotLook($damager, $damaged)){
             if(!isset($this->cheatedHit[$name])) $this->cheatedHit[$name] = [];

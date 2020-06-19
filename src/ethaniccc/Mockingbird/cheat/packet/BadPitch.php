@@ -15,6 +15,7 @@ class BadPitch extends Cheat{
 
     public function onEvent(EntityDamageByEntityEvent $event) : void{
         $damager = $event->getDamager();
+        if(!$damager instanceof Player) return;
         $name = $damager->getName();
 
         if(abs($damager->getPitch()) > 90){
