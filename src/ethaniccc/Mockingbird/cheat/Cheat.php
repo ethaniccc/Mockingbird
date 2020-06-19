@@ -67,7 +67,7 @@ class Cheat implements Listener{
         return empty($result) ? 0 : $result["violations"];
     }
 
-    protected function getPlugin() : Plugin{
+    protected function getPlugin() : Mockingbird{
         return $this->plugin;
     }
 
