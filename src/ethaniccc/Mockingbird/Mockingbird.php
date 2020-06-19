@@ -30,16 +30,22 @@ class Mockingbird extends PluginBase{
     private $database;
     private $modules = [
         "Combat" => [
-            "Reach"
+            "Reach", "Aimbot"
         ],
         "Movement" => [
-            "Speed", "InventoryMove"
+            "Speed"
+        ],
+        "Packet" => [
+            
         ]
     ];
 
     public function onEnable(){
         if($this->getConfig()->get("version") !== $this->getDescription()->getVersion()){
             $this->saveDefaultConfig();
+        }
+        if($this->getConfig()->get("keep_previous_violations") === false){
+            if(file_exists($this->getDataFolder() . 'CheatData.db')) unlink($this->getDataFolder() . 'CheatData.db');
         }
         $this->getLogger()->debug(TextFormat::AQUA . "Mockingbird has been enabled.");
         $this->database = new \SQLite3($this->getDataFolder() . 'CheatData.db');

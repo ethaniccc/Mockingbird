@@ -21,13 +21,18 @@ version: 1.0
 # that staff members get Mockingbird alerts, etc.
 alert_permission: "mockingbird.alerts"
 # Type any prefix you want for AntiCheat alerts.
-prefix: "Mockingbird >"
+prefix: "§l§cMockingbird§4>"
+# This setting is for if you want to continue off previous
+# violation data. For example, if a player had 100 VL, and
+# the server stopped, they will continue off 100 VL if this
+# setting is enabled.
+keep_previous_violations: false
 
 ## Combat Detections ##
 # You can choose wether to enable or disable the cheat with (true/false)
 reach: true
+aimbot: true
 
 ## Speed Detections ##
 # You can choose wether to enable or disable the cheat with (true/false)
-speed: true
-inventorymove: true
+speed: false
