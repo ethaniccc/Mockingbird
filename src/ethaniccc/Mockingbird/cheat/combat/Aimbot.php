@@ -101,9 +101,9 @@ class Aimbot extends Cheat{
 
         //var_dump($pitch, $yaw, $damager->getPitch(), $damager->getYaw());
         if($damager->isOnGround()){
-            return abs(round($pitch) - round($damager->getPitch())) == 2;
+            return round($pitch) - round($damager->getPitch()) == 2;
         } else {
-            return round($damager->getY()) - round($target->getY()) <= -1 && round($damager->getY()) - round($target->getY()) != 0 ? abs(round($pitch) - round($damager->getPitch())) == 2 : abs(round($yaw) - round($damager->getYaw())) == 360;
+            return round($damager->getY()) - round($target->getY()) <= -1 && round($damager->getY()) - round($target->getY()) != 0 ? round($pitch) - round($damager->getPitch()) == 2 : abs(round($yaw) - round($damager->getYaw())) == 360;
         }
     }
 
