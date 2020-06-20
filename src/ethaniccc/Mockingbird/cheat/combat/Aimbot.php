@@ -50,7 +50,7 @@ class Aimbot extends Cheat{
             $hitTypes = array_count_values($this->cheatedHit[$name]);
             asort($hitTypes);
             $commonHitType = array_slice(array_keys($hitTypes), 0, 5, true);
-            if($commonHitType[0] === "illegal"){
+            if($commonHitType[0] === "illegal" && array_count_values($this->cheatedHit[$name])["illegal"] >= 8){
                 $this->addViolation($name);
                 $data = [
                     "VL" => $this->getCurrentViolations($damager->getName()),
