@@ -40,6 +40,7 @@ save_previous_violations: false
 # You can choose wether to enable or disable the cheat with (true/false)
 Reach: true
 Aimbot: true
+AutoClickerA: true
 # Bad Auras send a bad pitch packet.
 BadPitch: true
 

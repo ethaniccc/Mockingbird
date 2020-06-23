@@ -51,7 +51,6 @@ class Aimbot extends Cheat{
         array_push($this->hits[$damager->getName()], round($pitch) - round($damager->getPitch()));
         $average = array_sum($this->hits[$damager->getName()]) / count($this->hits[$damager->getName()]);
         if(count($this->hits[$damager->getName()]) >= 30){
-            var_dump($average);
             if($average > 0 && $average < 2){
                 $this->addViolation($damager->getName());
                 $data = [

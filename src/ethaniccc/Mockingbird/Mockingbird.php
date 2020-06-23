@@ -31,7 +31,7 @@ class Mockingbird extends PluginBase{
     private $database;
     private $modules = [
         "Combat" => [
-            "Reach", "Aimbot"
+            "Reach", "Aimbot", "AutoClickerA"
         ],
         "Movement" => [
             "Speed"
