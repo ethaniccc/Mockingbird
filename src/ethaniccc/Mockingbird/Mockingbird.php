@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ethaniccc\Mockingbird;
 
+use ethaniccc\Mockingbird\command\LogCommand;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\TextFormat;
 use pocketmine\utils\Config;
@@ -84,6 +85,7 @@ class Mockingbird extends PluginBase{
 
     private function loadAllCommands() : void{
         $commandMap = $this->getServer()->getCommandMap();
+        $commandMap->register($this->getName(), new LogCommand("logs", $this));
     }
 
     public function addCheat(string $player, string $cheat) : void{

@@ -29,6 +29,8 @@ use pocketmine\utils\TextFormat;
 
 class Cheat implements Listener{
 
+    public static $instance;
+
     private $cheatName;
     private $cheatType;
     private $enabled;
@@ -42,6 +44,7 @@ class Cheat implements Listener{
         $this->cheatType = $cheatType;
         $this->enabled = $enabled;
         $this->plugin = $plugin;
+        self::$instance = $this;
     }
 
     public function getName() : string{

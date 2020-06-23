@@ -9,7 +9,6 @@ use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\PlayerActionPacket;
-use pocketmine\utils\TextFormat;
 
 class AutoClickerA extends Cheat{
 
@@ -55,13 +54,13 @@ class AutoClickerA extends Cheat{
         array_push($this->allDeviations[$name], $deviation);
         if(count($this->allDeviations[$name]) < 5) return;
         $averageDeviation = array_sum($this->allDeviations[$name]) / count($this->allDeviations[$name]);
-        //$this->getServer()->broadcastMessage("$averageDeviation");
-        if($averageDeviation < 10 && count($this->allDeviations[$name]) > 30){
+        $this->getServer()->broadcastMessage("$averageDeviation");
+        if($averageDeviation < 11.5 && count($this->allDeviations[$name]) > 30){
             $badDeviations = [];
             foreach($this->allDeviations[$name] as $number){
-                if($number < 10) array_push($badDeviations, $number);
+                if($number < 12.5 && $number > 0.75) array_push($badDeviations, $number);
             }
-            if(count($badDeviations) >= 15){
+            if(count($badDeviations) >= 30){
                 $this->addViolation($name);
                 $data = [
                     "VL" => $this->getCurrentViolations($name),
@@ -71,11 +70,11 @@ class AutoClickerA extends Cheat{
             }
             $badDeviations = [];
         }
-        if(count($this->allClicks[$name]) >= 60){
+        if(count($this->allClicks[$name]) >= 35){
             unset($this->allClicks[$name]);
             $this->allClicks[$name] = [];
         }
-        if(count($this->allDeviations[$name]) >= 50){
+        if(count($this->allDeviations[$name]) >= 45){
             unset($this->allDeviations[$name]);
             $this->allDeviations[$name] = [];
         }
