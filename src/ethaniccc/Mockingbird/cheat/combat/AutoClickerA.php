@@ -14,8 +14,9 @@ use pocketmine\utils\TextFormat;
 class AutoClickerA extends Cheat{
 
     private $previousClick = [];
-    private $clickAverage = [];
-    private $deviationAverage = [];
+    private $allClicks = [];
+
+    private $allDeviations = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
@@ -36,28 +37,45 @@ class AutoClickerA extends Cheat{
         $name = $player->getName();
         if(!isset($this->previousClick[$name])){
             $this->previousClick[$name] = microtime(true) * 1000;
-            $this->clickAverage[$name] = [];
-            $this->deviationAverage[$name] = [];
+            $this->allClicks[$name] = [];
+            $this->allDeviations[$name] = [];
             return;
         }
         $currentTime = microtime(true) * 1000;
         $time = $currentTime - $this->previousClick[$name];
         if($time > 1000){
-            $this->previousClick[$name] = $currentTime;
+            $this->previousClick[$name] = microtime(true) * 1000;
             return;
         }
-        array_push($this->clickAverage[$name], $time);
-        $averageTime = array_sum($this->clickAverage[$name]) / count($this->clickAverage[$name]);
+        array_push($this->allClicks[$name], $time);
+        $this->previousClick[$name] = microtime(true) * 1000;
+        if(count($this->allClicks[$name]) < 10) return;
+        $averageTime = array_sum($this->allClicks[$name]) / count($this->allClicks[$name]);
         $deviation = abs($time - $averageTime);
-        array_push($this->deviationAverage[$name], $deviation);
-        $averageDevitation = array_sum($this->deviationAverage[$name]) / count($this->deviationAverage[$name]);
-        $this->getServer()->broadcastMessage("$averageDevitation");
-        if(count($this->deviationAverage[$name]) > 10 && $averageDevitation < 10){
-            $this->getServer()->broadcastMessage(TextFormat::BOLD . TextFormat::RED . "CHEATER!!!!");
+        array_push($this->allDeviations[$name], $deviation);
+        if(count($this->allDeviations[$name]) < 10) return;
+        $averageDeviation = array_sum($this->allDeviations[$name]) / count($this->allDeviations[$name]);
+        if($averageDeviation < 10 && count($this->allDeviations[$name]) > 30){
+            $badDeviations = [];
+            foreach($this->allDeviations[$name] as $number){
+                if($number < 10) array_push($badDeviations, $number);
+            }
+            if(count($badDeviations) >= 20){
+                $this->addViolation($name);
+                $data = [
+                    "VL" => $this->getCurrentViolations($name),
+                    "Ping" => $player->getPing()
+                ];
+                $this->notifyStaff($name, $this->getName(), $data);
+            }
+            $badDeviations = [];
         }
-        $this->previousClick[$name] = $currentTime;
-        if(count($this->clickAverage[$name]) === 50) $this->clickAverage[$name] = [];
-        if(count($this->deviationAverage[$name]) === 50) $this->deviationAverage[$name] = [];
+        if(count($this->allClicks[$name]) > 60){
+            $this->allClicks[$name] = [];
+        }
+        if(count($this->allDeviations[$name]) > 50){
+            $this->allDeviations[$name] = [];
+        }
     }
 
 }

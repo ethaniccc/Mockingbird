@@ -33,6 +33,7 @@ class Cheat implements Listener{
     private $cheatType;
     private $enabled;
     private $cheatsViolatedFor = [];
+    private $notifyCooldown = [];
 
     private $plugin;
     private static $instance;
@@ -45,8 +46,12 @@ class Cheat implements Listener{
         self::$instance = $this;
     }
 
-    public static function getCheatsViolatedFor(string $name) : array{
-        return isset(self::$instance->cheatsViolatedFor[$name]) ? self::$instance->cheatsViolatedFor[$name] : [];
+    public static function playerLogInfo(string $name) : array{
+        $data = [
+            "Cheats" => isset(self::$instance->cheatsViolatedFor[$name]) ? self::$instance->cheatsViolatedFor[$name] : [],
+            "VL" => self::$instance->getCurrentViolations($name)
+        ];
+        return $data;
     }
 
     public function getName() : string{
@@ -93,7 +98,24 @@ class Cheat implements Listener{
         $this->addNewCheat($name, $this->getName());
     }
 
+    protected function resetViolations(string $name) : void{
+        $database = $this->getPlugin()->getDatabase();
+        $newData = $database->prepare("INSERT OR REPLACE INTO cheatData (playerName, violations) VALUES (:playerName, :violations)");
+        $newData->bindValue(":playerName", $name);
+        $newData->bindValue(":violations", ($this->getCurrentViolations($name) / 2));
+        $newData->execute();
+    }
+
     protected function notifyStaff(string $name, string $cheat, array $data) : void{
+        if(!isset($this->notifyCooldown[$name])){
+            $this->notifyCooldown[$name] = microtime(true);
+        } else {
+            if(microtime(true) - $this->notifyCooldown[$name] > 2){
+                $this->notifyCooldown[$name] = microtime(true);
+            } else {
+                return;
+            }
+        }
         foreach($this->getServer()->getOnlinePlayers() as $player){
             if($player->hasPermission($this->getPlugin()->getConfig()->get("alert_permission"))){
                 $dataReport = TextFormat::DARK_RED . "[";
