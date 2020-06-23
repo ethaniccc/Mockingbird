@@ -49,18 +49,19 @@ class AutoClickerA extends Cheat{
         }
         array_push($this->allClicks[$name], $time);
         $this->previousClick[$name] = microtime(true) * 1000;
-        if(count($this->allClicks[$name]) < 10) return;
+        if(count($this->allClicks[$name]) < 5) return;
         $averageTime = array_sum($this->allClicks[$name]) / count($this->allClicks[$name]);
         $deviation = abs($time - $averageTime);
         array_push($this->allDeviations[$name], $deviation);
-        if(count($this->allDeviations[$name]) < 10) return;
+        if(count($this->allDeviations[$name]) < 5) return;
         $averageDeviation = array_sum($this->allDeviations[$name]) / count($this->allDeviations[$name]);
+        //$this->getServer()->broadcastMessage("$averageDeviation");
         if($averageDeviation < 10 && count($this->allDeviations[$name]) > 30){
             $badDeviations = [];
             foreach($this->allDeviations[$name] as $number){
                 if($number < 10) array_push($badDeviations, $number);
             }
-            if(count($badDeviations) >= 20){
+            if(count($badDeviations) >= 15){
                 $this->addViolation($name);
                 $data = [
                     "VL" => $this->getCurrentViolations($name),
@@ -70,10 +71,12 @@ class AutoClickerA extends Cheat{
             }
             $badDeviations = [];
         }
-        if(count($this->allClicks[$name]) > 60){
+        if(count($this->allClicks[$name]) >= 60){
+            unset($this->allClicks[$name]);
             $this->allClicks[$name] = [];
         }
-        if(count($this->allDeviations[$name]) > 50){
+        if(count($this->allDeviations[$name]) >= 50){
+            unset($this->allDeviations[$name]);
             $this->allDeviations[$name] = [];
         }
     }

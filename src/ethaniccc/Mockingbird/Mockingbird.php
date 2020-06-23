@@ -40,6 +40,7 @@ class Mockingbird extends PluginBase{
             "BadPitch"
         ]
     ];
+    private $cheatsViolatedFor = [];
 
     public function onEnable(){
         if($this->getConfig()->get("version") !== $this->getDescription()->getVersion()){
@@ -52,18 +53,19 @@ class Mockingbird extends PluginBase{
         $this->database = new \SQLite3($this->getDataFolder() . 'CheatData.db');
         $this->database->exec("CREATE TABLE IF NOT EXISTS cheatData (playerName TEXT PRIMARY KEY, violations INT);");
         $this->loadAllModules();
+        $this->loadAllCommands();
     }
 
     public function getDatabase() : \SQLite3{
         return $this->database;
     }
 
-    public function getAlertPermission() : string{
-        return !is_string($this->getConfig()->get("alert_permission")) ? "mockingbird.alerts" : $this->getConfig()->get("alert_permission");
-    }
-
     public function getPrefix() : string{
         return !is_string($this->getConfig()->get("prefix")) ? TextFormat::BOLD . TextFormat::RED . "Mockingbird> " : $this->getConfig()->get("prefix") . " ";
+    }
+
+    public function isDeveloperMode() : bool{
+        return $this->developerMode;
     }
 
     private function loadAllModules() : void{
@@ -80,8 +82,17 @@ class Mockingbird extends PluginBase{
         $this->getLogger()->info(TextFormat::GREEN . "$loadedModules modules have been loaded.");
     }
 
-    public function isDeveloperMode() : bool{
-        return $this->developerMode;
+    private function loadAllCommands() : void{
+        $commandMap = $this->getServer()->getCommandMap();
+    }
+
+    public function addCheat(string $player, string $cheat) : void{
+        if(!isset($this->cheatsViolatedFor[$player])) $this->cheatsViolatedFor[$player] = [];
+        if(!in_array($cheat, $this->cheatsViolatedFor[$player])) array_push($this->cheatsViolatedFor[$player], $cheat);
+    }
+
+    public function getCheatsViolatedFor(string $name) : array{
+        return !isset($this->cheatsViolatedFor[$name]) ? [] : $this->cheatsViolatedFor[$name];
     }
 
 }

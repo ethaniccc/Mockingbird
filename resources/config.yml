@@ -24,6 +24,9 @@ version: 1.0
 # You can choose this to be any permission you'd like so
 # that staff members get Mockingbird alerts, etc.
 alert_permission: "mockingbird.alerts"
+# You can choose this permission to anything you'd like.
+# This permission is for getting player logs.
+log_permission: "mockingbird.logs"
 # Type any prefix you want for AntiCheat alerts.
 prefix: "§l§cMockingbird§4>"
 # This setting is for if you want to continue off previous

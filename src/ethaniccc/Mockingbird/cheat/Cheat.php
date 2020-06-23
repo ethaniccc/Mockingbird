@@ -36,22 +36,12 @@ class Cheat implements Listener{
     private $notifyCooldown = [];
 
     private $plugin;
-    private static $instance;
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         $this->cheatName = $cheatName;
         $this->cheatType = $cheatType;
         $this->enabled = $enabled;
         $this->plugin = $plugin;
-        self::$instance = $this;
-    }
-
-    public static function playerLogInfo(string $name) : array{
-        $data = [
-            "Cheats" => isset(self::$instance->cheatsViolatedFor[$name]) ? self::$instance->cheatsViolatedFor[$name] : [],
-            "VL" => self::$instance->getCurrentViolations($name)
-        ];
-        return $data;
     }
 
     public function getName() : string{
@@ -95,7 +85,6 @@ class Cheat implements Listener{
         $newData->bindValue(":playerName", $name);
         $newData->bindValue(":violations", $currentViolations);
         $newData->execute();
-        $this->addNewCheat($name, $this->getName());
     }
 
     protected function resetViolations(string $name) : void{
@@ -107,6 +96,7 @@ class Cheat implements Listener{
     }
 
     protected function notifyStaff(string $name, string $cheat, array $data) : void{
+        $this->getPlugin()->addCheat($name, $cheat);
         if(!isset($this->notifyCooldown[$name])){
             $this->notifyCooldown[$name] = microtime(true);
         } else {
@@ -126,22 +116,6 @@ class Cheat implements Listener{
                 $dataReport .= TextFormat::DARK_RED . "]";
                 $player->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RESET . TextFormat::RED . $name . TextFormat::GRAY . " has failed the check for " . TextFormat::RED . $cheat . TextFormat::RESET . " $dataReport");
             }
-        }
-    }
-
-    protected function suppress(Event $event) : bool{
-        if($event instanceof \pocketmine\event\Cancellable){
-            $event->setCancelled();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private function addNewCheat(string $player, string $cheatName) : void{
-        if(!isset($this->cheatsViolatedFor[$player])) $this->cheatsViolatedFor[$player] = [];
-        if(!in_array($cheatName, $this->cheatsViolatedFor[$player])){
-            array_push($this->cheatsViolatedFor[$player], $cheatName);
         }
     }
 
