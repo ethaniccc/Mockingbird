@@ -32,14 +32,21 @@ class Cheat implements Listener{
     private $cheatName;
     private $cheatType;
     private $enabled;
+    private $cheatsViolatedFor = [];
 
     private $plugin;
+    private static $instance;
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         $this->cheatName = $cheatName;
         $this->cheatType = $cheatType;
         $this->enabled = $enabled;
         $this->plugin = $plugin;
+        self::$instance = $this;
+    }
+
+    public static function getCheatsViolatedFor(string $name) : array{
+        return isset(self::$instance->cheatsViolatedFor[$name]) ? self::$instance->cheatsViolatedFor[$name] : [];
     }
 
     public function getName() : string{
@@ -83,6 +90,7 @@ class Cheat implements Listener{
         $newData->bindValue(":playerName", $name);
         $newData->bindValue(":violations", $currentViolations);
         $newData->execute();
+        $this->addNewCheat($name, $this->getName());
     }
 
     protected function notifyStaff(string $name, string $cheat, array $data) : void{
@@ -105,6 +113,13 @@ class Cheat implements Listener{
             return true;
         } else {
             return false;
+        }
+    }
+
+    private function addNewCheat(string $player, string $cheatName) : void{
+        if(!isset($this->cheatsViolatedFor[$player])) $this->cheatsViolatedFor[$player] = [];
+        if(!in_array($cheatName, $this->cheatsViolatedFor[$player])){
+            array_push($this->cheatsViolatedFor[$player], $cheatName);
         }
     }
 

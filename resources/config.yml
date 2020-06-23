@@ -1,4 +1,8 @@
-#$$\      $$\                     $$\       $$\                     $$\       $$\                 $$\ 
+#
+#
+#
+#
+#$$\      $$\                     $$\       $$\                     $$\       $$\                 $$\
 #$$$\    $$$ |                    $$ |      \__|                    $$ |      \__|                $$ |
 #$$$$\  $$$$ | $$$$$$\   $$$$$$$\ $$ |  $$\ $$\ $$$$$$$\   $$$$$$\  $$$$$$$\  $$\  $$$$$$\   $$$$$$$ |
 #$$\$$\$$ $$ |$$  __$$\ $$  _____|$$ | $$  |$$ |$$  __$$\ $$  __$$\ $$  __$$\ $$ |$$  __$$\ $$  __$$ |
@@ -34,11 +38,11 @@ save_previous_violations: false
 
 ## Combat Detections ##
 # You can choose wether to enable or disable the cheat with (true/false)
-reach: true
-aimbot: true
+Reach: true
+Aimbot: true
 # Bad Auras send a bad pitch packet.
-badpitch: true
+BadPitch: true
 
 ## Speed Detections ##
 # You can choose wether to enable or disable the cheat with (true/false)
-speed: false
+Speed: false

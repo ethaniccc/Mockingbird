@@ -27,6 +27,7 @@ use pocketmine\scheduler\ClosureTask;
 
 class Mockingbird extends PluginBase{
 
+    private $developerMode = true;
     private $database;
     private $modules = [
         "Combat" => [
@@ -71,12 +72,16 @@ class Mockingbird extends PluginBase{
             $namespace = "\\ethaniccc\\Mockingbird\\cheat\\" . (strtolower($type)) . "\\";
             foreach($modules as $module){
                 $class = $namespace . "$module";
-                $newModule = new $class($this, $module, $type, $this->getConfig()->get(strtolower($module)));
+                $newModule = new $class($this, $module, $type, $this->getConfig()->get($module));
                 if($newModule->isEnabled()) $this->getServer()->getPluginManager()->registerEvents($newModule, $this);
                 if($newModule->isEnabled()) $loadedModules++;
             }
         }
         $this->getLogger()->info(TextFormat::GREEN . "$loadedModules modules have been loaded.");
+    }
+
+    public function isDeveloperMode() : bool{
+        return $this->developerMode;
     }
 
 }
