@@ -72,6 +72,18 @@ class Cheat implements Listener{
         return empty($result) ? 0 : $result["violations"];
     }
 
+    public function setViolations(string $name, $amount) : bool{
+        $database = $this->getPlugin()->getDatabase();
+        $currentViolations = $database->query("SELECT * FROM cheatData WHERE playerName = '$name'");
+        $result = $currentViolations->fetchArray(SQLITE3_ASSOC);
+        if(empty($result)) return false;
+        $newData = $database->prepare("INSERT OR REPLACE INTO cheatData (playerName, violations) VALUES (:playerName, :violations);");
+        $newData->bindValue(":playerName", $name);
+        $newData->bindValue(":violations", $amount);
+        $newData->execute();
+        return true;
+    }
+
     protected function getPlugin() : Mockingbird{
         return $this->plugin;
     }
@@ -119,6 +131,9 @@ class Cheat implements Listener{
                 $dataReport .= TextFormat::DARK_RED . "]";
                 $player->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RESET . TextFormat::RED . $name . TextFormat::GRAY . " has failed the check for " . TextFormat::RED . $cheat . TextFormat::RESET . " $dataReport");
             }
+        }
+        if($this->getCurrentViolations($name) >= 50){
+            $this->getPlugin()->blockPlayerTask($this->getServer()->getPlayerExact($name));
         }
     }
 

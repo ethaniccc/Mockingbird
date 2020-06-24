@@ -54,13 +54,13 @@ class AutoClickerA extends Cheat{
         array_push($this->allDeviations[$name], $deviation);
         if(count($this->allDeviations[$name]) < 5) return;
         $averageDeviation = array_sum($this->allDeviations[$name]) / count($this->allDeviations[$name]);
-        $this->getServer()->broadcastMessage("$averageDeviation");
+        //$this->getServer()->broadcastMessage("$averageDeviation");
         if($averageDeviation < 11.5 && count($this->allDeviations[$name]) > 30){
             $badDeviations = [];
             foreach($this->allDeviations[$name] as $number){
                 if($number < 12.5 && $number > 0.75) array_push($badDeviations, $number);
             }
-            if(count($badDeviations) >= 30){
+            if(count($badDeviations) >= 20){
                 $this->addViolation($name);
                 $data = [
                     "VL" => $this->getCurrentViolations($name),

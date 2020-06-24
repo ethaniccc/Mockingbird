@@ -21,12 +21,15 @@ declare(strict_types=1);
 namespace ethaniccc\Mockingbird;
 
 use ethaniccc\Mockingbird\command\LogCommand;
+use ethaniccc\Mockingbird\cheat\Cheat;
+use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\TextFormat;
-use pocketmine\utils\Config;
 use pocketmine\scheduler\ClosureTask;
+use pocketmine\Player;
 
-class Mockingbird extends PluginBase{
+class Mockingbird extends PluginBase implements Listener{
 
     private $developerMode = true;
     private $database;
@@ -39,8 +42,10 @@ class Mockingbird extends PluginBase{
         ],
     ];
     private $cheatsViolatedFor = [];
+    private $blocked = [];
 
     public function onEnable(){
+        $this->getServer()->getPluginManager()->registerEvents($this, $this);
         if($this->getConfig()->get("version") !== $this->getDescription()->getVersion()){
             $this->saveDefaultConfig();
         }
@@ -62,8 +67,46 @@ class Mockingbird extends PluginBase{
         return !is_string($this->getConfig()->get("prefix")) ? TextFormat::BOLD . TextFormat::RED . "Mockingbird> " : $this->getConfig()->get("prefix") . " ";
     }
 
-    public function isDeveloperMode() : bool{
-        return $this->developerMode;
+    public function addCheat(string $player, string $cheat) : void{
+        if(!isset($this->cheatsViolatedFor[$player])) $this->cheatsViolatedFor[$player] = [];
+        if(!in_array($cheat, $this->cheatsViolatedFor[$player])) array_push($this->cheatsViolatedFor[$player], $cheat);
+    }
+
+    public function getCheatsViolatedFor(string $name) : array{
+        return !isset($this->cheatsViolatedFor[$name]) ? [] : $this->cheatsViolatedFor[$name];
+    }
+
+    public function getBlockTime() : string{
+        return is_int($this->getConfig()->get("block_time")) ? "{$this->getConfig()->get("block_time")}" : "300";
+    }
+
+    public function blockPlayerTask(Player $player) : void{
+        $name = $player->getName();
+        if(!isset($this->blocked[$name])) $this->blocked[$name] = microtime(true);
+        $this->getScheduler()->scheduleDelayedTask(new ClosureTask(function(int $currentTick) use ($player, $name) : void{
+            if(!$player->hasPermission($this->getConfig()->get("bypass_permission"))){
+                $player->kick($this->getConfig()->get("block_prefix") . TextFormat::RESET . "\n" . TextFormat::YELLOW . "You were blocked from this server for " . $this->getBlockTime() . " seconds due to unfair advantage.", false);
+                Cheat::$instance->setViolations($name, Cheat::$instance->getCurrentViolations($name) / 2);
+            }
+            $cheats = $this->getCheatsViolatedFor($name);
+            foreach($this->getServer()->getOnlinePlayers() as $staff){
+                if($staff->hasPermission($this->getConfig()->get("alert_permission"))) $staff->sendMessage($this->getPrefix() . TextFormat::RESET . TextFormat::RED . "$name has been blocked (for {$this->getBlockTime()} seconds) for using unfair advantage on other players. They were detected for: " . implode(", ", $cheats));
+            }
+        }), 1);
+    }
+
+    public function isBlocked(string $name) : bool{
+        return isset($this->blocked[$name]) ? microtime(true) - $this->blocked[$name] <= (int)$this->getBlockTime() : false;
+    }
+
+    public function onJoin(PlayerJoinEvent $event) : void{
+        $player = $event->getPlayer();
+        $name = $player->getName();
+        if($this->isBlocked($name)){
+            $this->blockPlayerTask($player);
+        } else {
+
+        }
     }
 
     private function loadAllModules() : void{
@@ -83,15 +126,6 @@ class Mockingbird extends PluginBase{
     private function loadAllCommands() : void{
         $commandMap = $this->getServer()->getCommandMap();
         $commandMap->register($this->getName(), new LogCommand("logs", $this));
-    }
-
-    public function addCheat(string $player, string $cheat) : void{
-        if(!isset($this->cheatsViolatedFor[$player])) $this->cheatsViolatedFor[$player] = [];
-        if(!in_array($cheat, $this->cheatsViolatedFor[$player])) array_push($this->cheatsViolatedFor[$player], $cheat);
-    }
-
-    public function getCheatsViolatedFor(string $name) : array{
-        return !isset($this->cheatsViolatedFor[$name]) ? [] : $this->cheatsViolatedFor[$name];
     }
 
 }
