@@ -37,9 +37,6 @@ class Mockingbird extends PluginBase{
         "Movement" => [
             "Speed"
         ],
-        "Packet" => [
-            "BadPitch"
-        ]
     ];
     private $cheatsViolatedFor = [];
 

@@ -40,14 +40,12 @@ keep_previous_violations: false
 save_previous_violations: false
 
 ## Combat Detections ##
-# You can choose wether to enable or disable the cheat with (true/false)
+# You can choose wether to enable or disable cheats with (true/false)
 Reach: true
 Aimbot: true
 # AutoClickerA is a consistency check.
 AutoClickerA: true
-# Bad Auras send a bad pitch packet.
-BadPitch: true
 
 ## Speed Detections ##
-# You can choose wether to enable or disable the cheat with (true/false)
+# You can choose to either enable or disable cheats with (true/false)
 Speed: false
