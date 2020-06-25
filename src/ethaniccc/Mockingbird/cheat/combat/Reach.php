@@ -81,7 +81,7 @@ class Reach extends Cheat{
     }
 
     private function getAllowedDistance(Entity $damaged) : float{
-        return $damaged->isOnGround() ? 0 : 1;
+        return $damaged->isOnGround() ? 4 : 6.2;
     }
 
 }
