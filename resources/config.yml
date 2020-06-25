@@ -53,12 +53,12 @@ block_time: 30
 # violation data. For example, if a player had 100 VL, and
 # the server stopped, they will continue off 100 VL if this
 # setting is enabled.
-keep_previous_violations: true
+keep_previous_violations: false
 
 # If keep_previous_violations is disabled, this setting will
 # save the data in another folder as a text file. If this
 # setting is enabled, no violation data will be saved.
-save_previous_violations: true
+save_previous_violations: false
 
 #######   =====================================   #######
 
@@ -68,6 +68,8 @@ Reach: true
 Aimbot: true
 # AutoClickerA is a consistency check.
 AutoClickerA: true
+# AutoClickerB is a speed check.
+AutoClickerB: true
 
 #######   =====================================   #######
 

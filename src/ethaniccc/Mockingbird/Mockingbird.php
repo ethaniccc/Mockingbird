@@ -25,6 +25,7 @@ use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\task\SaveDataTask;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
+use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\TextFormat;
 use pocketmine\scheduler\ClosureTask;
@@ -36,7 +37,7 @@ class Mockingbird extends PluginBase implements Listener{
     private $database;
     private $modules = [
         "Combat" => [
-            "Reach", "Aimbot", "AutoClickerA"
+            "Reach", "Aimbot", "AutoClickerA", "AutoClickerB"
         ],
         "Movement" => [
             "Speed"
@@ -112,6 +113,7 @@ class Mockingbird extends PluginBase implements Listener{
         $name = $player->getName();
         if($this->isBlocked($name)){
             $this->blockPlayerTask($player);
+            $event->setJoinMessage("");
         } else {
             if(!isset($this->blocked[$name])) return;
             unset($this->blocked[$name]);
@@ -121,6 +123,11 @@ class Mockingbird extends PluginBase implements Listener{
                 }
             }
         }
+    }
+
+    public function onDisconnect(PlayerQuitEvent $event) : void{
+        $name = $event->getPlayer()->getName();
+        if(isset($this->blocked[$name])) $event->setQuitMessage("");
     }
 
     private function loadAllModules() : void{

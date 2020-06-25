@@ -125,7 +125,7 @@ class Cheat implements Listener{
             if($player->hasPermission($this->getPlugin()->getConfig()->get("alert_permission"))){
                 $dataReport = TextFormat::DARK_RED . "[";
                 foreach($data as $dataName => $info){
-                    if(end($data) !== $info) $dataReport .= TextFormat::GRAY . $dataName . ": " . TextFormat::RED . $info . TextFormat::DARK_RED . " | ";
+                    if(array_key_last($data) !== $dataName) $dataReport .= TextFormat::GRAY . $dataName . ": " . TextFormat::RED . $info . TextFormat::DARK_RED . " | ";
                     else $dataReport .= TextFormat::GRAY . $dataName . ": " . TextFormat::RED . $info;
                 }
                 $dataReport .= TextFormat::DARK_RED . "]";
