@@ -36,7 +36,7 @@ class LogCommand extends Command implements PluginIdentifiableCommand{
                if($violations === 0){
                    $sender->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RESET . TextFormat::RED . "The specified player has no logs.");
                } else {
-                   $sender->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RESET . TextFormat::RED . "====----====\nPlayer: " . TextFormat::GRAY . $args[0] . "\n" . TextFormat::RED . "Cheats Detected: " . TextFormat::GRAY . implode(", ", $cheats) . "\n" . TextFormat::RED . "Total Violations: " . TextFormat::GRAY . $violations . "\n" . TextFormat::RED . "====----====");
+                   $sender->sendMessage(TextFormat::RESET . TextFormat::RED . "====----====\nPlayer: " . TextFormat::GRAY . $args[0] . "\n" . TextFormat::RED . "Cheats Detected: " . TextFormat::GRAY . implode(", ", $cheats) . "\n" . TextFormat::RED . "Total Violations: " . TextFormat::GRAY . $violations . "\n" . TextFormat::RED . "====----====");
                }
            }
        }

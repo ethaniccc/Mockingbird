@@ -17,6 +17,8 @@ class AutoClickerA extends Cheat{
 
     private $allDeviations = [];
 
+    private $level = [];
+
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
@@ -38,6 +40,7 @@ class AutoClickerA extends Cheat{
             $this->previousClick[$name] = microtime(true) * 1000;
             $this->allClicks[$name] = [];
             $this->allDeviations[$name] = [];
+            $this->level[$name] = 0;
             return;
         }
         $currentTime = microtime(true) * 1000;
@@ -48,33 +51,43 @@ class AutoClickerA extends Cheat{
         }
         array_push($this->allClicks[$name], $time);
         $this->previousClick[$name] = microtime(true) * 1000;
-        if(count($this->allClicks[$name]) < 5) return;
+        if(count($this->allClicks[$name]) < 10) return;
         $averageTime = array_sum($this->allClicks[$name]) / count($this->allClicks[$name]);
         $deviation = abs($time - $averageTime);
         array_push($this->allDeviations[$name], $deviation);
-        if(count($this->allDeviations[$name]) < 5) return;
+        if(count($this->allDeviations[$name]) < 10) return;
         $averageDeviation = array_sum($this->allDeviations[$name]) / count($this->allDeviations[$name]);
-        //$this->getServer()->broadcastMessage("$averageDeviation");
-        if($averageDeviation < 11.5 && count($this->allDeviations[$name]) > 30){
+        $this->getServer()->broadcastMessage("$averageDeviation");
+        if($averageDeviation < 9.5 && count($this->allDeviations[$name]) >= 35){
             $badDeviations = [];
             foreach($this->allDeviations[$name] as $number){
-                if($number < 12.5 && $number > 0.75) array_push($badDeviations, $number);
+                if($number < 9.5) array_push($badDeviations, $number);
             }
-            if(count($badDeviations) >= 20){
-                $this->addViolation($name);
-                $data = [
-                    "VL" => $this->getCurrentViolations($name),
-                    "Ping" => $player->getPing()
-                ];
-                $this->notifyStaff($name, $this->getName(), $data);
+            $badCount = count($badDeviations);
+            if($badCount >= 25){
+                $this->level[$name] = $this->level[$name] + 1;
+                if($this->level[$name] >= 2.5){
+                    $this->addViolation($name);
+                    $data = [
+                        "VL" => $this->getCurrentViolations($name),
+                        "Ping" => $player->getPing()
+                    ];
+                    $this->notifyStaff($name, $this->getName(), $data);
+                    $this->level[$name] = 1;
+                } else {
+                    $this->getServer()->broadcastMessage("Level increased.");
+                }
+            } else {
+                $this->level[$name] = $this->level[$name] * 0.5;
+                $this->getServer()->broadcastMessage("Level decreased.");
             }
             $badDeviations = [];
         }
-        if(count($this->allClicks[$name]) >= 35){
+        if(count($this->allClicks[$name]) >= 45){
             unset($this->allClicks[$name]);
             $this->allClicks[$name] = [];
         }
-        if(count($this->allDeviations[$name]) >= 45){
+        if(count($this->allDeviations[$name]) >= 55){
             unset($this->allDeviations[$name]);
             $this->allDeviations[$name] = [];
         }

@@ -24,30 +24,39 @@ version: 1.0
 # You can choose this to be any permission you'd like so
 # that staff members get Mockingbird alerts, etc.
 alert_permission: "mockingbird.alerts"
+
 # You can choose this permission to anything you'd like.
 # This permission is for getting player logs.
 log_permission: "mockingbird.logs"
+
 # This is a bypass permission you can give to pepople
 # that are testing the AntiCheat
 bypass_permission: "mockingbird.bypass"
+
 # Type any prefix you want for AntiCheat alerts.
 prefix: "§l§cMockingbird§4>"
+
 # Make a prefix you want to show when a player gets blocked.
 block_prefix: "§l§b§cMocking§4bird"
+
 # Amount of time you want a player to be blocked for if VL
 # gets too high. This is recommended to only be for a few minutes
 # since this AntiCheat may false positive. The block time is
 # marked in seconds.
 block_time: 30
+
 # This setting is for if you want to continue off previous
 # violation data. For example, if a player had 100 VL, and
 # the server stopped, they will continue off 100 VL if this
 # setting is enabled.
 keep_previous_violations: false
+
 # If keep_previous_violations is disabled, this setting will
-# save the data in a seperate folder as a txt file. If this
+# save the data in another folder as a text file. If this
 # setting is enabled, no violation data will be saved.
 save_previous_violations: false
+
+#######   =====================================   #######
 
 ## Combat Detections ##
 # You can choose wether to enable or disable cheats with (true/false)
@@ -55,6 +64,8 @@ Reach: true
 Aimbot: true
 # AutoClickerA is a consistency check.
 AutoClickerA: true
+
+#######   =====================================   #######
 
 ## Speed Detections ##
 # You can choose to either enable or disable cheats with (true/false)

@@ -85,8 +85,9 @@ class Mockingbird extends PluginBase implements Listener{
         if(!isset($this->blocked[$name])) $this->blocked[$name] = microtime(true);
         $this->getScheduler()->scheduleDelayedTask(new ClosureTask(function(int $currentTick) use ($player, $name) : void{
             if(!$player->hasPermission($this->getConfig()->get("bypass_permission"))){
-                $player->kick($this->getConfig()->get("block_prefix") . TextFormat::RESET . "\n" . TextFormat::YELLOW . "You were blocked from this server for " . $this->getBlockTime() . " seconds due to unfair advantage.", false);
-                Cheat::$instance->setViolations($name, Cheat::$instance->getCurrentViolations($name) / 2);
+                $remainingTime = round((int) $this->getBlockTime() - (microtime(true) - $this->blocked[$name]));
+                $player->kick($this->getConfig()->get("block_prefix") . TextFormat::RESET . "\n" . TextFormat::YELLOW . "You were blocked from this server for " . $this->getBlockTime() . " seconds due to unfair advantage.\nThere is still $remainingTime seconds remaining in the block.", false);
+                Cheat::$instance->setViolations($name, 25);
             }
             $cheats = $this->getCheatsViolatedFor($name);
             foreach($this->getServer()->getOnlinePlayers() as $staff){
@@ -105,7 +106,13 @@ class Mockingbird extends PluginBase implements Listener{
         if($this->isBlocked($name)){
             $this->blockPlayerTask($player);
         } else {
-
+            if(!isset($this->blocked[$name])) return;
+            unset($this->blocked[$name]);
+            foreach($this->getServer()->getOnlinePlayers() as $staff){
+                if($staff->hasPermission($this->getConfig()->get("alert_permission"))){
+                    $staff->sendMessage($this->getPrefix() . TextFormat::RESET . TextFormat::RED . "$name has just been unblocked from the server. Make sure to keep an eye out for that player.");
+                }
+            }
         }
     }
 

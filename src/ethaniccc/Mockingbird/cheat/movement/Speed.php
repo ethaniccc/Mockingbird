@@ -23,12 +23,11 @@ use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\Player;
 use pocketmine\entity\Entity;
-
-function sqr($value) : float{
-    return $value * $value;
-}
+use pocketmine\math\Vector3;
 
 class Speed extends Cheat{
+
+    private $distances = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
@@ -37,10 +36,6 @@ class Speed extends Cheat{
     public function onEvent(PlayerMoveEvent $event) : void{
         $player = $event->getPlayer();
         $name = $player->getName();
-
-        $distanceX = abs($event->getTo()->x - $event->getFrom()->x);
-        $distanceZ = abs($event->getTo()->z - $event->getFrom()->z);
-        $distance = sqr($distanceX) + sqr($distanceZ);
     }
 
 }

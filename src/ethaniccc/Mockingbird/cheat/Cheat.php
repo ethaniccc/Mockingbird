@@ -115,7 +115,7 @@ class Cheat implements Listener{
         if(!isset($this->notifyCooldown[$name])){
             $this->notifyCooldown[$name] = microtime(true);
         } else {
-            if(microtime(true) - $this->notifyCooldown[$name] > 2){
+            if(microtime(true) - $this->notifyCooldown[$name] >= 0.1){
                 $this->notifyCooldown[$name] = microtime(true);
             } else {
                 return;
