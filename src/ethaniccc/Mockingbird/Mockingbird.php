@@ -22,6 +22,7 @@ namespace ethaniccc\Mockingbird;
 
 use ethaniccc\Mockingbird\command\LogCommand;
 use ethaniccc\Mockingbird\cheat\Cheat;
+use ethaniccc\Mockingbird\task\SaveDataTask;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\plugin\PluginBase;
@@ -50,13 +51,19 @@ class Mockingbird extends PluginBase implements Listener{
             $this->saveDefaultConfig();
         }
         if($this->getConfig()->get("keep_previous_violations") === false){
-            if(file_exists($this->getDataFolder() . 'CheatData.db')) unlink($this->getDataFolder() . 'CheatData.db');
+            if(file_exists($this->getDataFolder() . 'CheatData.db')) $this->getServer()->getAsyncPool()->submitTask(new SaveDataTask($this->getDataFolder(), is_bool($this->getConfig()->get("save_previous_violations")) ? $this->getConfig()->get("save_previous_violations") : false));
         }
         $this->getLogger()->debug(TextFormat::AQUA . "Mockingbird has been enabled.");
-        $this->database = new \SQLite3($this->getDataFolder() . 'CheatData.db');
-        $this->database->exec("CREATE TABLE IF NOT EXISTS cheatData (playerName TEXT PRIMARY KEY, violations INT);");
         $this->loadAllModules();
         $this->loadAllCommands();
+        $this->loadDatabase();
+    }
+
+    public function loadDatabase() : void{
+        $this->getScheduler()->scheduleDelayedTask(new ClosureTask(function(int $currentTick) : void{
+            $this->database = new \SQLite3($this->getDataFolder() . 'CheatData.db');
+            $this->database->exec("CREATE TABLE IF NOT EXISTS cheatData (playerName TEXT PRIMARY KEY, violations INT);");
+        }), 5);
     }
 
     public function getDatabase() : \SQLite3{

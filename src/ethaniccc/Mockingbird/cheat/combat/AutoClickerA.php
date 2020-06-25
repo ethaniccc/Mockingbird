@@ -57,7 +57,6 @@ class AutoClickerA extends Cheat{
         array_push($this->allDeviations[$name], $deviation);
         if(count($this->allDeviations[$name]) < 10) return;
         $averageDeviation = array_sum($this->allDeviations[$name]) / count($this->allDeviations[$name]);
-        $this->getServer()->broadcastMessage("$averageDeviation");
         if($averageDeviation < 9.5 && count($this->allDeviations[$name]) >= 35){
             $badDeviations = [];
             foreach($this->allDeviations[$name] as $number){
@@ -74,12 +73,9 @@ class AutoClickerA extends Cheat{
                     ];
                     $this->notifyStaff($name, $this->getName(), $data);
                     $this->level[$name] = 1;
-                } else {
-                    $this->getServer()->broadcastMessage("Level increased.");
                 }
             } else {
                 $this->level[$name] = $this->level[$name] * 0.5;
-                $this->getServer()->broadcastMessage("Level decreased.");
             }
             $badDeviations = [];
         }

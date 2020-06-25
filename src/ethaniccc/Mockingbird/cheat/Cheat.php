@@ -84,7 +84,7 @@ class Cheat implements Listener{
         return true;
     }
 
-    protected function getPlugin() : Mockingbird{
+    public function getPlugin() : Mockingbird{
         return $this->plugin;
     }
 
@@ -132,7 +132,7 @@ class Cheat implements Listener{
                 $player->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RESET . TextFormat::RED . $name . TextFormat::GRAY . " has failed the check for " . TextFormat::RED . $cheat . TextFormat::RESET . " $dataReport");
             }
         }
-        if($this->getCurrentViolations($name) >= 50){
+        if($this->getCurrentViolations($name) >= $this->getPlugin()->getConfig()->get("max_violations")){
             $this->getPlugin()->blockPlayerTask($this->getServer()->getPlayerExact($name));
         }
     }
