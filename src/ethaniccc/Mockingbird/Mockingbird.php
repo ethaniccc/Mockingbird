@@ -39,9 +39,6 @@ class Mockingbird extends PluginBase implements Listener{
         "Combat" => [
             "Reach", "Aimbot", "AutoClickerA", "AutoClickerB"
         ],
-        "Movement" => [
-            "Speed"
-        ],
     ];
     private $cheatsViolatedFor = [];
     private $blocked = [];

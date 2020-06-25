@@ -70,9 +70,3 @@ Aimbot: true
 AutoClickerA: true
 # AutoClickerB is a speed check.
 AutoClickerB: true
-
-#######   =====================================   #######
-
-## Speed Detections ##
-# You can choose to either enable or disable cheats with (true/false)
-Speed: false
