@@ -41,13 +41,13 @@ block_prefix: "§l§b§cMocking§4bird"
 
 # This option is for the max violations a player can get before
 # they are blocked from the game.
-max_violations: 50
+max_violations: 75
 
 # Amount of time you want a player to be blocked for if VL
 # gets too high. This is recommended to only be for a few minutes
 # since this AntiCheat may false positive. The block time is
 # marked in seconds.
-block_time: 30
+block_time: 120
 
 # This setting is for if you want to continue off previous
 # violation data. For example, if a player had 100 VL, and
@@ -70,3 +70,5 @@ Aimbot: true
 AutoClickerA: true
 # AutoClickerB is a speed check.
 AutoClickerB: true
+# AutoClickerC is a "double" Auto-Clicker check.
+AutoClickerC: true

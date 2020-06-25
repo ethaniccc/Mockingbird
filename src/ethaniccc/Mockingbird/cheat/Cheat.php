@@ -106,7 +106,7 @@ class Cheat implements Listener{
         $database = $this->getPlugin()->getDatabase();
         $newData = $database->prepare("INSERT OR REPLACE INTO cheatData (playerName, violations) VALUES (:playerName, :violations)");
         $newData->bindValue(":playerName", $name);
-        $newData->bindValue(":violations", ($this->getCurrentViolations($name) / 2));
+        $newData->bindValue(":violations", 0);
         $newData->execute();
     }
 

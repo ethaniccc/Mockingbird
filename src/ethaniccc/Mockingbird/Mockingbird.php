@@ -37,7 +37,7 @@ class Mockingbird extends PluginBase implements Listener{
     private $database;
     private $modules = [
         "Combat" => [
-            "Reach", "Aimbot", "AutoClickerA", "AutoClickerB"
+            "Reach", "Aimbot", "AutoClickerA", "AutoClickerB", "AutoClickerC"
         ],
     ];
     private $cheatsViolatedFor = [];
