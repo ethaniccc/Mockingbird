@@ -19,7 +19,7 @@ class AutoClickerD extends Cheat{
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, false);
-        Server::getInstance()->getLogger()->debug("AutoClickerD is an inaccurate check and has been disabled.");
+        $this->getServer()->getLogger()->debug("AutoClickerD is an inaccurate check and has been disabled.");
     }
 
     public function receivePacket(DataPacketReceiveEvent $event) : void{

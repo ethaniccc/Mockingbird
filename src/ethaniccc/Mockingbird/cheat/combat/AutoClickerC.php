@@ -9,13 +9,15 @@ use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\PlayerActionPacket;
 use pocketmine\Player;
+use pocketmine\Server;
 
 class AutoClickerC extends Cheat{
 
     private $lastClick = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+        parent::__construct($plugin, $cheatName, $cheatType, false);
+        $this->getServer()->getLogger()->debug("AutoClickerC is an inaccurate check and has been disabled.");
     }
 
     public function receivePacket(DataPacketReceiveEvent $event) : void{

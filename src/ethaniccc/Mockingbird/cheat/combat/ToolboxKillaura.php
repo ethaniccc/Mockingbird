@@ -5,6 +5,7 @@ namespace ethaniccc\Mockingbird\cheat\combat;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
+use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
 use pocketmine\Player;
@@ -24,14 +25,15 @@ class ToolboxKillaura extends Cheat{
         $name = $event->getPlayer()->getName();
         if($packet instanceof AnimatePacket){
             if($packet->action === AnimatePacket::ACTION_SWING_ARM){
-                if(!isset($this->allowedToHit[$name])) $this->allowedToHit[$name] = true;
-                $this->allowedToHit[$name] = true;
+                if(!isset($this->allowedToHit[$name])) $this->allowedToHit[$name] = microtime(true);
+                $this->allowedToHit[$name] = microtime(true);
             }
         }
     }
 
     public function onHit(EntityDamageByEntityEvent $event) : void{
         $damager = $event->getDamager();
+        if($event instanceof EntityDamageByChildEntityEvent) return;
         if($damager instanceof Player){
             $name = $damager->getName();
             if(!isset($this->attackCooldown[$name])){
@@ -51,22 +53,17 @@ class ToolboxKillaura extends Cheat{
                 ];
                 $this->notifyStaff($name, $this->getName(), $data);
             } else {
+                $time = microtime(true) - $this->allowedToHit[$name];
+                if($time >= 0.20){
+                    $this->addViolation($name);
+                    $data = [
+                        "VL" => $this->getCurrentViolations($name),
+                        "Ping" => $damager->getPing()
+                    ];
+                    $this->notifyStaff($name, $this->getName(), $data);
+                }
                 unset($this->allowedToHit[$name]);
             }
-
-            $this->headCheck($damager, $event->getEntity()->asVector3());
-        }
-    }
-
-    private function headCheck(Player $damager, Vector3 $target) : void{
-        $z = $target->z - $damager->getZ();
-        $x = $target->x - $damager->getX();
-        $angle = atan2($z, $x);
-        if($angle < 0){
-            $angle += 360;
-        }
-        if($angle > 90){
-            $damager->sendPopup(TextFormat::BOLD . TextFormat::RED . "This is way too obvious...");
         }
     }
 

@@ -20,6 +20,7 @@ namespace ethaniccc\Mockingbird\cheat\combat;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\Mockingbird;
+use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\Player;
 use pocketmine\entity\Entity;
@@ -36,7 +37,8 @@ class Reach extends Cheat{
     public function onEvent(EntityDamageByEntityEvent $event) : void{
         $damager = $event->getDamager();
         $damaged = $event->getEntity();
-        if($damager instanceof Player /*&& $damaged instanceof Player*/){
+        if($event instanceof EntityDamageByChildEntityEvent) return;
+        if($damager instanceof Player && $damaged instanceof Player){
             if(!isset($this->lastHit[$damager->getName()])){
                 $baseAllowed = $this->getAllowedDistance($damaged);
                 if($damager->getPing() >= 200) $baseAllowed += $damager->getPing() * 0.003;

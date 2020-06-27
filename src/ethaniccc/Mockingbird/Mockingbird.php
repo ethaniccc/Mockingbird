@@ -88,6 +88,7 @@ class Mockingbird extends PluginBase implements Listener{
 
     public function blockPlayerTask(Player $player) : void{
         $name = $player->getName();
+        if($player->hasPermission($this->getConfig()->get("bypass_permission"))) return;
         if(!isset($this->blocked[$name])) $this->blocked[$name] = microtime(true);
         $this->getScheduler()->scheduleDelayedTask(new ClosureTask(function(int $currentTick) use ($player, $name) : void{
             if(!$player->hasPermission($this->getConfig()->get("bypass_permission"))){
