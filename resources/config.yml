@@ -63,11 +63,10 @@ save_previous_violations: false
 #######   =====================================   #######
 
 ## Combat Detections ##
-# You can choose wether to enable or disable cheats with (true/false)
+# You can choose to enable or disable cheats with (true/false)
 
 Reach: true
 Aimbot: true
-ToolboxKillaura: true
 
 # AutoClickerA is a consistency check.
 AutoClickerA: true
@@ -75,7 +74,9 @@ AutoClickerA: true
 # AutoClickerB is a speed check.
 AutoClickerB: true
 
-# AutoClickerC is a "double" Auto-Clicker check.
+# AutoClickerC is a "double" Auto-Clicker check. This can
+# also be utilized to check if someone is clicking over
+# a running AutoClicker.
 AutoClickerC: true
 
 # AutoClickerD is a macro check.

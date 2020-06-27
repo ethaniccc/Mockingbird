@@ -9,6 +9,7 @@ use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\PlayerActionPacket;
+use pocketmine\Server;
 
 class AutoClickerD extends Cheat{
 
@@ -17,7 +18,8 @@ class AutoClickerD extends Cheat{
     private $suspicionLevel = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+        parent::__construct($plugin, $cheatName, $cheatType, false);
+        Server::getInstance()->getLogger()->debug("AutoClickerD is an inaccurate check and has been disabled.");
     }
 
     public function receivePacket(DataPacketReceiveEvent $event) : void{
@@ -41,7 +43,7 @@ class AutoClickerD extends Cheat{
         if(empty($this->cps[$name])) return;
         $deltaTime = 1.0;
         $currentTime = microtime(true);
-        $cps = round(count(array_filter($this->cps[$name], static function(float $t) use ($deltaTime, $currentTime) : bool{
+        $cps = (int) round(count(array_filter($this->cps[$name], static function(float $t) use ($deltaTime, $currentTime) : bool{
                 return ($currentTime - $t) <= $deltaTime;
         })) / $deltaTime, 1);
         if(!isset($this->clicks[$name])) $this->clicks[$name] = [];
@@ -50,19 +52,35 @@ class AutoClickerD extends Cheat{
             if(!isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] = 0;
             $minCps = min($this->clicks[$name]);
             $maxCps = max($this->clicks[$name]);
-            if($maxCps - $minCps > 4){
+            if($maxCps - $minCps >= 4){
                 $this->suspicionLevel[$name] += 1;
-                if($this->suspicionLevel[$name] === 4){
+                if($this->suspicionLevel[$name] >= 4){
                     $this->addViolation($name);
                     $data = [
                         "VL" => $this->getCurrentViolations($name),
                         "Ping" => $player->getPing()
                     ];
                     $this->notifyStaff($name, $this->getName(), $data);
+                    $this->suspicionLevel[$name] = 1;
                 }
-            }
-            if($maxCps - $minCps >= 2){
-                $middleCps = round(array_sum($this->clicks[$name]) / count($this->clicks[$name]));
+            } elseif($maxCps - $minCps >= 2 && $maxCps - $minCps < 4){
+                $middleCps = round(array_sum($this->clicks[$name]) / count($this->clicks[$name]), 0, PHP_ROUND_HALF_DOWN);
+                $middleCount = array_count_values($this->clicks[$name])[$middleCps];
+                $this->getServer()->broadcastMessage("Click Values: " . implode(", ", $this->clicks[$name]) . "\nMiddle CPS: $middleCps\nThe middle CPS appears $middleCount times.");
+                if(array_count_values($this->clicks[$name])[$middleCps] > ($maxCps - $minCps) / 0.2 && array_count_values($this->clicks[$name])[$minCps] > ($maxCps - $minCps) / 0.5){
+                    $this->suspicionLevel[$name] += 1;
+                    if($this->suspicionLevel[$name] >= 4){
+                        $this->addViolation($name);
+                        $data = [
+                            "VL" => $this->getCurrentViolations($name),
+                            "Ping" => $player->getPing()
+                        ];
+                        $this->notifyStaff($name, $this->getName(), $data);
+                        $this->suspicionLevel[$name] = 1;
+                    }
+                }
+            } else {
+                $this->suspicionLevel[$name] *= 0.75;
             }
             unset($this->clicks[$name]);
             $this->clicks[$name] = [];
