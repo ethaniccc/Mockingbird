@@ -70,6 +70,9 @@ stop_tps: 17
 
 Reach: true
 Aimbot: true
+# Toolbox is a hacked client some Android users may use to
+# gain an unfair advantage against other players.
+# See Toolbox KillAura on this YouTube video: https://www.youtube.com/watch?v=K0INXOLxIj8&t
 ToolboxKillaura: true
 
 # AutoClickerA is a consistency check.

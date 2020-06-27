@@ -8,6 +8,7 @@ use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
 use pocketmine\Player;
+use pocketmine\math\Vector3;
 
 class ToolboxKillaura extends Cheat{
 
@@ -52,6 +53,20 @@ class ToolboxKillaura extends Cheat{
             } else {
                 unset($this->allowedToHit[$name]);
             }
+
+            $this->headCheck($damager, $event->getEntity()->asVector3());
+        }
+    }
+
+    private function headCheck(Player $damager, Vector3 $target) : void{
+        $z = $target->z - $damager->getZ();
+        $x = $target->x - $damager->getX();
+        $angle = atan2($z, $x);
+        if($angle < 0){
+            $angle += 360;
+        }
+        if($angle > 90){
+            $damager->sendPopup(TextFormat::BOLD . TextFormat::RED . "This is way too obvious...");
         }
     }
 
