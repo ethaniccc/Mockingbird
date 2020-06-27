@@ -37,7 +37,7 @@ class AutoClickerC extends Cheat{
         }
         $currentTime = microtime(true) * 1000;
         $speed = $currentTime - $this->lastClick[$name];
-        if($speed < 2.5){
+        if($speed <= 1.1){
             $this->addViolation($name);
             $data = [
                 "VL" => $this->getCurrentViolations($name),

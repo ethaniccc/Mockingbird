@@ -93,6 +93,10 @@ class Cheat implements Listener{
     }
 
     protected function addViolation(string $name) : void{
+        if($this->isLowTPS()){
+            $this->getServer()->getLogger()->debug("Violation was cancelled due to low TPS");
+            return;
+        }
         $database = $this->getPlugin()->getDatabase();
         $currentViolations = $this->getCurrentViolations($name);
         $currentViolations++;
@@ -111,6 +115,10 @@ class Cheat implements Listener{
     }
 
     protected function notifyStaff(string $name, string $cheat, array $data) : void{
+        if($this->isLowTPS()){
+            $this->getServer()->getLogger()->debug("Alert was cancelled due to low TPS");
+            return;
+        }
         $this->getPlugin()->addCheat($name, $cheat);
         if(!isset($this->notifyCooldown[$name])){
             $this->notifyCooldown[$name] = microtime(true);
@@ -135,6 +143,10 @@ class Cheat implements Listener{
         if($this->getCurrentViolations($name) >= $this->getPlugin()->getConfig()->get("max_violations")){
             $this->getPlugin()->blockPlayerTask($this->getServer()->getPlayerExact($name));
         }
+    }
+
+    private function isLowTPS() : bool{
+        return $this->getServer()->getTicksPerSecond() <= $this->getPlugin()->getConfig()->get("stop_tps");
     }
 
 }
