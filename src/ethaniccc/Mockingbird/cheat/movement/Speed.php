@@ -9,8 +9,10 @@ use pocketmine\utils\TextFormat;
 
 class Speed extends Cheat{
 
-    private const MAX_SPEED = 0.28;
-    private $speedDiff = [];
+    private const MAX_ONGROUND = 3 / 10;
+    private const MAX_INAIR = 1 / 2;
+    private const SPEED_MULTIPLIER = 4 / 3;
+    private $suspicionLevel = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
@@ -41,6 +43,60 @@ class Speed extends Cheat{
             // Keep in mind to ignore those values.
         }
         $distance = round($distance, 2);
+        if($player->isOnGround()){
+            $expectedDistance = self::MAX_ONGROUND;
+            if($player->getEffect(1) !== null){
+                $expectedDistance *= self::SPEED_MULTIPLIER * $player->getEffect(1)->getEffectLevel();
+            }
+            $expectedDistance = round($expectedDistance, 2);
+            if($distance > $expectedDistance){
+                if($distance >= $expectedDistance * 1.15 && $distance <= $expectedDistance * 2.05){
+                    //$this->getServer()->broadcastMessage("Check was cancelled due to a detected spike.");
+                    return;
+                }
+                if(!isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] = 0;
+                $this->suspicionLevel[$name] += 1;
+                if($this->suspicionLevel[$name] >= 5){
+                    $this->addViolation($name);
+                    $data = [
+                        "Distance" => $distance,
+                        "Expected Distance" => $expectedDistance,
+                        "Ping" => $player->getPing()
+                    ];
+                    $this->notifyStaff($name, $this->getName(), $data);
+                    $this->suspicionLevel[$name] = 0;
+                }
+            } else {
+                if(!isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] = 0;
+                $this->suspicionLevel[$name] *= 0.75;
+            }
+        } else {
+            $expectedDistance = self::MAX_INAIR;
+            if($player->getEffect(1) !== null){
+                $expectedDistance *= self::SPEED_MULTIPLIER * $player->getEffect(1)->getEffectLevel();
+            }
+            $expectedDistance = round($expectedDistance, 2);
+            if($distance > $expectedDistance){
+                if($distance >= $expectedDistance * 1.15 && $distance <= $expectedDistance * 2.05){
+                    //$this->getServer()->broadcastMessage("Check was cancelled due to a detected spike.");
+                    return;
+                }
+                if(!isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] = 0;
+                $this->suspicionLevel[$name] += 1;
+                if($this->suspicionLevel[$name] >= 5){
+                    $this->addViolation($name);
+                    $data = [
+                        "VL" => $this->getCurrentViolations($name),
+                        "Ping" => $player->getPing()
+                    ];
+                    $this->notifyStaff($name, $this->getName(), $data);
+                    $this->suspicionLevel[$name] = 0;
+                }
+            } else {
+                if(!isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] = 0;
+                $this->suspicionLevel[$name] *= 0.75;
+            }
+        }
     }
 
 }

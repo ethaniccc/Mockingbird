@@ -73,6 +73,7 @@ class ToolboxKillaura extends Cheat{
                         $this->suspicionLevel[$name] = 0;
                     }
                 } else {
+                    if(!isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] = 0;
                     $this->suspicionLevel[$name] *= 0.5;
                 }
                 unset($this->allowedToHit[$name]);
