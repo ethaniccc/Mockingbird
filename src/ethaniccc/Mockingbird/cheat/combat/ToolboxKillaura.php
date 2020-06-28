@@ -9,12 +9,13 @@ use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
 use pocketmine\Player;
-use pocketmine\math\Vector3;
 
 class ToolboxKillaura extends Cheat{
 
     private $attackCooldown = [];
     private $allowedToHit = [];
+
+    private $suspicionLevel = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
@@ -46,21 +47,33 @@ class ToolboxKillaura extends Cheat{
                 }
             }
             if(!isset($this->allowedToHit[$name])){
-                $this->addViolation($name);
-                $data = [
-                    "VL" => $this->getCurrentViolations($name),
-                    "Ping" => $damager->getPing()
-                ];
-                $this->notifyStaff($name, $this->getName(), $data);
-            } else {
-                $time = microtime(true) - $this->allowedToHit[$name];
-                if($time >= 0.20){
+                if(!isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] = 0;
+                $this->suspicionLevel[$name] += 1;
+                if($this->suspicionLevel[$name] >= 2){
                     $this->addViolation($name);
                     $data = [
                         "VL" => $this->getCurrentViolations($name),
                         "Ping" => $damager->getPing()
                     ];
                     $this->notifyStaff($name, $this->getName(), $data);
+                    $this->suspicionLevel[$name] = 0;
+                }
+            } else {
+                $time = microtime(true) - $this->allowedToHit[$name];
+                if($time >= 0.20){
+                    if(!isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] = 0;
+                    $this->suspicionLevel[$name] += 1;
+                    if($this->suspicionLevel[$name] >= 2){
+                        $this->addViolation($name);
+                        $data = [
+                            "VL" => $this->getCurrentViolations($name),
+                            "Ping" => $damager->getPing()
+                        ];
+                        $this->notifyStaff($name, $this->getName(), $data);
+                        $this->suspicionLevel[$name] = 0;
+                    }
+                } else {
+                    $this->suspicionLevel[$name] *= 0.5;
                 }
                 unset($this->allowedToHit[$name]);
             }

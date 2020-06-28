@@ -19,6 +19,10 @@
 #### DO NOT TOUCH THIS ####
 version: 1.0
 
+# If developer mode is enabled, all checks will be enabled,
+# which may leave false-positives.
+dev_mode: true
+
 ## General Settings ##
 
 # You can choose this to be any permission you'd like so
@@ -84,7 +88,18 @@ AutoClickerB: true
 # AutoClickerC is a "double" Auto-Clicker check. This can
 # also be utilized to check if someone is clicking over
 # a running AutoClicker.
+# NOTE: This check will always be disabled
+# due to inaccuracy.
 AutoClickerC: true
 
 # AutoClickerD is a macro check.
+# NOTE: This check will always be disabled
+# due to inaccuracy.
 AutoClickerD: true
+
+#######   =====================================   #######
+
+## Movement Detections ##
+# You can choose to enable or disable cheats with (true/false)
+
+Speed: true

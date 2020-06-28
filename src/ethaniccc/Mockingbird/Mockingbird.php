@@ -33,18 +33,22 @@ use pocketmine\Player;
 
 class Mockingbird extends PluginBase implements Listener{
 
-    private $developerMode = true;
+    private $developerMode;
     private $database;
     private $modules = [
         "Combat" => [
             "Reach", "Aimbot", "AutoClickerA", "AutoClickerB", "AutoClickerC",
             "AutoClickerD", "ToolboxKillaura"
         ],
+        "Movement" => [
+            "Speed"
+        ]
     ];
     private $cheatsViolatedFor = [];
     private $blocked = [];
 
     public function onEnable(){
+        $this->developerMode = is_bool($this->getConfig()->get("dev_mode")) ? $this->getConfig()->get("dev_mode") : false;
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
         if($this->getConfig()->get("version") !== $this->getDescription()->getVersion()){
             $this->saveDefaultConfig();
@@ -129,18 +133,22 @@ class Mockingbird extends PluginBase implements Listener{
         if(isset($this->blocked[$name])) $event->setQuitMessage("");
     }
 
+    public function isDeveloperMode() : bool{
+        return $this->developerMode;
+    }
+
     private function loadAllModules() : void{
         $loadedModules = 0;
         foreach($this->modules as $type => $modules){
             $namespace = "\\ethaniccc\\Mockingbird\\cheat\\" . (strtolower($type)) . "\\";
             foreach($modules as $module){
                 $class = $namespace . "$module";
-                $newModule = new $class($this, $module, $type, $this->getConfig()->get($module));
+                $newModule = new $class($this, $module, $type, $this->getConfig()->get("dev_mode") === true ? true : $this->getConfig()->get($module));
                 if($newModule->isEnabled()) $this->getServer()->getPluginManager()->registerEvents($newModule, $this);
                 if($newModule->isEnabled()) $loadedModules++;
             }
         }
-        $this->getLogger()->info(TextFormat::GREEN . "$loadedModules modules have been loaded.");
+        $this->getLogger()->debug(TextFormat::GREEN . "$loadedModules modules have been loaded.");
     }
 
     private function loadAllCommands() : void{
