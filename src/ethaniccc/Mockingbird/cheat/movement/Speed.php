@@ -95,7 +95,7 @@ class Speed extends Cheat{
                 }
             } else {
                 if(!isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] = 0;
-                $this->suspicionLevel[$name] *= 0.75;
+                $this->suspicionLevel[$name] *= 0.5;
             }
         } else {
             $expectedDistance = self::MAX_INAIR;
@@ -121,7 +121,7 @@ class Speed extends Cheat{
                 }
             } else {
                 if(!isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] = 0;
-                $this->suspicionLevel[$name] *= 0.75;
+                $this->suspicionLevel[$name] *= 0.5;
             }
         }
     }

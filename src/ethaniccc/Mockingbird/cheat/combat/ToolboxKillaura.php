@@ -38,10 +38,10 @@ class ToolboxKillaura extends Cheat{
         if($damager instanceof Player){
             $name = $damager->getName();
             if(!isset($this->attackCooldown[$name])){
-                $this->attackCooldown[$name] = microtime(true);
+                $this->attackCooldown[$name] = $this->getServer()->getTick();
             } else {
-                if(microtime(true) - $this->attackCooldown[$name] >= 0.5){
-                    $this->attackCooldown[$name] = microtime(true);
+                if($this->getServer()->getTick() - $this->attackCooldown[$name] >= $event->getAttackCooldown()){
+                    $this->attackCooldown[$name] = $this->getServer()->getTick();
                 } else {
                     return;
                 }

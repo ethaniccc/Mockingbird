@@ -30,6 +30,8 @@ class Reach extends Cheat{
     private $lastHit = [];
     private $lastLastHit = [];
 
+    private $cooldown = [];
+
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
@@ -39,8 +41,20 @@ class Reach extends Cheat{
         $damaged = $event->getEntity();
         if($event instanceof EntityDamageByChildEntityEvent) return;
         if($damager instanceof Player && $damaged instanceof Player){
+            // For some reason, EntityDamageByEntityEvent is still called even when
+            // cooldown is in place.
+            if(!isset($this->cooldown[$damager->getName()])){
+                $this->cooldown[$damager->getName()] = $this->getServer()->getTick();
+            } else {
+                if($this->getServer()->getTick() - $this->cooldown[$damager->getName()] >= $event->getAttackCooldown()){
+                    $this->cooldown[$damager->getName()] = $this->getServer()->getTick();
+                } else {
+                    return;
+                }
+            }
+
             if(!isset($this->lastHit[$damager->getName()])){
-                $baseAllowed = $this->getAllowedDistance($damaged);
+                $baseAllowed = $this->getAllowedDistance();
                 if($damager->getPing() >= 200) $baseAllowed += $damager->getPing() * 0.003;
                 if($damager->isCreative()) $baseAllowed = 7.5;
                 $this->lastHit[$damager->getName()] = [
@@ -48,7 +62,7 @@ class Reach extends Cheat{
                     "expected" => $baseAllowed
                 ];
             } elseif(!isset($this->lastLastHit[$damager->getName()])){
-                $baseAllowed = $this->getAllowedDistance($damaged);
+                $baseAllowed = $this->getAllowedDistance();
                 if($damager->getPing() >= 200) $baseAllowed += $damager->getPing() * 0.003;
                 if($damager->isCreative()) $baseAllowed = 7.5;
                 $this->lastLastHit[$damager->getName()] = [
@@ -56,7 +70,7 @@ class Reach extends Cheat{
                     "expected" => $baseAllowed
                 ];
             } else {
-                $baseAllowed = $this->getAllowedDistance($damaged);
+                $baseAllowed = $this->getAllowedDistance();
                 /* Reference: https://github.com/Bavfalcon9/Mavoric/blob/v2.0.0/src/Bavfalcon9/Mavoric/Cheat/Combat/Reach.php#L45 */
                 if($damager->getPing() >= 200) $baseAllowed += $damager->getPing() * 0.003;
                 if($damager->isCreative()) $baseAllowed = 7.5;
@@ -82,8 +96,8 @@ class Reach extends Cheat{
         }
     }
 
-    private function getAllowedDistance(Entity $damaged) : float{
-        return $damaged->isOnGround() ? 4 : 6.2;
+    private function getAllowedDistance() : float{
+        return 4;
     }
 
 }
