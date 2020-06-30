@@ -40,11 +40,7 @@ class AutoClickerC extends Cheat{
         $speed = $currentTime - $this->lastClick[$name];
         if($speed <= 1.1){
             $this->addViolation($name);
-            $data = [
-                "VL" => $this->getCurrentViolations($name),
-                "Ping" => $player->getPing()
-            ];
-            $this->notifyStaff($name, $this->getName(), $data);
+            $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
         }
         $this->lastClick[$name] = $currentTime;
     }

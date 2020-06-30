@@ -53,11 +53,7 @@ class Aimbot extends Cheat{
         if(count($this->hits[$damager->getName()]) >= 30){
             if($average > 0 && $average < 2){
                 $this->addViolation($damager->getName());
-                $data = [
-                    "VL" => $this->getCurrentViolations($damager->getName()),
-                    "Ping" => $damager->getPing()
-                ];
-                $this->notifyStaff($damager->getName(), $this->getName(), $data);
+                $this->notifyStaff($damager->getName(), $this->getName(), $this->genericAlertData($damager));
             }
             unset($this->hits[$damager->getName()]);
             $this->hits[$damager->getName()] = [];

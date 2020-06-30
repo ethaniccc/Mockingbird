@@ -92,6 +92,10 @@ class Cheat implements Listener{
         return Server::getInstance();
     }
 
+    protected function genericAlertData(Player $player) : array{
+        return ["VL" => $this->getCurrentViolations($player->getName()), "Ping" => $player->getPing()];
+    }
+
     protected function addViolation(string $name) : void{
         if($this->isLowTPS()){
             $this->getServer()->getLogger()->debug("Violation was cancelled due to low TPS");

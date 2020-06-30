@@ -70,11 +70,7 @@ class AutoClickerA extends Cheat{
                 $this->level[$name] = $this->level[$name] + 1;
                 if($this->level[$name] >= 2.5){
                     $this->addViolation($name);
-                    $data = [
-                        "VL" => $this->getCurrentViolations($name),
-                        "Ping" => $player->getPing()
-                    ];
-                    $this->notifyStaff($name, $this->getName(), $data);
+                    $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                     $this->level[$name] = 1;
                 }
             } else {
@@ -85,11 +81,7 @@ class AutoClickerA extends Cheat{
                     $this->level[$name] += 1;
                     if($this->level[$name] >= 2.5){
                         $this->addViolation($name);
-                        $data = [
-                            "VL" => $this->getCurrentViolations($name),
-                            "Ping" => $player->getPing()
-                        ];
-                        $this->notifyStaff($name, $this->getName(), $data);
+                        $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                         $this->level[$name] = 1;
                     }
                 } else {

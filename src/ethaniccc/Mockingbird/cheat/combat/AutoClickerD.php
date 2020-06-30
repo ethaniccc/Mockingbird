@@ -55,11 +55,7 @@ class AutoClickerD extends Cheat{
                 $this->suspicionLevel[$name] += 1;
                 if($this->suspicionLevel[$name] >= 4){
                     $this->addViolation($name);
-                    $data = [
-                        "VL" => $this->getCurrentViolations($name),
-                        "Ping" => $player->getPing()
-                    ];
-                    $this->notifyStaff($name, $this->getName(), $data);
+                    $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                     $this->suspicionLevel[$name] = 1;
                 }
             } elseif($maxCps - $minCps >= 2 && $maxCps - $minCps < 4){
