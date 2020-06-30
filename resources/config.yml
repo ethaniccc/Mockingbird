@@ -75,6 +75,7 @@ stop_tps: 17
 
 Reach: true
 Aimbot: true
+NoKnockback: true
 
 # Toolbox is a hacked client some Android users may use to
 # gain an unfair advantage against other players.

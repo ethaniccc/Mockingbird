@@ -38,7 +38,7 @@ class Mockingbird extends PluginBase implements Listener{
     private $modules = [
         "Combat" => [
             "Reach", "Aimbot", "AutoClickerA", "AutoClickerB", "AutoClickerC",
-            "AutoClickerD", "ToolboxKillaura"
+            "AutoClickerD", "ToolboxKillaura", "NoKnockback"
         ],
         "Movement" => [
             "Speed", "NoSlowdown"
@@ -128,7 +128,7 @@ class Mockingbird extends PluginBase implements Listener{
             Cheat::setViolations($name, 20);
             $cheats = $this->getCheatsViolatedFor($name);
             foreach($this->getServer()->getOnlinePlayers() as $staff){
-                if($staff->hasPermission($this->getConfig()->get("alert_permission"))) $staff->sendMessage($this->getPrefix() . TextFormat::RESET . TextFormat::RED . "$name has been kicked for using unfair advantage on other players. They were detected for: " . implode(", ", $cheats));
+                if($staff->hasPermission($this->getConfig()->get("alert_permission"))) $staff->sendMessage($this->getPrefix() . TextFormat::RESET . TextFormat::RED . "$name has been banned for using unfair advantage on other players. They were detected for: " . implode(", ", $cheats));
             }
         }), 1);
     }

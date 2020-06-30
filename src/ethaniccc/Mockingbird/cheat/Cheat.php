@@ -24,7 +24,6 @@ use pocketmine\event\Listener;
 use pocketmine\Player;
 use pocketmine\Server;
 use ethaniccc\Mockingbird\Mockingbird;
-use pocketmine\event\Event;
 use pocketmine\utils\TextFormat;
 
 class Cheat implements Listener{
