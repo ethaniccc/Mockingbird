@@ -40,27 +40,28 @@ bypass_permission: "mockingbird.bypass"
 # Type any prefix you want for AntiCheat alerts.
 prefix: "§l§cMockingbird§4>"
 
-# Make a prefix you want to show when a player gets blocked.
-block_prefix: "§l§b§cMocking§4bird"
+# Prefix shown for when a player is punished, (kick, ban, block)
+punish_prefix: "§l§b§cMocking§4bird"
 
 # This option is for the max violations a player can get before
-# they are blocked from the game.
+# they are punished by Mockingbird
 max_violations: 75
 
-# Amount of time you want a player to be blocked for if VL
-# gets too high. This is recommended to only be for a few minutes
-# since this AntiCheat may false positive. The block time is
-# marked in seconds.
+# Do you want the player to be kicked, banned, or blocked? (You can also choose "none")
+punishment_type: ban
+
+# If the punishment type is a block, how long do you want the playerr
+# to be blocked for? This value is in seconds.
 block_time: 120
 
 # This setting is for if you want to continue off previous
-# violation data. For example, if a player had 100 VL, and
-# the server stopped, they will continue off 100 VL if this
+# violation data. For example, if a player had 20 VL, and
+# the server stopped, they will continue off 20 VL if this
 # setting is enabled.
 keep_previous_violations: false
 
 # If keep_previous_violations is disabled, this setting will
-# save the data in another folder as a text file. If this
+# save the data in another folder as a SQLITE3 database file. If this
 # setting is enabled, no violation data will be saved.
 save_previous_violations: false
 
@@ -74,6 +75,7 @@ stop_tps: 17
 
 Reach: true
 Aimbot: true
+
 # Toolbox is a hacked client some Android users may use to
 # gain an unfair advantage against other players.
 # See Toolbox KillAura on this YouTube video: https://www.youtube.com/watch?v=K0INXOLxIj8&t
@@ -103,3 +105,4 @@ AutoClickerD: true
 # You can choose to enable or disable cheats with (true/false)
 
 Speed: true
+NoSlowdown: true

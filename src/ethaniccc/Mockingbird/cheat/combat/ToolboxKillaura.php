@@ -61,11 +61,7 @@ class ToolboxKillaura extends Cheat{
                     $this->suspicionLevel[$name] += 1;
                     if($this->suspicionLevel[$name] >= 2){
                         $this->addViolation($name);
-                        $data = [
-                            "VL" => $this->getCurrentViolations($name),
-                            "Ping" => $damager->getPing()
-                        ];
-                        $this->notifyStaff($name, $this->getName(), $data);
+                        $this->notifyStaff($name, $this->getName(), $this->genericAlertData($damager));
                         $this->suspicionLevel[$name] = 0;
                     }
                 } else {

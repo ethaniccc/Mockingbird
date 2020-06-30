@@ -29,8 +29,6 @@ use pocketmine\utils\TextFormat;
 
 class Cheat implements Listener{
 
-    public static $instance;
-
     private $cheatName;
     private $cheatType;
     private $enabled;
@@ -38,6 +36,7 @@ class Cheat implements Listener{
     private $notifyCooldown = [];
 
     private $plugin;
+    private static $instance;
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         $this->cheatName = $cheatName;
@@ -59,8 +58,20 @@ class Cheat implements Listener{
         return $this->enabled;
     }
 
-    public function getCurrentViolations(string $name) : int{
-        $database = $this->getPlugin()->getDatabase();
+    public static function setViolations(string $name, $amount) : bool{
+        $database = self::$instance->getPlugin()->getDatabase();
+        $currentViolations = $database->query("SELECT * FROM cheatData WHERE playerName = '$name'");
+        $result = $currentViolations->fetchArray(SQLITE3_ASSOC);
+        if(empty($result)) return false;
+        $newData = $database->prepare("INSERT OR REPLACE INTO cheatData (playerName, violations) VALUES (:playerName, :violations);");
+        $newData->bindValue(":playerName", $name);
+        $newData->bindValue(":violations", $amount);
+        $newData->execute();
+        return true;
+    }
+
+    public static function getCurrentViolations(string $name) : int{
+        $database = self::$instance->getPlugin()->getDatabase();
         $currentViolations = $database->query("SELECT * FROM cheatData WHERE playerName = '$name'");
         $result = $currentViolations->fetchArray(SQLITE3_ASSOC);
         if(empty($result)){
@@ -72,18 +83,6 @@ class Cheat implements Listener{
         return empty($result) ? 0 : $result["violations"];
     }
 
-    public function setViolations(string $name, $amount) : bool{
-        $database = $this->getPlugin()->getDatabase();
-        $currentViolations = $database->query("SELECT * FROM cheatData WHERE playerName = '$name'");
-        $result = $currentViolations->fetchArray(SQLITE3_ASSOC);
-        if(empty($result)) return false;
-        $newData = $database->prepare("INSERT OR REPLACE INTO cheatData (playerName, violations) VALUES (:playerName, :violations);");
-        $newData->bindValue(":playerName", $name);
-        $newData->bindValue(":violations", $amount);
-        $newData->execute();
-        return true;
-    }
-
     public function getPlugin() : Mockingbird{
         return $this->plugin;
     }
@@ -93,7 +92,7 @@ class Cheat implements Listener{
     }
 
     protected function genericAlertData(Player $player) : array{
-        return ["VL" => $this->getCurrentViolations($player->getName()), "Ping" => $player->getPing()];
+        return ["VL" => self::getCurrentViolations($player->getName()), "Ping" => $player->getPing()];
     }
 
     protected function addViolation(string $name) : void{
@@ -102,7 +101,7 @@ class Cheat implements Listener{
             return;
         }
         $database = $this->getPlugin()->getDatabase();
-        $currentViolations = $this->getCurrentViolations($name);
+        $currentViolations = self::getCurrentViolations($name);
         $currentViolations++;
         $newData = $database->prepare("INSERT OR REPLACE INTO cheatData (playerName, violations) VALUES (:playerName, :violations)");
         $newData->bindValue(":playerName", $name);
@@ -144,8 +143,21 @@ class Cheat implements Listener{
                 $player->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RESET . TextFormat::RED . $name . TextFormat::GRAY . " has failed the check for " . TextFormat::RED . $cheat . TextFormat::RESET . " $dataReport");
             }
         }
-        if($this->getCurrentViolations($name) >= $this->getPlugin()->getConfig()->get("max_violations")){
-            $this->getPlugin()->blockPlayerTask($this->getServer()->getPlayerExact($name));
+        if(self::getCurrentViolations($name) >= $this->getPlugin()->getConfig()->get("max_violations")){
+            $punishmentType = $this->getPlugin()->getConfig()->get("punishment_type");
+            switch($punishmentType){
+                case "none":
+                    break;
+                case "kick":
+                    $this->getPlugin()->kickPlayerTask($this->getServer()->getPlayer($name));
+                    break;
+                case "ban":
+                    $this->getPlugin()->banPlayerTask($this->getServer()->getPlayer($name));
+                    break;
+                case "block":
+                    $this->getPlugin()->blockPlayerTask($this->getServer()->getPlayer($name));
+                    break;
+            }
         }
     }
 

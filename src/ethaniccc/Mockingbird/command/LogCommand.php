@@ -31,7 +31,7 @@ class LogCommand extends Command implements PluginIdentifiableCommand{
            if(!isset($args[0])){
                $sender->sendMessage($this->getUsage());
            } else {
-               $violations = Cheat::$instance->getCurrentViolations($args[0]);
+               $violations = Cheat::getCurrentViolations($args[0]);
                $cheats = $this->getPlugin()->getCheatsViolatedFor($args[0]);
                if($violations === 0){
                    $sender->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RESET . TextFormat::RED . "The specified player has no logs.");

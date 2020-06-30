@@ -19,6 +19,7 @@ Github: https://www.github.com/ethaniccc
 namespace ethaniccc\Mockingbird\cheat\combat;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
+use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\plugin\Plugin;
 use pocketmine\Player;
@@ -29,7 +30,7 @@ class Aimbot extends Cheat{
 
     private $hits = [];
 
-    public function __construct(Plugin $plugin, string $cheatName, string $cheatType, bool $enabled = true){
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
 
