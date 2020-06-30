@@ -32,6 +32,7 @@ class NoSlowdown extends Cheat{
         if($player->isUsingItem()){
             $item = $player->getInventory()->getItemInHand();
             if($item instanceof Consumable){
+                if($player->getFood() == $player->getMaxFood()) return;
                 if(!isset($this->startedEatingTick[$name])){
                     $this->startedEatingTick[$name] = $this->getServer()->getTick();
                     return;
