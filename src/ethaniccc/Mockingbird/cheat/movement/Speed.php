@@ -48,8 +48,7 @@ class Speed extends Cheat{
             return;
         }
 
-        // Jesus christ I forgot to add this LMAO
-        if($player->isCreative()) return;
+        if($player->isFlying()) return;
 
         $name = $player->getName();
 

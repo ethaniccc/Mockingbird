@@ -61,6 +61,14 @@ class Mockingbird extends PluginBase implements Listener{
         $this->loadAllModules();
         $this->loadAllCommands();
         $this->loadDatabase();
+        if($this->isDeveloperMode()){
+            $this->getScheduler()->scheduleDelayedRepeatingTask(new ClosureTask(function(int $currentTick) : void{
+                $level = $this->getServer()->getLevelByName("world");
+                if($level !== null){
+                    $level->setTime(6000);
+                }
+            }), 100, 200);
+        }
     }
 
     public function loadDatabase() : void{

@@ -41,7 +41,7 @@ class NoSlowdown extends Cheat{
 
         if($player->isFlying()) return;
         if($player->getEffect(1) !== null){
-            if($player->getEFfect()->getEffectLevel() > 10) return;
+            if($player->getEFfect(1)->getEffectLevel() > 10) return;
         }
 
         if(!isset($this->lastMovedTick[$name])){
