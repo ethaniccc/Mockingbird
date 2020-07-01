@@ -24,12 +24,15 @@ use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\utils\TextFormat;
+use pocketmine\block\Ice;
+use pocketmine\block\PackedIce;
 
 class Speed extends Cheat{
 
-    private const MAX_ONGROUND = 3 / 10;
-    private const MAX_INAIR = 1 / 2;
+    private const MAX_ONGROUND = 0.3;
+    private const MAX_INAIR = 0.5;
     private const SPEED_MULTIPLIER = 4 / 3;
+    private const ICE_MULTIPLIER = 1.63333333;
 
     private $lastTickMoved = [];
     private $suspicionLevel = [];
@@ -42,7 +45,7 @@ class Speed extends Cheat{
 
         $player = $event->getPlayer();
 
-        if($player->getPing() >= 200){
+        if($player->getPing() >= 195){
             // I need a workaround for this because
             // players with high ping may still be cheating.
             return;
@@ -92,6 +95,9 @@ class Speed extends Cheat{
             $expectedDistance = self::MAX_ONGROUND;
             if($player->getEffect(1) !== null){
                 $expectedDistance *= self::SPEED_MULTIPLIER * $player->getEffect(1)->getEffectLevel();
+            }
+            if($player->getLevel()->getBlock($player->asVector3()->subtract(0, 1, 0)) instanceof Ice || $player->getLevel()->getBlock($player->asVector3()->subtract(0, 1, 0)) instanceof PackedIce){
+                $expectedDistance *= self::ICE_MULTIPLIER;
             }
             $expectedDistance = round($expectedDistance, 2);
             if($distance > $expectedDistance){
