@@ -36,6 +36,8 @@ class NoSlowdown extends Cheat{
     private $startedEatingTick = [];
     private $lastMovedTick = [];
 
+    private $suspicionLevel = [];
+
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
@@ -69,13 +71,21 @@ class NoSlowdown extends Cheat{
         $distanceSquared = abs(($distX * $distX) + ($distZ * $distZ));
         $distance = sqrt($distanceSquared);
 
-        if($this->playerIsEating($player) && $player->isUsingItem() && $player->getInventory()->getItemInHand() instanceof Consumable){
-            if($distance > 0.165){
-                $this->addViolation($name);
-                $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+        if($this->playerIsEating($player)){
+            if(!$player->isUsingItem()){
+                unset($this->startedEatingTick[$name]);
             }
-        } else {
-            unset($this->startedEatingTick[$name]);
+            if($distance > 0.165){
+                if(!isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] = 0;
+                $this->suspicionLevel[$name] += 1;
+                if($this->suspicionLevel[$name] >= 2){
+                    $this->addViolation($name);
+                    $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+                    $this->suspicionLevel[$name] = 0;
+                }
+            } else {
+                if(isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] *= 0.75;
+            }
         }
     }
 
@@ -88,20 +98,25 @@ class NoSlowdown extends Cheat{
                 case ActorEventPacket::EATING_ITEM:
                     if(!isset($this->startedEatingTick[$name])) $this->startedEatingTick[$name] = $this->getServer()->getTick();
                     break;
-                case ActorEventPacket::ARM_SWING:
-                    if(isset($this->startedEatingTick[$name])) unset($this->startedEatingTick[$name]);
-                    break;
             }
         }
     }
 
     public function onCompleteEating(PlayerItemConsumeEvent $event) : void{
         $name = $event->getPlayer()->getName();
+        if(isset($this->startedEatingTick[$name])){
+            // 25 ticks is eating time, keep in mind for FastEat.
+            //$time = $this->getServer()->getTick() - $this->startedEatingTick[$name];
+            //$this->getServer()->broadcastMessage("$time");
+        }
         unset($this->startedEatingTick[$name]);
     }
 
     private function playerIsEating(Player $player) : bool{
-        return isset($this->startedEatingTick[$player->getName()]) ? $this->getServer()->getTick() - $this->startedEatingTick[$player->getName()] >= 20 : false;
+        if(isset($this->startedEatingTick[$player->getName()])){
+            if($this->getServer()->getTick() - $this->startedEatingTick[$player->getName()] >= 25) unset($this->startedEatingTick[$player->getName()]);
+        }
+        return isset($this->startedEatingTick[$player->getName()]) ? $this->getServer()->getTick() - $this->startedEatingTick[$player->getName()] >= 15 : false;
     }
 
 }
