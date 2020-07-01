@@ -48,16 +48,11 @@ class Aimbot extends Cheat{
         $vertical = $target->getY() - $damager->getY();
         $pitch = -atan2($vertical, $horizontal) / M_PI * 180;
 
-        if(!isset($this->hits[$damager->getName()])) $this->hits[$damager->getName()] = [];
-        array_push($this->hits[$damager->getName()], round($pitch) - round($damager->getPitch()));
-        $average = array_sum($this->hits[$damager->getName()]) / count($this->hits[$damager->getName()]);
-        if(count($this->hits[$damager->getName()]) >= 30){
-            if($average > 0 && $average < 2){
-                $this->addViolation($damager->getName());
-                $this->notifyStaff($damager->getName(), $this->getName(), $this->genericAlertData($damager));
-            }
-            unset($this->hits[$damager->getName()]);
-            $this->hits[$damager->getName()] = [];
-        }
+        $name = $damager->getName();
+        if(!isset($this->hits[$name])) $this->hits[$name] = [];
+        array_push($this->hits[$name], abs($pitch - $damager->getPitch()));
+        $pitchAverage = array_sum($this->hits[$name]) / count($this->hits[$name]);
+        $this->getServer()->broadcastMessage("$pitchAverage");
+        if(count($this->hits[$name]) > 30) $this->hits[$name] = [];
     }
 }

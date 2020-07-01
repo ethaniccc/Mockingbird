@@ -22,9 +22,14 @@ namespace ethaniccc\Mockingbird\cheat\movement;
 
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
+use pocketmine\event\player\PlayerItemConsumeEvent;
+use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\item\Consumable;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\item\ItemIds;
+use pocketmine\entity\Entity;
+use pocketmine\network\mcpe\protocol\ActorEventPacket;
+use pocketmine\Player;
 
 class NoSlowdown extends Cheat{
 
@@ -64,26 +69,38 @@ class NoSlowdown extends Cheat{
         $distanceSquared = abs(($distX * $distX) + ($distZ * $distZ));
         $distance = sqrt($distanceSquared);
 
-        if($player->isUsingItem()){
-            $item = $player->getInventory()->getItemInHand();
-            if($item instanceof Consumable){
-                if($player->getFood() == $player->getMaxFood() && !in_array($item->getId(), [ItemIds::GOLDEN_APPLE, ItemIds::ENCHANTED_GOLDEN_APPLE, ItemIds::GOLDEN_CARROT])) return;
-                if(!isset($this->startedEatingTick[$name])){
-                    $this->startedEatingTick[$name] = $this->getServer()->getTick();
-                    return;
-                } else {
-                    if($this->getServer()->getTick() - $this->startedEatingTick[$name] < 20){
-                        return;
-                    }
-                }
-                if($distance > 0.165){
-                    $this->addViolation($name);
-                    $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
-                }
+        if($this->playerIsEating($player)){
+            $this->getServer()->broadcastMessage("Eating!");
+            if($distance > 0.165){
+                $this->addViolation($name);
+                $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
             }
-        } else {
-            if(isset($this->startedEatingTick[$name])) unset($this->startedEatingTick[$name]);
         }
+    }
+
+    public function onEat(DataPacketReceiveEvent $event) : void{
+        $packet = $event->getPacket();
+        $name = $event->getPlayer()->getName();
+        if($packet instanceof ActorEventPacket){
+            $action = $packet->event;
+            switch($action){
+                case ActorEventPacket::EATING_ITEM:
+                    if(!isset($this->startedEatingTick[$name])) $this->startedEatingTick[$name] = $this->getServer()->getTick();
+                    break;
+                case ActorEventPacket::ARM_SWING:
+                    if(isset($this->startedEatingTick[$name])) unset($this->startedEatingTick[$name]);
+                    break;
+            }
+        }
+    }
+
+    public function onCompleteEating(PlayerItemConsumeEvent $event) : void{
+        $name = $event->getPlayer()->getName();
+        unset($this->startedEatingTick[$name]);
+    }
+
+    private function playerIsEating(Player $player) : bool{
+        return isset($this->startedEatingTick[$player->getName()]) ? $this->getServer()->getTick() - $this->startedEatingTick[$player->getName()] >= 20 : false;
     }
 
 }
