@@ -69,16 +69,17 @@ class NoSlowdown extends Cheat{
         $distanceSquared = abs(($distX * $distX) + ($distZ * $distZ));
         $distance = sqrt($distanceSquared);
 
-        if($this->playerIsEating($player)){
-            $this->getServer()->broadcastMessage("Eating!");
+        if($this->playerIsEating($player) && $player->isUsingItem() && $player->getInventory()->getItemInHand() instanceof Consumable){
             if($distance > 0.165){
                 $this->addViolation($name);
                 $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
             }
+        } else {
+            unset($this->startedEatingTick[$name]);
         }
     }
 
-    public function onEat(DataPacketReceiveEvent $event) : void{
+    public function receivePacket(DataPacketReceiveEvent $event) : void{
         $packet = $event->getPacket();
         $name = $event->getPlayer()->getName();
         if($packet instanceof ActorEventPacket){
