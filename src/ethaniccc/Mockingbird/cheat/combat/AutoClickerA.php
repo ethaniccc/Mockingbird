@@ -93,7 +93,7 @@ class AutoClickerA extends Cheat{
                 $minDeviation = min($this->averageDeviations[$name]);
                 $maxDeviation = max($this->averageDeviations[$name]);
                 $diffrence = $maxDeviation - $minDeviation;
-                if($diffrence <= 2.5){
+                if($diffrence <= 1.5){
                     $this->level[$name] += 1;
                     if($this->level[$name] >= 2.5){
                         $this->addViolation($name);

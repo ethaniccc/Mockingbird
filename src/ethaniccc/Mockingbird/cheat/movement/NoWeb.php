@@ -13,6 +13,7 @@ use pocketmine\Player;
 class NoWeb extends Cheat{
 
     private $jumped = [];
+    private $suspicionLevel = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
@@ -29,9 +30,7 @@ class NoWeb extends Cheat{
         $blocksAround = [
             $level->getBlock($position),
             $level->getBlock($position->add(0, 1, 0)),
-            $level->getBlock($position->subtract(0, 1, 0)),
-            $level->getBlock($position->add(0, 2, 0)),
-            $level->getBlock($position->subtract(0, 2, 0))
+            $level->getBlock($position->subtract(0, 1, 0))
         ];
         $continue = false;
         foreach($blocksAround as $block) if($block->getId() === BlockIds::COBWEB) $continue = true;
@@ -50,8 +49,14 @@ class NoWeb extends Cheat{
                 $expectedDistance *= (4 / 3) * $player->getEffect(1)->getEffectLevel();
             }
             if($distance > $expectedDistance){
-                $this->addViolation($name);
-                $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+                if(!isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] = 0;
+                $this->suspicionLevel[$name] += 1;
+                if($this->suspicionLevel[$name] >= 2.5){
+                    $this->addViolation($name);
+                    $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+                }
+            } else {
+                $this->suspicionLevel[$name] *= 0.5;
             }
         }
     }
