@@ -22,6 +22,7 @@ namespace ethaniccc\Mockingbird\cheat\movement;
 
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
+use pocketmine\event\player\cheat\PlayerIllegalMoveEvent;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\utils\TextFormat;
 use pocketmine\block\Ice;

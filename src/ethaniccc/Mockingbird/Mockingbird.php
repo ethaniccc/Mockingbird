@@ -41,7 +41,7 @@ class Mockingbird extends PluginBase implements Listener{
             "AutoClickerD", "ToolboxKillaura", "NoKnockback"
         ],
         "Movement" => [
-            "Speed", "NoSlowdown"
+            "Speed", "NoSlowdown", "FastLadder"
         ]
     ];
     private $cheatsViolatedFor = [];
