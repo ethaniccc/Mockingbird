@@ -4,6 +4,7 @@ namespace ethaniccc\Mockingbird\cheat\movement;
 
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
+use ethaniccc\Mockingbird\utils\LevelUtils;
 use pocketmine\block\BlockIds;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\event\player\PlayerJumpEvent;
@@ -23,24 +24,11 @@ class FastLadder extends Cheat{
 
         if($this->hasRecentlyJumped($player)) return;
 
-        $position = $player->asVector3();
-        $level = $player->getLevel();
-        $blocksAroundPlayer = [
-            $level->getBlock($position->add(0, 0, 0)),
-            $level->getBlock($position->add(1, 0, 0)),
-            $level->getBlock($position->add(-1, 0, 0)),
-            $level->getBlock($position->add(0, 0, 1)),
-            $level->getBlock($position->add(0, 0, -1)),
-            $level->getBlock($position->add(1, 0, 1)),
-            $level->getBlock($position->add(-1, 0, 1)),
-            $level->getBlock($position->add(-1, 0, -1)),
-            $level->getBlock($position->add(1, 0, -1)),
-        ];
+        $blocksAroundPlayer = LevelUtils::getSurroundingBlocks($player, 1);
         $continue = false;
         foreach($blocksAroundPlayer as $block){
             if($block->getId() === BlockIds::LADDER) $continue = true;
         }
-
         if($continue){
             $yDist = round($event->getTo()->y - $event->getFrom()->y, 1);
             if($yDist == 0) return;
