@@ -40,11 +40,13 @@ class AutoClickerC extends Cheat{
     public function receivePacket(DataPacketReceiveEvent $event) : void{
         $packet = $event->getPacket();
         if($packet instanceof InventoryTransactionPacket){
-            if($packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) $this->clickCheck($event->getPlayer());
+            if($packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY){
+                $this->clickCheck($event->getPlayer());
+            }
         } elseif($packet instanceof LevelSoundEventPacket){
-            if($packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE) $this->clickCheck($event->getPlayer());
-        } elseif($packet instanceof PlayerActionPacket){
-            if($packet->action === PlayerActionPacket::ACTION_START_BREAK) $this->clickCheck($event->getPlayer());
+            if($packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE){
+                $this->clickCheck($event->getPlayer());
+            }
         }
     }
 

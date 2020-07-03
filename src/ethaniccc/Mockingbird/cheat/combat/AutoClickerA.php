@@ -4,6 +4,7 @@ namespace ethaniccc\Mockingbird\cheat\combat;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\Mockingbird;
+use pocketmine\item\Item;
 use pocketmine\Player;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
@@ -20,8 +21,6 @@ class AutoClickerA extends Cheat{
 
     private $level = [];
 
-    private $previousYaw = [];
-
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
@@ -31,21 +30,11 @@ class AutoClickerA extends Cheat{
         $player = $event->getPlayer();
         $name = $player->getName();
         if($packet instanceof InventoryTransactionPacket){
-            if($packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) $this->clickCheck($event->getPlayer());
+            if($packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY){
+                $this->clickCheck($event->getPlayer());
+            }
         } elseif($packet instanceof LevelSoundEventPacket){
-            if($packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE) $this->clickCheck($event->getPlayer());
-        } elseif($packet instanceof PlayerActionPacket){
-            if($packet->action === PlayerActionPacket::ACTION_START_BREAK){
-                if(!isset($this->previousYaw[$name])){
-                    $this->previousYaw[$name] = ($player->getYaw());
-                } else {
-                    $yawDiffrence = abs($player->getYaw() - $this->previousYaw[$name]);
-                    if($yawDiffrence > 35){
-                        // Check cancelled
-                        return;
-                    }
-                    $this->previousYaw[$name] = abs($player->getYaw());
-                }
+            if($packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE){
                 $this->clickCheck($event->getPlayer());
             }
         }

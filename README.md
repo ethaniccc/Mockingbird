@@ -8,7 +8,7 @@ Mockingbird is a PocketMine-MP Anti-Cheat which has a variety of checks.
 * AutoClicker
     * Consistency Detection
     * Speed Detection
-* Reach (not complete)
+* Reach
 * Toolbox Killaura
 ### Movement
 * FastLadder

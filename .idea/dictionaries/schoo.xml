@@ -1,7 +1,11 @@
 <component name="ProjectDictionaryState">
   <dictionary name="schoo">
     <words>
+      <w>cooldown</w>
+      <w>damager</w>
+      <w>inair</w>
       <w>killaura</w>
+      <w>onground</w>
     </words>
   </dictionary>
 </component>

@@ -33,7 +33,7 @@ class Speed extends Cheat{
     private const MAX_ONGROUND = 0.3;
     private const MAX_INAIR = 0.5;
     private const SPEED_MULTIPLIER = 4 / 3;
-    private const ICE_MULTIPLIER = 1.63333333;
+    private const ICE_MULTIPLIER = 1.64;
 
     private $lastTickMoved = [];
     private $suspicionLevel = [];
@@ -43,17 +43,13 @@ class Speed extends Cheat{
     }
 
     public function onMove(PlayerMoveEvent $event) : void{
-
         $player = $event->getPlayer();
-
         if($player->getPing() >= 195){
             // I need a workaround for this because
             // players with high ping may still be cheating.
             return;
         }
-
         if($player->isFlying()) return;
-
         $name = $player->getName();
 
         if(!isset($this->lastTickMoved[$name])){
