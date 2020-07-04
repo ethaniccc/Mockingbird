@@ -5,6 +5,7 @@ namespace ethaniccc\Mockingbird\cheat\movement;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\utils\LevelUtils;
+use pocketmine\block\Air;
 use pocketmine\event\player\PlayerJumpEvent;
 
 class AirJump extends Cheat{
@@ -20,8 +21,17 @@ class AirJump extends Cheat{
         $player = $event->getPlayer();
         $name = $player->getName();
         if(!$player->isOnGround()){
-            $this->addViolation($name);
-            $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+            $blocksNear = LevelUtils::getSurroundingBlocks($player, 3);
+            $continue = true;
+            foreach($blocksNear as $block){
+                if(!$block instanceof Air){
+                    $continue = false;
+                }
+            }
+            if($continue){
+                $this->addViolation($name);
+                $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+            }
         }
     }
 
