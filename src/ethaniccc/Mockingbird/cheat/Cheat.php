@@ -32,7 +32,6 @@ class Cheat implements Listener{
     private $cheatName;
     private $cheatType;
     private $enabled;
-    private $cheatsViolatedFor = [];
     private $notifyCooldown = [];
 
     private $plugin;
@@ -131,16 +130,14 @@ class Cheat implements Listener{
         if(self::getCurrentViolations($name) >= $this->getPlugin()->getConfig()->get("max_violations")){
             $punishmentType = $this->getPlugin()->getConfig()->get("punishment_type");
             switch($punishmentType){
-                case "none":
-                    break;
                 case "kick":
                     $this->getPlugin()->kickPlayerTask($this->getServer()->getPlayer($name));
                     break;
                 case "ban":
                     $this->getPlugin()->banPlayerTask($this->getServer()->getPlayer($name));
                     break;
-                case "block":
-                    $this->getPlugin()->blockPlayerTask($this->getServer()->getPlayer($name));
+                case "none":
+                default:
                     break;
             }
         }

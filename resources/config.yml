@@ -45,11 +45,7 @@ punish_prefix: "§l§b§cMocking§4bird"
 max_violations: 75
 
 # Do you want the player to be kicked, banned, or blocked? (You can also choose "none")
-punishment_type: ban
-
-# If the punishment type is a block, how long do you want the playerr
-# to be blocked for? This value is in seconds.
-block_time: 120
+punishment_type: kick
 
 # This setting is for if you want to continue off previous
 # violation data. For example, if a player had 20 VL, and
@@ -63,7 +59,7 @@ keep_previous_violations: false
 save_previous_violations: false
 
 # This is for the TPS level detections should be stopped at.
-stop_tps: 17
+stop_tps: 18
 
 #######   =====================================   #######
 
@@ -106,3 +102,12 @@ Speed: true
 NoSlowdown: true
 FastLadder: true
 NoWeb: true
+AirJump: true
+Fly: true
+
+## Other Detections ##
+# You can choose to enable or disable cheats with (true/false)
+
+ChestStealer: true
+FastEat: true
+Nuker: true
