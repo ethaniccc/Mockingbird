@@ -38,27 +38,22 @@ class LevelUtils{
         return $blocksAroundPlayer;
     }
 
-    public static function getMoveDistance(Vector3 $to, Vector3 $from, int $mode) : ?float{
+    public static function getMoveDistance(Vector3 $to, Vector3 $from, int $mode) : float{
         switch($mode){
             case self::MODE_X:
                 return abs($to->getX() - $from->getX());
-                break;
             case self::MODE_Y:
                 return abs($to->getY() - $from->getY());
-                break;
             case self::MODE_Z:
                 return abs($to->getZ() - $from->getZ());
-                break;
             case self::MODE_POINT_DISTANCE:
                 $distX = $to->getX() - $from->getX();
                 $distZ = $to->getZ() - $from->getZ();
                 $distanceSquared = $distX * $distX + $distZ * $distZ;
                 return abs(sqrt($distanceSquared));
-                break;
             default:
                 Server::getInstance()->getLogger()->debug("Unknown mode given: $mode");
-                return null;
-                break;
+                return 0.0;
         }
     }
 
