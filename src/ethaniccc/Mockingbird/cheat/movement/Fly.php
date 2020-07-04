@@ -27,14 +27,14 @@ class Fly extends Cheat{
             }
             return;
         }
-        $blocksAround = LevelUtils::getSurroundingBlocks($player, 3);
+        $blocksAround = LevelUtils::getSurroundingBlocks($player);
         $continue = true;
         foreach($blocksAround as $block){
             if(!$block instanceof Air){
                 $continue = false;
             }
         }
-        if($continue){
+        if($continue && !$player->isOnGround()){
             if(!isset($this->ticksOffGround[$name])){
                 $this->ticksOffGround[$name] = 0;
             }
