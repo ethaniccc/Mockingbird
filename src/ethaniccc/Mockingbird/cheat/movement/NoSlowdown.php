@@ -101,11 +101,6 @@ class NoSlowdown extends Cheat{
 
     public function onCompleteEating(PlayerItemConsumeEvent $event) : void{
         $name = $event->getPlayer()->getName();
-        if(isset($this->startedEatingTick[$name])){
-            // 25 ticks is eating time, keep in mind for FastEat.
-            //$time = $this->getServer()->getTick() - $this->startedEatingTick[$name];
-            //$this->getServer()->broadcastMessage("$time");
-        }
         unset($this->startedEatingTick[$name]);
     }
 

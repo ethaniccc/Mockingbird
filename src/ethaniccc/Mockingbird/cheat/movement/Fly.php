@@ -19,6 +19,11 @@ class Fly extends Cheat{
     public function onMove(PlayerMoveEvent $event) : void{
         $player = $event->getPlayer();
         $name = $player->getName();
+
+        if($player->getAllowFlight() && $player->isFlying()){
+            return;
+        }
+
         $distance = LevelUtils::getMoveDistance($event->getTo()->asVector3(), $event->getFrom()->asVector3(), LevelUtils::MODE_Y);
         if($distance > 1){
             // Player is probably falling.
