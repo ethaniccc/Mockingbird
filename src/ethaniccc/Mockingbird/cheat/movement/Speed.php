@@ -81,7 +81,7 @@ class Speed extends Cheat{
             $distance = abs($distX);
         } else {
             // Let's say we have a right triangle and we need to find the slope
-            // of the triangle - basiclly the Pythagorean Theorem.
+            // of the triangle - basically the Pythagorean Theorem.
             $distanceSquared = abs(($distX * $distX) + ($distZ * $distZ));
             $distance = sqrt($distanceSquared);
             // Sometimes this distance spikes due to lag around 2x the original speed.

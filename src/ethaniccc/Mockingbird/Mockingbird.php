@@ -41,7 +41,8 @@ class Mockingbird extends PluginBase implements Listener{
             "AutoClickerD", "ToolboxKillaura", "NoKnockback"
         ],
         "Movement" => [
-            "Speed", "NoSlowdown", "FastLadder", "NoWeb", "AirJump"
+            "Speed", "NoSlowdown", "FastLadder", "NoWeb", "AirJump",
+            "Fly"
         ],
         "Other" => [
             "ChestStealer", "FastEat"

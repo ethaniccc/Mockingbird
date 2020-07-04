@@ -56,7 +56,7 @@ class NoWeb extends Cheat{
                     $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                 }
             } else {
-                $this->suspicionLevel[$name] *= 0.5;
+                if(isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] *= 0.5;
             }
         }
     }

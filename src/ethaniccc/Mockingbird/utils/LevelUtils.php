@@ -2,9 +2,15 @@
 
 namespace ethaniccc\Mockingbird\utils;
 
+use pocketmine\math\Vector3;
 use pocketmine\Player;
 
 class LevelUtils{
+
+    public const MODE_X = 0;
+    public const MODE_Y = 1;
+    public const MODE_Z = 2;
+    public const MODE_POINT_DISTANCE = 3;
 
     public static function getSurroundingBlocks(Player $player, float $radius = 1) : array{
         $position = $player->asVector3();
@@ -29,6 +35,26 @@ class LevelUtils{
             $levelsCompleted++;
         }
         return $blocksAroundPlayer;
+    }
+
+    public static function getMoveDistance(Vector3 $to, Vector3 $from, int $mode) : float{
+        switch($mode){
+            case self::MODE_X:
+                return abs($to->getX() - $from->getX());
+                break;
+            case self::MODE_Y:
+                return abs($to->getY() - $from->getY());
+                break;
+            case self::MODE_Z:
+                return abs($to->getZ() - $from->getZ());
+                break;
+            case self::MODE_POINT_DISTANCE:
+                $distX = $to->getX() - $from->getX();
+                $distZ = $to->getZ() - $from->getZ();
+                $distanceSquared = $distX * $distX + $distZ * $distZ;
+                return abs(sqrt($distanceSquared));
+                break;
+        }
     }
 
 }
