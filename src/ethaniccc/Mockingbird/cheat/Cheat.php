@@ -20,6 +20,7 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat;
 
+use ethaniccc\Mockingbird\task\NewViolationTask;
 use pocketmine\event\Listener;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -57,16 +58,8 @@ class Cheat implements Listener{
         return $this->enabled;
     }
 
-    public static function setViolations(string $name, $amount) : bool{
-        $database = self::$instance->getPlugin()->getDatabase();
-        $currentViolations = $database->query("SELECT * FROM cheatData WHERE playerName = '$name'");
-        $result = $currentViolations->fetchArray(SQLITE3_ASSOC);
-        if(empty($result)) return false;
-        $newData = $database->prepare("INSERT OR REPLACE INTO cheatData (playerName, violations) VALUES (:playerName, :violations);");
-        $newData->bindValue(":playerName", $name);
-        $newData->bindValue(":violations", $amount);
-        $newData->execute();
-        return true;
+    public static function setViolations(string $name, $amount) : void{
+        Server::getInstance()->getAsyncPool()->submitTask(new NewViolationTask($name, $amount));
     }
 
     public static function getCurrentViolations(string $name) : int{
@@ -96,24 +89,17 @@ class Cheat implements Listener{
 
     protected function addViolation(string $name) : void{
         if($this->isLowTPS()){
-            $this->getServer()->getLogger()->debug("Violation was cancelled due to low TPS");
+            $tps = $this->getServer()->getTicksPerSecond();
+            $this->getServer()->getLogger()->debug("Violation was cancelled due to low TPS ($tps)");
             return;
         }
-        $database = $this->getPlugin()->getDatabase();
         $currentViolations = self::getCurrentViolations($name);
         $currentViolations++;
-        $newData = $database->prepare("INSERT OR REPLACE INTO cheatData (playerName, violations) VALUES (:playerName, :violations)");
-        $newData->bindValue(":playerName", $name);
-        $newData->bindValue(":violations", $currentViolations);
-        $newData->execute();
+        $this->getServer()->getAsyncPool()->submitTask(new NewViolationTask($name, $currentViolations));
     }
 
     protected function resetViolations(string $name) : void{
-        $database = $this->getPlugin()->getDatabase();
-        $newData = $database->prepare("INSERT OR REPLACE INTO cheatData (playerName, violations) VALUES (:playerName, :violations)");
-        $newData->bindValue(":playerName", $name);
-        $newData->bindValue(":violations", 0);
-        $newData->execute();
+        $this->getServer()->getAsyncPool()->submitTask(new NewViolationTask($name, 0));
     }
 
     protected function notifyStaff(string $name, string $cheat, array $data) : void{
