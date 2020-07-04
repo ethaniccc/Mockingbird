@@ -44,7 +44,7 @@ class Mockingbird extends PluginBase implements Listener{
             "Speed", "NoSlowdown", "FastLadder", "NoWeb", "AirJump"
         ],
         "Other" => [
-            "ChestStealer"
+            "ChestStealer", "FastEat"
         ]
     ];
     private $cheatsViolatedFor = [];

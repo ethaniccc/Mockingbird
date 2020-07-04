@@ -24,10 +24,7 @@ use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use pocketmine\event\player\PlayerItemConsumeEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
-use pocketmine\item\Consumable;
 use pocketmine\event\player\PlayerMoveEvent;
-use pocketmine\item\ItemIds;
-use pocketmine\entity\Entity;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\Player;
 
