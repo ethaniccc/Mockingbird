@@ -79,7 +79,7 @@ class Reach extends Cheat{
                         if($this->lastLastHit[$damager->getName()]["distance"] > $this->lastLastHit[$damager->getName()]["expected"]){
                             $this->addViolation($damager->getName());
                             $data = [
-                                "VL" => self::getCurrentViolations($damager->getName()),
+                                "VL" => self::getCurrentViolations($damager->getName()) + 1,
                                 "Distance" => round($damager->distance($damaged), 2),
                                 "Ping" => $damager->getPing()
                             ];

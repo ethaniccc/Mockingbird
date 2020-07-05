@@ -84,7 +84,7 @@ class Cheat implements Listener{
     }
 
     protected function genericAlertData(Player $player) : array{
-        return ["VL" => self::getCurrentViolations($player->getName()), "Ping" => $player->getPing()];
+        return ["VL" => self::getCurrentViolations($player->getName()) + 1, "Ping" => $player->getPing()];
     }
 
     protected function addViolation(string $name) : void{

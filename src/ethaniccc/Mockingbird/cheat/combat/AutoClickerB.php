@@ -63,7 +63,7 @@ class AutoClickerB extends Cheat{
         if($cps > 22){
             $this->addViolation($name);
             $data = [
-                "VL" => self::getCurrentViolations($name),
+                "VL" => self::getCurrentViolations($name) + 1,
                 "CPS" => $cps,
                 "Ping" => $player->getPing()
             ];
