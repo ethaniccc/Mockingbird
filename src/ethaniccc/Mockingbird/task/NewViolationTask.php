@@ -28,7 +28,7 @@ class NewViolationTask extends AsyncTask{
         $newData->execute();
         $newContent = file_get_contents('plugin_data/Mockingbird/CheatDataTemp.db');
         if(!file_put_contents('plugin_data/Mockingbird/CheatData.db', $newContent)){
-            // Something went wrong :/
+            $this->debugMessage = "Failed to put temp-database contents in used database.";
             if(file_exists('plugin_data/Mockingbird/CheatData.db')){
                 // I'm not sure this will even work
                 if(unlink('plugin_data/Mockingbird/CheatData.db')){
@@ -41,7 +41,6 @@ class NewViolationTask extends AsyncTask{
                     $this->debugMessage = "Failed to delete the database, a reload of Mockingbird is needed.";
                 }
             }
-
         } else {
             $database->close();
             unlink('plugin_data/Mockingbird/CheatDataTemp.db');
