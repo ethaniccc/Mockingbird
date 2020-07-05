@@ -7,6 +7,7 @@ use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\utils\LevelUtils;
 use pocketmine\block\Air;
 use pocketmine\event\player\PlayerMoveEvent;
+use pocketmine\event\player\PlayerQuitEvent;
 
 class Fly extends Cheat{
 
@@ -53,6 +54,10 @@ class Fly extends Cheat{
                 $this->ticksOffGround[$name] = 0;
             }
         }
+    }
+
+    public function onQuit(PlayerQuitEvent $event) : void{
+        unset($this->ticksOffGround[$event->getPlayer()->getName()]);
     }
 
 }

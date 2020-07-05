@@ -48,7 +48,7 @@ class NewViolationTask extends AsyncTask{
     }
 
     public function onCompletion(Server $server){
-        $server->getLogger()->debug($this->debugMessage);
+        if($this->debugMessage !== "Nothing seemed to go wrong.") $server->getLogger()->debug($this->debugMessage);
         if($this->debugMessage === "Failed to delete the database, a reload of Mockingbird is needed."){
             $plugin = $server->getPluginManager()->getPlugin("Mockingbird");
             if($plugin !== null){

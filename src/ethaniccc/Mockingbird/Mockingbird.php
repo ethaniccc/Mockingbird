@@ -100,7 +100,6 @@ class Mockingbird extends PluginBase implements Listener{
 
     public function kickPlayerTask(Player $player) : void{
         $name = $player->getName();
-        if($player->hasPermission($this->getConfig()->get("bypass_permission"))) return;
         $this->getScheduler()->scheduleDelayedTask(new ClosureTask(function(int $currentTick) use ($player, $name) : void{
             $player->kick($this->getConfig()->get("punish_prefix") . TextFormat::RESET . "\n" . TextFormat::YELLOW . "You were kicked from this server for unfair advantage.", false);
             Cheat::setViolations($name, 20);
@@ -113,7 +112,6 @@ class Mockingbird extends PluginBase implements Listener{
 
     public function banPlayerTask(Player $player) : void{
         $name = $player->getName();
-        if($player->hasPermission($this->getConfig()->get("bypass_permission"))) return;
         $this->getScheduler()->scheduleDelayedTask(new ClosureTask(function(int $currentTick) use ($player, $name) : void{
             $player->kick($this->getConfig()->get("punish_prefix") . TextFormat::RESET . "\n" . TextFormat::YELLOW . "You were banned from this server for unfair advantage.", false);
             $this->getServer()->getNameBans()->addBan($name, "Unfair advantage / Hacking", null, "Mockingbird");

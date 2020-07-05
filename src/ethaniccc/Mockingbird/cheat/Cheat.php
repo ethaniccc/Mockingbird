@@ -33,6 +33,7 @@ class Cheat implements Listener{
     private $cheatType;
     private $enabled;
     private $notifyCooldown = [];
+    private $previousViolationTime = [];
 
     private $plugin;
     private static $instance;
@@ -87,14 +88,32 @@ class Cheat implements Listener{
     }
 
     protected function addViolation(string $name) : void{
+        if($this->getServer()->getPlayer($name)->hasPermission($this->getPlugin()->getConfig()->get("bypass_permission"))){
+            return;
+        }
         if($this->isLowTPS()){
             $tps = $this->getServer()->getTicksPerSecond();
             $this->getServer()->getLogger()->debug("Violation was cancelled due to low TPS ($tps)");
             return;
         }
+        $violationTime = $this->getLastViolatedTime($name);
+        if($violationTime !== null){
+            if($violationTime < 0.1){
+                // Idk if this is a good idea, but spamming alerts
+                // will temporarily make the database locked.
+                $this->punish($name, true);
+                $this->getServer()->getLogger()->debug("In order to prevent the server from crashing, $name was kicked.");
+                $this->previousViolationTime[$name] = microtime(true);
+                return;
+            } else {
+                $this->previousViolationTime[$name] = microtime(true);
+            }
+        } else {
+            $this->previousViolationTime[$name] = microtime(true);
+        }
         $currentViolations = self::getCurrentViolations($name);
-        $currentViolations++;
-        $this->getServer()->getAsyncPool()->submitTask(new NewViolationTask($name, $currentViolations));
+        $newViolations = $currentViolations + 1;
+        $this->getServer()->getAsyncPool()->submitTask(new NewViolationTask($name, $newViolations));
     }
 
     protected function resetViolations(string $name) : void{
@@ -102,6 +121,9 @@ class Cheat implements Listener{
     }
 
     protected function notifyStaff(string $name, string $cheat, array $data) : void{
+        if($this->getServer()->getPlayer($name)->hasPermission($this->getPlugin()->getConfig()->get("bypass_permission"))){
+            return;
+        }
         if($this->isLowTPS()){
             $this->getServer()->getLogger()->debug("Alert was cancelled due to low TPS");
             return;
@@ -128,19 +150,31 @@ class Cheat implements Listener{
             }
         }
         if(self::getCurrentViolations($name) >= $this->getPlugin()->getConfig()->get("max_violations")){
-            $punishmentType = $this->getPlugin()->getConfig()->get("punishment_type");
-            switch($punishmentType){
-                case "kick":
-                    $this->getPlugin()->kickPlayerTask($this->getServer()->getPlayer($name));
-                    break;
-                case "ban":
-                    $this->getPlugin()->banPlayerTask($this->getServer()->getPlayer($name));
-                    break;
-                case "none":
-                default:
-                    break;
-            }
+            $this->punish($name);
         }
+    }
+
+    protected function punish(string $name, bool $forced = false) : void{
+        if($forced){
+            $this->getPlugin()->kickPlayerTask($this->getServer()->getPlayer($name));
+            return;
+        }
+        $punishmentType = $this->getPlugin()->getConfig()->get("punishment_type");
+        switch($punishmentType){
+            case "kick":
+                $this->getPlugin()->kickPlayerTask($this->getServer()->getPlayer($name));
+                break;
+            case "ban":
+                $this->getPlugin()->banPlayerTask($this->getServer()->getPlayer($name));
+                break;
+            case "none":
+            default:
+                break;
+        }
+    }
+
+    protected function getLastViolatedTime(string $name) : ?float{
+        return isset($this->previousViolationTime[$name]) ? microtime(true) - $this->previousViolationTime[$name] : null;
     }
 
     private function isLowTPS() : bool{
