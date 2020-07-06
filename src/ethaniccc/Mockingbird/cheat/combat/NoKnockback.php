@@ -20,6 +20,7 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\combat;
 
+use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use pocketmine\entity\Attribute;
@@ -29,12 +30,7 @@ use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\Player;
 use pocketmine\scheduler\ClosureTask;
 
-class NoKnockback extends Cheat{
-
-    /* @WARNING: This cheat might be super resource consuming since
-    it will spawn a decoy every time a player is hit. I have not yet
-    found a way to make this check less resource-consuming, so I am
-    using this check for now. */
+class NoKnockback extends Cheat implements StrictRequirements{
 
     private $cooldown = [];
     private $previousPosition = [];
@@ -47,25 +43,14 @@ class NoKnockback extends Cheat{
         $damager = $event->getDamager();
         $damaged = $event->getEntity();
 
-        if(!$damager instanceof Player || !$damaged instanceof Player) return;
-        $name = $damaged->getName();
-
-        if(!isset($this->previousPosition[$name])){
-            $this->previousPosition[$name] = $damaged->asVector3();
-            return;
+        if($damaged instanceof Player && $damager instanceof Player){
+            /* TODO: Try an attempt solution for NoKnockback */
+            /* The reason why this is so hard to do is because the motion
+            is set server-side, but the client seems to not be affected by this motion.
+            This means that even if we check the motion of the player one tick later,
+            the motion will be the expected motion. A solution I could try is doing a
+            prediction of where the player will land, but that's kind of hard ngl. */
         }
-
-        if(!isset($this->cooldown[$name])){
-            $this->cooldown[$name] = $this->getServer()->getTick();
-        } else {
-            if($this->getServer()->getTick() - $this->cooldown[$name] >= 10){
-                $this->cooldown[$name] = $this->getServer()->getTick();
-            } else {
-                return;
-            }
-        }
-
-
     }
 
 }

@@ -45,11 +45,6 @@ class Speed extends Cheat implements StrictRequirements{
 
     public function onMove(PlayerMoveEvent $event) : void{
         $player = $event->getPlayer();
-        if($player->getPing() >= 195){
-            // I need a workaround for this because
-            // players with high ping may still be cheating.
-            return;
-        }
         if($player->isFlying()) return;
         $name = $player->getName();
 
