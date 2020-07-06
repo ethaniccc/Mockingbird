@@ -39,6 +39,7 @@ class FastEat extends Cheat{
             if($this->playerIsEating($player)){
                 $timeDiff = $this->getServer()->getTick() - $this->startEatTick[$name];
                 if($timeDiff < 24){
+                    $event->setCancelled();
                     $this->addViolation($name);
                     $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                 }

@@ -34,6 +34,7 @@ class Nuker extends Cheat{
             }
             $this->suspicionLevel[$name] += 1;
             if($this->suspicionLevel[$name] >= 5){
+                $event->setCancelled();
                 $this->addViolation($name);
                 $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                 $this->suspicionLevel[$name] = 1;
