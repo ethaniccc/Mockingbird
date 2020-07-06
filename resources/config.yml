@@ -47,15 +47,8 @@ max_violations: 75
 # Do you want the player to be kicked, banned, or blocked? (You can also choose "none")
 punishment_type: kick
 
-# This setting is for if you want to continue off previous
-# violation data. For example, if a player had 20 VL, and
-# the server stopped, they will continue off 20 VL if this
-# setting is enabled.
-keep_previous_violations: false
-
-# If keep_previous_violations is disabled, this setting will
-# save the data in another folder as a SQLITE3 database file. If this
-# setting is enabled, no violation data will be saved.
+# If this option is enabled, this will save the previous data in a .txt file
+# with information such as violations and cheats violated for.
 save_previous_violations: false
 
 # This is for the TPS level detections should be stopped at.

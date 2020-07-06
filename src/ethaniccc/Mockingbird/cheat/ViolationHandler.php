@@ -32,4 +32,15 @@ final class ViolationHandler{
         return isset(self::$cheatsViolatedFor[$name]) ? self::$cheatsViolatedFor[$name] : [];
     }
 
+    public static function getSaveData() : array{
+        $saveData = [];
+        foreach(self::$violations as $name => $violations){
+            $saveData[$name] = [
+                "Violations" => self::getViolations($name),
+                "Cheats" => self::getCheatsViolatedFor($name)
+            ];
+        }
+        return $saveData;
+    }
+
 }

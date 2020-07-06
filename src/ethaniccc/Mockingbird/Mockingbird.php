@@ -46,7 +46,6 @@ class Mockingbird extends PluginBase implements Listener{
     ];
 
     public function onEnable(){
-        // TODO: Re-do method for saving violation data.
         $this->developerMode = is_bool($this->getConfig()->get("dev_mode")) ? $this->getConfig()->get("dev_mode") : false;
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
         if($this->getConfig()->get("version") !== $this->getDescription()->getVersion()){
@@ -96,6 +95,25 @@ class Mockingbird extends PluginBase implements Listener{
 
     public function isDeveloperMode() : bool{
         return $this->developerMode;
+    }
+
+    public function onDisable(){
+        if($this->getConfig()->get("save_previous_violations")){
+            $this->getLogger()->debug("Saving log information...");
+            if(empty(ViolationHandler::getSaveData())){
+                $this->getLogger()->debug("No information to save.");
+                return;
+            }
+            @mkdir($this->getDataFolder() . 'previous_data');
+            $count = count(scandir($this->getDataFolder() . "previous_data")) - 2 + 1;
+            $dataSave = fopen($this->getDataFolder() . "previous_data/SaveData{$count}.txt", "a");
+            foreach(ViolationHandler::getSaveData() as $name => $data){
+                $violations = $data["Violations"];
+                $cheats = $data["Cheats"];
+                fwrite($dataSave, "Player: $name || Violations: $violations || Cheats: " . implode(", ", $cheats) . "\n");
+            }
+            fclose($dataSave);
+        }
     }
 
     private function loadAllModules() : void{
