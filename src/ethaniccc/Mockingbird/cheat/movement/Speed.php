@@ -20,7 +20,7 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\movement;
 
-use ethaniccc\Mockingbird\cheat\StrictRequirments;
+use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use pocketmine\event\player\cheat\PlayerIllegalMoveEvent;
@@ -29,7 +29,7 @@ use pocketmine\utils\TextFormat;
 use pocketmine\block\Ice;
 use pocketmine\block\PackedIce;
 
-class Speed extends Cheat implements StrictRequirments{
+class Speed extends Cheat implements StrictRequirements{
 
     private const MAX_ONGROUND = 0.3;
     private const MAX_INAIR = 0.5;

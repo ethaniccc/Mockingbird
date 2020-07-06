@@ -21,14 +21,14 @@ Github: https://www.github.com/ethaniccc
 namespace ethaniccc\Mockingbird\cheat\combat;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
-use ethaniccc\Mockingbird\cheat\StrictRequirments;
+use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\Player;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 
-class AutoClickerB extends Cheat implements StrictRequirments{
+class AutoClickerB extends Cheat implements StrictRequirements{
 
     private $cps = [];
 

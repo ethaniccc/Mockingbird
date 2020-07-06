@@ -2,7 +2,7 @@
 
 namespace ethaniccc\Mockingbird\cheat\movement;
 
-use ethaniccc\Mockingbird\cheat\StrictRequirments;
+use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\utils\LevelUtils;
@@ -11,7 +11,7 @@ use pocketmine\event\player\PlayerJumpEvent;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\Player;
 
-class NoWeb extends Cheat implements StrictRequirments{
+class NoWeb extends Cheat implements StrictRequirements{
 
     private $jumped = [];
     private $suspicionLevel = [];
