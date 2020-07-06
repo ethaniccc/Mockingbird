@@ -37,8 +37,7 @@ class Mockingbird extends PluginBase implements Listener{
     private $database;
     private $modules = [
         "Combat" => [
-            "Reach", "AutoClickerA", "AutoClickerB", "AutoClickerC",
-            "AutoClickerD", "ToolboxKillaura", "NoKnockback"
+            "Reach", "AutoClickerA", "AutoClickerB", "ToolboxKillaura", "NoKnockback"
         ],
         "Movement" => [
             "Speed", "NoSlowdown", "FastLadder", "NoWeb", "AirJump",
