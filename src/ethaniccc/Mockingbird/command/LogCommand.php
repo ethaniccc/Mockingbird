@@ -2,6 +2,7 @@
 
 namespace ethaniccc\Mockingbird\command;
 
+use ethaniccc\Mockingbird\cheat\ViolationHandler;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use pocketmine\command\Command;
@@ -37,7 +38,7 @@ class LogCommand extends Command implements PluginIdentifiableCommand{
                if($player !== null){
                    $name = $player->getName();
                    $violations = Cheat::getCurrentViolations($name);
-                   $cheats = $this->getPlugin()->getCheatsViolatedFor($name);
+                   $cheats = ViolationHandler::getCheatsViolatedFor($name);
                    if($violations <= 0){
                        $sender->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RESET . TextFormat::RED . "The specified player has no logs.");
                    } else {
@@ -45,7 +46,7 @@ class LogCommand extends Command implements PluginIdentifiableCommand{
                    }
                } else {
                    $violations = Cheat::getCurrentViolations($args[0]);
-                   $cheats = $this->getPlugin()->getCheatsViolatedFor($args[0]);
+                   $cheats = ViolationHandler::getCheatsViolatedFor($args[0]);
                    if($violations <= 0){
                        $sender->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RESET . TextFormat::RED . "The specified player has no logs.");
                    } else {

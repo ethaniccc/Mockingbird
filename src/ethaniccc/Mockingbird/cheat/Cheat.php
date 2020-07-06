@@ -20,7 +20,6 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat;
 
-use ethaniccc\Mockingbird\task\NewViolationTask;
 use pocketmine\event\Listener;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -37,14 +36,12 @@ class Cheat implements Listener{
     private $previousViolationTime = [];
 
     private $plugin;
-    private static $instance;
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         $this->cheatName = $cheatName;
         $this->cheatType = $cheatType;
         $this->enabled = $enabled;
         $this->plugin = $plugin;
-        self::$instance = $this;
     }
 
     public function getName() : string{
@@ -59,21 +56,12 @@ class Cheat implements Listener{
         return $this->enabled;
     }
 
-    public static function setViolations(string $name, $amount) : void{
-        Server::getInstance()->getAsyncPool()->submitTask(new NewViolationTask($name, $amount));
+    public static function setViolations(string $name, float $amount) : void{
+        ViolationHandler::setViolations($name, $amount);
     }
 
     public static function getCurrentViolations(string $name) : int{
-        $database = self::$instance->getPlugin()->getDatabase();
-        $currentViolations = $database->query("SELECT * FROM cheatData WHERE playerName = '$name'");
-        $result = $currentViolations->fetchArray(SQLITE3_ASSOC);
-        if(empty($result)){
-            $newData = $database->prepare("INSERT OR REPLACE INTO cheatData (playerName, violations) VALUES (:playerName, :violations);");
-            $newData->bindValue(":playerName", $name);
-            $newData->bindValue(":violations", 0);
-            $newData->execute();
-        }
-        return empty($result) ? 0 : $result["violations"];
+        return ViolationHandler::getViolations($name);
     }
 
     public function getPlugin() : Mockingbird{
@@ -85,7 +73,7 @@ class Cheat implements Listener{
     }
 
     protected function genericAlertData(Player $player) : array{
-        return ["VL" => self::getCurrentViolations($player->getName()) + 1, "Ping" => $player->getPing()];
+        return ["VL" => self::getCurrentViolations($player->getName()), "Ping" => $player->getPing()];
     }
 
     protected function addViolation(string $name) : void{
@@ -99,19 +87,18 @@ class Cheat implements Listener{
         }
         if($this instanceof StrictRequirements){
             if($this->getServer()->getTicksPerSecond() < StrictRequirements::MIN_TPS){
-                $this->getServer()->getLogger()->debug("Strict requirements were not met.");
+                $this->getServer()->getLogger()->debug("Strict TPS requirement was not met.");
                 return;
             }
             if($this->getServer()->getPlayer($name)->getPing() > StrictRequirements::MAX_PING){
-                $this->getServer()->getLogger()->debug("Strict requirements were not met.");
+                $this->getServer()->getLogger()->debug("Strict ping requirement was not met.");
                 return;
             }
         }
         $violationTime = $this->getLastViolatedTime($name);
         if($violationTime !== null){
             if($violationTime < 0.1){
-                // Idk if this is a good idea, but spamming alerts
-                // will temporarily make the database locked.
+                // TODO: Remove since database is no longer implemented.
                 $this->punish($name, true);
                 $this->getServer()->getLogger()->debug("In order to prevent the server from crashing, $name was kicked.");
                 $this->previousViolationTime[$name] = microtime(true);
@@ -122,13 +109,7 @@ class Cheat implements Listener{
         } else {
             $this->previousViolationTime[$name] = microtime(true);
         }
-        $currentViolations = self::getCurrentViolations($name);
-        $newViolations = $currentViolations + 1;
-        $this->getServer()->getAsyncPool()->submitTask(new NewViolationTask($name, $newViolations));
-    }
-
-    protected function resetViolations(string $name) : void{
-        $this->getServer()->getAsyncPool()->submitTask(new NewViolationTask($name, 0));
+        ViolationHandler::addViolation($name, $this->getName());
     }
 
     protected function notifyStaff(string $name, string $cheat, array $data) : void{
@@ -139,7 +120,6 @@ class Cheat implements Listener{
             $this->getServer()->getLogger()->debug("Alert was cancelled due to low TPS");
             return;
         }
-        $this->getPlugin()->addCheat($name, $cheat);
         if(!isset($this->notifyCooldown[$name])){
             $this->notifyCooldown[$name] = microtime(true);
         } else {
