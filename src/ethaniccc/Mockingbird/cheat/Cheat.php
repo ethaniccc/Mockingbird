@@ -33,7 +33,6 @@ class Cheat implements Listener{
     private $cheatType;
     private $enabled;
     private $notifyCooldown = [];
-    private $previousViolationTime = [];
 
     private $plugin;
 
@@ -95,20 +94,6 @@ class Cheat implements Listener{
                 return;
             }
         }
-        $violationTime = $this->getLastViolatedTime($name);
-        if($violationTime !== null){
-            if($violationTime < 0.1){
-                // TODO: Remove since database is no longer implemented.
-                $this->punish($name, true);
-                $this->getServer()->getLogger()->debug("In order to prevent the server from crashing, $name was kicked.");
-                $this->previousViolationTime[$name] = microtime(true);
-                return;
-            } else {
-                $this->previousViolationTime[$name] = microtime(true);
-            }
-        } else {
-            $this->previousViolationTime[$name] = microtime(true);
-        }
         ViolationHandler::addViolation($name, $this->getName());
     }
 
@@ -145,11 +130,7 @@ class Cheat implements Listener{
         }
     }
 
-    protected function punish(string $name, bool $forced = false) : void{
-        if($forced){
-            $this->getPlugin()->kickPlayerTask($this->getServer()->getPlayer($name));
-            return;
-        }
+    protected function punish(string $name) : void{
         $punishmentType = $this->getPlugin()->getConfig()->get("punishment_type");
         switch($punishmentType){
             case "kick":
@@ -162,10 +143,6 @@ class Cheat implements Listener{
             default:
                 break;
         }
-    }
-
-    protected function getLastViolatedTime(string $name) : ?float{
-        return isset($this->previousViolationTime[$name]) ? microtime(true) - $this->previousViolationTime[$name] : null;
     }
 
     private function isLowTPS() : bool{
