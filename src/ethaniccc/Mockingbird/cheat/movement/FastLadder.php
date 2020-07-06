@@ -2,6 +2,7 @@
 
 namespace ethaniccc\Mockingbird\cheat\movement;
 
+use ethaniccc\Mockingbird\cheat\StrictRequirments;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\utils\LevelUtils;
@@ -10,7 +11,7 @@ use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\event\player\PlayerJumpEvent;
 use pocketmine\Player;
 
-class FastLadder extends Cheat{
+class FastLadder extends Cheat implements StrictRequirments{
 
     private $hasJumped = [];
 

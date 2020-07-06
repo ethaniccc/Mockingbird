@@ -7,8 +7,9 @@ use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\utils\LevelUtils;
 use pocketmine\block\Air;
 use pocketmine\event\player\PlayerJumpEvent;
+use ethaniccc\Mockingbird\cheat\StrictRequirments;
 
-class AirJump extends Cheat{
+class AirJump extends Cheat implements StrictRequirments{
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
@@ -34,5 +35,4 @@ class AirJump extends Cheat{
             }
         }
     }
-
 }

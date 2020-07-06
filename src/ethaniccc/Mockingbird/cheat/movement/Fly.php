@@ -2,6 +2,7 @@
 
 namespace ethaniccc\Mockingbird\cheat\movement;
 
+use ethaniccc\Mockingbird\cheat\StrictRequirments;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\utils\LevelUtils;
@@ -11,7 +12,7 @@ use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\Player;
 
-class Fly extends Cheat{
+class Fly extends Cheat implements StrictRequirments{
 
     private $ticksOffGround = [];
     private $wasDamaged = [];

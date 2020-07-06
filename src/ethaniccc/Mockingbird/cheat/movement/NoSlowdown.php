@@ -20,6 +20,7 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\movement;
 
+use ethaniccc\Mockingbird\cheat\StrictRequirments;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use pocketmine\event\player\PlayerItemConsumeEvent;
@@ -28,7 +29,7 @@ use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\Player;
 
-class NoSlowdown extends Cheat{
+class NoSlowdown extends Cheat implements StrictRequirments{
 
     private $startedEatingTick = [];
     private $lastMovedTick = [];

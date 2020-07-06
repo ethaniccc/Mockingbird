@@ -26,6 +26,7 @@ use pocketmine\Player;
 use pocketmine\Server;
 use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\utils\TextFormat;
+use ethaniccc\Mockingbird\cheat\StrictRequirments;
 
 class Cheat implements Listener{
 
@@ -95,6 +96,16 @@ class Cheat implements Listener{
             $tps = $this->getServer()->getTicksPerSecond();
             $this->getServer()->getLogger()->debug("Violation was cancelled due to low TPS ($tps)");
             return;
+        }
+        if($this instanceof StrictRequirments){
+            if($this->getServer()->getTicksPerSecond() < StrictRequirments::MIN_TPS){
+                $this->getServer()->getLogger()->debug("Strict requirements were not met.");
+                return;
+            }
+            if($this->getServer()->getPlayer($name)->getPing() > StrictRequirments::MAX_PING){
+                $this->getServer()->getLogger()->debug("Strict requirements were not met.");
+                return;
+            }
         }
         $violationTime = $this->getLastViolatedTime($name);
         if($violationTime !== null){

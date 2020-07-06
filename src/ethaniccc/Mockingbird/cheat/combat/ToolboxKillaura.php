@@ -20,6 +20,7 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\combat;
 
+use ethaniccc\Mockingbird\cheat\StrictRequirments;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
@@ -28,7 +29,7 @@ use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
 use pocketmine\Player;
 
-class ToolboxKillaura extends Cheat{
+class ToolboxKillaura extends Cheat implements StrictRequirments{
 
     private $attackCooldown = [];
     private $allowedToHit = [];

@@ -19,13 +19,14 @@ Github: https://www.github.com/ethaniccc
 namespace ethaniccc\Mockingbird\cheat\combat;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
+use ethaniccc\Mockingbird\cheat\StrictRequirments;
 use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\Player;
 use pocketmine\entity\Entity;
 
-class Reach extends Cheat{
+class Reach extends Cheat implements StrictRequirments{
 
     private $lastHit = [];
     private $lastLastHit = [];
