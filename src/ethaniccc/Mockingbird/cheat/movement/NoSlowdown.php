@@ -28,11 +28,14 @@ use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\Player;
+use pocketmine\event\entity\EntityDamageByEntityEvent;
 
 class NoSlowdown extends Cheat implements StrictRequirements{
 
     private $startedEatingTick = [];
     private $lastMovedTick = [];
+
+    private $wasHit = [];
 
     private $suspicionLevel = [];
 
@@ -69,7 +72,7 @@ class NoSlowdown extends Cheat implements StrictRequirements{
         $distanceSquared = abs(($distX * $distX) + ($distZ * $distZ));
         $distance = sqrt($distanceSquared);
 
-        if($this->playerIsEating($player)){
+        if($this->playerIsEating($player) && !$this->wasRecentlyHit($name)){
             if(!$player->isUsingItem()){
                 unset($this->startedEatingTick[$name]);
             }
@@ -105,11 +108,19 @@ class NoSlowdown extends Cheat implements StrictRequirements{
         unset($this->startedEatingTick[$name]);
     }
 
+    public function onHit(EntityDamageByEntityEvent $event) : void{
+        $this->wasHit[$event->getEntity()->getName()] = $this->getServer()->getTick();
+    }
+
     private function playerIsEating(Player $player) : bool{
         if(isset($this->startedEatingTick[$player->getName()])){
             if($this->getServer()->getTick() - $this->startedEatingTick[$player->getName()] >= 25) unset($this->startedEatingTick[$player->getName()]);
         }
         return isset($this->startedEatingTick[$player->getName()]) ? $this->getServer()->getTick() - $this->startedEatingTick[$player->getName()] >= 15 : false;
+    }
+
+    private function wasRecentlyHit(string $name) : bool{
+        return isset($this->wasHit[$name]) ? $this->getServer()->getTick() - $this->wasHit[$name] <= 10 : false;
     }
 
 }
