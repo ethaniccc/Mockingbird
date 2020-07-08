@@ -102,7 +102,7 @@ class Cheat implements Listener{
             return;
         }
         if($this->isLowTPS()){
-            $this->getServer()->getLogger()->debug("Alert was cancelled due to low TPS");
+            $this->getServer()->getLogger()->debug("Alert was cancelled due to low TPS ({$this->getServer()->getTicksPerSecond()})");
             return;
         }
         if(!isset($this->notifyCooldown[$name])){
