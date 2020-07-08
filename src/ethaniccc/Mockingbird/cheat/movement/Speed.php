@@ -23,6 +23,7 @@ namespace ethaniccc\Mockingbird\cheat\movement;
 use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
+use pocketmine\block\BlockIds;
 use pocketmine\event\player\cheat\PlayerIllegalMoveEvent;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\utils\TextFormat;
@@ -64,6 +65,12 @@ class Speed extends Cheat implements StrictRequirements{
             $expectedMaxSpeed = 5.7;
         } else {
             $expectedMaxSpeed = 7.6;
+        }
+        if($player->getLevel()->getBlock($player->asVector3()->add(0, 2, 0))->getId() !== 0){
+            return;
+        }
+        if(in_array($player->getLevel()->getBlock($player->asVector3()->subtract(0, 1, 0))->getId(), [BlockIds::ICE, BlockIds::FROSTED_ICE, BlockIds::PACKED_ICE])){
+            $expectedMaxSpeed *= 1.2;
         }
         if($player->getEffect(1) !== null){
             $level = $player->getEffect(1)->getEffectLevel() + 1;
