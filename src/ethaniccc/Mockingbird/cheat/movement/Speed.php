@@ -83,8 +83,6 @@ class Speed extends Cheat implements StrictRequirements{
                 $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                 $this->suspicionLevel[$name] *= 0.5;
             }
-            $dividedValue = $blocksPerSecond / $expectedMaxSpeed;
-            $this->getServer()->broadcastMessage("Expected: $expectedMaxSpeed\nGiven: $blocksPerSecond\nDivision: $dividedValue");
         } else {
             $this->suspicionLevel[$name] *= 0.75;
         }
