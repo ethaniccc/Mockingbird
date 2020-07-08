@@ -70,7 +70,7 @@ class Speed extends Cheat implements StrictRequirements{
             return;
         }
         if(in_array($player->getLevel()->getBlock($player->asVector3()->subtract(0, 1, 0))->getId(), [BlockIds::ICE, BlockIds::FROSTED_ICE, BlockIds::PACKED_ICE])){
-            $expectedMaxSpeed *= 1.2;
+            $expectedMaxSpeed *= (5 / 3);
         }
         if($player->getEffect(1) !== null){
             $level = $player->getEffect(1)->getEffectLevel() + 1;
