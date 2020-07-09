@@ -20,6 +20,7 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat;
 
+use ethaniccc\Mockingbird\cheat\Blatant;
 use pocketmine\event\Listener;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -36,6 +37,9 @@ class Cheat implements Listener{
 
     private $requiredTPS;
     private $requiredPing;
+
+    private $blatantViolations = [];
+    private $maxBlatantViolations;
 
     private $plugin;
 
@@ -100,6 +104,27 @@ class Cheat implements Listener{
         return $this->requiredPing === null ? 200 : $this->requiredPing;
     }
 
+    public function getMaxViolations(){
+        if(!$this instanceof Blatant){
+            throw new \Exception("Module {$this->getName()} is not an instance of Blatant");
+        }
+        return $this->maxBlatantViolations;
+    }
+
+    public function setMaxViolations(int $violations){
+        if(!$this instanceof Blatant){
+            throw new \Exception("Module {$this->getName()} is not an instance of Blatant");
+        }
+        $this->maxBlatantViolations = $violations;
+    }
+
+    public function resetBlatantViolations(string $name){
+        if(!$this instanceof Blatant){
+            throw new \Exception("Module {$this->getName()} is not an instance of Blatant");
+        }
+        $this->blatantViolations[$name] = 0;
+    }
+
     protected function getServer() : Server{
         return Server::getInstance();
     }
@@ -128,6 +153,12 @@ class Cheat implements Listener{
             }
         }
         ViolationHandler::addViolation($name, $this->getName());
+        if($this instanceof Blatant){
+            if(!isset($this->blatantViolations[$name])){
+                $this->blatantViolations[$name] = 0;
+            }
+            $this->blatantViolations[$name] += 1;
+        }
     }
 
     protected function notifyStaff(string $name, string $cheat, array $data) : void{
@@ -141,10 +172,28 @@ class Cheat implements Listener{
         if(!isset($this->notifyCooldown[$name])){
             $this->notifyCooldown[$name] = microtime(true);
         } else {
-            if(microtime(true) - $this->notifyCooldown[$name] >= 0.1){
+            if(microtime(true) - $this->notifyCooldown[$name] >= 1){
                 $this->notifyCooldown[$name] = microtime(true);
             } else {
                 return;
+            }
+        }
+        if($this instanceof Blatant){
+            if($this->blatantViolations[$name] >= $this->getMaxViolations()){
+                $punishmentType = $this->getPlugin()->getConfig()->get("punishment_type");
+                switch($punishmentType){
+                    case "kick":
+                        $this->getPlugin()->kickPlayerTask($this->getServer()->getPlayer($name));
+                        $this->resetBlatantViolations($name);
+                        break;
+                    case "ban":
+                        $this->getPlugin()->banPlayerTask($this->getServer()->getPlayer($name));
+                        $this->resetBlatantViolations($name);
+                        break;
+                    case "none":
+                    default:
+                        break;
+                }
             }
         }
         foreach($this->getServer()->getOnlinePlayers() as $player){

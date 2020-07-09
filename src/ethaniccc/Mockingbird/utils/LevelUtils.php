@@ -13,7 +13,7 @@ class LevelUtils{
     public const MODE_Z = 2;
     public const MODE_POINT_DISTANCE = 3;
 
-    public static function getSurroundingBlocks(Player $player, float $radius = 1) : array{
+    public static function getSurroundingBlocks($player, float $radius = 1) : array{
         $position = $player->asVector3();
         $level = $player->getLevel();
         $currentAddLevel = 0;
