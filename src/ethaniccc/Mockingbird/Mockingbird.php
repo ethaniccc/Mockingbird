@@ -44,6 +44,7 @@ class Mockingbird extends PluginBase implements Listener{
             "ChestStealer", "FastEat", "Nuker", "FastBreak"
         ]
     ];
+    private $enabledModules = [];
 
     public function onEnable(){
         $this->developerMode = is_bool($this->getConfig()->get("dev_mode")) ? $this->getConfig()->get("dev_mode") : false;
@@ -123,8 +124,11 @@ class Mockingbird extends PluginBase implements Listener{
             foreach($modules as $module){
                 $class = $namespace . "$module";
                 $newModule = new $class($this, $module, $type, $this->getConfig()->get("dev_mode") === true ? true : $this->getConfig()->get($module));
-                if($newModule->isEnabled()) $this->getServer()->getPluginManager()->registerEvents($newModule, $this);
-                if($newModule->isEnabled()) $loadedModules++;
+                if($newModule->isEnabled()){
+                    $this->getServer()->getPluginManager()->registerEvents($newModule, $this);
+                    $loadedModules++;
+                    array_push($this->enabledModules, $newModule);
+                }
             }
         }
         $this->getLogger()->debug(TextFormat::GREEN . "$loadedModules modules have been loaded.");

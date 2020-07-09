@@ -4,7 +4,11 @@ namespace ethaniccc\Mockingbird\cheat;
 
 interface StrictRequirements{
 
-    public const MIN_TPS = 19.5;
-    public const MAX_PING = 245;
+    public function setRequiredTPS(float $tps);
 
+    public function getRequiredTPS();
+
+    public function setRequiredPing(int $ping);
+
+    public function getRequiredPing();
 }

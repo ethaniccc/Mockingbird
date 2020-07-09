@@ -34,6 +34,9 @@ class Cheat implements Listener{
     private $enabled;
     private $notifyCooldown = [];
 
+    private $requiredTPS;
+    private $requiredPing;
+
     private $plugin;
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
@@ -67,6 +70,36 @@ class Cheat implements Listener{
         return $this->plugin;
     }
 
+    public function setRequiredTPS(float $tps){
+        if(!$this instanceof StrictRequirements){
+            throw new \Exception("Module {$this->getName()} is not an instance of StrictRequirements.");
+        } else {
+            $this->requiredTPS = $tps;
+        }
+    }
+
+    public function getRequiredTPS(){
+        if(!$this instanceof StrictRequirements){
+            throw new \Exception("Module {$this->getName()} is not an instance of StrictRequirements.");
+        }
+        return $this->requiredTPS === null ? 19 : $this->requiredTPS;
+    }
+
+    public function setRequiredPing(int $ping){
+        if(!$this instanceof StrictRequirements){
+            throw new \Exception("Module {$this->getName()} is not an instance of StrictRequirements.");
+        } else {
+            $this->requiredPing = $ping;
+        }
+    }
+
+    public function getRequiredPing(){
+        if(!$this instanceof StrictRequirements){
+            throw new \Exception("Module {$this->getName()} is not an instance of StrictRequirements.");
+        }
+        return $this->requiredPing === null ? 200 : $this->requiredPing;
+    }
+
     protected function getServer() : Server{
         return Server::getInstance();
     }
@@ -85,12 +118,12 @@ class Cheat implements Listener{
             return;
         }
         if($this instanceof StrictRequirements){
-            if($this->getServer()->getTicksPerSecond() < StrictRequirements::MIN_TPS){
-                $this->getServer()->getLogger()->debug("Strict TPS requirement was not met.");
+            if($this->getServer()->getPlayer($name)->getPing() > $this->getRequiredPing()){
+                $this->getServer()->getLogger()->debug("Ping requirements were not met for {$this->getName()} (Ping: {$this->getServer()->getPlayer($name)->getPing()})");
                 return;
             }
-            if($this->getServer()->getPlayer($name)->getPing() > StrictRequirements::MAX_PING){
-                $this->getServer()->getLogger()->debug("Strict ping requirement was not met.");
+            if($this->getServer()->getTicksPerSecond() < $this->getRequiredTPS()){
+                $this->getServer()->getLogger()->debug("TPS requirements were not met for {$this->getName()} (TPS: {$this->getServer()->getTicksPerSecond()})");
                 return;
             }
         }

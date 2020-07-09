@@ -40,6 +40,7 @@ class Speed extends Cheat implements StrictRequirements{
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+        $this->setRequiredTPS(19.5);
     }
 
     public function onMove(PlayerMoveEvent $event) : void{
@@ -132,7 +133,7 @@ class Speed extends Cheat implements StrictRequirements{
 
         if($blocksPerSecond > $expectedMaxSpeed){
             $this->suspicionLevel[$name] += 1;
-            if($this->suspicionLevel[$name] >= 5){
+            if($this->suspicionLevel[$name] >= 10){
                 $this->addViolation($name);
                 $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                 $this->suspicionLevel[$name] *= 0.5;
