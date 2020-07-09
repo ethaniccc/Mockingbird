@@ -60,8 +60,7 @@ stop_tps: 18
 # You can choose to enable or disable cheats with (true/false)
 
 Reach: true
-Aimbot: true
-NoKnockback: true
+NoKnockback: false
 
 # Toolbox is a hacked client some Android users may use to
 # gain an unfair advantage against other players.
@@ -74,18 +73,6 @@ AutoClickerA: true
 # AutoClickerB is a speed check.
 AutoClickerB: true
 
-# AutoClickerC is a "double" Auto-Clicker check. This can
-# also be utilized to check if someone is clicking over
-# a running AutoClicker.
-# NOTE: This check will always be disabled
-# due to inaccuracy.
-AutoClickerC: true
-
-# AutoClickerD is a macro check.
-# NOTE: This check will always be disabled
-# due to inaccuracy.
-AutoClickerD: true
-
 #######   =====================================   #######
 
 ## Movement Detections ##
@@ -97,10 +84,12 @@ FastLadder: true
 NoWeb: true
 AirJump: true
 Fly: true
+InventoryMove: true
 
 ## Other Detections ##
 # You can choose to enable or disable cheats with (true/false)
 
 ChestStealer: true
 FastEat: true
+FastBreak: true
 Nuker: true
