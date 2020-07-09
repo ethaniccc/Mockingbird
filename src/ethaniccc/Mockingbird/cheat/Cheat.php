@@ -158,6 +158,12 @@ class Cheat implements Listener{
                 $this->blatantViolations[$name] = 0;
             }
             $this->blatantViolations[$name] += 1;
+            if($this->blatantViolations[$name] >= $this->getMaxViolations()){
+                $this->punish($name);
+            }
+        }
+        if(self::getCurrentViolations($name) >= $this->getPlugin()->getConfig()->get("max_violations")){
+            $this->punish($name);
         }
     }
 
@@ -178,37 +184,18 @@ class Cheat implements Listener{
                 return;
             }
         }
-        if($this instanceof Blatant){
-            if($this->blatantViolations[$name] >= $this->getMaxViolations()){
-                $punishmentType = $this->getPlugin()->getConfig()->get("punishment_type");
-                switch($punishmentType){
-                    case "kick":
-                        $this->getPlugin()->kickPlayerTask($this->getServer()->getPlayer($name));
-                        $this->resetBlatantViolations($name);
-                        break;
-                    case "ban":
-                        $this->getPlugin()->banPlayerTask($this->getServer()->getPlayer($name));
-                        $this->resetBlatantViolations($name);
-                        break;
-                    case "none":
-                    default:
-                        break;
+        if($this->getPlugin()->getConfig()->get("alerts") === true){
+            foreach($this->getServer()->getOnlinePlayers() as $player){
+                if($player->hasPermission($this->getPlugin()->getConfig()->get("alert_permission"))){
+                    $dataReport = TextFormat::DARK_RED . "[";
+                    foreach($data as $dataName => $info){
+                        if(array_key_last($data) !== $dataName) $dataReport .= TextFormat::GRAY . $dataName . ": " . TextFormat::RED . $info . TextFormat::DARK_RED . " | ";
+                        else $dataReport .= TextFormat::GRAY . $dataName . ": " . TextFormat::RED . $info;
+                    }
+                    $dataReport .= TextFormat::DARK_RED . "]";
+                    $player->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RESET . TextFormat::RED . $name . TextFormat::GRAY . " has failed the check for " . TextFormat::RED . $cheat . TextFormat::RESET . " $dataReport");
                 }
             }
-        }
-        foreach($this->getServer()->getOnlinePlayers() as $player){
-            if($player->hasPermission($this->getPlugin()->getConfig()->get("alert_permission"))){
-                $dataReport = TextFormat::DARK_RED . "[";
-                foreach($data as $dataName => $info){
-                    if(array_key_last($data) !== $dataName) $dataReport .= TextFormat::GRAY . $dataName . ": " . TextFormat::RED . $info . TextFormat::DARK_RED . " | ";
-                    else $dataReport .= TextFormat::GRAY . $dataName . ": " . TextFormat::RED . $info;
-                }
-                $dataReport .= TextFormat::DARK_RED . "]";
-                $player->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RESET . TextFormat::RED . $name . TextFormat::GRAY . " has failed the check for " . TextFormat::RED . $cheat . TextFormat::RESET . " $dataReport");
-            }
-        }
-        if(self::getCurrentViolations($name) >= $this->getPlugin()->getConfig()->get("max_violations")){
-            $this->punish($name);
         }
     }
 

@@ -22,6 +22,9 @@ dev_mode: true
 
 ## General Settings ##
 
+# Setting for if you want alerts to be enabled or disabled.
+alerts: true
+
 # You can choose this to be any permission you'd like so
 # that staff members get Mockingbird alerts, etc.
 alert_permission: "mockingbird.alerts"
