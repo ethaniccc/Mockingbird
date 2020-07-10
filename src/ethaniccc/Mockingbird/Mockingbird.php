@@ -34,12 +34,12 @@ class Mockingbird extends PluginBase implements Listener{
     private $developerMode;
     private $modules = [
         "Combat" => [
-            "Reach", "AutoClickerA", "AutoClickerB", "ToolboxKillaura", "NoKnockback",
+            "Reach", "AutoClickerA", "AutoClickerB", "ToolboxKillaura",
             "MultiAura"
         ],
         "Movement" => [
             "Speed", "NoSlowdown", "FastLadder", "NoWeb", "AirJump",
-            "Fly", "InventoryMove"
+            "Fly", "InventoryMove",
         ],
         "Packet" => [
             "BadPacketA", "BadPacketB", "BadPacketC"
