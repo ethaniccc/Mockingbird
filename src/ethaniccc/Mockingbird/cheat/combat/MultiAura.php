@@ -40,7 +40,7 @@ class MultiAura extends Cheat implements StrictRequirements{
         }
 
         if($damaged->getName() != $this->lastHit[$name]["Entity"]){
-            if(microtime(true) - $this->lastHit[$name]["Time"] < 0.001){
+            if(microtime(true) - $this->lastHit[$name]["Time"] < 0.01){
                 $timeDiff = microtime(true) - $this->lastHit[$name]["Time"];
                 $this->getServer()->broadcastMessage("$timeDiff");
                 if($damaged->distance($this->getServer()->getPlayer($this->lastHit[$name]["Entity"])) > 3.5){
