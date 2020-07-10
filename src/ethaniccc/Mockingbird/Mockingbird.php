@@ -34,7 +34,8 @@ class Mockingbird extends PluginBase implements Listener{
     private $developerMode;
     private $modules = [
         "Combat" => [
-            "Reach", "AutoClickerA", "AutoClickerB", "ToolboxKillaura", "NoKnockback"
+            "Reach", "AutoClickerA", "AutoClickerB", "ToolboxKillaura", "NoKnockback",
+            "MultiAura"
         ],
         "Movement" => [
             "Speed", "NoSlowdown", "FastLadder", "NoWeb", "AirJump",
@@ -118,6 +119,10 @@ class Mockingbird extends PluginBase implements Listener{
             }
             fclose($dataSave);
         }
+    }
+
+    public function getEnabledModules() : array{
+        return $this->enabledModules;
     }
 
     private function loadAllModules() : void{
