@@ -23,6 +23,10 @@ class InventoryMove extends Cheat implements StrictRequirements, Blatant{
         $player = $transaction->getSource();
         $name = $player->getName();
 
+        if(!isset($this->lastMoveTick[$name])){
+            return;
+        }
+
         $timeDiff = $this->getServer()->getTick() - $this->lastMoveTick[$name];
         if($timeDiff == 0){
             $this->addViolation($name);

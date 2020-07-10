@@ -40,6 +40,9 @@ class Mockingbird extends PluginBase implements Listener{
             "Speed", "NoSlowdown", "FastLadder", "NoWeb", "AirJump",
             "Fly", "InventoryMove"
         ],
+        "Packet" => [
+            "BadPacketA", "BadPacketB", "BadPacketC"
+        ],
         "Other" => [
             "ChestStealer", "FastEat", "Nuker", "FastBreak"
         ]
