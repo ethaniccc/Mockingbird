@@ -285,6 +285,7 @@ class Cheat implements Listener{
                 $this->getPlugin()->kickPlayerTask($this->getServer()->getPlayer($name));
                 break;
             case "ban":
+            case "ip-ban":
                 $this->getPlugin()->banPlayerTask($this->getServer()->getPlayer($name));
                 break;
             case "none":

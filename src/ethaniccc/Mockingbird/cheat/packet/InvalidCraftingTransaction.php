@@ -7,8 +7,6 @@ use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
-use pocketmine\network\mcpe\protocol\types\NetworkInventoryAction;
-use pocketmine\inventory\transaction\CraftingTransaction;
 
 class InvalidCraftingTransaction extends Cheat implements Blatant{
 
@@ -25,7 +23,6 @@ class InvalidCraftingTransaction extends Cheat implements Blatant{
         $packet = $event->getPacket();
         if($packet instanceof InventoryTransactionPacket){
             if(empty($packet->actions) && $packet->transactionType !== InventoryTransactionPacket::TYPE_USE_ITEM){
-                var_dump($packet);
                 $this->addViolation($event->getPlayer()->getName());
             }
         }

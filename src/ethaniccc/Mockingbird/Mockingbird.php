@@ -114,7 +114,18 @@ class Mockingbird extends PluginBase implements Listener{
     public function banPlayerTask(Player $player) : void{
         $name = $player->getName();
         $this->getScheduler()->scheduleDelayedTask(new ClosureTask(function(int $currentTick) use ($player, $name) : void{
-            $player->kick($this->getConfig()->get("punish_prefix") . TextFormat::RESET . "\n" . TextFormat::YELLOW . "You were banned from this server for unfair advantage.", false);
+            if($this->getConfig()->get("punishment_type") === "ip-ban"){
+                $this->getServer()->getIPBans()->addBan($player->getAddress(), "Unfair advantage / Hacking", null, "Mockingbird");
+                foreach($this->getServer()->getOnlinePlayers() as $person){
+                    if($person->getAddress() === $player->getAddress()){
+                        if($person->getName() === $player->getName()){
+                            $person->kick($this->getConfig()->get("punish_prefix") . TextFormat::RESET . "\n" . TextFormat::YELLOW . "You were IP-banned from this server for unfair advantage.", false);
+                        } else {
+                            $person->kick($this->getConfig()->get("punish_prefix") . TextFormat::RESET . "\n" . TextFormat::YELLOW . "Someone on your internet was hacking, and your IP was banned.", false);
+                        }
+                    }
+                }
+            }
             $this->getServer()->getNameBans()->addBan($name, "Unfair advantage / Hacking", null, "Mockingbird");
             Cheat::setViolations($name, 0);
             $cheats = ViolationHandler::getCheatsViolatedFor($name);

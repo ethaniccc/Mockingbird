@@ -47,7 +47,8 @@ punish_prefix: "§l§b§cMocking§4bird"
 # they are punished by Mockingbird
 max_violations: 75
 
-# Do you want the player to be kicked, banned, or blocked? (You can also choose "none")
+# Do you want the player to be kicked, banned, or ip-banned? (You can also choose "none")
+# Options: none, kick, ban, ip-ban
 punishment_type: kick
 
 # If this option is enabled, this will save the previous data in a .txt file
