@@ -33,8 +33,8 @@ alert_permission: "mockingbird.alerts"
 # This permission is for getting player logs.
 log_permission: "mockingbird.logs"
 
-# This is a bypass permission you can give to pepople
-# that are testing the AntiCheat
+# This is a bypass permission you can give to people, this means
+# that they will NOT be violated for cheats.
 bypass_permission: "mockingbird.bypass"
 
 # Type any prefix you want for AntiCheat alerts.
@@ -56,6 +56,10 @@ save_previous_violations: false
 
 # This is for the TPS level detections should be stopped at.
 stop_tps: 18
+
+# This option is for choosing what type of mode you want to use for the
+# /log command. There are two options: normal and UI
+log_command_type: normal
 
 #######   =====================================   #######
 

@@ -2,14 +2,13 @@
 
 namespace ethaniccc\Mockingbird\cheat\packet;
 
+use ethaniccc\Mockingbird\cheat\Blatant;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
-use ethaniccc\Mockingbird\cheat\Blatant;
-use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\event\server\DataPacketReceiveEvent;
-use pocketmine\network\mcpe\protocol\types\NetworkInventoryAction;
+use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 
-class BadPacketC extends Cheat implements Blatant{
+class BadPitchPacket extends Cheat implements Blatant{
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
@@ -17,15 +16,12 @@ class BadPacketC extends Cheat implements Blatant{
     }
 
     public function receivePacket(DataPacketReceiveEvent $event) : void{
-        $packet = $event->getPacket();
         $player = $event->getPlayer();
         $name = $player->getName();
-
-        if($packet instanceof InventoryTransactionPacket){
-            foreach($packet->actions as $action){
-                if($action->sourceType === NetworkInventoryAction::SOURCE_CREATIVE && !$player->isCreative()){
-                    $this->addViolation($name);
-                }
+        $packet = $event->getPacket();
+        if($packet instanceof MovePlayerPacket){
+            if(abs($packet->pitch) > 90){
+                $this->addViolation($name);
             }
         }
     }

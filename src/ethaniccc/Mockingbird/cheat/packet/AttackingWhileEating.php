@@ -9,7 +9,7 @@ use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
 
-class BadPacketB extends Cheat implements Blatant{
+class AttackingWhileEating extends Cheat implements Blatant{
 
     private $lastAttackTick = [];
 

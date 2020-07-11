@@ -67,7 +67,7 @@ class Cheat implements Listener{
     }
 
     public static function getCurrentViolations(string $name) : int{
-        return ViolationHandler::getViolations($name);
+        return ViolationHandler::getCurrentViolations($name);
     }
 
     public function getPlugin() : Mockingbird{
