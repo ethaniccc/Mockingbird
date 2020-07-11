@@ -45,7 +45,8 @@ class Mockingbird extends PluginBase implements Listener{
             "Fly", "InventoryMove",
         ],
         "Packet" => [
-            "BadPitchPacket", "AttackingWhileEating", "InvalidCreativeTransaction"
+            "BadPitchPacket", "AttackingWhileEating", "InvalidCreativeTransaction",
+            "InvalidCraftingTransaction"
         ],
         "Other" => [
             "ChestStealer", "FastEat", "Nuker", "FastBreak"
