@@ -51,9 +51,10 @@ class Mockingbird extends PluginBase implements Listener{
             "ChestStealer", "FastEat", "Nuker", "FastBreak"
         ],
         "Custom" => [
-            // TODO: Implement Custom Modules ;)
+
         ]
     ];
+
     /** @var array */
     private $enabledModules = [];
 
@@ -62,6 +63,14 @@ class Mockingbird extends PluginBase implements Listener{
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
         if($this->getConfig()->get("version") !== $this->getDescription()->getVersion()){
             $this->saveDefaultConfig();
+        }
+        @mkdir($this->getDataFolder() . "custom_modules", 0777);
+        $customModules = scandir($this->getDataFolder() . "custom_modules");
+        foreach($customModules as $customModule){
+            $className = explode(".php", $customModule)[0];
+            if($className !== "." && $className !== ".."){
+                array_push($this->modules["Custom"], $className);
+            }
         }
         $this->getLogger()->debug(TextFormat::AQUA . "Mockingbird has been enabled.");
         $this->loadAllModules();
@@ -153,8 +162,11 @@ class Mockingbird extends PluginBase implements Listener{
     private function loadAllModules() : void{
         $loadedModules = 0;
         foreach($this->modules as $type => $modules){
-            $namespace = "\\ethaniccc\\Mockingbird\\cheat\\" . (strtolower($type)) . "\\";
+            $namespace = "ethaniccc\\Mockingbird\\cheat\\" . (strtolower($type)) . "\\";
             foreach($modules as $module){
+                if($type === "Custom"){
+                    include_once "plugin_data/Mockingbird/custom_modules/$module.php";
+                }
                 $class = $namespace . "$module";
                 $newModule = new $class($this, $module, $type, $this->getConfig()->get("dev_mode") === true ? true : $this->getConfig()->get($module));
                 if($newModule->isEnabled()){
