@@ -71,6 +71,9 @@ class LogCommand extends Command implements PluginIdentifiableCommand{
                    }
                    break;
                case "UI":
+                   foreach($this->ids as $id => $value){
+                       unset($this->ids[$id]);
+                   }
                    if(!$sender instanceof Player){
                        $sender->sendMessage(TextFormat::RED . "You must run this command as a player!");
                        return;
