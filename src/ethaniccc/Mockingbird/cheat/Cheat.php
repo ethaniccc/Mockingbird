@@ -21,6 +21,7 @@ Github: https://www.github.com/ethaniccc
 namespace ethaniccc\Mockingbird\cheat;
 
 use ethaniccc\Mockingbird\cheat\Blatant;
+use Exception;
 use pocketmine\event\Listener;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -30,17 +31,29 @@ use ethaniccc\Mockingbird\cheat\StrictRequirements;
 
 class Cheat implements Listener{
 
+    /** @var string */
     private $cheatName;
+
+    /** @var string */
     private $cheatType;
+
+    /** @var bool */
     private $enabled;
+
+    /** @var array */
     private $notifyCooldown = [];
 
+    /** @var float */
     private $requiredTPS;
+    /** @var int */
     private $requiredPing;
 
+    /** @var array */
     private $blatantViolations = [];
+    /** @var int */
     private $maxBlatantViolations;
 
+    /** @var Mockingbird */
     private $plugin;
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
@@ -50,89 +63,147 @@ class Cheat implements Listener{
         $this->plugin = $plugin;
     }
 
+    /**
+     * @return string
+     */
     public function getName() : string{
         return $this->cheatName;
     }
 
+    /**
+     * @return string
+     */
     public function getType() : string{
         return $this->cheatType;
     }
 
+    /**
+     * @return bool
+     */
     public function isEnabled() : bool{
         return $this->enabled;
     }
 
+    /**
+     * @param string $name
+     * @param float $amount
+     */
     public static function setViolations(string $name, float $amount) : void{
         ViolationHandler::setViolations($name, $amount);
     }
 
+    /**
+     * @param string $name
+     * @return int
+     */
     public static function getCurrentViolations(string $name) : int{
         return ViolationHandler::getCurrentViolations($name);
     }
 
+    /**
+     * @return Mockingbird
+     */
     public function getPlugin() : Mockingbird{
         return $this->plugin;
     }
 
+    /**
+     * @param float $tps
+     * @throws Exception
+     */
     public function setRequiredTPS(float $tps){
         if(!$this instanceof StrictRequirements){
-            throw new \Exception("Module {$this->getName()} is not an instance of StrictRequirements.");
+            throw new Exception("Module {$this->getName()} is not an instance of StrictRequirements.");
         } else {
             $this->requiredTPS = $tps;
         }
     }
 
+    /**
+     * @return float|int
+     * @throws Exception
+     */
     public function getRequiredTPS(){
         if(!$this instanceof StrictRequirements){
-            throw new \Exception("Module {$this->getName()} is not an instance of StrictRequirements.");
+            throw new Exception("Module {$this->getName()} is not an instance of StrictRequirements.");
         }
         return $this->requiredTPS === null ? 19 : $this->requiredTPS;
     }
 
+    /**
+     * @param int $ping
+     * @throws Exception
+     */
     public function setRequiredPing(int $ping){
         if(!$this instanceof StrictRequirements){
-            throw new \Exception("Module {$this->getName()} is not an instance of StrictRequirements.");
+            throw new Exception("Module {$this->getName()} is not an instance of StrictRequirements.");
         } else {
             $this->requiredPing = $ping;
         }
     }
 
+    /**
+     * @return int
+     * @throws Exception
+     */
     public function getRequiredPing(){
         if(!$this instanceof StrictRequirements){
-            throw new \Exception("Module {$this->getName()} is not an instance of StrictRequirements.");
+            throw new Exception("Module {$this->getName()} is not an instance of StrictRequirements.");
         }
         return $this->requiredPing === null ? 200 : $this->requiredPing;
     }
 
+    /**
+     * @return int
+     * @throws Exception
+     */
     public function getMaxViolations(){
         if(!$this instanceof Blatant){
-            throw new \Exception("Module {$this->getName()} is not an instance of Blatant");
+            throw new Exception("Module {$this->getName()} is not an instance of Blatant");
         }
         return $this->maxBlatantViolations;
     }
 
+    /**
+     * @param int $violations
+     * @throws Exception
+     */
     public function setMaxViolations(int $violations){
         if(!$this instanceof Blatant){
-            throw new \Exception("Module {$this->getName()} is not an instance of Blatant");
+            throw new Exception("Module {$this->getName()} is not an instance of Blatant");
         }
         $this->maxBlatantViolations = $violations;
     }
 
+    /**
+     * @param string $name
+     * @throws Exception
+     */
     public function resetBlatantViolations(string $name){
         if(!$this instanceof Blatant){
-            throw new \Exception("Module {$this->getName()} is not an instance of Blatant");
+            throw new Exception("Module {$this->getName()} is not an instance of Blatant");
         }
         $this->blatantViolations[$name] = 0;
     }
 
+    /**
+     * @return Server
+     */
     protected function getServer() : Server{
         return Server::getInstance();
     }
 
+    /**
+     * @param Player $player
+     * @return array
+     */
     protected function genericAlertData(Player $player) : array{
         return ["VL" => self::getCurrentViolations($player->getName()), "Ping" => $player->getPing()];
     }
 
+    /**
+     * @param string $name
+     */
     protected function addViolation(string $name) : void{
         if($this->getServer()->getPlayer($name)->hasPermission($this->getPlugin()->getConfig()->get("bypass_permission"))){
             return;
@@ -167,6 +238,11 @@ class Cheat implements Listener{
         }
     }
 
+    /**
+     * @param string $name
+     * @param string $cheat
+     * @param array $data
+     */
     protected function notifyStaff(string $name, string $cheat, array $data) : void{
         if($this->getServer()->getPlayer($name)->hasPermission($this->getPlugin()->getConfig()->get("bypass_permission"))){
             return;
@@ -199,6 +275,9 @@ class Cheat implements Listener{
         }
     }
 
+    /**
+     * @param string $name
+     */
     protected function punish(string $name) : void{
         $punishmentType = $this->getPlugin()->getConfig()->get("punishment_type");
         switch($punishmentType){
@@ -214,6 +293,9 @@ class Cheat implements Listener{
         }
     }
 
+    /**
+     * @return bool
+     */
     private function isLowTPS() : bool{
         return $this->getServer()->getTicksPerSecond() <= $this->getPlugin()->getConfig()->get("stop_tps");
     }

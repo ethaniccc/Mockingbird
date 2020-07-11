@@ -13,6 +13,11 @@ class LevelUtils{
     public const MODE_Z = 2;
     public const MODE_POINT_DISTANCE = 3;
 
+    /**
+     * @param $player
+     * @param float|int $radius
+     * @return array
+     */
     public static function getSurroundingBlocks($player, float $radius = 1) : array{
         $position = $player->asVector3();
         $level = $player->getLevel();
@@ -38,6 +43,12 @@ class LevelUtils{
         return $blocksAroundPlayer;
     }
 
+    /**
+     * @param Vector3 $to
+     * @param Vector3 $from
+     * @param int $mode
+     * @return float
+     */
     public static function getMoveDistance(Vector3 $to, Vector3 $from, int $mode) : float{
         switch($mode){
             case self::MODE_X:

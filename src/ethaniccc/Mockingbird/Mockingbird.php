@@ -31,7 +31,10 @@ use pocketmine\Player;
 
 class Mockingbird extends PluginBase implements Listener{
 
+    /** @var bool */
     private $developerMode;
+
+    /** @var array */
     private $modules = [
         "Combat" => [
             "Reach", "AutoClickerA", "AutoClickerB", "ToolboxKillaura",
@@ -46,8 +49,12 @@ class Mockingbird extends PluginBase implements Listener{
         ],
         "Other" => [
             "ChestStealer", "FastEat", "Nuker", "FastBreak"
+        ],
+        "Custom" => [
+            // TODO: Implement Custom Modules ;)
         ]
     ];
+    /** @var array */
     private $enabledModules = [];
 
     public function onEnable(){
@@ -69,15 +76,21 @@ class Mockingbird extends PluginBase implements Listener{
         }
     }
 
+    /**
+     * @return string
+     */
     public function getPrefix() : string{
         return !is_string($this->getConfig()->get("prefix")) ? TextFormat::BOLD . TextFormat::RED . "Mockingbird> " : $this->getConfig()->get("prefix") . " ";
     }
 
+    /**
+     * @param Player $player
+     */
     public function kickPlayerTask(Player $player) : void{
         $name = $player->getName();
         $this->getScheduler()->scheduleDelayedTask(new ClosureTask(function(int $currentTick) use ($player, $name) : void{
             $player->kick($this->getConfig()->get("punish_prefix") . TextFormat::RESET . "\n" . TextFormat::YELLOW . "You were kicked from this server for unfair advantage.", false);
-            Cheat::setViolations($name, 20);
+            Cheat::setViolations($name, 0);
             $cheats = ViolationHandler::getCheatsViolatedFor($name);
             foreach($this->getServer()->getOnlinePlayers() as $staff){
                 if($staff->hasPermission($this->getConfig()->get("alert_permission"))) $staff->sendMessage($this->getPrefix() . TextFormat::RESET . TextFormat::RED . "$name has been kicked for using unfair advantage on other players. They were detected for: " . implode(", ", $cheats));
@@ -85,12 +98,15 @@ class Mockingbird extends PluginBase implements Listener{
         }), 1);
     }
 
+    /**
+     * @param Player $player
+     */
     public function banPlayerTask(Player $player) : void{
         $name = $player->getName();
         $this->getScheduler()->scheduleDelayedTask(new ClosureTask(function(int $currentTick) use ($player, $name) : void{
             $player->kick($this->getConfig()->get("punish_prefix") . TextFormat::RESET . "\n" . TextFormat::YELLOW . "You were banned from this server for unfair advantage.", false);
             $this->getServer()->getNameBans()->addBan($name, "Unfair advantage / Hacking", null, "Mockingbird");
-            Cheat::setViolations($name, 20);
+            Cheat::setViolations($name, 0);
             $cheats = ViolationHandler::getCheatsViolatedFor($name);
             foreach($this->getServer()->getOnlinePlayers() as $staff){
                 if($staff->hasPermission($this->getConfig()->get("alert_permission"))) $staff->sendMessage($this->getPrefix() . TextFormat::RESET . TextFormat::RED . "$name has been banned for using unfair advantage on other players. They were detected for: " . implode(", ", $cheats));
@@ -98,6 +114,9 @@ class Mockingbird extends PluginBase implements Listener{
         }), 1);
     }
 
+    /**
+     * @return bool
+     */
     public function isDeveloperMode() : bool{
         return $this->developerMode;
     }
@@ -112,15 +131,21 @@ class Mockingbird extends PluginBase implements Listener{
             @mkdir($this->getDataFolder() . 'previous_data');
             $count = count(scandir($this->getDataFolder() . "previous_data")) - 2 + 1;
             $dataSave = fopen($this->getDataFolder() . "previous_data/SaveData{$count}.txt", "a");
+            fwrite($dataSave, "Player || CurrentVL || TotalVL || Cheats Detected\n\n");
             foreach(ViolationHandler::getSaveData() as $name => $data){
-                $violations = $data["Violations"];
+                $currentViolations = $data["CurrentVL"];
+                $totalViolations = $data["TotalVL"];
+                $averageTPS = $data["AverageTPS"];
                 $cheats = $data["Cheats"];
-                fwrite($dataSave, "Player: $name || Violations: $violations || Cheats: " . implode(", ", $cheats) . "\n");
+                fwrite($dataSave, "$name || CurrentVL: $currentViolations || TotalVL: $totalViolations || Average TPS: $averageTPS || Cheats: " . implode(", ", $cheats) . "\n");
             }
             fclose($dataSave);
         }
     }
 
+    /**
+     * @return array
+     */
     public function getEnabledModules() : array{
         return $this->enabledModules;
     }
