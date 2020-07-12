@@ -23,6 +23,7 @@ namespace ethaniccc\Mockingbird;
 use ethaniccc\Mockingbird\cheat\ViolationHandler;
 use ethaniccc\Mockingbird\command\LogCommand;
 use ethaniccc\Mockingbird\cheat\Cheat;
+use ethaniccc\Mockingbird\command\ReloadModuleCommand;
 use ethaniccc\Mockingbird\command\ReportCommand;
 use pocketmine\event\HandlerList;
 use pocketmine\event\Listener;
@@ -60,6 +61,8 @@ class Mockingbird extends PluginBase implements Listener{
 
     /** @var array */
     private $enabledModules = [];
+    /** @var array */
+    private $disabledModules = [];
 
     public function onEnable(){
         $this->developerMode = is_bool($this->getConfig()->get("dev_mode")) ? $this->getConfig()->get("dev_mode") : false;
@@ -176,6 +179,31 @@ class Mockingbird extends PluginBase implements Listener{
     /**
      * @return array
      */
+    public function getDisabledModules() : array{
+        return $this->disabledModules;
+    }
+
+    /**
+     * @param string $module
+     * @return Cheat|null
+     */
+    public function getModuleByName(string $module) : ?Cheat{
+        foreach($this->enabledModules as $mod){
+            if($mod->getName() === $module){
+                return $mod;
+            }
+        }
+        foreach($this->disabledModules as $disMod){
+            if($disMod->getName() === $module){
+                return $disMod;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @return array
+     */
     public function getAllModules() : array{
         return $this->modules;
     }
@@ -186,7 +214,7 @@ class Mockingbird extends PluginBase implements Listener{
             $namespace = "ethaniccc\\Mockingbird\\cheat\\" . (strtolower($type)) . "\\";
             foreach($modules as $module){
                 if($type === "Custom"){
-                    include_once "plugin_data/Mockingbird/custom_modules/$module.php";
+                    include_once $this->getDataFolder() . "custom_modules/$module.php";
                 }
                 $class = $namespace . "$module";
                 $enabled = $this->getConfig()->get("dev_mode") === true ? true : $this->getConfig()->get($module);
@@ -199,6 +227,8 @@ class Mockingbird extends PluginBase implements Listener{
                     $this->getServer()->getPluginManager()->registerEvents($newModule, $this);
                     $loadedModules++;
                     array_push($this->enabledModules, $newModule);
+                } else {
+                    array_push($this->disabledModules, $newModule);
                 }
             }
         }
@@ -214,6 +244,8 @@ class Mockingbird extends PluginBase implements Listener{
         foreach($this->enabledModules as $module){
             HandlerList::unregisterAll($module);
         }
+        unset($this->enabledModules);
+        $this->enabledModules = [];
         unset($this->modules["Custom"]);
         $this->modules["Custom"] = [];
         $customModules = scandir($this->getDataFolder() . "custom_modules");
@@ -230,6 +262,7 @@ class Mockingbird extends PluginBase implements Listener{
         $commandMap = $this->getServer()->getCommandMap();
         $this->getConfig()->get("LogCommand") === true ? $commandMap->register($this->getName(), new LogCommand("logs", $this)) : $this->getLogger()->debug("Log command disabled");
         $this->getConfig()->get("ReportCommand") === true ? $commandMap->register($this->getName(), new ReportCommand("mbreport", $this)) : $this->getLogger()->debug("Report command disabled");
+        $commandMap->register($this->getName(), new ReloadModuleCommand("mbreload", $this));
     }
 
 }

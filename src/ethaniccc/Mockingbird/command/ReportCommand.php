@@ -31,6 +31,7 @@ class ReportCommand extends Command implements PluginIdentifiableCommand{
 
     public function __construct(string $name, Mockingbird $plugin, string $description = "", string $usageMessage = null, array $aliases = []){
         parent::__construct($name, $description, $usageMessage, $aliases);
+        $this->setDescription("Report players for using unfair advantage in-game.");
         $this->plugin = $plugin;
     }
 
