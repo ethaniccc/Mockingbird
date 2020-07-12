@@ -1,12 +1,16 @@
 # Mockingbird
+
+Mockingbird is an AntiCheat made for PocketMine servers to prevent the use of unfair
+advantage on other players.
+
 **Warning:** In the state Mockingbird is currently in, this may false-positive, especially on production servers with some lag.
 This may also false-positive on players who are laggy (e.g: high ping).
 
 ### Test Server
-The Mockingbird test server hosted on a free host, here are the details if you want to join:
+Mockingbird has a test server - here are the details if you want to join:
 
 ```
-IP: 144.217.73.214
+IP: mockingbird.mcpro.io
 Port: 40647
 ```
 
@@ -23,17 +27,17 @@ Detections not guaranteed 100% accurate.
 ### Movement
 * AirJump
 * Fly
+* Glide
+* InventoryMove
 * FastLadder
 * NoSlowdown (while eating)
 * NoWeb
 * Speed (not complete)
-### Packet
-* Attacking While Eating (occurs in Horion KillAura)
-* Bad Pitch
-* Creative Transactions (while not in Creative)
 ### Other Detections
+* Packet Checks
 * ChestStealer
 * FastEat
+* FastBreak
 * Nuker
 ## Custom Modules
 A feature that Mockingbird has is Custom Modules, which you can use to
@@ -44,7 +48,7 @@ to work with Mockingbird (click [here](https://github.com/ethaniccc/Mockingbird/
 To make a custom module, make a new PHP file with the name of the file correlating
 to the class name of the file:
 
-E.G: In **NewSpeed,php**:
+E.G: In **NewSpeed.php**:
 ```php
 <?php
 

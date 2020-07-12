@@ -38,10 +38,6 @@ log_permission: "mockingbird.logs"
 # reload modules, mainly for custom modules.
 reload_permission: "mockingbird.reload"
 
-# You can choose this permission to anything you'd like.\
-# This permission is for enabling and disabling modules.
-module_permission: "mockingbird.modules"
-
 # This is a bypass permission you can give to people, this means
 # that they will NOT be violated for cheats.
 bypass_permission: "mockingbird.bypass"
