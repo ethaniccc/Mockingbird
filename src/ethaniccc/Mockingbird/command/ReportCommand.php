@@ -49,17 +49,6 @@ class ReportCommand extends Command implements PluginIdentifiableCommand{
             $sender->sendMessage(TextFormat::RED . "You must run this command as a player!");
             return;
         }
-        if(!isset($this->cooldown[$sender->getName()])){
-            $this->cooldown[$sender->getName()] = microtime(true);
-        } else {
-            if(microtime(true) - $this->cooldown[$sender->getName()] < self::COMMAND_COOLDOWN){
-                $timeRemaining = round(self::COMMAND_COOLDOWN - (microtime(true) - $this->cooldown[$sender->getName()]), 1);
-                $sender->sendMessage(TextFormat::RED . "You must wait {$timeRemaining} seconds before using this command again!");
-                return;
-            } else {
-                $this->cooldown[$sender->getName()] = microtime(true);
-            }
-        }
         $form = new SimpleForm(function(Player $player, $data = null){
             if(empty($this->ids)){
                 return;
@@ -72,6 +61,17 @@ class ReportCommand extends Command implements PluginIdentifiableCommand{
             $newForm = new CustomForm(function(Player $player, $data = null) use($selectedName){
                 if($data === null){
                     return;
+                }
+                if(!isset($this->cooldown[$player->getName()])){
+                    $this->cooldown[$player->getName()] = microtime(true);
+                } else {
+                    if(microtime(true) - $this->cooldown[$player->getName()] < self::COMMAND_COOLDOWN){
+                        $timeRemaining = round(self::COMMAND_COOLDOWN - (microtime(true) - $this->cooldown[$player->getName()]), 1);
+                        $player->sendMessage(TextFormat::RED . "You must wait {$timeRemaining} seconds before using this command again!");
+                        return;
+                    } else {
+                        $this->cooldown[$player->getName()] = microtime(true);
+                    }
                 }
                 $cheatChosen = $this->cheats[$data[0]];
                 $currentPlayerCheats = ViolationHandler::getCheatsViolatedFor($selectedName);
@@ -94,7 +94,10 @@ class ReportCommand extends Command implements PluginIdentifiableCommand{
             unset($this->cheats);
             $this->cheats = [];
             foreach($cheats as $module){
-                array_push($this->cheats, $module->getName());
+                // Packet checks should **not** be reported. Most of them implement Blatant anyways so...
+                if(!in_array($module, $this->getPlugin()->getAllModules()["Packet"])){
+                    array_push($this->cheats, $module->getName());
+                }
             }
             $newForm->setTitle(TextFormat::BOLD . TextFormat::GOLD . "Report");
             $newForm->addDropdown("Hack To Report", $this->cheats);

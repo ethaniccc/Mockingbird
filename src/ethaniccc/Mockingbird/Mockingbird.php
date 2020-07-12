@@ -173,6 +173,13 @@ class Mockingbird extends PluginBase implements Listener{
         return $this->enabledModules;
     }
 
+    /**
+     * @return array
+     */
+    public function getAllModules() : array{
+        return $this->modules;
+    }
+
     private function loadAllModules() : void{
         $loadedModules = 0;
         foreach($this->modules as $type => $modules){

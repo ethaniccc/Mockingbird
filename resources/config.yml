@@ -105,12 +105,18 @@ InventoryMove: true
 # These checks are to detect if packets sent to the server are valid.
 # You can choose to enable or disable cheats with (true/false)
 
+# Just keep these on for the most part unless they false positive.
+
 # This occurs with Horion Killaura
 AttackingWhileEating: true
 BadPitchPacket: true
 # If a client changes their gamemode (client-sided) and tries to make a
 # creative inventory transaction.
 InvalidCreativeTransaction: true
+# Occurs when a Horion user does the ".give" command
+InvalidCraftingTransaction: true
+# Occurs sometimes with Horion KillAura
+InvalidEntityHit: true
 
 ## Other Detections ##
 # You can choose to enable or disable cheats with (true/false)
