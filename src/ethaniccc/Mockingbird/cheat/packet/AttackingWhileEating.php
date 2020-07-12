@@ -26,6 +26,7 @@ use ethaniccc\Mockingbird\cheat\Cheat;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
+use pocketmine\Player;
 
 class AttackingWhileEating extends Cheat implements Blatant{
 
@@ -55,6 +56,9 @@ class AttackingWhileEating extends Cheat implements Blatant{
 
     public function onHit(EntityDamageByEntityEvent $event) : void{
         $damager = $event->getDamager();
+        if(!$damager instanceof Player){
+            return;
+        }
         $this->lastAttackTick[$damager->getName()] = $this->getServer()->getTick();
     }
 

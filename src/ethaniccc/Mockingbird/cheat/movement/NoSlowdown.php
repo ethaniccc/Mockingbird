@@ -109,7 +109,11 @@ class NoSlowdown extends Cheat implements StrictRequirements{
     }
 
     public function onHit(EntityDamageByEntityEvent $event) : void{
-        $this->wasHit[$event->getEntity()->getName()] = $this->getServer()->getTick();
+        $entity = $event->getEntity();
+        if(!$entity instanceof Player){
+            return;
+        }
+        $this->wasHit[$entity->getName()] = $this->getServer()->getTick();
     }
 
     private function playerIsEating(Player $player) : bool{
