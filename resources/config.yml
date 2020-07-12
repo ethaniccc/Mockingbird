@@ -18,7 +18,7 @@ version: 1.0
 # If developer mode is enabled, all checks will be enabled,
 # which may leave false-positives. This should NEVER be enabled
 # on production servers.
-dev_mode: true
+dev_mode: false
 
 ## General Settings ##
 
@@ -80,12 +80,13 @@ ReportCommand: true
 # You can choose to enable or disable cheats with (true/false)
 
 Reach: true
-NoKnockback: false
 
 # Toolbox is a hacked client some Android users may use to
 # gain an unfair advantage against other players.
 # See Toolbox KillAura on this YouTube video: https://www.youtube.com/watch?v=K0INXOLxIj8&t
 ToolboxKillaura: true
+
+MultiAura: true
 
 # AutoClickerA is a consistency check.
 AutoClickerA: true
@@ -99,6 +100,7 @@ AutoClickerB: true
 # You can choose to enable or disable cheats with (true/false)
 
 Speed: true
+Glide: true
 NoSlowdown: true
 FastLadder: true
 NoWeb: true
