@@ -22,8 +22,6 @@ namespace ethaniccc\Mockingbird\command;
 
 use ethaniccc\Mockingbird\cheat\ViolationHandler;
 use ethaniccc\Mockingbird\Mockingbird;
-use ethaniccc\Mockingbird\cheat\Cheat;
-use Exception;
 use jojoe77777\FormAPI\SimpleForm;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;

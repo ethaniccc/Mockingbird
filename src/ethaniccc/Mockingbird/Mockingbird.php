@@ -23,6 +23,8 @@ namespace ethaniccc\Mockingbird;
 use ethaniccc\Mockingbird\cheat\ViolationHandler;
 use ethaniccc\Mockingbird\command\LogCommand;
 use ethaniccc\Mockingbird\cheat\Cheat;
+use ethaniccc\Mockingbird\command\ReportCommand;
+use pocketmine\event\HandlerList;
 use pocketmine\event\Listener;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\TextFormat;
@@ -42,7 +44,7 @@ class Mockingbird extends PluginBase implements Listener{
         ],
         "Movement" => [
             "Speed", "NoSlowdown", "FastLadder", "NoWeb", "AirJump",
-            "Fly", "InventoryMove",
+            "Fly", "InventoryMove", "Glide"
         ],
         "Packet" => [
             "BadPitchPacket", "AttackingWhileEating", "InvalidCreativeTransaction",
@@ -180,7 +182,12 @@ class Mockingbird extends PluginBase implements Listener{
                     include_once "plugin_data/Mockingbird/custom_modules/$module.php";
                 }
                 $class = $namespace . "$module";
-                $newModule = new $class($this, $module, $type, $this->getConfig()->get("dev_mode") === true ? true : $this->getConfig()->get($module));
+                $enabled = $this->getConfig()->get("dev_mode") === true ? true : $this->getConfig()->get($module);
+                if($type === "Custom"){
+                    // All custom modules have to be enabled.
+                    $enabled = true;
+                }
+                $newModule = new $class($this, $module, $type, $enabled);
                 if($newModule->isEnabled()){
                     $this->getServer()->getPluginManager()->registerEvents($newModule, $this);
                     $loadedModules++;
@@ -188,12 +195,34 @@ class Mockingbird extends PluginBase implements Listener{
                 }
             }
         }
-        $this->getLogger()->debug(TextFormat::GREEN . "$loadedModules modules have been loaded.");
+        $moduleNames = [];
+        foreach($this->getEnabledModules() as $module){
+            array_push($moduleNames, $module->getName());
+        }
+        $this->getLogger()->debug(TextFormat::GREEN . "$loadedModules modules have been loaded: " . implode(", ", $moduleNames));
+    }
+
+    public function reloadModules() : void{
+        // This is mostly just going to reload the **custom modules** only lol...
+        foreach($this->enabledModules as $module){
+            HandlerList::unregisterAll($module);
+        }
+        unset($this->modules["Custom"]);
+        $this->modules["Custom"] = [];
+        $customModules = scandir($this->getDataFolder() . "custom_modules");
+        foreach($customModules as $customModule){
+            $className = explode(".php", $customModule)[0];
+            if($className !== "." && $className !== ".."){
+                array_push($this->modules["Custom"], $className);
+            }
+        }
+        $this->loadAllModules();
     }
 
     private function loadAllCommands() : void{
         $commandMap = $this->getServer()->getCommandMap();
-        $commandMap->register($this->getName(), new LogCommand("logs", $this));
+        $this->getConfig()->get("LogCommand") === true ? $commandMap->register($this->getName(), new LogCommand("logs", $this)) : $this->getLogger()->debug("Log command disabled");
+        $this->getConfig()->get("ReportCommand") === true ? $commandMap->register($this->getName(), new ReportCommand("mbreport", $this)) : $this->getLogger()->debug("Report command disabled");
     }
 
 }

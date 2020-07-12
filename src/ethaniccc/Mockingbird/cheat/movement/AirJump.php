@@ -29,14 +29,13 @@ use ethaniccc\Mockingbird\cheat\StrictRequirements;
 
 class AirJump extends Cheat implements StrictRequirements{
 
+    private $suspicionLevel = [];
+
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
 
     public function onJump(PlayerJumpEvent $event) : void{
-        // This was a simple check, but I still haven't taken into consider lag.
-        // According to an issue, onGround may give inaccurate results:
-        // https://github.com/pmmp/PocketMine-MP/issues/3598
         $player = $event->getPlayer();
         $name = $player->getName();
         if(!$player->isOnGround()){
@@ -48,8 +47,23 @@ class AirJump extends Cheat implements StrictRequirements{
                 }
             }
             if($continue){
-                $this->addViolation($name);
-                $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+                if(!isset($this->suspicionLevel[$name])){
+                    $this->suspicionLevel[$name] = 0;
+                }
+                $this->suspicionLevel[$name] += 1;
+                if($this->suspicionLevel[$name] >= 2){
+                    $this->addViolation($name);
+                    $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+                    $this->suspicionLevel[$name] += 1;
+                }
+            } else {
+                if(isset($this->suspicionLevel[$name])){
+                    $this->suspicionLevel[$name] *= 0.75;
+                }
+            }
+        } else {
+            if(isset($this->suspicionLevel[$name])){
+                $this->suspicionLevel[$name] *= 0.5;
             }
         }
     }

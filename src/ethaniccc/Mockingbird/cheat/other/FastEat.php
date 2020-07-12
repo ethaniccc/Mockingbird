@@ -20,6 +20,7 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\other;
 
+use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use pocketmine\event\server\DataPacketReceiveEvent;
@@ -29,12 +30,13 @@ use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\Player;
 
 
-class FastEat extends Cheat{
+class FastEat extends Cheat implements StrictRequirements{
 
     private $startEatTick = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+        $this->setRequiredTPS(19);
     }
 
     public function receivePacket(DataPacketReceiveEvent $event) : void{

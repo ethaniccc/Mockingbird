@@ -20,18 +20,20 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\other;
 
+use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use pocketmine\block\Block;
 use pocketmine\event\block\BlockBreakEvent;
 
-class Nuker extends Cheat{
+class Nuker extends Cheat implements StrictRequirements{
 
     private $lastBreak = [];
     private $suspicionLevel = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+        $this->setRequiredTPS(19.5);
     }
 
     public function onBlockBreak(BlockBreakEvent $event) : void{

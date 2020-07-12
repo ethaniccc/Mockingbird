@@ -63,6 +63,13 @@ stop_tps: 18
 log_command_type: normal
 
 #######   =====================================   #######
+### Commands ###
+
+# Set the value to true if you want the command enabled, and false if you don't.
+LogCommand: true
+ReportCommand: true
+
+#######   =====================================   #######
 
 ## Combat Detections ##
 # You can choose to enable or disable cheats with (true/false)

@@ -28,6 +28,7 @@ use pocketmine\block\Air;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
+use pocketmine\event\player\PlayerToggleFlightEvent;
 use pocketmine\Player;
 
 class Fly extends Cheat implements StrictRequirements{
@@ -87,6 +88,19 @@ class Fly extends Cheat implements StrictRequirements{
 
     public function onQuit(PlayerQuitEvent $event) : void{
         unset($this->ticksOffGround[$event->getPlayer()->getName()]);
+    }
+
+    public function toggleFly(PlayerToggleFlightEvent $event) : void{
+        $player = $event->getPlayer();
+        $name = $player->getName();
+
+        if($player->isFlying()){
+            if(!$player->getAllowFlight()){
+                $this->addViolation($name);
+                $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+                $this->punish($name);
+            }
+        }
     }
 
     private function wasPreviouslyHit(string $name) : bool{
