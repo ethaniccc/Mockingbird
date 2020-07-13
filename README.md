@@ -1,5 +1,4 @@
 # Mockingbird
-
 Mockingbird is an AntiCheat made for PocketMine servers to prevent the use of unfair
 advantage on other players.
 
@@ -13,9 +12,39 @@ Mockingbird has a test server - here are the details if you want to join:
 IP: mockingbird.mcpro.io
 Port: 40647
 ```
+## Commands
+* Log Command
+    
+    If enabled in the config, the `/log` command has two options: a normal
+    `/logs <player>` or a UI with `/logs` without arguments.
+    
+    The `/log` command will tell you how many violations a player currently has, 
+    how many violations they have in total (when a player gets punished their current violation count resets to 0),
+    The Average TPS the server had when the player got violated, and 
 
+* Report Command
+
+    **NOTE:** After reporting a player, the reporter must wait 60 seconds before making a new report.
+    
+    If enabled in the config, the `/mbreport` command will bring up a UI with a list of online players. From there, you can
+    click on a player, then brought to a new UI where you will be able to select which cheat you want to report the player
+    for.
+    
+    If the player has failed the check and has more than 10 violations, Mockingbird will alert staff and ask for a staff member to check on the situation.
+    
+    If the player has not failed the check, Mockingbird will schedule a task 30 seconds in advance and see if the player has failed the check. If the player has still not failed
+    the reported check within the 30 seconds, it will notify the reporter that there was no evidence found of the accused cheat. However, if a player has failed the check within the
+    next 30 seconds, Mockingbird will alert staff and ask for someone to check on the situation.
+    
+* Reload Module Command
+
+    **NOTE:** This command intended use is for Custom Modules.
+    
+    With this command, and the permission `reload_permission` in the config, you can reload custom modules.
+    
+    If I added a custom module to the `custom_modules` folder, I can use this command to reload and it will register my custom module (yes has been tested).
+    Same goes for deleting a custom module, and editing a custom module.
 ## Detections
-
 Detections not guaranteed 100% accurate.
 
 ### Combat
