@@ -1,6 +1,6 @@
 ---
 name: Mockingbird
-version: 1.0
+version: 1.0-beta
 main: ethaniccc\Mockingbird\Mockingbird
-api: 3.0.0
+api: 3.14.0
 ...
