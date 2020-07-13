@@ -24,6 +24,7 @@ use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use pocketmine\event\inventory\InventoryTransactionEvent;
+use pocketmine\inventory\ChestInventory;
 
 class ChestStealer extends Cheat implements StrictRequirements{
 
@@ -40,29 +41,38 @@ class ChestStealer extends Cheat implements StrictRequirements{
         $player = $transaction->getSource();
         $name = $player->getName();
 
-        if(!isset($this->lastTransaction[$name])){
-            $this->lastTransaction[$name] = microtime(true);
-            return;
+        $continue = false;
+        foreach($transaction->getInventories() as $inventory){
+            if($inventory instanceof ChestInventory){
+                $continue = true;
+            }
         }
 
-        $timeDiff = microtime(true) - $this->lastTransaction[$name];
-        if($timeDiff < 0.001){
-            if(!isset($this->suspicionLevel[$name])){
-                $this->suspicionLevel[$name] = 0;
+        if($continue){
+            if(!isset($this->lastTransaction[$name])){
+                $this->lastTransaction[$name] = microtime(true);
+                return;
             }
-            $this->suspicionLevel[$name] += 1;
-            if($this->suspicionLevel[$name] >= 3.5){
-                $event->setCancelled();
-                $this->addViolation($name);
-                $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
-                $this->suspicionLevel[$name] *= 0.5;
+
+            $timeDiff = microtime(true) - $this->lastTransaction[$name];
+            if($timeDiff < 0.001){
+                if(!isset($this->suspicionLevel[$name])){
+                    $this->suspicionLevel[$name] = 0;
+                }
+                $this->suspicionLevel[$name] += 1;
+                if($this->suspicionLevel[$name] >= 3.5){
+                    $event->setCancelled();
+                    $this->addViolation($name);
+                    $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+                    $this->suspicionLevel[$name] *= 0.5;
+                }
+            } else {
+                if(isset($this->suspicionLevel[$name])){
+                    $this->suspicionLevel[$name] *= 0.5;
+                }
             }
-        } else {
-            if(isset($this->suspicionLevel[$name])){
-                $this->suspicionLevel[$name] *= 0.5;
-            }
+            $this->lastTransaction[$name] = microtime(true);
         }
-        $this->lastTransaction[$name] = microtime(true);
     }
 
 }
