@@ -65,6 +65,9 @@ class Mockingbird extends PluginBase implements Listener{
     private $disabledModules = [];
 
     public function onEnable(){
+        if(!file_exists($this->getDataFolder() . "config.yml")){
+            $this->saveDefaultConfig();
+        }
         $this->developerMode = is_bool($this->getConfig()->get("dev_mode")) ? $this->getConfig()->get("dev_mode") : false;
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
         if($this->getConfig()->get("version") !== $this->getDescription()->getVersion()){
@@ -208,13 +211,13 @@ class Mockingbird extends PluginBase implements Listener{
         return $this->modules;
     }
 
-    private function loadAllModules() : void{
+    private function loadAllModules(bool $debug = true) : void{
         $loadedModules = 0;
         foreach($this->modules as $type => $modules){
             $namespace = "ethaniccc\\Mockingbird\\cheat\\" . (strtolower($type)) . "\\";
             foreach($modules as $module){
                 if($type === "Custom"){
-                    include_once $this->getDataFolder() . "custom_modules/$module.php";
+                    require_once $this->getDataFolder() . "custom_modules/$module.php";
                 }
                 $class = $namespace . "$module";
                 $enabled = $this->getConfig()->get("dev_mode") === true ? true : $this->getConfig()->get($module);
@@ -236,7 +239,11 @@ class Mockingbird extends PluginBase implements Listener{
         foreach($this->getEnabledModules() as $module){
             array_push($moduleNames, $module->getName());
         }
-        $this->getLogger()->debug(TextFormat::GREEN . "$loadedModules modules have been loaded: " . implode(", ", $moduleNames));
+        if($debug){
+            $this->getLogger()->debug(TextFormat::GREEN . "$loadedModules modules have been loaded: " . implode(", ", $moduleNames));
+        } else {
+            $this->getLogger()->info(TextFormat::GREEN . "$loadedModules modules have been loaded: " . implode(", ", $moduleNames));
+        }
     }
 
     public function reloadModules() : void{
@@ -255,7 +262,7 @@ class Mockingbird extends PluginBase implements Listener{
                 array_push($this->modules["Custom"], $className);
             }
         }
-        $this->loadAllModules();
+        $this->loadAllModules(false);
     }
 
     private function loadAllCommands() : void{

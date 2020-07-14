@@ -43,7 +43,7 @@ Port: 40647
     With this command, and the permission `reload_permission` in the config, you can reload custom modules.
     
     If I added a custom module to the `custom_modules` folder, I can use this command to reload and it will register my custom module (yes has been tested).
-    Same goes for deleting a custom module, and editing a custom module.
+    Same goes for deleting a custom module.
 ## Detections
 Detections not guaranteed 100% accurate.
 

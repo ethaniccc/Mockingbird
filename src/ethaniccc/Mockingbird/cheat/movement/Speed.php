@@ -23,128 +23,126 @@ namespace ethaniccc\Mockingbird\cheat\movement;
 use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
-use pocketmine\block\BlockIds;
-use pocketmine\event\player\cheat\PlayerIllegalMoveEvent;
-use pocketmine\event\player\PlayerMoveEvent;
-use pocketmine\utils\TextFormat;
-use pocketmine\block\Ice;
-use pocketmine\block\PackedIce;
+use pocketmine\block\Air;
+use pocketmine\event\player\PlayerJumpEvent;
+use pocketmine\event\server\DataPacketReceiveEvent;
+use pocketmine\item\ItemIds;
+use pocketmine\network\mcpe\protocol\MovePlayerPacket;
+use pocketmine\Player;
 
 class Speed extends Cheat implements StrictRequirements{
 
     private $suspicionLevel = [];
-    private $ticksOnIce = [];
-    private $wasOnIce = [];
 
-    private $overkillSpeed = [];
+    private $lastPosition = [];
+    private $lastMove = [];
+
+    private $wasPreviouslyInAir = [];
+    private $previouslyJumped = [];
+    private $previouslyHadEffect = [];
+    private $previouslyOnIce = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
         $this->setRequiredTPS(19.5);
     }
 
-    public function onMove(PlayerMoveEvent $event) : void{
+    public function receivePacket(DataPacketReceiveEvent $event) : void{
+        $packet = $event->getPacket();
         $player = $event->getPlayer();
         $name = $player->getName();
-
-        if($player->isCreative()){
-            return;
-        }
-        if($player->isFlying()){
-            return;
-        }
-
-        $distX = $event->getTo()->getX() - $event->getFrom()->getX();
-        $distZ = $event->getTo()->getZ() - $event->getFrom()->getZ();
-        $distanceSquared = ($distX * $distX) + ($distZ * $distZ);
-        $distance = sqrt($distanceSquared);
-
-        $blocksPerSecond = round($distance * 20, 1, PHP_ROUND_HALF_UP);
-        //$this->getServer()->broadcastMessage("BPS: $blocksPerSecond");
-        if(!isset($this->suspicionLevel[$name])){
-            $this->suspicionLevel[$name] = 0;
-        }
-
-        $expectedMaxSpeed = 8;
-        if($player->getLevel()->getBlock($player->asVector3()->add(0, 2, 0))->getId() !== 0){
-            return;
-        }
-        if(in_array($player->getLevel()->getBlock($player->asVector3()->subtract(0, 1, 0))->getId(), [BlockIds::ICE, BlockIds::FROSTED_ICE, BlockIds::PACKED_ICE])){
-            if(!isset($this->ticksOnIce[$name])){
-                $this->ticksOnIce[$name] = 0;
-            }
-            $this->ticksOnIce[$name] += 1;
-            $this->wasOnIce[$name] = $this->getServer()->getTick();
-            $expectedMaxSpeed *= (5 / 3);
-            $expectedMaxSpeed += $this->ticksOnIce[$name] * 0.02;
-        } else {
-            if(!$player->isOnGround()){
-                if(in_array($player->getLevel()->getBlock($player->asVector3()->subtract(0, 1.5, 0))->getId(), [BlockIds::ICE, BlockIds::FROSTED_ICE, BlockIds::PACKED_ICE])){
-                    if(!isset($this->ticksOnIce[$name])){
-                        $this->ticksOnIce[$name] = 0;
-                    }
-                    $this->ticksOnIce[$name] += 1;
-                    $this->wasOnIce[$name] = $this->getServer()->getTick();
-                    $expectedMaxSpeed *= (5 / 3);
-                    $expectedMaxSpeed += $this->ticksOnIce[$name] * 0.02;
-                }
-            } else {
-                unset($this->ticksOnIce[$name]);
-            }
-        }
-        if($player->getEffect(1) !== null){
-            $level = $player->getEffect(1)->getEffectLevel() + 1;
-            $multiplier = 1 + ($level * 0.2);
-            $expectedMaxSpeed *= $multiplier;
-        }
-
-        if($blocksPerSecond >= $expectedMaxSpeed * 1.45 && $blocksPerSecond <= $expectedMaxSpeed * 2.25){
-            if($player->isSprinting()){
-                if($player->isOnGround()){
-                    if(!in_array($player->getLevel()->getBlock($player->asVector3()->subtract(0, 1, 0))->getId(), [BlockIds::ICE, BlockIds::FROSTED_ICE, BlockIds::PACKED_ICE])){
-                        if($this->wasOnIce($name)){
-                            return;
-                        }
-                    }
-                } else {
-                    if(in_array($player->getLevel()->getBlock($player->asVector3()->subtract(0, 1.5, 0))->getId(), [BlockIds::ICE, BlockIds::FROSTED_ICE, BlockIds::PACKED_ICE])){
-                        if($this->wasOnIce($name)){
-                            return;
-                        }
-                    }
-                }
-                if(!isset($this->overkillSpeed[$name])){
-                    $this->overkillSpeed[$name] = 0;
-                }
-                $this->overkillSpeed[$name] += 1;
-                if($this->overkillSpeed[$name] >= 30){
-                    $this->addViolation($name);
-                    $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
-                    $this->overkillSpeed[$name] *= 0.5;
-                }
-                if(isset($this->suspicionLevel[$name])){
-                    $this->suspicionLevel[$name] *= 0.75;
-                }
+        if($packet instanceof MovePlayerPacket){
+            if($player->getAllowFlight() || $player->isFlying()){
                 return;
             }
-        } else {
-            unset($this->overkillSpeed[$name]);
-        }
-
-        if($blocksPerSecond > $expectedMaxSpeed){
-            $this->suspicionLevel[$name] += 1;
-            if($this->suspicionLevel[$name] >= 10){
-                $this->addViolation($name);
-                $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
-                $this->suspicionLevel[$name] *= 0.5;
+            if(!isset($this->lastPosition[$name])){
+                $this->lastPosition[$name] = $player->asVector3();
+                return;
             }
-        } else {
-            $this->suspicionLevel[$name] *= 0.75;
+            if(isset($this->lastMove[$name])){
+                if($this->getServer()->getTick() - $this->lastMove[$name] >= 2){
+                    $this->lastMove[$name] = $this->getServer()->getTick();
+                    $this->lastPosition[$name] = $packet->position;
+                    return;
+                }
+            }
+            $distance = $packet->position->distance($this->lastPosition[$name]);
+            if($this->previouslyHadEffect($name)){
+                return;
+            }
+            if($this->previouslyOnIce($name)){
+                return;
+            }
+            if(!$player->getLevel()->getBlock($player->asVector3()->add(0, 2, 0)) instanceof Air){
+                return;
+            }
+            if(!$player->isOnGround()){
+                $expectedDistance = 0.785;
+                $this->wasPreviouslyInAir[$name] = $this->getServer()->getTick();
+            } else {
+                if($this->wasPreviouslyInAir($name) || $this->recentlyJumped($name)){
+                    $expectedDistance = 0.785;
+                } else {
+                    $expectedDistance = 0.3;
+                }
+            }
+            if($this->onIce($player)){
+                $expectedDistance *= (4 / 3);
+                $this->previouslyOnIce[$name] = $this->getServer()->getTick();
+            }
+            if($player->getEffect(1) !== null){
+                $effectLevel = $player->getEffect(1)->getEffectLevel() + 1;
+                $expectedDistance *= 1 + (0.2 * $effectLevel);
+                $this->previouslyHadEffect[$name] = $this->getServer()->getTick();
+            }
+            if($distance > $expectedDistance){
+                $this->addSuspicion($name);
+                if($this->suspicionLevel[$name] >= 3){
+                    $this->addViolation($name);
+                    $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+                }
+            } else {
+                $this->lowerSuspicion($name);
+            }
+            $this->lastMove[$name] = $this->getServer()->getTick();
+            $this->lastPosition[$name] = $packet->position;
         }
     }
 
-    private function wasOnIce(string $name) : bool{
-        return isset($this->wasOnIce[$name]) ? $this->getServer()->getTick() - $this->wasOnIce[$name] <= 40 : false;
+    public function onJump(PlayerJumpEvent $event) : void{
+        $name = $event->getPlayer()->getName();
+        $this->previouslyJumped[$name] = $this->getServer()->getTick();
+    }
+
+    private function wasPreviouslyInAir(string $name) : bool{
+        return isset($this->wasPreviouslyInAir[$name]) ? $this->getServer()->getTick() - $this->wasPreviouslyInAir[$name] <= 5 : false;
+    }
+
+    private function recentlyJumped(string $name) : bool{
+        return isset($this->previouslyJumped[$name]) ? $this->getServer()->getTick() - $this->previouslyJumped[$name] <= 1 : false;
+    }
+
+    private function previouslyHadEffect(string $name) : bool{
+        return isset($this->previouslyHadEffect[$name]) ? $this->getServer()->getTick() - $this->previouslyHadEffect[$name] <= 1 : false;
+    }
+
+    private function previouslyOnIce(string $name) : bool{
+        return isset($this->previouslyOnIce[$name]) ? $this->getServer()->getTick() - $this->previouslyOnIce[$name] <= 10 : false;
+    }
+
+    private function addSuspicion(string $name) : void{
+        if(!isset($this->suspicionLevel[$name])){
+            $this->suspicionLevel[$name] = 0;
+        }
+        ++$this->suspicionLevel[$name];
+    }
+
+    private function lowerSuspicion(string $name, float $multiplier = 0.75) : void{
+        isset($this->suspicionLevel[$name]) ? $this->suspicionLevel[$name] *= $multiplier : $this->suspicionLevel[$name] = 0;
+    }
+
+    private function onIce(Player $player) : bool{
+        return $player->isOnGround() ? in_array($player->getLevel()->getBlock($player->asVector3()->subtract(0, 0.5, 0))->getId(), [ItemIds::ICE, ItemIds::PACKED_ICE, ItemIds::FROSTED_ICE]) : in_array($player->getLevel()->getBlock($player->asVector3()->subtract(0, 1.25, 0))->getId(), [ItemIds::ICE, ItemIds::PACKED_ICE, ItemIds::FROSTED_ICE]);
     }
 
 }
