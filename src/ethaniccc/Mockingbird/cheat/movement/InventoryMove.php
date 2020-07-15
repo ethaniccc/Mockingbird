@@ -48,14 +48,18 @@ class InventoryMove extends Cheat implements StrictRequirements, Blatant{
 
         $timeDiff = $this->getServer()->getTick() - $this->lastMoveTick[$name];
         if($timeDiff == 0){
-            if(!isset($this->suspicionLevel[$name])){
-                $this->suspicionLevel[$name] = 0;
-            }
-            $this->suspicionLevel[$name] += 1;
-            if($this->suspicionLevel[$name] > 5){
-                $this->addViolation($name);
-                $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
-                $this->suspicionLevel[$name] = 0;
+            // If the player's motion is not being set, for example, when a player
+            // is hit and takes knockback.
+            if($player->getMotion()->x == 0 && $player->getMotion()->z == 0){
+                if(!isset($this->suspicionLevel[$name])){
+                    $this->suspicionLevel[$name] = 0;
+                }
+                $this->suspicionLevel[$name] += 1;
+                if($this->suspicionLevel[$name] > 5){
+                    $this->addViolation($name);
+                    $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+                    $this->suspicionLevel[$name] = 0;
+                }
             }
         } else {
             if(isset($this->suspicionLevel[$name])){
