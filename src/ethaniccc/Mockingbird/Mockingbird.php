@@ -54,9 +54,7 @@ class Mockingbird extends PluginBase implements Listener{
         "Other" => [
             "ChestStealer", "FastEat", "Nuker", "FastBreak"
         ],
-        "Custom" => [
-
-        ]
+        "Custom" => []
     ];
 
     /** @var array */
@@ -224,6 +222,8 @@ class Mockingbird extends PluginBase implements Listener{
                 if($type === "Custom"){
                     // All custom modules have to be enabled.
                     $enabled = true;
+                } elseif($type === "Packet"){
+                    $enabled = is_bool($this->getConfig()->get("PacketChecks")) ? $this->getConfig()->get("PacketChecks") : false;
                 }
                 $newModule = new $class($this, $module, $type, $enabled);
                 if($newModule->isEnabled()){
@@ -248,6 +248,7 @@ class Mockingbird extends PluginBase implements Listener{
 
     public function reloadModules() : void{
         // This is mostly just going to reload the **custom modules** only lol...
+        // NOTE: This will not load the source of the custom module **sad noises**
         foreach($this->enabledModules as $module){
             HandlerList::unregisterAll($module);
         }

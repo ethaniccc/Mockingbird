@@ -63,6 +63,12 @@ class ReportCommand extends Command implements PluginIdentifiableCommand{
         return $this->plugin;
     }
 
+    /**
+     * @param CommandSender $sender
+     * @param string $commandLabel
+     * @param array $args
+     * @return mixed|void
+     */
     public function execute(CommandSender $sender, string $commandLabel, array $args){
         if(!$sender instanceof Player){
             $sender->sendMessage(TextFormat::RED . "You must run this command as a player!");
@@ -113,8 +119,8 @@ class ReportCommand extends Command implements PluginIdentifiableCommand{
             unset($this->cheats);
             $this->cheats = [];
             foreach($cheats as $module){
-                // Packet checks should **not** be reported. Most of them implement Blatant anyways so...
-                if(!in_array($module, $this->getPlugin()->getAllModules()["Packet"])){
+                // Packet checks should never be reportable.
+                if(!in_array($module->getName(), $this->getPlugin()->getAllModules()["Packet"])){
                     array_push($this->cheats, $module->getName());
                 }
             }
