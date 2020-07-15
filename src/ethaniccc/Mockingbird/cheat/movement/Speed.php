@@ -58,11 +58,8 @@ class Speed extends Cheat{
                 $this->lastPosition[$name] = $player->asVector3();
                 return;
             }
-            if(LevelUtils::getBlockUnder($player) instanceof Stair){
-                $this->lastPosition[$name] = $player->asVector3();
-                return;
-            }
             $distance = $packet->position->distance($this->lastPosition[$name]);
+
             if($this->previouslyHadEffect($name)){
                 $this->lastPosition[$name] = $player->asVector3();
                 return;
@@ -78,7 +75,7 @@ class Speed extends Cheat{
                 $expectedDistance = 0.785;
                 $this->wasPreviouslyInAir[$name] = $this->getServer()->getTick();
             } else {
-                if($this->wasPreviouslyInAir($name) || $this->recentlyJumped($name)){
+                if($this->wasPreviouslyInAir($name) || $this->recentlyJumped($name) || LevelUtils::getBlockUnder($player, 0.5)){
                     $expectedDistance = 0.785;
                 } else {
                     $expectedDistance = 0.3;
