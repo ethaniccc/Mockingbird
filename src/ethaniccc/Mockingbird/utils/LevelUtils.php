@@ -20,6 +20,7 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\utils;
 
+use pocketmine\block\Block;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -84,6 +85,10 @@ class LevelUtils{
                 Server::getInstance()->getLogger()->debug("Unknown mode given: $mode");
                 return 0.0;
         }
+    }
+
+    public static function getBlockUnder(Player $player, float $underLevel = 1) : Block{
+        return $player->getLevel()->getBlock($player->asVector3()->subtract(0, $underLevel, 0));
     }
 
 }

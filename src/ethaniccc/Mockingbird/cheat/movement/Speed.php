@@ -20,22 +20,22 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\movement;
 
-use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
+use ethaniccc\Mockingbird\utils\LevelUtils;
 use pocketmine\block\Air;
+use pocketmine\block\Stair;
 use pocketmine\event\player\PlayerJumpEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\item\ItemIds;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\Player;
 
-class Speed extends Cheat implements StrictRequirements{
+class Speed extends Cheat{
 
     private $suspicionLevel = [];
 
     private $lastPosition = [];
-    private $lastMove = [];
 
     private $wasPreviouslyInAir = [];
     private $previouslyJumped = [];
@@ -44,7 +44,6 @@ class Speed extends Cheat implements StrictRequirements{
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
-        $this->setRequiredTPS(19.5);
     }
 
     public function receivePacket(DataPacketReceiveEvent $event) : void{
@@ -59,18 +58,17 @@ class Speed extends Cheat implements StrictRequirements{
                 $this->lastPosition[$name] = $player->asVector3();
                 return;
             }
-            if(isset($this->lastMove[$name])){
-                if($this->getServer()->getTick() - $this->lastMove[$name] >= 2){
-                    $this->lastMove[$name] = $this->getServer()->getTick();
-                    $this->lastPosition[$name] = $packet->position;
-                    return;
-                }
+            if(LevelUtils::getBlockUnder($player) instanceof Stair){
+                $this->lastPosition[$name] = $player->asVector3();
+                return;
             }
             $distance = $packet->position->distance($this->lastPosition[$name]);
             if($this->previouslyHadEffect($name)){
+                $this->lastPosition[$name] = $player->asVector3();
                 return;
             }
             if($this->previouslyOnIce($name)){
+                $this->lastPosition[$name] = $player->asVector3();
                 return;
             }
             if(!$player->getLevel()->getBlock($player->asVector3()->add(0, 2, 0)) instanceof Air){
@@ -104,7 +102,6 @@ class Speed extends Cheat implements StrictRequirements{
             } else {
                 $this->lowerSuspicion($name);
             }
-            $this->lastMove[$name] = $this->getServer()->getTick();
             $this->lastPosition[$name] = $packet->position;
         }
     }
