@@ -75,7 +75,7 @@ class Speed extends Cheat{
                 $expectedDistance = 0.785;
                 $this->wasPreviouslyInAir[$name] = $this->getServer()->getTick();
             } else {
-                if($this->wasPreviouslyInAir($name) || $this->recentlyJumped($name) || LevelUtils::getBlockUnder($player, 0.5)){
+                if($this->wasPreviouslyInAir($name) || $this->recentlyJumped($name) || LevelUtils::getBlockUnder($player, 0.5) instanceof Stair){
                     $expectedDistance = 0.785;
                 } else {
                     $expectedDistance = 0.3;
