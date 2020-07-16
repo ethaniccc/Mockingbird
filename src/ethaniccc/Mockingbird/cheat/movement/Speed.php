@@ -24,6 +24,7 @@ use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\utils\LevelUtils;
 use pocketmine\block\Air;
+use pocketmine\block\Slab;
 use pocketmine\block\Stair;
 use pocketmine\event\player\PlayerJumpEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
@@ -47,13 +48,14 @@ class Speed extends Cheat{
     }
 
     public function receivePacket(DataPacketReceiveEvent $event) : void{
-        $packet = $event->getPacket();
+        $packet = clone $event->getPacket();
         $player = $event->getPlayer();
         $name = $player->getName();
         if($packet instanceof MovePlayerPacket){
             if($player->getAllowFlight() || $player->isFlying()){
                 return;
             }
+            $packet->position->y = 0;
             if(!isset($this->lastPosition[$name])){
                 $this->lastPosition[$name] = $player->asVector3();
                 return;
@@ -75,10 +77,15 @@ class Speed extends Cheat{
                 $expectedDistance = 0.785;
                 $this->wasPreviouslyInAir[$name] = $this->getServer()->getTick();
             } else {
-                if($this->wasPreviouslyInAir($name) || $this->recentlyJumped($name) || LevelUtils::getBlockUnder($player, 0.5) instanceof Stair){
+                if($this->wasPreviouslyInAir($name) || $this->recentlyJumped($name)){
                     $expectedDistance = 0.785;
                 } else {
                     $expectedDistance = 0.3;
+                    foreach(LevelUtils::getSurroundingBlocks($player, 3) as $block){
+                        if($block instanceof Slab || $block instanceof Stair){
+                            $expectedDistance = 1;
+                        }
+                    }
                 }
             }
             if($this->onIce($player)){
