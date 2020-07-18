@@ -42,18 +42,20 @@ class Angle extends Cheat implements Blatant{
 
         // props to the internet but i should prob figure out what this does lmao
         $angle = rad2deg(acos($dotResult));
-        if(round($angle, 0) > 110 && round($angle, 0) < 150){
-            $this->addViolation($damager->getName());
-            $data = [
-                "VL" => self::getCurrentViolations($damager->getName()),
-                "Angle" => round($angle, 0)
-            ];
-            $this->notifyStaff($damager->getName(), $this->getName(), $data);
-        } elseif(round($angle, 0) >= 150){
-            $counter = 0;
-            while($this->getMaxViolations() !== $counter){
+        if($damagerPos->distance($damagedPos) > 0.75){
+            if(round($angle, 0) > 110 && round($angle, 0) < 150){
                 $this->addViolation($damager->getName());
-                $counter++;
+                $data = [
+                    "VL" => self::getCurrentViolations($damager->getName()),
+                    "Angle" => round($angle, 0)
+                ];
+                $this->notifyStaff($damager->getName(), $this->getName(), $data);
+            } elseif(round($angle, 0) >= 150){
+                $counter = 0;
+                while($this->getMaxViolations() !== $counter){
+                    $this->addViolation($damager->getName());
+                    $counter++;
+                }
             }
         }
 
