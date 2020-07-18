@@ -51,11 +51,8 @@ class Angle extends Cheat implements Blatant{
                 ];
                 $this->notifyStaff($damager->getName(), $this->getName(), $data);
             } elseif(round($angle, 0) >= 150){
-                $counter = 0;
-                while($this->getMaxViolations() !== $counter){
-                    $this->addViolation($damager->getName());
-                    $counter++;
-                }
+                $this->addViolation($damager->getName());
+                $this->punish($damager->getName());
             }
         }
 

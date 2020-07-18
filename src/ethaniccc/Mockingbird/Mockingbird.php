@@ -52,7 +52,7 @@ class Mockingbird extends PluginBase implements Listener{
             "InvalidCraftingTransaction"
         ],
         "Other" => [
-            "ChestStealer", "FastEat", "Nuker", "FastBreak"
+            "ChestStealer", "FastEat", "Nuker", "FastBreak", "Timer"
         ],
         "Custom" => []
     ];

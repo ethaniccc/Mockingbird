@@ -122,3 +122,4 @@ ChestStealer: true
 FastEat: true
 FastBreak: false
 Nuker: true
+Timer: true
