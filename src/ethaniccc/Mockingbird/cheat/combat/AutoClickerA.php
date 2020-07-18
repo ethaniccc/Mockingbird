@@ -89,7 +89,7 @@ class AutoClickerA extends Cheat{
         }
         array_push($this->deviations[$name], $deviation);
         $averageDeviation = array_sum($this->deviations[$name]) / count($this->deviations[$name]);
-        if($averageDeviation < 10.5){
+        if($averageDeviation < 6.5){
             if(!isset($this->badDeviations[$name])){
                 $this->badDeviations[$name] = [];
             }

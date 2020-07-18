@@ -94,6 +94,8 @@ AutoClickerA: true
 # AutoClickerB is a speed check.
 AutoClickerB: true
 
+Angle: true
+
 #######   =====================================   #######
 
 ## Movement Detections ##
@@ -106,7 +108,7 @@ FastLadder: true
 NoWeb: true
 AirJump: true
 Fly: true
-InventoryMove: true
+InventoryMove: false
 
 ## Packet Checks ##
 # These checks are to detect if packets sent to the server are valid.
@@ -118,5 +120,5 @@ PacketChecks: true
 
 ChestStealer: true
 FastEat: true
-FastBreak: true
+FastBreak: false
 Nuker: true

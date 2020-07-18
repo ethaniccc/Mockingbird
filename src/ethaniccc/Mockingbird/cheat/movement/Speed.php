@@ -55,7 +55,7 @@ class Speed extends Cheat{
             if($player->getAllowFlight() || $player->isFlying()){
                 return;
             }
-            $packet->position->y = 0;
+            //$packet->position->y = 0;
             if(!isset($this->lastPosition[$name])){
                 $this->lastPosition[$name] = $player->asVector3();
                 return;
@@ -80,7 +80,7 @@ class Speed extends Cheat{
                 if($this->wasPreviouslyInAir($name) || $this->recentlyJumped($name)){
                     $expectedDistance = 0.785;
                 } else {
-                    $expectedDistance = 0.3;
+                    $expectedDistance = 0.325;
                     foreach(LevelUtils::getSurroundingBlocks($player, 3) as $block){
                         if($block instanceof Slab || $block instanceof Stair){
                             $expectedDistance = 1;
