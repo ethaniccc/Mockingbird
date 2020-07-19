@@ -24,7 +24,6 @@ use ethaniccc\Mockingbird\cheat\ViolationHandler;
 use ethaniccc\Mockingbird\command\LogCommand;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\command\ReloadModuleCommand;
-use ethaniccc\Mockingbird\command\ReportCommand;
 use pocketmine\event\HandlerList;
 use pocketmine\event\Listener;
 use pocketmine\plugin\PluginBase;
@@ -269,7 +268,6 @@ class Mockingbird extends PluginBase implements Listener{
     private function loadAllCommands() : void{
         $commandMap = $this->getServer()->getCommandMap();
         $this->getConfig()->get("LogCommand") === true ? $commandMap->register($this->getName(), new LogCommand("logs", $this)) : $this->getLogger()->debug("Log command disabled");
-        $this->getConfig()->get("ReportCommand") === true ? $commandMap->register($this->getName(), new ReportCommand("mbreport", $this)) : $this->getLogger()->debug("Report command disabled");
         $commandMap->register($this->getName(), new ReloadModuleCommand("mbreload", $this));
     }
 

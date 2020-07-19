@@ -72,7 +72,6 @@ log_command_type: normal
 
 # Set the value to true if you want the command enabled, and false if you don't.
 LogCommand: true
-ReportCommand: true
 
 #######   =====================================   #######
 

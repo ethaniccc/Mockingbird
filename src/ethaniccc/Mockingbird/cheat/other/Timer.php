@@ -43,7 +43,7 @@ class Timer extends Cheat{
                     $this->balance[$name] = 0;
                 }
             }
-            if($this->balance[$name] <= -500){
+            if($this->balance[$name] <= -250){
                 $this->addViolation($name);
                 $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
             }
