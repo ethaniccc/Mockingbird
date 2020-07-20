@@ -2,12 +2,13 @@
 
 namespace ethaniccc\Mockingbird\cheat\other;
 
+use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 
-class Timer extends Cheat{
+class Timer extends Cheat implements StrictRequirements{
 
     /** @var array */
     private $lastSentTime = [];
@@ -20,6 +21,8 @@ class Timer extends Cheat{
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+        $this->setRequiredPing(10000);
+        $this->setRequiredTPS(20.0);
     }
 
     public function receivePacket(DataPacketReceiveEvent $event) : void{
