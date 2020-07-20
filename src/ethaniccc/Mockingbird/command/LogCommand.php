@@ -39,6 +39,9 @@ class LogCommand extends Command implements PluginIdentifiableCommand{
     /** @var array */
     private $ids = [];
 
+    /** @var string */
+    private $mode = "normal";
+
     public function __construct(string $name, Mockingbird $plugin, string $description = "", string $usageMessage = null, array $aliases = []){
         parent::__construct($name, $description, $usageMessage, $aliases);
         $this->plugin = $plugin;
@@ -53,6 +56,7 @@ class LogCommand extends Command implements PluginIdentifiableCommand{
                 if(Server::getInstance()->getPluginManager()->getPlugin("FormAPI") !== null){
                     $this->setDescription("Get the AntiCheat logs.");
                     $this->setUsage(TextFormat::RED . "/logs");
+                    $this->mode = "UI";
                 } else {
                     Server::getInstance()->getLogger()->debug("FormAPI not found but UI mode chosen. Defaulting to 'normal' mode.");
                     $this->setDescription("Get the AntiCheat logs of a player!");
@@ -71,7 +75,7 @@ class LogCommand extends Command implements PluginIdentifiableCommand{
 
     public function execute(CommandSender $sender, string $commandLabel, array $args){
         if($this->testPermission($sender)){
-            switch($this->getPlugin()->getConfig()->get("log_command_type")){
+            switch($this->mode){
                 case "normal":
                     if(!isset($args[0])){
                         $sender->sendMessage($this->getUsage());
