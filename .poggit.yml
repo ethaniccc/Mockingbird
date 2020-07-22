@@ -2,6 +2,7 @@
 build-by-default: true
 branches:
 - master
+- playground
 projects:
   Mockingbird:
     path: ""
