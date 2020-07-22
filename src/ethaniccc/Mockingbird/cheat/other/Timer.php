@@ -46,9 +46,10 @@ class Timer extends Cheat implements StrictRequirements{
                     $this->balance[$name] = 0;
                 }
             }
-            if($this->balance[$name] <= -250){
+            if($this->balance[$name] <= -150){
                 $this->addViolation($name);
                 $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+                $this->balance[$name] = 0;
             }
             $this->lastSentTime[$name] = $currentTime;
             $this->previousTimeDiff[$name] = $timeDiff;

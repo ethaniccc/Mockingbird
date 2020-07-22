@@ -52,22 +52,26 @@ class Speed extends Cheat{
         $player = $event->getPlayer();
         $name = $player->getName();
         if($packet instanceof MovePlayerPacket){
+            $position = clone $packet->position;
+            $position->y = 0;
+            if($packet->mode !== MovePlayerPacket::MODE_NORMAL){
+                return;
+            }
             if($player->getAllowFlight() || $player->isFlying()){
                 return;
             }
-            //$packet->position->y = 0;
             if(!isset($this->lastPosition[$name])){
-                $this->lastPosition[$name] = $player->asVector3();
+                $this->lastPosition[$name] = $position;
                 return;
             }
-            $distance = $packet->position->distance($this->lastPosition[$name]);
+            $distance = $position->distance($this->lastPosition[$name]);
 
             if($this->previouslyHadEffect($name)){
-                $this->lastPosition[$name] = $player->asVector3();
+                $this->lastPosition[$name] = $position;
                 return;
             }
             if($this->previouslyOnIce($name)){
-                $this->lastPosition[$name] = $player->asVector3();
+                $this->lastPosition[$name] = $position;
                 return;
             }
             if(!$player->getLevel()->getBlock($player->asVector3()->add(0, 2, 0)) instanceof Air){
@@ -106,7 +110,7 @@ class Speed extends Cheat{
             } else {
                 $this->lowerSuspicion($name);
             }
-            $this->lastPosition[$name] = $packet->position;
+            $this->lastPosition[$name] = $position;
         }
     }
 
