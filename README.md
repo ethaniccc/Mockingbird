@@ -5,6 +5,16 @@ advantage on other players.
 **Warning:** In the state Mockingbird is currently in, this may false-positive, especially on production servers with some lag.
 This may also false-positive on players who are laggy (e.g: high ping).
 
+#### Special Thanks
+* Bavfalcon9
+    - Inspo for this project. Also for the structure of this plugin lol. You can check out
+    Mavoric (dev) by clicking [here](https://github.com/Bavfalcon9/Mavoric/tree/v2.0.0/)
+* shura62
+    - Helped with reach checks :D!
+* Jonhan
+    - Gave **some** checks for Bukkit that I was able to port over to PocketMine.
+    You can click [here](https://www.youtube.com/channel/UCZ_Pg7e-1JMlHtqnWw6KIcw) to check out his channel!
+
 ### Test Server
 Mockingbird has a test server - here are the details if you want to join:
 
@@ -20,22 +30,7 @@ Port: 40647
     
     The `/log` command will tell you how many violations a player currently has, 
     how many violations they have in total (when a player gets punished their current violation count resets to 0),
-    The Average TPS the server had when the player got violated, and 
-
-* Report Command
-
-    **NOTE:** After reporting a player, the reporter must wait 60 seconds before making a new report.
-    
-    If enabled in the config, the `/mbreport` command will bring up a UI with a list of online players. From there, you can
-    click on a player, then brought to a new UI where you will be able to select which cheat you want to report the player
-    for.
-    
-    If the player has failed the check and has more than 10 violations, Mockingbird will alert staff and ask for a staff member to check on the situation.
-    
-    If the player has not failed the check, Mockingbird will schedule a task 30 seconds in advance and see if the player has failed the check. If the player has still not failed
-    the reported check within the 30 seconds, it will notify the reporter that there was no evidence found of the accused cheat. However, if a player has failed the check within the
-    next 30 seconds, Mockingbird will alert staff and ask for someone to check on the situation.
-    
+    and the average TPS the server had when the player got violated.
 * Reload Module Command
 
     **NOTE:** This command intended use is for Custom Modules.
@@ -44,30 +39,35 @@ Port: 40647
     
     If I added a custom module to the `custom_modules` folder, I can use this command to reload and it will register my custom module (yes has been tested).
     Same goes for deleting a custom module.
+    
+    **Warning:** You cannot reload custom module code with this command.
 ## Detections
 Detections not guaranteed 100% accurate.
 
 ### Combat
+* Angle
 * AutoClicker
     * Consistency Detection
     * Speed Detection
 * Reach
+* MultiAura
 * Toolbox Killaura
 ### Movement
 * AirJump
-* Fly
+* Fly (may false-positive on slabs and cobwebs)
 * Glide
-* InventoryMove
+* InventoryMove (not complete / may be inaccurate)
 * FastLadder
 * NoSlowdown (while eating)
 * NoWeb
-* Speed (not complete)
+* Speed
 ### Other Detections
 * Packet Checks
 * ChestStealer
 * FastEat
 * FastBreak
 * Nuker
+* Timer (not complete / may be inaccurate)
 ## Custom Modules
 A feature that Mockingbird has is Custom Modules, which you can use to
 make new checks that don't currently exist, or to override a check with a 
