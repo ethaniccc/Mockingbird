@@ -40,6 +40,7 @@ class ReachA extends Cheat{
             array_push($distances, $box->collidesRay($ray, 0, 10));
         }
         $distance = min($distances);
+        $this->getServer()->broadcastMessage("$distance");
         if($distance > 3.1){
             $this->addViolation($name);
             $this->notifyStaff($name, $this->getName(), $this->genericAlertData($damager));
