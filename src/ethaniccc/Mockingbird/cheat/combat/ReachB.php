@@ -26,7 +26,7 @@ use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\Player;
 use pocketmine\entity\Entity;
 
-class Reach extends Cheat implements StrictRequirements{
+class ReachB extends Cheat implements StrictRequirements{
 
     private $lastHit = [];
     private $lastLastHit = [];

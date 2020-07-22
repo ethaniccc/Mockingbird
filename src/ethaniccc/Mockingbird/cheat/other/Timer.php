@@ -19,6 +19,9 @@ class Timer extends Cheat implements StrictRequirements{
     /** @var array */
     private $balance = [];
 
+    /** @var array */
+    private $counter = [];
+
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
         $this->setRequiredPing(10000);
@@ -44,6 +47,16 @@ class Timer extends Cheat implements StrictRequirements{
             if(isset($this->previousTimeDiff[$name])){
                 if($this->previousTimeDiff[$name] > 100 && $timeDiff <= 100){
                     $this->balance[$name] = 0;
+                }
+            }
+            if($this->balance[$name] < 0){
+                if(!isset($this->counter[$name])){
+                    $this->counter[$name] = 0;
+                }
+                ++$this->counter[$name];
+                if($this->counter[$name] >= 100 && $this->balance[$name] > -150){
+                    $this->balance[$name] = 0;
+                    $this->counter[$name] = 0;
                 }
             }
             if($this->balance[$name] <= -150){

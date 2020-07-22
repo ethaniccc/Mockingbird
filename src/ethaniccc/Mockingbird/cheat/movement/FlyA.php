@@ -6,6 +6,8 @@ use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\utils\LevelUtils;
 use ethaniccc\Mockingbird\utils\MathUtils;
+use pocketmine\block\BlockIds;
+use pocketmine\block\Slab;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
@@ -83,7 +85,7 @@ class FlyA extends Cheat{
 
             if(!$onGround && !$lastOnGround && !$lastLastOnGround && abs($predictedDiff) >= 0.005){
                 if(!MathUtils::isRoughlyEqual($yDiff, $predictedDiff)){
-                    if(!$this->recentlyHit($name) && !$this->recentlyFell($name)){
+                    if(!$this->recentlyHit($name) && !$this->recentlyFell($name) && !LevelUtils::getBlockUnder($event->getPlayer()) instanceof Slab){
                         ++$this->counter[$name];
                         if($this->counter[$name] >= 2){
                             $this->addViolation($name);

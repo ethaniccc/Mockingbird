@@ -78,7 +78,8 @@ LogCommand: true
 ## Combat Detections ##
 # You can choose to enable or disable cheats with (true/false)
 
-Reach: true
+ReachA: true
+ReachB: true
 
 # Toolbox is a hacked client some Android users may use to
 # gain an unfair advantage against other players.

@@ -39,7 +39,7 @@ class Mockingbird extends PluginBase implements Listener{
     /** @var array */
     private $modules = [
         "Combat" => [
-            "Reach", "AutoClickerA", "AutoClickerB", "ToolboxKillaura",
+            "ReachA", "ReachB", "AutoClickerA", "AutoClickerB", "ToolboxKillaura",
             "MultiAura", "Angle"
         ],
         "Movement" => [
