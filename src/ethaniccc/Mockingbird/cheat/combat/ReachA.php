@@ -49,12 +49,11 @@ class ReachA extends Cheat{
             return;
         }
         $distance = min($distances);
-        $max = $damager->isCreative() ? 6 : 3.2;
+        $max = $damager->isCreative() ? 6 : 3.05;
         if($distance > $max){
             $this->addViolation($name);
             $this->notifyStaff($name, $this->getName(), $this->genericAlertData($damager));
         }
-        $this->getServer()->broadcastMessage("$distance");
     }
 
     public function onMove(PlayerMoveEvent $event) : void{
