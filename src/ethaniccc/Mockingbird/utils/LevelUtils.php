@@ -33,12 +33,16 @@ class LevelUtils{
     public const MODE_Z = 2;
     public const MODE_POINT_DISTANCE = 3;
 
+    public const MODE_NORMAL = 0;
+    public const MODE_ID = 1;
+
     /**
      * @param $player
      * @param float|int $radius
+     * @param int $type
      * @return array
      */
-    public static function getSurroundingBlocks($player, float $radius = 1) : array{
+    public static function getSurroundingBlocks($player, float $radius = 1, int $type = self::MODE_NORMAL) : array{
         $position = $player->asVector3();
         $level = $player->getLevel();
         $currentAddLevel = 0;
@@ -59,6 +63,13 @@ class LevelUtils{
             array_push($blocksAroundPlayer, $level->getBlock($position->add(1 + $currentAddLevel, 0, 1 - $currentAddLevel)));
             $currentAddLevel++;
             $levelsCompleted++;
+        }
+        if($type === self::MODE_ID){
+            $blockIds = [];
+            foreach($blocksAroundPlayer as $block){
+                array_push($blockIds, $block->getId());
+            }
+            return $blockIds;
         }
         return $blocksAroundPlayer;
     }
