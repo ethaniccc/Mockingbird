@@ -38,11 +38,14 @@ class ReachA extends Cheat{
             return;
         }
         $boundingBoxes = $this->boundingBoxes[$damaged->getName()];
+        if(count($boundingBoxes) !== 20){
+            return;
+        }
         $distances = [];
         foreach($boundingBoxes as $box){
             $collision = $box->collidesRay($ray, 0, 10);
             if($collision !== -1){
-                array_push($distances, $box->collidesRay($ray, 0, 10));
+                array_push($distances, $collision);
             }
         }
         if(count($distances) === 0){
