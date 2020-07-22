@@ -85,7 +85,7 @@ class FlyA extends Cheat{
 
             if(!$onGround && !$lastOnGround && !$lastLastOnGround && abs($predictedDiff) >= 0.005){
                 if(!MathUtils::isRoughlyEqual($yDiff, $predictedDiff)){
-                    if(!$this->recentlyHit($name) && !$this->recentlyFell($name) && !LevelUtils::getBlockUnder($event->getPlayer(), 1.5) instanceof Slab){
+                    if(!$this->recentlyHit($name) && !$this->recentlyFell($name) && !LevelUtils::getBlockUnder($event->getPlayer()) instanceof Slab){
                         ++$this->counter[$name];
                         if($this->counter[$name] >= 2){
                             $this->addViolation($name);
