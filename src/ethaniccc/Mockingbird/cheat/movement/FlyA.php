@@ -29,6 +29,9 @@ class FlyA extends Cheat{
     /** @var array */
     private $hitTick = [];
 
+    /** @var array  */
+    private $counter = [];
+
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
@@ -54,6 +57,9 @@ class FlyA extends Cheat{
                 $this->previousY[$name] = $position->y;
                 return;
             }
+            if(!isset($this->counter[$name])){
+                $this->counter[$name] = 0;
+            }
             $yDiff = $position->y - $this->previousY[$name];
             if(!isset($this->lastDistY[$name])){
                 $this->lastDistY[$name] = $yDiff;
@@ -78,10 +84,17 @@ class FlyA extends Cheat{
             if(!$onGround && !$lastOnGround && !$lastLastOnGround && abs($predictedDiff) >= 0.005){
                 if(!MathUtils::isRoughlyEqual($yDiff, $predictedDiff)){
                     if(!$this->recentlyHit($name) && !$this->recentlyFell($name)){
-                        $this->addViolation($name);
-                        $this->notifyStaff($name, $this->getName(), $this->genericAlertData($event->getPlayer()));
+                        ++$this->counter[$name];
+                        if($this->counter[$name] >= 2){
+                            $this->addViolation($name);
+                            $this->notifyStaff($name, $this->getName(), $this->genericAlertData($event->getPlayer()));
+                        }
                     }
+                } else {
+                    $this->counter[$name] *= 0.75;
                 }
+            } else {
+                $this->counter[$name] *= 0.75;
             }
 
             $this->previousY[$name] = $position->y;
