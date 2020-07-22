@@ -40,12 +40,20 @@ class ReachA extends Cheat{
         $boundingBoxes = $this->boundingBoxes[$damaged->getName()];
         $distances = [];
         foreach($boundingBoxes as $box){
-            array_push($distances, $box->collidesRay($ray, 0, 10));
+            $collision = $box->collidesRay($ray, 0, 10);
+            if($collision !== -1){
+                array_push($distances, $box->collidesRay($ray, 0, 10));
+            }
         }
         if(count($distances) === 0){
             return;
         }
-        $this->getServer()->broadcastMessage(implode(", ", $distances));
+        $distance = min($distances);
+        $max = $damager->isCreative() ? 6 : 3.2;
+        if($distance > $max){
+            $this->addViolation($name);
+            $this->notifyStaff($name, $this->getName(), $this->genericAlertData($damager));
+        }
     }
 
     public function onMove(PlayerMoveEvent $event) : void{
