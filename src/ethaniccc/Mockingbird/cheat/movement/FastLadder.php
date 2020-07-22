@@ -42,25 +42,23 @@ class FastLadder extends Cheat implements StrictRequirements{
         if($this->hasRecentlyJumped($player)) return;
 
         $blocksAroundPlayer = LevelUtils::getSurroundingBlocks($player, 1);
-        $continue = false;
         foreach($blocksAroundPlayer as $block){
-            if($block->getId() === BlockIds::LADDER) $continue = true;
+            if($block->getId() !== BlockIds::LADDER) return;
         }
-        if($continue){
-            $yDist = round($event->getTo()->y - $event->getFrom()->y, 1);
-            if($yDist == 0) return;
-            $expectedDist = 0.2;
-            if($yDist > $expectedDist){
-                if($expectedDist * 2 == $yDist){
-                    // Speed spike detected
-                    return;
-                } elseif($yDist == 0.3){
-                    // Player is spam jumping and PlayerJumpEvent not being triggered?
-                    return;
-                }
-                $this->addViolation($name);
-                $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+
+        $yDist = round($event->getTo()->y - $event->getFrom()->y, 1);
+        if($yDist == 0) return;
+        $expectedDist = 0.2;
+        if($yDist > $expectedDist){
+            if($expectedDist * 2 == $yDist){
+                // Speed spike detected
+                return;
+            } elseif($yDist == 0.3){
+                // Player is spam jumping and PlayerJumpEvent not being triggered?
+                return;
             }
+            $this->addViolation($name);
+            $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
         }
     }
 
