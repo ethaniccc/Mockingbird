@@ -6,6 +6,7 @@ use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\utils\LevelUtils;
 use ethaniccc\Mockingbird\utils\MathUtils;
+use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\event\entity\EntityDamageEvent;
@@ -25,6 +26,8 @@ class FlyA extends Cheat{
 
     /** @var array */
     private $fallDamageTick = [];
+    /** @var array */
+    private $hitTick = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
@@ -41,6 +44,9 @@ class FlyA extends Cheat{
                 return;
             }
             if($event->getPlayer()->isCreative()){
+                return;
+            }
+            if($event->getPlayer()->getMotion()->getX() > 0 || $event->getPlayer()->getMotion()->getZ() > 0){
                 return;
             }
             $position = clone $packet->position;
@@ -71,11 +77,9 @@ class FlyA extends Cheat{
 
             if(!$onGround && !$lastOnGround && !$lastLastOnGround && abs($predictedDiff) >= 0.005){
                 if(!MathUtils::isRoughlyEqual($yDiff, $predictedDiff)){
-                    if(isset($this->fallDamageTick[$event->getPlayer()->getName()])){
-                        if($this->getServer()->getTick() - $this->fallDamageTick[$event->getPlayer()->getName()] > 5){
-                            $this->addViolation($name);
-                            $this->notifyStaff($name, $this->getName(), $this->genericAlertData($event->getPlayer()));
-                        }
+                    if(!$this->recentlyHit($name) && !$this->recentlyFell($name)){
+                        $this->addViolation($name);
+                        $this->notifyStaff($name, $this->getName(), $this->genericAlertData($event->getPlayer()));
                     }
                 }
             }
@@ -94,6 +98,19 @@ class FlyA extends Cheat{
                 $this->fallDamageTick[$entity->getName()] = $this->getServer()->getTick();
             }
         }
+        if($event instanceof EntityDamageByEntityEvent){
+            if($entity instanceof Player){
+                $this->hitTick[$entity->getName()] = $this->getServer()->getTick();
+            }
+        }
+    }
+
+    private function recentlyFell(string $name) : bool{
+        return isset($this->fallDamageTick[$name]) ? $this->getServer()->getTick() - $this->fallDamageTick[$name] <= 5 : false;
+    }
+
+    private function recentlyHit(string $name) : bool{
+        return isset($this->hitTick[$name]) ? $this->getServer()->getTick() - $this->hitTick[$name] <= 35 : false;
     }
 
 }
