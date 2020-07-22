@@ -44,7 +44,7 @@ class Mockingbird extends PluginBase implements Listener{
         ],
         "Movement" => [
             "Speed", "NoSlowdown", "FastLadder", "NoWeb", "AirJump",
-            "Fly", "InventoryMove", "Glide"
+            "FlyA", "FlyB", "InventoryMove", "Glide"
         ],
         "Packet" => [
             "BadPitchPacket", "AttackingWhileEating", "InvalidCreativeTransaction",

@@ -31,7 +31,7 @@ use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\player\PlayerToggleFlightEvent;
 use pocketmine\Player;
 
-class Fly extends Cheat implements StrictRequirements{
+class FlyB extends Cheat implements StrictRequirements{
 
     private $ticksOffGround = [];
     private $wasDamaged = [];

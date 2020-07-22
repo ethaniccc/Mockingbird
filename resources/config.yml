@@ -106,7 +106,8 @@ NoSlowdown: true
 FastLadder: true
 NoWeb: true
 AirJump: true
-Fly: true
+FlyA: true
+FlyB: true
 InventoryMove: false
 
 ## Packet Checks ##

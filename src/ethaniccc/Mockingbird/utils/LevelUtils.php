@@ -21,6 +21,7 @@ Github: https://www.github.com/ethaniccc
 namespace ethaniccc\Mockingbird\utils;
 
 use pocketmine\block\Block;
+use pocketmine\level\Position;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -89,6 +90,20 @@ class LevelUtils{
 
     public static function getBlockUnder(Player $player, float $underLevel = 1) : Block{
         return $player->getLevel()->getBlock($player->asVector3()->subtract(0, $underLevel, 0));
+    }
+
+    public static function isNearGround(Player $player) : bool{
+        $expand = 0.3;
+        $position = $player->asVector3();
+        $level = $player->getLevel();
+        for($x = -$expand; $x <= $expand; $x += $expand){
+            for($z = -$expand; $z <= $expand; $z += $expand){
+                if($level->getBlock($position->add($x, -1.2, $z))->getId() !== 0){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
