@@ -42,12 +42,10 @@ class ReachA extends Cheat{
         foreach($boundingBoxes as $box){
             array_push($distances, $box->collidesRay($ray, 0, 10));
         }
-        $distance = min($distances);
-        $this->getServer()->broadcastMessage("$distance");
-        if($distance > 3.1){
-            $this->addViolation($name);
-            $this->notifyStaff($name, $this->getName(), $this->genericAlertData($damager));
+        if(count($distances) === 0){
+            return;
         }
+        $this->getServer()->broadcastMessage(implode(", ", $distances));
     }
 
     public function onMove(PlayerMoveEvent $event) : void{
