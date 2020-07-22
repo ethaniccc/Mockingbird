@@ -34,6 +34,9 @@ class ReachA extends Cheat{
         $name = $damager->getName();
         $this->lastTarget[$name] = $damaged;
         $ray = new Ray($damager->add(0, $damager->getEyeHeight()), $damager->getDirectionVector());
+        if(!isset($this->boundingBoxes[$damaged->getName()])){
+            return;
+        }
         $boundingBoxes = $this->boundingBoxes[$damaged->getName()];
         $distances = [];
         foreach($boundingBoxes as $box){
