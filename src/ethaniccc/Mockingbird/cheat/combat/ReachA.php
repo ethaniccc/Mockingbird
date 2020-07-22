@@ -54,6 +54,7 @@ class ReachA extends Cheat{
             $this->addViolation($name);
             $this->notifyStaff($name, $this->getName(), $this->genericAlertData($damager));
         }
+        $this->getServer()->broadcastMessage("$distance");
     }
 
     public function onMove(PlayerMoveEvent $event) : void{
