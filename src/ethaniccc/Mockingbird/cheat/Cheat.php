@@ -295,6 +295,13 @@ class Cheat implements Listener{
     }
 
     /**
+     * @param string $message
+     */
+    protected function debug(string $message) : void{
+        $this->getServer()->getLogger()->debug("[Mockingbird || {$this->getName()}]: $message");
+    }
+
+    /**
      * @return bool
      */
     private function isLowTPS() : bool{

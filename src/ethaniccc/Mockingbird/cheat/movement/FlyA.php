@@ -2,19 +2,20 @@
 
 namespace ethaniccc\Mockingbird\cheat\movement;
 
+use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\utils\LevelUtils;
 use ethaniccc\Mockingbird\utils\MathUtils;
 use pocketmine\block\BlockIds;
-use pocketmine\block\Slab;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
+use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\Player;
 
-class FlyA extends Cheat{
+class FlyA extends Cheat implements StrictRequirements{
 
     /** @var array */
     private $lastDistY = [];
@@ -34,8 +35,13 @@ class FlyA extends Cheat{
     /** @var array  */
     private $counter = [];
 
+    /** @var array */
+    private $joinTick = [];
+
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+        $this->setRequiredTPS(19.5);
+        $this->setRequiredPing(20000);
     }
 
     public function receivePacket(DataPacketReceiveEvent $event) : void{
@@ -85,11 +91,16 @@ class FlyA extends Cheat{
 
             if(!$onGround && !$lastOnGround && !$lastLastOnGround && abs($predictedDiff) >= 0.005){
                 if(!MathUtils::isRoughlyEqual($yDiff, $predictedDiff)){
-                    if(!$this->recentlyHit($name) && !$this->recentlyFell($name) && !LevelUtils::getBlockUnder($event->getPlayer()) instanceof Slab){
+                    if(!$this->recentlyHit($name) && !$this->recentlyFell($name) && !$this->recentlyJoined($name) && !LevelUtils::isNearBlock($event->getPlayer(), BlockIds::COBWEB, 2.4)){
                         ++$this->counter[$name];
                         if($this->counter[$name] >= 2){
                             $this->addViolation($name);
                             $this->notifyStaff($name, $this->getName(), $this->genericAlertData($event->getPlayer()));
+                            if($packet->onGround){
+                                // lmao Horion Jetpack with "bypass" makes the packet "onGround"
+                                // what a load of bullshiz
+                                $this->debug("Player $name failed a check for fly, sent invalid packet information - packet given onGround to be true while player is not near ground.");
+                            }
                         }
                     }
                 } else {
@@ -118,6 +129,14 @@ class FlyA extends Cheat{
                 $this->hitTick[$entity->getName()] = $this->getServer()->getTick();
             }
         }
+    }
+
+    public function onJoin(PlayerJoinEvent $event) : void{
+        $this->joinTick[$event->getPlayer()->getName()] = $this->getServer()->getTick();
+    }
+
+    private function recentlyJoined(string $name) : bool{
+        return isset($this->joinTick[$name]) ? $this->getServer()->getTick() - $this->joinTick[$name] <= 60 : true;
     }
 
     private function recentlyFell(string $name) : bool{

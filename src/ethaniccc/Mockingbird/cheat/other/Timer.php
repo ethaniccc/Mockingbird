@@ -60,6 +60,8 @@ class Timer extends Cheat implements StrictRequirements{
                     }
                     $this->counter[$name] = 0;
                 }
+            } else {
+                $this->counter[$name] = 0;
             }
             if($this->balance[$name] <= -300){
                 $this->addViolation($name);

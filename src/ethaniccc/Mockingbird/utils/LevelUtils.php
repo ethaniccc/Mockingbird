@@ -21,7 +21,7 @@ Github: https://www.github.com/ethaniccc
 namespace ethaniccc\Mockingbird\utils;
 
 use pocketmine\block\Block;
-use pocketmine\level\Position;
+use pocketmine\block\BlockIds;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -99,18 +99,48 @@ class LevelUtils{
         }
     }
 
+    /**
+     * @param Player $player
+     * @param float|int $underLevel
+     * @return Block
+     */
     public static function getBlockUnder(Player $player, float $underLevel = 1) : Block{
         return $player->getLevel()->getBlock($player->asVector3()->subtract(0, $underLevel, 0));
     }
 
+    /**
+     * @param Player $player
+     * @return bool
+     */
     public static function isNearGround(Player $player) : bool{
         $expand = 0.3;
         $position = $player->asVector3();
         $level = $player->getLevel();
         for($x = -$expand; $x <= $expand; $x += $expand){
             for($z = -$expand; $z <= $expand; $z += $expand){
-                if($level->getBlock($position->add($x, -1.2, $z))->getId() !== 0){
-                    return true;
+                for($y = -1.2; $y <= -0.5; $y += 0.1){
+                    if($level->getBlock($position->add($x, $y, $z))->getId() !== 0){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param Player $player
+     * @param int $blockId
+     * @param float|int $radius
+     * @return bool
+     */
+    public static function isNearBlock(Player $player, int $blockId, float $radius = 1) : bool{
+        for($x = -$radius; $x <= $radius; $x += 0.2){
+            for($y = -$radius; $y <= $radius; $y += 0.2){
+                for($z = -$radius; $z <= $radius; $z += 0.2){
+                    if($player->getLevel()->getBlock($player->asVector3()->add($x, $y, $z))->getId() === $blockId){
+                        return true;
+                    }
                 }
             }
         }

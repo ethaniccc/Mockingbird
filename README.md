@@ -54,7 +54,7 @@ Detections not guaranteed 100% accurate.
 * Toolbox Killaura
 ### Movement
 * AirJump
-* Fly (may false-positive on slabs and cobwebs)
+* Fly
 * Glide
 * InventoryMove (not complete / may be inaccurate)
 * FastLadder

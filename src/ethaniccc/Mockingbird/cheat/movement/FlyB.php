@@ -25,6 +25,8 @@ use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\utils\LevelUtils;
 use pocketmine\block\Air;
+use pocketmine\block\BlockIds;
+use pocketmine\block\Cobweb;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
@@ -69,8 +71,10 @@ class FlyB extends Cheat implements StrictRequirements{
             }
             $this->ticksOffGround[$name] += 1;
             if($this->ticksOffGround[$name] > 60){
-                $this->addViolation($name);
-                $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+                if(!LevelUtils::isNearBlock($player, BlockIds::COBWEB, 2.4)){
+                    $this->addViolation($name);
+                    $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+                }
             }
         } else {
             if(isset($this->ticksOffGround[$name])){
