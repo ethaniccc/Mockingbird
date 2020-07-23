@@ -93,7 +93,7 @@ class FlyA extends Cheat implements StrictRequirements{
 
             if(!$onGround && !$lastOnGround && !$lastLastOnGround && abs($predictedDiff) >= 0.005){
                 if(!MathUtils::isRoughlyEqual($yDiff, $predictedDiff)){
-                    if(!$this->recentlyHit($name) && !$this->recentlyFell($name) && !$this->recentlyJoined($name) && !LevelUtils::isNearBlock($event->getPlayer(), BlockIds::COBWEB, 2.4)){
+                    if(!$this->recentlyHit($name) && !$this->recentlyFell($name) && !$this->recentlyJoined($name) && !LevelUtils::isNearBlock($event->getPlayer(), BlockIds::COBWEB, 2)){
                         ++$this->counter[$name];
                         if($this->counter[$name] >= 2){
                             $this->addViolation($name);

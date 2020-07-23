@@ -135,9 +135,9 @@ class LevelUtils{
      * @return bool
      */
     public static function isNearBlock(Player $player, int $blockId, float $radius = 1) : bool{
-        for($x = -$radius; $x <= $radius; $x += 0.2){
-            for($y = -$radius; $y <= $radius; $y += 0.2){
-                for($z = -$radius; $z <= $radius; $z += 0.2){
+        for($x = -$radius; $x <= $radius; $x += 0.5){
+            for($y = -$radius; $y <= $radius; $y += 0.5){
+                for($z = -$radius; $z <= $radius; $z += 0.5){
                     if($player->getLevel()->getBlock($player->asVector3()->add($x, $y, $z))->getId() === $blockId){
                         return true;
                     }
