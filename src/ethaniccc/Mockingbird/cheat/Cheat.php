@@ -239,11 +239,7 @@ class Cheat implements Listener{
             $counter = 1;
         }
         $this->lastViolationTime[$name] = $this->getServer()->getTick();
-        $completed = 0;
-        while($completed !== $counter){
-            ViolationHandler::addViolation($name, $this->getName());
-            $completed++;
-        }
+        ViolationHandler::addViolation($name, $this->getName(), $counter);
         if($this instanceof Blatant){
             if(!isset($this->blatantViolations[$name])){
                 $this->blatantViolations[$name] = 0;

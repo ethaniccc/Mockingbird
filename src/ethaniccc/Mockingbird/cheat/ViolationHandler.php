@@ -40,12 +40,13 @@ final class ViolationHandler{
     /**
      * @param string $name
      * @param string $cheat
+     * @param int $amount
      */
-    public static function addViolation(string $name, string $cheat) : void{
+    public static function addViolation(string $name, string $cheat, int $amount = 1) : void{
         if(!isset(self::$violations[$name])){
             self::$violations[$name] = 0;
         }
-        self::$violations[$name] += 1;
+        self::$violations[$name] += $amount;
         if(!isset(self::$cheatsViolatedFor[$name])){
             self::$cheatsViolatedFor[$name] = [];
         }
