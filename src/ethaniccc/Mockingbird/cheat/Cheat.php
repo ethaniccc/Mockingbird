@@ -242,6 +242,7 @@ class Cheat implements Listener{
         $completed = 0;
         while($completed !== $counter){
             ViolationHandler::addViolation($name, $this->getName());
+            $completed++;
         }
         if($this instanceof Blatant){
             if(!isset($this->blatantViolations[$name])){
