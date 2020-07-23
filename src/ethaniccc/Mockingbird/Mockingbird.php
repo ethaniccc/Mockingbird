@@ -21,11 +21,15 @@ declare(strict_types=1);
 namespace ethaniccc\Mockingbird;
 
 use ethaniccc\Mockingbird\cheat\ViolationHandler;
+use ethaniccc\Mockingbird\command\DisableModuleCommand;
+use ethaniccc\Mockingbird\command\EnableModuleCommand;
 use ethaniccc\Mockingbird\command\LogCommand;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\command\ReloadModuleCommand;
 use pocketmine\event\HandlerList;
 use pocketmine\event\Listener;
+use pocketmine\permission\Permission;
+use pocketmine\permission\PermissionManager;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\TextFormat;
 use pocketmine\scheduler\ClosureTask;
@@ -189,16 +193,32 @@ class Mockingbird extends PluginBase implements Listener{
      */
     public function getModuleByName(string $module) : ?Cheat{
         foreach($this->enabledModules as $mod){
-            if($mod->getName() === $module){
+            if(strtolower($mod->getName()) === strtolower($module)){
                 return $mod;
             }
         }
         foreach($this->disabledModules as $disMod){
-            if($disMod->getName() === $module){
+            if(strtolower($disMod->getName()) === strtolower($module)){
                 return $disMod;
             }
         }
         return null;
+    }
+
+    /**
+     * @param $module Cheat
+     */
+    public function enableModule($module) : void{
+        $this->getServer()->getPluginManager()->registerEvents($module, $this);
+        $module->setEnabled();
+    }
+
+    /**
+     * @param $module Cheat
+     */
+    public function disableModule($module) : void{
+        HandlerList::unregisterAll($module);
+        $module->setEnabled(false);
     }
 
     /**
@@ -269,6 +289,20 @@ class Mockingbird extends PluginBase implements Listener{
         $commandMap = $this->getServer()->getCommandMap();
         $this->getConfig()->get("LogCommand") === true ? $commandMap->register($this->getName(), new LogCommand("logs", $this)) : $this->getLogger()->debug("Log command disabled");
         $commandMap->register($this->getName(), new ReloadModuleCommand("mbreload", $this));
+        $commandMap->register($this->getName(), new EnableModuleCommand("mbenable", $this));
+        $commandMap->register($this->getName(), new DisableModuleCommand("mbdisable", $this));
+    }
+
+    private function registerPermissions() : void{
+        $permissions = [
+            new Permission($this->getConfig()->get("alert_permission"), "Get alerts from the Mockingbird Anti-Cheat."),
+            new Permission($this->getConfig()->get("log_permission"), "Check logs of players from the Mockingbird Anti-Cheat."),
+            new Permission($this->getConfig()->get("module_permission"), "Manage Mockingbird modules."),
+            new Permission($this->getConfig()->get("bypass_permission"), "Exempt yourself from getting flagged by the Mockingbird AntiCheat.")
+        ];
+        foreach($permissions as $permission){
+            PermissionManager::getInstance()->addPermission($permission);
+        }
     }
 
 }

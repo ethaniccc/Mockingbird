@@ -35,7 +35,7 @@ class ReloadModuleCommand extends Command implements PluginIdentifiableCommand{
     public function __construct(string $name, Mockingbird $plugin, string $description = "", string $usageMessage = null, array $aliases = []){
         parent::__construct($name, $description, $usageMessage, $aliases);
         $this->plugin = $plugin;
-        $this->setPermission($this->getPlugin()->getConfig()->get("reload_permission"));
+        $this->setPermission($this->getPlugin()->getConfig()->get("module_permission"));
         $this->setDescription("Reload Mockingbird modules");
     }
 
@@ -49,7 +49,7 @@ class ReloadModuleCommand extends Command implements PluginIdentifiableCommand{
     public function execute(CommandSender $sender, string $commandLabel, array $args){
         if($this->testPermission($sender)){
             $this->getPlugin()->reloadModules();
-            $sender->sendMessage(TextFormat::GREEN . "Mockingbird modules are being re-loaded, check console.");
+            $sender->sendMessage($this->getPlugin()->getPrefix() . TextFormat::GREEN . "Mockingbird modules are being re-loaded, check console.");
         }
     }
 

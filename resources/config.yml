@@ -33,10 +33,9 @@ alert_permission: "mockingbird.alerts"
 # This permission is for getting player logs.
 log_permission: "mockingbird.logs"
 
-# You can choose this permission to anything you'd like.
-# This permission is for using the /mbreload command to
-# reload modules, mainly for custom modules.
-reload_permission: "mockingbird.reload"
+# This is for module permission such as using /mbenable, /mbdisable, and /mbreload
+# to enable and disable modules through commands.
+module_permission: "mockingbird.modules"
 
 # This is a bypass permission you can give to people, this means
 # that they will NOT be violated for cheats.

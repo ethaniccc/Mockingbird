@@ -88,6 +88,13 @@ class Cheat implements Listener{
     }
 
     /**
+     * @param bool $enabled
+     */
+    public function setEnabled(bool $enabled = true) : void{
+        $this->enabled = $enabled;
+    }
+
+    /**
      * @param string $name
      * @param float $amount
      */
@@ -208,6 +215,9 @@ class Cheat implements Listener{
      * @param string $name
      */
     protected function addViolation(string $name) : void{
+        if(!$this->isEnabled()){
+            return;
+        }
         if($this->getServer()->getPlayer($name)->hasPermission($this->getPlugin()->getConfig()->get("bypass_permission"))){
             return;
         }
@@ -260,6 +270,9 @@ class Cheat implements Listener{
      * @param array $data
      */
     protected function notifyStaff(string $name, string $cheat, array $data) : void{
+        if(!$this->isEnabled()){
+            return;
+        }
         if($this->getServer()->getPlayer($name)->hasPermission($this->getPlugin()->getConfig()->get("bypass_permission"))){
             return;
         }
@@ -295,6 +308,9 @@ class Cheat implements Listener{
      * @param string $name
      */
     protected function punish(string $name) : void{
+        if(!$this->isEnabled()){
+            return;
+        }
         $punishmentType = $this->getPlugin()->getConfig()->get("punishment_type");
         switch($punishmentType){
             case "kick":
@@ -314,6 +330,9 @@ class Cheat implements Listener{
      * @param string $message
      */
     protected function debug(string $message) : void{
+        if(!$this->isEnabled()){
+            return;
+        }
         $this->getServer()->getLogger()->debug("[Mockingbird || {$this->getName()}]: $message");
     }
 
