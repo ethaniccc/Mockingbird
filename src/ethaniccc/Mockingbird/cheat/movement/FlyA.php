@@ -99,20 +99,7 @@ class FlyA extends Cheat implements StrictRequirements{
                             $this->addViolation($name);
                             $this->notifyStaff($name, $this->getName(), $this->genericAlertData($event->getPlayer()));
                             if($packet->onGround){
-                                // lmao Horion Jetpack with "bypass" makes the packet "onGround"
-                                // what a load of bullshiz
-                                if(!isset($this->ultimateCounter[$name])){
-                                    $this->ultimateCounter[$name] = 0;
-                                }
-                                ++$this->ultimateCounter[$name];
-                                if($this->ultimateCounter[$name] >= 2.5){
-                                    $this->punish($name);
-                                }
-                                // $this->debug("Player $name failed a check for fly, sent invalid packet information - packet given onGround to be true while player is not near ground.");
-                            } else {
-                                if(isset($this->ultimateCounter[$name])){
-                                    $this->ultimateCounter[$name] = 0;
-                                }
+                                // maybe for another check?
                             }
                         }
                     }
