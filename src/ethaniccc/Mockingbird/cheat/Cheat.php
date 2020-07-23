@@ -53,6 +53,9 @@ class Cheat implements Listener{
     /** @var int */
     private $maxBlatantViolations;
 
+    /** @var array */
+    private $lastViolationTime = [];
+
     /** @var Mockingbird */
     private $plugin;
 
@@ -223,7 +226,23 @@ class Cheat implements Listener{
                 return;
             }
         }
-        ViolationHandler::addViolation($name, $this->getName());
+        if(isset($this->lastViolationTime[$name])){
+            $timeDiff = $this->getServer()->getTick() - $this->lastViolationTime[$name];
+            if($timeDiff < 20 && $timeDiff !== 0){
+                $counter = round(10 / $timeDiff, 0);
+            } elseif($timeDiff === 0){
+                $counter = 20;
+            } else {
+                $counter = 1;
+            }
+        } else {
+            $counter = 1;
+        }
+        $this->lastViolationTime[$name] = $this->getServer()->getTick();
+        $completed = 0;
+        while($completed !== $counter){
+            ViolationHandler::addViolation($name, $this->getName());
+        }
         if($this instanceof Blatant){
             if(!isset($this->blatantViolations[$name])){
                 $this->blatantViolations[$name] = 0;
