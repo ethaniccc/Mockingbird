@@ -44,7 +44,7 @@ class ReachA extends Cheat{
         $distances = [];
         foreach($boundingBoxes as $box){
             $collision = $box->collidesRay($ray, 0, 10);
-            if($collision !== -1){
+            if($collision != -1){
                 array_push($distances, $collision);
             }
         }
@@ -64,14 +64,10 @@ class ReachA extends Cheat{
         if(!isset($this->boundingBoxes[$player->getName()])){
             $this->boundingBoxes[$player->getName()] = [];
         }
-        foreach($this->lastTarget as $target){
-            if($player->getName() === $target->getName()){
-                if(count($this->boundingBoxes[$player->getName()]) === 20){
-                    array_shift($this->boundingBoxes[$player->getName()]);
-                }
-                array_push($this->boundingBoxes[$player->getName()], AABB::fromPlayer($player));
-            }
+        if(count($this->boundingBoxes[$player->getName()]) === 20){
+            array_shift($this->boundingBoxes[$player->getName()]);
         }
+        array_push($this->boundingBoxes[$player->getName()], AABB::fromPlayer($player));
     }
 
 }
