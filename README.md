@@ -22,6 +22,7 @@ Mockingbird has a test server - here are the details if you want to join:
 IP: mockingbird.mcpro.io
 Port: 40647
 ```
+You can also click [here](https://discord.gg/v77FESn) to join my discord.
 ## Commands
 * Log Command
     
@@ -31,6 +32,20 @@ Port: 40647
     The `/log` command will tell you how many violations a player currently has, 
     how many violations they have in total (when a player gets punished their current violation count resets to 0),
     and the average TPS the server had when the player got violated.
+    
+* Enable Module Command
+    
+    With the `/mbenable` command, you can enable certain modules in-game. For example,
+    if I forgot to turn on `InventoryMove` in the config, I could use `/mbenable inventorymove` to 
+    enable it. If the module is enabled already, the plugin you tell you so. If you want to add and enable
+    a new custom module, you must use `/mbreload`.
+    
+* Disable Module Command
+
+    With the `/mbdisable` command, you can disable certain modules in-game. For example, if
+    `AutoClickerA` checks are falsing too much, you can disable it with `/mbdisable autoclickera`. If the specified
+    module is disabled already, the plugin will tell you so. 
+    
 * Reload Module Command
 
     **NOTE:** This command intended use is for Custom Modules.
@@ -47,7 +62,7 @@ Detections not guaranteed 100% accurate.
 ### Combat
 * Angle
 * AutoClicker
-    * Consistency Detection
+    * Consistency Detection (may rarely false)
     * Speed Detection
 * Reach
 * MultiAura
@@ -55,6 +70,7 @@ Detections not guaranteed 100% accurate.
 ### Movement
 * AirJump
 * Fly
+    - Personal Recommendation: Enable **FlyA** and disable **FlyB**
 * Glide
 * InventoryMove (not complete / may be inaccurate)
 * FastLadder
@@ -65,7 +81,7 @@ Detections not guaranteed 100% accurate.
 * Packet Checks
 * ChestStealer
 * FastEat
-* FastBreak
+* FastBreak (not complete / may be inaccurate)
 * Nuker
 * Timer (not complete / may be inaccurate)
 ## Custom Modules
