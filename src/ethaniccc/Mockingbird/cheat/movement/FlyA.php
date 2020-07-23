@@ -101,6 +101,7 @@ class FlyA extends Cheat implements StrictRequirements{
                             if($packet->onGround){
                                 // maybe for another check?
                             }
+                            $this->counter[$name] = 0;
                         }
                     }
                 } else {
