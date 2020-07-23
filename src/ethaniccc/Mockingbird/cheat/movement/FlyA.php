@@ -32,8 +32,10 @@ class FlyA extends Cheat implements StrictRequirements{
     /** @var array */
     private $hitTick = [];
 
-    /** @var array  */
+    /** @var array */
     private $counter = [];
+    /** @var array */
+    private $ultimateCounter = [];
 
     /** @var array */
     private $joinTick = [];
@@ -99,7 +101,18 @@ class FlyA extends Cheat implements StrictRequirements{
                             if($packet->onGround){
                                 // lmao Horion Jetpack with "bypass" makes the packet "onGround"
                                 // what a load of bullshiz
-                                $this->debug("Player $name failed a check for fly, sent invalid packet information - packet given onGround to be true while player is not near ground.");
+                                if(!isset($this->ultimateCounter[$name])){
+                                    $this->ultimateCounter[$name] = 0;
+                                }
+                                ++$this->ultimateCounter[$name];
+                                if($this->ultimateCounter[$name] >= 2.5){
+                                    $this->punish($name);
+                                }
+                                // $this->debug("Player $name failed a check for fly, sent invalid packet information - packet given onGround to be true while player is not near ground.");
+                            } else {
+                                if(isset($this->ultimateCounter[$name])){
+                                    $this->ultimateCounter[$name] = 0;
+                                }
                             }
                         }
                     }
