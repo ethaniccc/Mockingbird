@@ -100,15 +100,8 @@ class FlyA extends Cheat implements StrictRequirements{
                             $this->notifyStaff($name, $this->getName(), $this->genericAlertData($event->getPlayer()));
                             if($packet->onGround){
                                 // Horion makes this value true in it's Jetpack "bypass" mode.
-                                if(!isset($this->ultimateCounter[$name])){
-                                    $this->ultimateCounter[$name] = 0;
-                                }
-                                ++$this->ultimateCounter[$name];
-                                if($this->ultimateCounter[$name] >= 2){
-                                    $this->punish($name);
-                                }
-                            } else {
-                                $this->ultimateCounter[$name] = 0;
+                                // Untested for false positives, may false for laggy connections?
+                                $this->punish($name);
                             }
                             $this->counter[$name] = 0;
                         }
