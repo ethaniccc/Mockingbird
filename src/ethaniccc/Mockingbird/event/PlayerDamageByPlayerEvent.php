@@ -46,10 +46,11 @@ class PlayerDamageByPlayerEvent extends PlayerEvent{
      */
     public function getVectorDistanceXZ() : float{
         $damagerVector = clone $this->player->asVector3();
-        $damagerVector->y = 0;
         $damagedVector = clone $this->damaged->asVector3();
-        $damagerVector->y = 0;
-        return $damagerVector->distance($damagedVector);
+        $xDist = $damagerVector->getX() - $damagedVector->getX();
+        $zDist = $damagerVector->getZ() - $damagedVector->getZ();
+        $distanceSquared = ($xDist * $xDist) + ($zDist * $zDist);
+        return sqrt($distanceSquared);
     }
 
     /**

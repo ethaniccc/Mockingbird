@@ -66,9 +66,8 @@ class ReachB extends Cheat implements StrictRequirements{
             ];
         } else {
             $baseAllowed = $this->getAllowedDistance();
-            /* Reference: https://github.com/Bavfalcon9/Mavoric/blob/v2.0.0/src/Bavfalcon9/Mavoric/Cheat/Combat/Reach.php#L45 */
-            if($damager->getPing() >= 200) $baseAllowed += $damager->getPing() * 0.003;
             if($damager->isCreative()) $baseAllowed = 7.5;
+            $this->getServer()->broadcastMessage("{$event->getVectorDistanceXZ()}");
             if($event->getVectorDistanceXZ() > $baseAllowed){
                 if($this->lastHit[$damager->getName()]["distance"] > $this->lastHit[$damager->getName()]["expected"]){
                     if($this->lastLastHit[$damager->getName()]["distance"] > $this->lastLastHit[$damager->getName()]["expected"]){
@@ -91,7 +90,7 @@ class ReachB extends Cheat implements StrictRequirements{
     }
 
     private function getAllowedDistance() : float{
-        return 4;
+        return 3.3;
     }
 
 }
