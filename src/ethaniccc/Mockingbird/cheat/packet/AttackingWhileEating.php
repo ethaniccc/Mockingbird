@@ -21,10 +21,10 @@ Github: https://www.github.com/ethaniccc
 namespace ethaniccc\Mockingbird\cheat\packet;
 
 use ethaniccc\Mockingbird\cheat\Blatant;
-use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
-use pocketmine\event\server\DataPacketReceiveEvent;
+use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
+use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\Player;
 

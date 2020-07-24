@@ -20,11 +20,11 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\other;
 
+use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\Mockingbird;
-use ethaniccc\Mockingbird\cheat\Cheat;
-use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\player\PlayerItemConsumeEvent;
+use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\item\Consumable;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\Player;

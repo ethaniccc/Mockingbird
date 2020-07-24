@@ -20,14 +20,12 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat;
 
-use ethaniccc\Mockingbird\cheat\Blatant;
+use ethaniccc\Mockingbird\Mockingbird;
 use Exception;
 use pocketmine\event\Listener;
 use pocketmine\Player;
 use pocketmine\Server;
-use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\utils\TextFormat;
-use ethaniccc\Mockingbird\cheat\StrictRequirements;
 
 class Cheat implements Listener{
 
@@ -55,6 +53,9 @@ class Cheat implements Listener{
 
     /** @var array */
     private $lastViolationTime = [];
+
+    /** @var array */
+    private $preVL = [];
 
     /** @var Mockingbird */
     private $plugin;
@@ -115,6 +116,34 @@ class Cheat implements Listener{
      */
     public function getPlugin() : Mockingbird{
         return $this->plugin;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function addPreVL(string $name) : void{
+        if(!isset($this->preVL[$name])){
+            $this->preVL[$name] = 0.0;
+        }
+        $this->preVL[$name] += 1;
+    }
+
+    /**
+     * @param string $name
+     * @return float
+     */
+    public function getPreVL(string $name) : float{
+        return isset($this->preVL[$name]) ? $this->preVL[$name] : 0;
+    }
+
+    /**
+     * @param string $name
+     * @param float $multiplier
+     */
+    public function lowerPreVL(string $name, float $multiplier = 0.75) : void{
+        if(isset($this->preVL[$name])){
+            $this->preVL[$name] *= $multiplier;
+        }
     }
 
     /**

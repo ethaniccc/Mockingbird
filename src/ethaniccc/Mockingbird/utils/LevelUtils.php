@@ -21,7 +21,6 @@ Github: https://www.github.com/ethaniccc
 namespace ethaniccc\Mockingbird\utils;
 
 use pocketmine\block\Block;
-use pocketmine\block\BlockIds;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
 use pocketmine\Server;

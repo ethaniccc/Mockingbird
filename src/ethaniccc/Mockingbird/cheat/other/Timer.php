@@ -2,9 +2,9 @@
 
 namespace ethaniccc\Mockingbird\cheat\other;
 
+use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\Mockingbird;
-use ethaniccc\Mockingbird\cheat\Cheat;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 

@@ -20,16 +20,15 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\movement;
 
-use ethaniccc\Mockingbird\cheat\StrictRequirements;
-use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
+use ethaniccc\Mockingbird\cheat\StrictRequirements;
+use ethaniccc\Mockingbird\event\MoveEvent;
+use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\utils\LevelUtils;
 use pocketmine\block\Air;
 use pocketmine\block\BlockIds;
-use pocketmine\block\Cobweb;
-use pocketmine\event\player\PlayerMoveEvent;
-use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
+use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\player\PlayerToggleFlightEvent;
 use pocketmine\Player;
 
@@ -42,16 +41,20 @@ class FlyB extends Cheat implements StrictRequirements{
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
 
-    public function onMove(PlayerMoveEvent $event) : void{
+    public function onMove(MoveEvent $event) : void{
         $player = $event->getPlayer();
         $name = $player->getName();
 
-        if($player->getAllowFlight() && $player->isFlying()){
+        if($event->getMode() !== MoveEvent::MODE_NORMAL){
             return;
         }
 
-        $distance = LevelUtils::getMoveDistance($event->getTo()->asVector3(), $event->getFrom()->asVector3(), LevelUtils::MODE_Y);
-        if($distance > 1){
+        if($player->isFlying()){
+            return;
+        }
+
+        $distance = abs($event->getDistanceY());
+        if($distance > 0.7){
             // Player is probably falling.
             if(isset($this->ticksOffGround[$name])){
                 $this->ticksOffGround[$name] = 0;

@@ -8,4 +8,18 @@ class MathUtils{
         return abs($d1 - $d2) < 0.001;
     }
 
+    public static function getAverage(array $numbers) : float{
+        return array_sum($numbers) / count($numbers);
+    }
+
+    public static function getDeviation(array $numbers) : float{
+        $deviation = 0;
+        $mean = array_sum($numbers) / count($numbers);
+        foreach ($numbers as $num) {
+            $deviation += pow($num - $mean, 2);
+        }
+
+        return sqrt($deviation / count($numbers));
+    }
+
 }

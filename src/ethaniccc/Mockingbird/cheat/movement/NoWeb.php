@@ -20,10 +20,9 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\movement;
 
+use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\Mockingbird;
-use ethaniccc\Mockingbird\cheat\Cheat;
-use ethaniccc\Mockingbird\utils\LevelUtils;
 use pocketmine\block\BlockIds;
 use pocketmine\event\player\PlayerJumpEvent;
 use pocketmine\event\player\PlayerMoveEvent;

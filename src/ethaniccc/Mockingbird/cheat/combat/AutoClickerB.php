@@ -22,52 +22,28 @@ namespace ethaniccc\Mockingbird\cheat\combat;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\cheat\StrictRequirements;
+use ethaniccc\Mockingbird\event\ClickEvent;
 use ethaniccc\Mockingbird\Mockingbird;
-use pocketmine\Player;
-use pocketmine\event\server\DataPacketReceiveEvent;
-use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
-use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 
 class AutoClickerB extends Cheat implements StrictRequirements{
-
-    private $cps = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
         $this->setRequiredTPS(19.75);
     }
 
-    public function receivePacket(DataPacketReceiveEvent $event) : void{
-        $packet = $event->getPacket();
-        if($packet instanceof InventoryTransactionPacket){
-            if($packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) $this->clickCheck($event->getPlayer());
-        } elseif($packet instanceof LevelSoundEventPacket){
-            if($packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE) $this->clickCheck($event->getPlayer());
-        }
-    }
-
-    private function clickCheck(Player $player) : void{
-        // Reference: https://github.com/luca28pet/PreciseCpsCounter/blob/master/src/luca28pet/PreciseCpsCounter/Main.php
+    public function onClick(ClickEvent $event) : void{
+        $cps = $event->getCPS();
+        $player = $event->getPlayer();
         $name = $player->getName();
-        if(!isset($this->cps[$name])) $this->cps[$name] = [];
-        array_unshift($this->cps[$name], microtime(true));
-        if(count($this->cps[$name]) >= 100){
-            array_pop($this->cps[$name]);
-        }
-        if(empty($this->cps[$name])) return;
-        $deltaTime = 1.0;
-        $currentTime = microtime(true);
-        $cps = round(count(array_filter($this->cps[$name], static function(float $t) use ($deltaTime, $currentTime) : bool{
-                return ($currentTime - $t) <= $deltaTime;
-        })) / $deltaTime, 1);
-        if($cps > 22){
-            $this->addViolation($name);
-            $data = [
-                "VL" => self::getCurrentViolations($name) + 1,
-                "CPS" => $cps,
-                "Ping" => $player->getPing()
-            ];
-            $this->notifyStaff($name, $this->getName(), $data);
+        if($cps > 23){
+            $this->addPreVL($name);
+            if($this->getPreVL($name) >= 2){
+                $this->addViolation($name);
+                $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+            }
+        } else {
+            $this->lowerPreVL($name);
         }
     }
 

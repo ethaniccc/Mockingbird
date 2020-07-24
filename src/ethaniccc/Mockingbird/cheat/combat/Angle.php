@@ -3,11 +3,9 @@
 namespace ethaniccc\Mockingbird\cheat\combat;
 
 use ethaniccc\Mockingbird\cheat\Blatant;
-use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
-use pocketmine\event\entity\EntityDamageByEntityEvent;
-use pocketmine\event\entity\EntityDamageByChildEntityEvent;
-use pocketmine\Player;
+use ethaniccc\Mockingbird\event\PlayerDamageByPlayerEvent;
+use ethaniccc\Mockingbird\Mockingbird;
 
 class Angle extends Cheat implements Blatant{
 
@@ -16,43 +14,12 @@ class Angle extends Cheat implements Blatant{
         $this->setMaxViolations(10);
     }
 
-    public function onHit(EntityDamageByEntityEvent $event) : void{
-        if($event instanceof EntityDamageByChildEntityEvent){
-            return;
-        }
+    public function onHit(PlayerDamageByPlayerEvent $event) : void{
         $damager = $event->getDamager();
-        $damaged = $event->getEntity();
-        if(!$damaged instanceof Player || !$damager instanceof Player){
-            return;
+        if($event->getAngle() > 120){
+            $this->addViolation($damager->getName());
+            $this->notifyStaff($damager->getName(), $this->getName(), ["VL" => self::getCurrentViolations($damager->getName()), "Angle" => round($event->getAngle(), 0)]);
         }
-
-        $damagerDirectionVector = $damager->getDirectionVector();
-
-        $damagerDirectionVector->y = 0;
-        $damagerDirectionVector = $damagerDirectionVector->normalize();
-
-        $damagedPos = $damaged->asVector3();
-        $damagedPos->y = 0;
-
-        $damagerPos = $damager->asVector3();
-        $damagerPos->y = 0;
-
-        $distDiff = $damagedPos->subtract($damagerPos)->normalize();
-        $dotResult = $damagerDirectionVector->dot($distDiff);
-
-        // props to the internet but i should prob figure out what this does lmao
-        $angle = rad2deg(acos($dotResult));
-        if($damagerPos->distance($damagedPos) > 0.75){
-            if(round($angle, 0) > 120){
-                $this->addViolation($damager->getName());
-                $data = [
-                    "VL" => self::getCurrentViolations($damager->getName()),
-                    "Angle" => round($angle, 0)
-                ];
-                $this->notifyStaff($damager->getName(), $this->getName(), $data);
-            }
-        }
-
     }
 
 }

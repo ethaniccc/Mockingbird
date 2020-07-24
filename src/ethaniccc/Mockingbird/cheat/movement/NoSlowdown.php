@@ -20,15 +20,15 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\movement;
 
-use ethaniccc\Mockingbird\cheat\StrictRequirements;
-use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
+use ethaniccc\Mockingbird\cheat\StrictRequirements;
+use ethaniccc\Mockingbird\event\MoveEvent;
+use ethaniccc\Mockingbird\Mockingbird;
+use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\player\PlayerItemConsumeEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
-use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\Player;
-use pocketmine\event\entity\EntityDamageByEntityEvent;
 
 class NoSlowdown extends Cheat implements StrictRequirements{
 
@@ -43,7 +43,12 @@ class NoSlowdown extends Cheat implements StrictRequirements{
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
 
-    public function onMove(PlayerMoveEvent $event) : void{
+    public function onMove(MoveEvent $event) : void{
+
+        if($event->getMode() !== MoveEvent::MODE_NORMAL){
+            return;
+        }
+
         $player = $event->getPlayer();
         $name = $player->getName();
 
@@ -77,15 +82,14 @@ class NoSlowdown extends Cheat implements StrictRequirements{
                 unset($this->startedEatingTick[$name]);
             }
             if($distance > 0.165){
-                if(!isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] = 0;
-                $this->suspicionLevel[$name] += 1;
-                if($this->suspicionLevel[$name] >= 2){
+                $this->addPreVL($name);
+                if($this->getPreVL($name) >= 2){
                     $this->addViolation($name);
                     $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                     $this->suspicionLevel[$name] = 0;
                 }
             } else {
-                if(isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] *= 0.75;
+                $this->lowerPreVL($name);
             }
         }
     }

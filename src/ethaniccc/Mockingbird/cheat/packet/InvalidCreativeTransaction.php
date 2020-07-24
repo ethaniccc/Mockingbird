@@ -20,11 +20,11 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\packet;
 
-use ethaniccc\Mockingbird\Mockingbird;
-use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\cheat\Blatant;
-use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
+use ethaniccc\Mockingbird\cheat\Cheat;
+use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\server\DataPacketReceiveEvent;
+use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\types\NetworkInventoryAction;
 
 class InvalidCreativeTransaction extends Cheat implements Blatant{

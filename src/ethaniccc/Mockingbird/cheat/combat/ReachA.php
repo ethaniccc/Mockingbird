@@ -2,14 +2,12 @@
 
 namespace ethaniccc\Mockingbird\cheat\combat;
 
-use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
+use ethaniccc\Mockingbird\event\MoveEvent;
+use ethaniccc\Mockingbird\event\PlayerDamageByPlayerEvent;
+use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\boundingbox\Ray;
-use pocketmine\event\entity\EntityDamageByChildEntityEvent;
-use pocketmine\event\entity\EntityDamageByEntityEvent;
-use pocketmine\event\player\PlayerMoveEvent;
-use pocketmine\Player;
 
 class ReachA extends Cheat{
 
@@ -22,15 +20,9 @@ class ReachA extends Cheat{
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
 
-    public function onHit(EntityDamageByEntityEvent $event) : void{
+    public function onHit(PlayerDamageByPlayerEvent $event) : void{
         $damager = $event->getDamager();
-        $damaged = $event->getEntity();
-        if($event instanceof EntityDamageByChildEntityEvent){
-            return;
-        }
-        if(!$damager instanceof Player || !$damaged instanceof Player){
-            return;
-        }
+        $damaged = $event->getPlayerHit();
         $name = $damager->getName();
         $this->lastTarget[$name] = $damaged;
         $ray = new Ray($damager->add(0, $damager->getEyeHeight()), $damager->getDirectionVector());
@@ -59,7 +51,7 @@ class ReachA extends Cheat{
         }
     }
 
-    public function onMove(PlayerMoveEvent $event) : void{
+    public function onMove(MoveEvent $event) : void{
         $player = $event->getPlayer();
         if(!isset($this->boundingBoxes[$player->getName()])){
             $this->boundingBoxes[$player->getName()] = [];

@@ -20,13 +20,12 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\other;
 
-use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\cheat\StrictRequirements;
-use pocketmine\block\Block;
+use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\entity\Effect;
-use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\block\BlockBreakEvent;
+use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\PlayerActionPacket;
 
 class FastBreak extends Cheat implements StrictRequirements{

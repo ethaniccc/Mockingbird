@@ -20,58 +20,35 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\movement;
 
-use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
+use ethaniccc\Mockingbird\event\MoveEvent;
+use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\utils\LevelUtils;
 use pocketmine\block\Air;
 use pocketmine\block\Slab;
 use pocketmine\block\Stair;
 use pocketmine\event\player\PlayerJumpEvent;
-use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\item\ItemIds;
-use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\Player;
 
 class Speed extends Cheat{
 
-    private $suspicionLevel = [];
-
-    private $lastPosition = [];
-
-    private $wasPreviouslyInAir = [];
-    private $previouslyJumped = [];
-    private $previouslyHadEffect = [];
-    private $previouslyOnIce = [];
+    /** @var array */
+    private $wasPreviouslyInAir, $previouslyJumped, $previouslyHadEffect, $previouslyOnIce = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
 
-    public function receivePacket(DataPacketReceiveEvent $event) : void{
-        $packet = clone $event->getPacket();
+    public function onMove(MoveEvent $event) : void{
         $player = $event->getPlayer();
         $name = $player->getName();
-        if($packet instanceof MovePlayerPacket){
-            $position = clone $packet->position;
-            $position->y = 0;
-            if($packet->mode !== MovePlayerPacket::MODE_NORMAL){
-                return;
-            }
-            if($player->getAllowFlight() || $player->isFlying()){
-                return;
-            }
-            if(!isset($this->lastPosition[$name])){
-                $this->lastPosition[$name] = $position;
-                return;
-            }
-            $distance = $position->distance($this->lastPosition[$name]);
-
+        if($event->getMode() === MoveEvent::MODE_NORMAL){
+            $distance = $event->getDistanceXZ();
             if($this->previouslyHadEffect($name)){
-                $this->lastPosition[$name] = $position;
                 return;
             }
             if($this->previouslyOnIce($name)){
-                $this->lastPosition[$name] = $position;
                 return;
             }
             if(!$player->getLevel()->getBlock($player->asVector3()->add(0, 2, 0)) instanceof Air){
@@ -102,15 +79,14 @@ class Speed extends Cheat{
                 $this->previouslyHadEffect[$name] = $this->getServer()->getTick();
             }
             if($distance > $expectedDistance){
-                $this->addSuspicion($name);
-                if($this->suspicionLevel[$name] >= 3){
+                $this->addPreVL($name);
+                if($this->getPreVL($name) >= 3){
                     $this->addViolation($name);
                     $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                 }
             } else {
-                $this->lowerSuspicion($name);
+                $this->lowerPreVL($name);
             }
-            $this->lastPosition[$name] = $position;
         }
     }
 
@@ -133,17 +109,6 @@ class Speed extends Cheat{
 
     private function previouslyOnIce(string $name) : bool{
         return isset($this->previouslyOnIce[$name]) ? $this->getServer()->getTick() - $this->previouslyOnIce[$name] <= 10 : false;
-    }
-
-    private function addSuspicion(string $name) : void{
-        if(!isset($this->suspicionLevel[$name])){
-            $this->suspicionLevel[$name] = 0;
-        }
-        ++$this->suspicionLevel[$name];
-    }
-
-    private function lowerSuspicion(string $name, float $multiplier = 0.75) : void{
-        isset($this->suspicionLevel[$name]) ? $this->suspicionLevel[$name] *= $multiplier : $this->suspicionLevel[$name] = 0;
     }
 
     private function onIce(Player $player) : bool{

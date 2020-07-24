@@ -20,10 +20,10 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\combat;
 
-use ethaniccc\Mockingbird\cheat\StrictRequirements;
-use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
-use pocketmine\event\entity\EntityDamageByEntityEvent;
+use ethaniccc\Mockingbird\cheat\StrictRequirements;
+use ethaniccc\Mockingbird\event\PlayerDamageByPlayerEvent;
+use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
@@ -51,7 +51,7 @@ class ToolboxKillaura extends Cheat implements StrictRequirements{
         }
     }
 
-    public function onHit(EntityDamageByEntityEvent $event) : void{
+    public function onHit(PlayerDamageByPlayerEvent $event) : void{
         $damager = $event->getDamager();
         if($event instanceof EntityDamageByChildEntityEvent) return;
         if($damager instanceof Player){
@@ -59,33 +59,30 @@ class ToolboxKillaura extends Cheat implements StrictRequirements{
             if(!isset($this->attackCooldown[$name])){
                 $this->attackCooldown[$name] = $this->getServer()->getTick();
             } else {
-                if($this->getServer()->getTick() - $this->attackCooldown[$name] >= $event->getAttackCooldown()){
+                if($this->getServer()->getTick() - $this->attackCooldown[$name] >= 10){
                     $this->attackCooldown[$name] = $this->getServer()->getTick();
                 } else {
                     return;
                 }
             }
             if(!isset($this->allowedToHit[$name])){
-                if(!isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] = 0;
-                $this->suspicionLevel[$name] += 1;
-                if($this->suspicionLevel[$name] >= 2){
+                $this->addPreVL($name);
+                if($this->getPreVL($name) >= 2){
                     $this->addViolation($name);
                     $this->notifyStaff($name, $this->getName(), $this->genericAlertData($damager));
-                    $this->suspicionLevel[$name] = 0;
+                    $this->lowerPreVL($name, 0);
                 }
             } else {
                 $time = microtime(true) - $this->allowedToHit[$name];
                 if($time >= 0.20){
-                    if(!isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] = 0;
-                    $this->suspicionLevel[$name] += 1;
-                    if($this->suspicionLevel[$name] >= 2){
+                    $this->addPreVL($name);
+                    if($this->getPreVL($name) >= 2){
                         $this->addViolation($name);
                         $this->notifyStaff($name, $this->getName(), $this->genericAlertData($damager));
-                        $this->suspicionLevel[$name] = 0;
+                        $this->lowerPreVL($name, 0);
                     }
                 } else {
-                    if(!isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] = 0;
-                    $this->suspicionLevel[$name] *= 0.5;
+                    $this->lowerPreVL($name, 0.5);
                 }
                 unset($this->allowedToHit[$name]);
             }

@@ -20,11 +20,11 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\movement;
 
-use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
+use ethaniccc\Mockingbird\event\MoveEvent;
+use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\utils\LevelUtils;
-use pocketmine\event\player\PlayerMoveEvent;
-use pocketmine\level\Level;
+use ethaniccc\Mockingbird\utils\MathUtils;
 
 class Glide extends Cheat{
 
@@ -35,7 +35,7 @@ class Glide extends Cheat{
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
 
-    public function onMove(PlayerMoveEvent $event) : void{
+    public function onMove(MoveEvent $event) : void{
         $player = $event->getPlayer();
         $name = $player->getName();
 
@@ -47,7 +47,7 @@ class Glide extends Cheat{
             $this->fallDistances[$name] = [];
         }
 
-        $yDist = round($event->getTo()->getY() - $event->getFrom()->getY(), 2);
+        $yDist = round($event->getDistanceY(), 2);
         if($yDist <= 0){
             unset($this->fallDistances[$name]);
             return;
@@ -63,10 +63,9 @@ class Glide extends Cheat{
         }
         array_push($this->fallDistances[$name], $yDist);
         if(count($this->fallDistances[$name]) >= 15){
-            if($this->fallDistances[$name][0] == $yDist){
+            if(MathUtils::getAverage($this->fallDistances[$name]) - $yDist == 0){
                 $this->addViolation($name);
                 $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
-                unset($this->fallDistances[$name]);
             }
         }
     }

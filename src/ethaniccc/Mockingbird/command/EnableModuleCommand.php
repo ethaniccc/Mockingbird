@@ -5,8 +5,8 @@ namespace ethaniccc\Mockingbird\command;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\command\Command;
-use pocketmine\command\PluginIdentifiableCommand;
 use pocketmine\command\CommandSender;
+use pocketmine\command\PluginIdentifiableCommand;
 use pocketmine\plugin\Plugin;
 use pocketmine\utils\TextFormat;
 

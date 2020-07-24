@@ -2,12 +2,10 @@
 
 namespace ethaniccc\Mockingbird\cheat\combat;
 
-use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\cheat\StrictRequirements;
-use pocketmine\event\entity\EntityDamageByEntityEvent;
-use pocketmine\event\entity\EntityDamageByChildEntityEvent;
-use pocketmine\Player;
+use ethaniccc\Mockingbird\event\PlayerDamageByPlayerEvent;
+use ethaniccc\Mockingbird\Mockingbird;
 
 class MultiAura extends Cheat implements StrictRequirements{
 
@@ -17,18 +15,9 @@ class MultiAura extends Cheat implements StrictRequirements{
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
 
-    public function onHit(EntityDamageByEntityEvent $event) : void{
-        if($event instanceof EntityDamageByChildEntityEvent){
-            return;
-        }
+    public function onHit(PlayerDamageByPlayerEvent $event) : void{
         $damager = $event->getDamager();
-        $damaged = $event->getEntity();
-        if(!$damager instanceof Player){
-            return;
-        }
-        if(!$damaged instanceof Player){
-            return;
-        }
+        $damaged = $event->getPlayerHit();
         $name = $damager->getName();
         $entityName = $damaged->getName();
         if(!isset($this->lastHit[$name])){
@@ -41,7 +30,6 @@ class MultiAura extends Cheat implements StrictRequirements{
 
         if($damaged->getName() != $this->lastHit[$name]["Entity"]){
             if(microtime(true) - $this->lastHit[$name]["Time"] < 0.01){
-                $timeDiff = microtime(true) - $this->lastHit[$name]["Time"];
                 if($damaged->distance($this->getServer()->getPlayer($this->lastHit[$name]["Entity"])) > 3.5){
                     $this->addViolation($name);
                     $this->notifyStaff($name, $this->getName(), $this->genericAlertData($damager));

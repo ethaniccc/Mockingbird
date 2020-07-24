@@ -20,10 +20,9 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\other;
 
+use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\Mockingbird;
-use ethaniccc\Mockingbird\cheat\Cheat;
-use pocketmine\block\Block;
 use pocketmine\event\block\BlockBreakEvent;
 
 class Nuker extends Cheat implements StrictRequirements{

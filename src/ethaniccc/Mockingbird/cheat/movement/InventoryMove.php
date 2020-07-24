@@ -20,21 +20,19 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\movement;
 
-use ethaniccc\Mockingbird\cheat\Blatant;
-use ethaniccc\Mockingbird\cheat\StrictRequirements;
-use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
-use pocketmine\event\player\PlayerMoveEvent;
+use ethaniccc\Mockingbird\cheat\StrictRequirements;
+use ethaniccc\Mockingbird\event\MoveEvent;
+use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\inventory\InventoryTransactionEvent;
 
-class InventoryMove extends Cheat implements StrictRequirements, Blatant{
+class InventoryMove extends Cheat implements StrictRequirements{
 
+    /** @var array */
     private $lastMoveTick = [];
-    private $suspicionLevel = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
-        $this->setMaxViolations(5);
     }
 
     public function onInventoryTransaction(InventoryTransactionEvent $event) : void{
@@ -51,24 +49,19 @@ class InventoryMove extends Cheat implements StrictRequirements, Blatant{
             // If the player's motion is not being set, for example, when a player
             // is hit and takes knockback.
             if($player->getMotion()->x == 0 && $player->getMotion()->z == 0){
-                if(!isset($this->suspicionLevel[$name])){
-                    $this->suspicionLevel[$name] = 0;
-                }
-                $this->suspicionLevel[$name] += 1;
-                if($this->suspicionLevel[$name] > 5){
+                $this->addPreVL($name);
+                if($this->getPreVL($name) >= 5){
                     $this->addViolation($name);
                     $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
-                    $this->suspicionLevel[$name] = 0;
+                    $this->lowerPreVL($name, 0.5);
                 }
             }
         } else {
-            if(isset($this->suspicionLevel[$name])){
-                $this->suspicionLevel[$name] *= 0.25;
-            }
+            $this->lowerPreVL($name, 0.25);
         }
     }
 
-    public function onMove(PlayerMoveEvent $event) : void{
+    public function onMove(MoveEvent $event) : void{
         if($event->getTo()->getX() - $event->getFrom()->getX() == 0 && $event->getTo()->getZ() - $event->getFrom()->getZ() == 0){
             return;
         }

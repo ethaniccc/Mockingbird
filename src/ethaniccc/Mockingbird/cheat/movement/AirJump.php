@@ -20,12 +20,12 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\movement;
 
-use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
+use ethaniccc\Mockingbird\cheat\StrictRequirements;
+use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\utils\LevelUtils;
 use pocketmine\block\Air;
 use pocketmine\event\player\PlayerJumpEvent;
-use ethaniccc\Mockingbird\cheat\StrictRequirements;
 
 class AirJump extends Cheat implements StrictRequirements{
 

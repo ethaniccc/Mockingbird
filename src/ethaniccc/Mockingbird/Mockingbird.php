@@ -20,22 +20,22 @@ declare(strict_types=1);
 
 namespace ethaniccc\Mockingbird;
 
+use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\cheat\ViolationHandler;
 use ethaniccc\Mockingbird\command\DisableModuleCommand;
 use ethaniccc\Mockingbird\command\EnableModuleCommand;
 use ethaniccc\Mockingbird\command\LogCommand;
-use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\command\ReloadModuleCommand;
+use ethaniccc\Mockingbird\listener\MockingbirdListener;
 use pocketmine\event\HandlerList;
-use pocketmine\event\Listener;
 use pocketmine\permission\Permission;
 use pocketmine\permission\PermissionManager;
-use pocketmine\plugin\PluginBase;
-use pocketmine\utils\TextFormat;
-use pocketmine\scheduler\ClosureTask;
 use pocketmine\Player;
+use pocketmine\plugin\PluginBase;
+use pocketmine\scheduler\ClosureTask;
+use pocketmine\utils\TextFormat;
 
-class Mockingbird extends PluginBase implements Listener{
+class Mockingbird extends PluginBase{
 
     /** @var bool */
     private $developerMode;
@@ -70,7 +70,6 @@ class Mockingbird extends PluginBase implements Listener{
             $this->saveDefaultConfig();
         }
         $this->developerMode = is_bool($this->getConfig()->get("dev_mode")) ? $this->getConfig()->get("dev_mode") : false;
-        $this->getServer()->getPluginManager()->registerEvents($this, $this);
         if($this->getConfig()->get("version") !== $this->getDescription()->getVersion()){
             $this->saveDefaultConfig();
         }
@@ -85,6 +84,7 @@ class Mockingbird extends PluginBase implements Listener{
         $this->getLogger()->debug(TextFormat::AQUA . "Mockingbird has been enabled.");
         $this->loadAllModules();
         $this->loadAllCommands();
+        $this->registerPermissions();
         if($this->isDeveloperMode()){
             $this->getScheduler()->scheduleDelayedRepeatingTask(new ClosureTask(function(int $currentTick) : void{
                 $level = $this->getServer()->getLevelByName("world");
@@ -93,6 +93,7 @@ class Mockingbird extends PluginBase implements Listener{
                 }
             }), 100, 200);
         }
+        $this->registerListeners();
     }
 
     /**
@@ -303,6 +304,10 @@ class Mockingbird extends PluginBase implements Listener{
         foreach($permissions as $permission){
             PermissionManager::getInstance()->addPermission($permission);
         }
+    }
+
+    private function registerListeners() : void{
+        $this->getServer()->getPluginManager()->registerEvents(new MockingbirdListener($this), $this);
     }
 
 }
