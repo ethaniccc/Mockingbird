@@ -53,7 +53,6 @@ class ToolboxKillaura extends Cheat implements StrictRequirements{
 
     public function onHit(PlayerDamageByPlayerEvent $event) : void{
         $damager = $event->getDamager();
-        if($event instanceof EntityDamageByChildEntityEvent) return;
         if($damager instanceof Player){
             $name = $damager->getName();
             if(!isset($this->attackCooldown[$name])){

@@ -41,7 +41,7 @@ class ReachB extends Cheat implements StrictRequirements{
         if(!isset($this->cooldown[$damager->getName()])){
             $this->cooldown[$damager->getName()] = $this->getServer()->getTick();
         } else {
-            if($this->getServer()->getTick() - $this->cooldown[$damager->getName()] >= $event->getAttackCooldown()){
+            if($this->getServer()->getTick() - $this->cooldown[$damager->getName()] >= 10){
                 $this->cooldown[$damager->getName()] = $this->getServer()->getTick();
             } else {
                 return;
