@@ -67,7 +67,6 @@ class ReachB extends Cheat implements StrictRequirements{
         } else {
             $baseAllowed = $this->getAllowedDistance();
             if($damager->isCreative()) $baseAllowed = 7.5;
-            $this->getServer()->broadcastMessage("{$event->getVectorDistanceXZ()}");
             if($event->getVectorDistanceXZ() > $baseAllowed){
                 if($this->lastHit[$damager->getName()]["distance"] > $this->lastHit[$damager->getName()]["expected"]){
                     if($this->lastLastHit[$damager->getName()]["distance"] > $this->lastLastHit[$damager->getName()]["expected"]){
