@@ -38,7 +38,7 @@ use pocketmine\utils\TextFormat;
 class Mockingbird extends PluginBase{
 
     /** @var bool */
-    private $developerMode;
+    private $developerMode = false;
 
     /** @var array */
     private $modules = [
@@ -48,7 +48,7 @@ class Mockingbird extends PluginBase{
         ],
         "Movement" => [
             "Speed", "NoSlowdown", "FastLadder", "NoWeb", "AirJump",
-            "FlyA", "FlyB", "InventoryMove", "Glide"
+            "FlyA", "FlyB", "InventoryMove", "Glide", "NoFall"
         ],
         "Packet" => [
             "BadPitchPacket", "AttackingWhileEating", "InvalidCreativeTransaction",
@@ -93,7 +93,7 @@ class Mockingbird extends PluginBase{
                 }
             }), 100, 200);
         }
-        $this->registerListeners();
+        $this->registerListener();
     }
 
     /**
@@ -306,7 +306,7 @@ class Mockingbird extends PluginBase{
         }
     }
 
-    private function registerListeners() : void{
+    private function registerListener() : void{
         $this->getServer()->getPluginManager()->registerEvents(new MockingbirdListener($this), $this);
     }
 

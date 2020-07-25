@@ -97,7 +97,7 @@ class FlyA extends Cheat implements StrictRequirements{
             $this->previousY[$name] = $position->getY();
             $this->lastDistY[$name] = $yDiff;
             $this->lastOnGround[$name] = $onGround;
-            $this->lastLastOnGround[$name] = $this->lastOnGround[$name];
+            $this->lastLastOnGround[$name] = $lastOnGround;
         }
     }
 
