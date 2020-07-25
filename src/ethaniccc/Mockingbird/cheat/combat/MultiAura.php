@@ -4,7 +4,7 @@ namespace ethaniccc\Mockingbird\cheat\combat;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\cheat\StrictRequirements;
-use ethaniccc\Mockingbird\event\PlayerDamageByPlayerEvent;
+use ethaniccc\Mockingbird\event\PlayerHitPlayerEvent;
 use ethaniccc\Mockingbird\Mockingbird;
 
 class MultiAura extends Cheat implements StrictRequirements{
@@ -15,7 +15,7 @@ class MultiAura extends Cheat implements StrictRequirements{
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
 
-    public function onHit(PlayerDamageByPlayerEvent $event) : void{
+    public function onHit(PlayerHitPlayerEvent $event) : void{
         $damager = $event->getDamager();
         $damaged = $event->getPlayerHit();
         $name = $damager->getName();

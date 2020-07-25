@@ -4,7 +4,7 @@ namespace ethaniccc\Mockingbird\listener;
 
 use ethaniccc\Mockingbird\event\ClickEvent;
 use ethaniccc\Mockingbird\event\MoveEvent;
-use ethaniccc\Mockingbird\event\PlayerDamageByPlayerEvent;
+use ethaniccc\Mockingbird\event\PlayerHitPlayerEvent;
 use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\Listener;
 use pocketmine\event\server\DataPacketReceiveEvent;
@@ -63,7 +63,7 @@ class MockingbirdListener implements Listener{
                 $entityHitID = $ids[0];
                 $damaged = $player->getLevel()->getEntity($entityHitID);
                 if($damaged instanceof Player){
-                    $event = new PlayerDamageByPlayerEvent($player, $damaged);
+                    $event = new PlayerHitPlayerEvent($player, $damaged);
                     $event->call();
                 }
             }

@@ -28,7 +28,7 @@ class AABB{
     public static function fromPlayer(Player $user) : AABB{
         $pos = $user->getPosition();
         // boundingBox as to hitBox
-        return new AABB($pos->x - 0.4, $pos->y, $pos->z - 0.4, $pos->x + 0.4, $pos->y + 1.8, $pos->z + 0.4);
+        return new AABB($pos->x - 0.3, $pos->y, $pos->z - 0.3, $pos->x + 0.3, $pos->y + 1.8, $pos->z + 0.3);
     }
 
     public static function fromBlock(Block $block) : ?AABB{
@@ -83,8 +83,9 @@ class AABB{
             }
             $tmin = $t0 > $tmin ? $t0 : $tmin;
             $tmax = $t1 < $tmax ? $t1 : $tmax;
-            if($tmax <= $tmin)
+            if($tmax <= $tmin){
                 return -1;
+            }
         }
         return $tmin;
     }

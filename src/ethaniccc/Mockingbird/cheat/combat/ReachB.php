@@ -20,7 +20,7 @@ namespace ethaniccc\Mockingbird\cheat\combat;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\cheat\StrictRequirements;
-use ethaniccc\Mockingbird\event\PlayerDamageByPlayerEvent;
+use ethaniccc\Mockingbird\event\PlayerHitPlayerEvent;
 use ethaniccc\Mockingbird\Mockingbird;
 
 class ReachB extends Cheat implements StrictRequirements{
@@ -34,7 +34,7 @@ class ReachB extends Cheat implements StrictRequirements{
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
 
-    public function onEvent(PlayerDamageByPlayerEvent $event) : void{
+    public function onEvent(PlayerHitPlayerEvent $event) : void{
         $damager = $event->getDamager();
         // For some reason, EntityDamageByEntityEvent is still called even when
         // cooldown is in place.

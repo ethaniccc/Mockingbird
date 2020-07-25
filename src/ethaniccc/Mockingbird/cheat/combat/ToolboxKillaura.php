@@ -22,7 +22,7 @@ namespace ethaniccc\Mockingbird\cheat\combat;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\cheat\StrictRequirements;
-use ethaniccc\Mockingbird\event\PlayerDamageByPlayerEvent;
+use ethaniccc\Mockingbird\event\PlayerHitPlayerEvent;
 use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
@@ -51,7 +51,7 @@ class ToolboxKillaura extends Cheat implements StrictRequirements{
         }
     }
 
-    public function onHit(PlayerDamageByPlayerEvent $event) : void{
+    public function onHit(PlayerHitPlayerEvent $event) : void{
         $damager = $event->getDamager();
         if($damager instanceof Player){
             $name = $damager->getName();

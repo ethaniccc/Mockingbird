@@ -366,6 +366,16 @@ class Cheat implements Listener{
     }
 
     /**
+     * @param string $message
+     */
+    protected function notify(string $message) : void{
+        if(!$this->isEnabled()){
+            return;
+        }
+        $this->getServer()->broadcastMessage(TextFormat::RED . "[Mockingbird Experimental || {$this->getName()}] $message");
+    }
+
+    /**
      * @return bool
      */
     private function isLowTPS() : bool{

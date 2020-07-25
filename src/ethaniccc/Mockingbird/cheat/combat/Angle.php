@@ -4,7 +4,7 @@ namespace ethaniccc\Mockingbird\cheat\combat;
 
 use ethaniccc\Mockingbird\cheat\Blatant;
 use ethaniccc\Mockingbird\cheat\Cheat;
-use ethaniccc\Mockingbird\event\PlayerDamageByPlayerEvent;
+use ethaniccc\Mockingbird\event\PlayerHitPlayerEvent;
 use ethaniccc\Mockingbird\Mockingbird;
 
 class Angle extends Cheat implements Blatant{
@@ -14,7 +14,7 @@ class Angle extends Cheat implements Blatant{
         $this->setMaxViolations(10);
     }
 
-    public function onHit(PlayerDamageByPlayerEvent $event) : void{
+    public function onHit(PlayerHitPlayerEvent $event) : void{
         $damager = $event->getDamager();
         if($event->getAngle() > 120){
             $this->addViolation($damager->getName());

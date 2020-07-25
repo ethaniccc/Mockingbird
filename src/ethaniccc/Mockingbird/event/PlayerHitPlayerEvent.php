@@ -5,13 +5,13 @@ namespace ethaniccc\Mockingbird\event;
 use pocketmine\event\player\PlayerEvent;
 use pocketmine\Player;
 
-class PlayerDamageByPlayerEvent extends PlayerEvent{
+class PlayerHitPlayerEvent extends PlayerEvent{
 
     /** @var Player */
     private $damaged;
 
     /**
-     * PlayerDamageByPlayerEvent constructor.
+     * PlayerHitPlayerEvent constructor.
      * @param Player $damager
      * @param Player $damaged
      */
