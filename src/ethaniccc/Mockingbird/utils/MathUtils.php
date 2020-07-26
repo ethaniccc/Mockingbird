@@ -22,4 +22,11 @@ class MathUtils{
         return sqrt($deviation / count($numbers));
     }
 
+    public static function microtimeToTicks(float $time) : float{
+        $scaledTime = round($time * 1000, 0);
+        $timePerTick = 50;
+        $estimatedTime = $scaledTime / $timePerTick;
+        return round($estimatedTime, 0);
+    }
+
 }

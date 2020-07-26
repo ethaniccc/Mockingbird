@@ -6,14 +6,14 @@ use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\Mockingbird;
+use ethaniccc\Mockingbird\utils\MathUtils;
 use pocketmine\event\server\DataPacketSendEvent;
+use pocketmine\math\Math;
 
 class Timer extends Cheat implements StrictRequirements{
 
     /** @var array */
     private $playerBalance, $playerPreviousTimeDiff, $playerLastSentTick = [];
-    /** @var array */
-    private $serverBalance = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
@@ -22,19 +22,23 @@ class Timer extends Cheat implements StrictRequirements{
     }
 
     public function onMove(MoveEvent $event) : void{
+        $currentTick = $this->getServer()->getTick();
         $player = $event->getPlayer();
         $name = $player->getName();
+
         if(!isset($this->playerBalance[$name])){
             $this->playerBalance[$name] = 0;
         }
         if(!isset($this->playerLastSentTick[$name])){
-            $this->playerLastSentTick[$name] = $this->getServer()->getTick();
+            $this->playerLastSentTick[$name] = $currentTick;
             return;
         }
 
-        $time = ($this->getServer()->getTick() - $this->playerLastSentTick[$name]) * 50;
-        $this->playerBalance[$name] += 50;
-        $this->playerBalance[$name] -= $time;
+        $time = ($currentTick - $this->playerLastSentTick[$name]) * 50;
+        if($this->getServer()->getTicksPerSecond() < 20){
+            $this->playerBalance[$name] += 50;
+            $this->playerBalance[$name] -= $time;
+        }
 
         if(isset($this->playerPreviousTimeDiff[$name])){
             // the player decided not to move and not cause of lag.
@@ -49,15 +53,8 @@ class Timer extends Cheat implements StrictRequirements{
             $this->playerBalance[$name] = 0;
         }
 
-        $this->playerLastSentTick[$name] = $this->getServer()->getTick();
+        $this->playerLastSentTick[$name] = $currentTick;
         $this->playerPreviousTimeDiff[$name] = $time;
-    }
-
-    public function sendPacket(DataPacketSendEvent $event) : void{
-        // TODO: Add a server-side balance to compare to the player's balance.
-        $packet = $event->getPacket();
-        $player = $event->getPlayer();
-        $name = $player->getName();
     }
 
 }
