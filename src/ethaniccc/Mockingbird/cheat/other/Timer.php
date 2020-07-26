@@ -35,7 +35,7 @@ class Timer extends Cheat implements StrictRequirements{
         }
 
         $time = ($currentTick - $this->playerLastSentTick[$name]) * 50;
-        if($this->getServer()->getTicksPerSecond() < 20){
+        if($this->getServer()->getTicksPerSecond() == 20){
             $this->playerBalance[$name] += 50;
             $this->playerBalance[$name] -= $time;
         }
