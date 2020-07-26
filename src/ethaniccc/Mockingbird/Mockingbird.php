@@ -55,7 +55,8 @@ class Mockingbird extends PluginBase{
             "InvalidCraftingTransaction"
         ],
         "Other" => [
-            "ChestStealer", "FastEat", "Nuker", "FastBreak", "Timer"
+            "ChestStealer", "FastEat", "Nuker", "FastBreak", "Timer",
+            "EditionFaker"
         ],
         "Custom" => []
     ];

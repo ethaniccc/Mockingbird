@@ -121,6 +121,7 @@ PacketChecks: true
 ## Other Detections ##
 # You can choose to enable or disable cheats with (true/false)
 
+EditionFaker: true
 ChestStealer: true
 FastEat: true
 FastBreak: false

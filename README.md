@@ -67,6 +67,7 @@ Detections not guaranteed 100% accurate.
 * Reach
 * MultiAura
 * Toolbox Killaura
+* Hitbox (**experimental and will not flag, only notify**)
 ### Movement
 * AirJump
 * Fly
@@ -84,6 +85,7 @@ Detections not guaranteed 100% accurate.
 * FastBreak (not complete / may be inaccurate)
 * Nuker
 * Timer (not complete / may be inaccurate)
+* EditionFaker
 ## Custom Modules
 A feature that Mockingbird has is Custom Modules, which you can use to
 make new checks that don't currently exist, or to override a check with a 
