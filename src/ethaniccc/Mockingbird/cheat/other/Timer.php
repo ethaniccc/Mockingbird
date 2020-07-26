@@ -6,9 +6,6 @@ use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\Mockingbird;
-use ethaniccc\Mockingbird\utils\MathUtils;
-use pocketmine\event\server\DataPacketSendEvent;
-use pocketmine\math\Math;
 
 class Timer extends Cheat implements StrictRequirements{
 

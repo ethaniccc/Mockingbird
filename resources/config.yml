@@ -96,6 +96,7 @@ AutoClickerA: true
 AutoClickerB: true
 
 Angle: true
+Hitbox: false
 
 #######   =====================================   #######
 
