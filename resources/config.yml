@@ -110,7 +110,6 @@ NoWeb: true
 NoFall: true
 AirJump: true
 FlyA: true
-FlyB: true
 InventoryMove: false
 
 ## Packet Checks ##

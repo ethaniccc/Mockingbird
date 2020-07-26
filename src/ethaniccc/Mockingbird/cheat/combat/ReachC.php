@@ -60,7 +60,7 @@ class ReachC extends Cheat{
 
     public function onMove(MoveEvent $event) : void{
         $player = $event->getPlayer();
-        $name = $player->getName();
+        $name = $player->entityBaseTick();
         if(!isset($this->hitboxes[$name])){
             $this->hitboxes[$name] = [];
         }
