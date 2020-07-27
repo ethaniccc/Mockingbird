@@ -37,6 +37,10 @@ log_permission: "mockingbird.logs"
 # to enable and disable modules through commands.
 module_permission: "mockingbird.modules"
 
+# This is a permission for the screenshare command that will allow the player
+# to "screenshare" other a selected player.
+screenshare_permission: "mockingbird.screenshare"
+
 # This is a bypass permission you can give to people, this means
 # that they will NOT be violated for cheats.
 bypass_permission: "mockingbird.bypass"
@@ -77,6 +81,7 @@ log_command_type: normal
 
 # Set the value to true if you want the command enabled, and false if you don't.
 LogCommand: true
+ScreenshareCommand: true
 
 #######   =====================================   #######
 

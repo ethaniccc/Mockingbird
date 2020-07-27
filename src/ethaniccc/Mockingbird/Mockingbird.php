@@ -26,6 +26,7 @@ use ethaniccc\Mockingbird\command\DisableModuleCommand;
 use ethaniccc\Mockingbird\command\EnableModuleCommand;
 use ethaniccc\Mockingbird\command\LogCommand;
 use ethaniccc\Mockingbird\command\ReloadModuleCommand;
+use ethaniccc\Mockingbird\command\ScreenshareCommand;
 use ethaniccc\Mockingbird\listener\MockingbirdListener;
 use pocketmine\event\HandlerList;
 use pocketmine\permission\Permission;
@@ -290,6 +291,7 @@ class Mockingbird extends PluginBase{
     private function loadAllCommands() : void{
         $commandMap = $this->getServer()->getCommandMap();
         $this->getConfig()->get("LogCommand") === true ? $commandMap->register($this->getName(), new LogCommand("logs", $this)) : $this->getLogger()->debug("Log command disabled");
+        $this->getConfig()->get("ScreenshareCommand") === true ? $commandMap->register($this->getName(), new ScreenshareCommand("mbscreenshare", $this)) :  $this->getLogger()->debug("Screenshare command disabled");
         $commandMap->register($this->getName(), new ReloadModuleCommand("mbreload", $this));
         $commandMap->register($this->getName(), new EnableModuleCommand("mbenable", $this));
         $commandMap->register($this->getName(), new DisableModuleCommand("mbdisable", $this));
@@ -300,7 +302,8 @@ class Mockingbird extends PluginBase{
             new Permission($this->getConfig()->get("alert_permission"), "Get alerts from the Mockingbird Anti-Cheat."),
             new Permission($this->getConfig()->get("log_permission"), "Check logs of players from the Mockingbird Anti-Cheat."),
             new Permission($this->getConfig()->get("module_permission"), "Manage Mockingbird modules."),
-            new Permission($this->getConfig()->get("bypass_permission"), "Exempt yourself from getting flagged by the Mockingbird AntiCheat.")
+            new Permission($this->getConfig()->get("bypass_permission"), "Exempt yourself from getting flagged by the Mockingbird AntiCheat."),
+            new Permission($this->getConfig()->get("screenshare_permission"), "'Screenshare' a selected player.")
         ];
         foreach($permissions as $permission){
             PermissionManager::getInstance()->addPermission($permission);

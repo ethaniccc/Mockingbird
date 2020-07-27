@@ -50,7 +50,6 @@ class SpeedB extends Cheat{
             $previousDistance = $this->lastDist[$name];
             $previouslyOnGround = $this->previouslyOnGround[$name];
 
-
             if(!$onGround && !$previouslyOnGround && $this->ticksSprinting[$name] > 10){
                 $approximateFriction = 0.99;
                 $expectedDistance = $previousDistance * $approximateFriction;
