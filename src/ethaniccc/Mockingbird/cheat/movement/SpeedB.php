@@ -21,6 +21,15 @@ class SpeedB extends Cheat{
         $name = $player->getName();
         $onGround = $player->isOnGround();
         $distance = $event->getDistanceXZ();
+
+        if($event->getMode() !== MoveEvent::MODE_NORMAL){
+            return;
+        }
+
+        if($player->isFlying() || $player->getAllowFlight()){
+            return;
+        }
+
         if(!isset($this->lastDist[$name])){
             $this->previouslyOnGround[$name] = $onGround;
             $this->lastDist[$name] = $distance;

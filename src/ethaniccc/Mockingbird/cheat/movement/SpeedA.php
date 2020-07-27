@@ -43,6 +43,11 @@ class SpeedA extends Cheat{
     public function onMove(MoveEvent $event) : void{
         $player = $event->getPlayer();
         $name = $player->getName();
+
+        if($player->isFlying() || $player->getAllowFlight()){
+            return;
+        }
+
         if($event->getMode() === MoveEvent::MODE_NORMAL){
             $distance = $event->getDistanceXZ();
             if($this->previouslyHadEffect($name)){
