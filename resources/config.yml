@@ -51,6 +51,12 @@ punish_prefix: "§l§b§cMocking§4bird"
 # they are punished by Mockingbird
 max_violations: 75
 
+# This option is for dynamic violations. For example, if a player
+# failed a speed check, and then failed it a second time by the next tick
+# (20 ticks a second), they will have 10 - 20 violations added. If they fail a check
+# after only 5 ticks, 5 violations will be added, etc.
+dynamic_violations: false
+
 # Do you want the player to be kicked, banned, or ip-banned? (You can also choose "none")
 # Options: none, kick, ban, ip-ban
 punishment_type: kick

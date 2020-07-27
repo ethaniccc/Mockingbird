@@ -265,19 +265,22 @@ class Cheat implements Listener{
                 return;
             }
         }
-        if(isset($this->lastViolationTime[$name])){
-            $timeDiff = $this->getServer()->getTick() - $this->lastViolationTime[$name];
-            if($timeDiff < 20 && $timeDiff !== 0){
-                $counter = round(10 / $timeDiff, 0);
-            } elseif($timeDiff === 0){
-                $counter = 20;
+        $counter = 1;
+        if($this->getPlugin()->getConfig()->get("dynamic_violations")){
+            if(isset($this->lastViolationTime[$name])){
+                $timeDiff = $this->getServer()->getTick() - $this->lastViolationTime[$name];
+                if($timeDiff < 20 && $timeDiff !== 0){
+                    $counter = round(10 / $timeDiff, 0);
+                } elseif($timeDiff === 0){
+                    $counter = 20;
+                } else {
+                    $counter = 1;
+                }
             } else {
                 $counter = 1;
             }
-        } else {
-            $counter = 1;
+            $this->lastViolationTime[$name] = $this->getServer()->getTick();
         }
-        $this->lastViolationTime[$name] = $this->getServer()->getTick();
         ViolationHandler::addViolation($name, $this->getName(), $counter);
         if($this instanceof Blatant){
             if(!isset($this->blatantViolations[$name])){
