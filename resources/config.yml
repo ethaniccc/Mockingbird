@@ -103,7 +103,8 @@ Hitbox: false
 ## Movement Detections ##
 # You can choose to enable or disable cheats with (true/false)
 
-Speed: true
+SpeedA: true
+SpeedB: false
 Glide: true
 NoSlowdown: true
 FastLadder: true

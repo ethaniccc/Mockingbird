@@ -21,6 +21,8 @@ class MoveEvent extends PlayerEvent{
     private $onGround;
     /** @var int */
     private $mode = self::MODE_NORMAL;
+    /** @var int */
+    private $lastMovedTick = 0;
 
     /**
      * MoveEvent constructor.
@@ -36,6 +38,7 @@ class MoveEvent extends PlayerEvent{
         $this->to = $to;
         $this->onGround = $onGround;
         $this->mode = $mode;
+
     }
 
     public function getMode() : int{

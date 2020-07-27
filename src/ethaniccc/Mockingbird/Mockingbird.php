@@ -47,7 +47,7 @@ class Mockingbird extends PluginBase{
             "MultiAura", "Angle", "Hitbox"
         ],
         "Movement" => [
-            "Speed", "NoSlowdown", "FastLadder", "NoWeb", "AirJump",
+            "SpeedA", "SpeedB", "NoSlowdown", "FastLadder", "NoWeb", "AirJump",
             "FlyA", "InventoryMove", "Glide", "NoFall"
         ],
         "Packet" => [

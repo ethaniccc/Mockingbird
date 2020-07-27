@@ -31,7 +31,7 @@ use pocketmine\event\player\PlayerJumpEvent;
 use pocketmine\item\ItemIds;
 use pocketmine\Player;
 
-class Speed extends Cheat{
+class SpeedA extends Cheat{
 
     /** @var array */
     private $wasPreviouslyInAir, $previouslyJumped, $previouslyHadEffect, $previouslyOnIce = [];
