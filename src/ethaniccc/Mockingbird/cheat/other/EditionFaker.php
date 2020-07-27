@@ -3,9 +3,8 @@
 namespace ethaniccc\Mockingbird\cheat\other;
 
 use ethaniccc\Mockingbird\cheat\Blatant;
-use ethaniccc\Mockingbird\event\MoveEvent;
-use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
+use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\LoginPacket;
