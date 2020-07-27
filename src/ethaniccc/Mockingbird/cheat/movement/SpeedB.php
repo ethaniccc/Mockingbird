@@ -6,11 +6,12 @@ use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\utils\LevelUtils;
+use ethaniccc\Mockingbird\utils\MathUtils;
 
 class SpeedB extends Cheat{
 
     /** @var array */
-    private $lastDist, $lastMovedTick, $ticksSprinting, $previouslyOnGround = [];
+    private $lastDist, $lastMovedTick, $ticksSprinting, $previouslyOnGround, $movements = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
@@ -41,31 +42,24 @@ class SpeedB extends Cheat{
             $previousDistance = $this->lastDist[$name];
             $previouslyOnGround = $this->previouslyOnGround[$name];
 
-            $friction = 0.98;
-            $shiftedLastDistance = $previousDistance * $friction;
 
-            $diff = $distance - $shiftedLastDistance;
-            $diffScaled = $diff * 130;
-
-            $hitboxCollidesWithBlock = false;
-            foreach(LevelUtils::getSurroundingBlocks($player, 3) as $block){
-                if($block->getId() !== 0){
-                    if($block->collidesWithBB($player->getBoundingBox()->expand(0.1, 0.1, 0.1))){
-                        $hitboxCollidesWithBlock = true;
-                    }
+            if(!$onGround && !$previouslyOnGround && $this->ticksSprinting[$name] > 10){
+                $approximateFriction = 0.99;
+                $expectedDistance = $previousDistance * $approximateFriction;
+                $distanceDiff = round($distance - $expectedDistance, 5);
+                if(!isset($this->movements[$name])){
+                    $this->movements[$name] = [];
                 }
-            }
-
-            if(!$onGround && !$previouslyOnGround && !$hitboxCollidesWithBlock && $this->ticksSprinting[$name] > 10){
-                if($diffScaled >= 1){
-                    $this->addPreVL($name);
-                    if($this->getPreVL($name) >= 5){
+                if(count($this->movements[$name]) === 20){
+                    array_shift($this->movements[$name]);
+                }
+                array_push($this->movements[$name], $distanceDiff);
+                if(count($this->movements[$name]) > 15){
+                    $speedDeviation = MathUtils::getDeviation($this->movements[$name]);
+                    if($speedDeviation < 0.0001){
                         $this->addViolation($name);
-                        $this->notify("$name failed a check for SpeedB");
-                        $this->lowerPreVL($name, 0);
+                        $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                     }
-                } else {
-                    $this->lowerPreVL($name, 0.25);
                 }
             }
         }

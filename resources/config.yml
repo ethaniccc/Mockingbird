@@ -104,7 +104,7 @@ Hitbox: false
 # You can choose to enable or disable cheats with (true/false)
 
 SpeedA: true
-SpeedB: false
+SpeedB: true
 Glide: true
 NoSlowdown: true
 FastLadder: true
