@@ -19,6 +19,7 @@ class NoFall extends Cheat{
         $player = $event->getPlayer();
         $name = $player->getName();
         $onGround = LevelUtils::isNearGround($player);
+        $yDist = $event->getDistanceY();
         if(!isset($this->lastOnGround[$name])){
             $this->lastOnGround[$name] = $onGround;
             return;
@@ -30,7 +31,7 @@ class NoFall extends Cheat{
         $lastOnGround = $this->lastOnGround[$name];
         $lastLastOnGround = $this->lastLastOnGround[$name];
 
-        if(!$onGround && !$lastOnGround && !$lastLastOnGround){
+        if(!$onGround && !$lastOnGround && !$lastLastOnGround && $yDist < 0){
             if($event->onGround()){
                 $this->addPreVL($name);
                 if($this->getPreVL($name) >= 3){

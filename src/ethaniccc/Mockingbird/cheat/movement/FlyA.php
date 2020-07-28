@@ -85,11 +85,6 @@ class FlyA extends Cheat implements StrictRequirements{
                 } else {
                     $this->lowerPreVL($name);
                 }
-                if($event->onGround()){
-                    // Horion makes this value true in it's Jetpack "bypass" mode.
-                    // Saving this for another check....
-                    $this->debug("$name gave a move packet with the value for onGround true, while not on ground for >= 3 ticks.");
-                }
             } else {
                 $this->lowerPreVL($name);
             }

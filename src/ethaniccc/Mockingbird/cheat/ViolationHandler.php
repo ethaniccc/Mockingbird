@@ -37,6 +37,9 @@ final class ViolationHandler{
     /** @var array */
     private static $tps = [];
 
+    /** @var array */
+    private static $timesPunished = [];
+
     /**
      * @param string $name
      * @param string $cheat
@@ -85,6 +88,36 @@ final class ViolationHandler{
         }
         self::$allViolations[$name] += self::$violations[$name];
         self::$violations[$name] = $violations;
+    }
+
+    /**
+     * @param string $name
+     * @param int $amount
+     */
+    public static function addTimesPunished(string $name, int $amount = 1) : void{
+        if(!isset(self::$timesPunished[$name])){
+            self::$timesPunished[$name] = 0;
+        }
+        self::$timesPunished[$name] += $amount;
+    }
+
+    /**
+     * @param string $name
+     * @param int $amount]
+     */
+    public static function setTimesPunished(string $name, int $amount) : void{
+        self::$timesPunished[$name] = $amount;
+    }
+
+    /**
+     * @param string $name
+     * @return int
+     */
+    public static function getTimesPunished(string $name) : int{
+        if(isset(self::$timesPunished[$name])){
+            return self::$timesPunished[$name];
+        }
+        return 0;
     }
 
     /**

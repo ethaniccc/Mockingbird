@@ -64,6 +64,10 @@ dynamic_violations: false
 # Do you want the player to be kicked, banned, or ip-banned? (You can also choose "none")
 # Options: none, kick, ban, ip-ban
 punishment_type: kick
+# If your punishment type is kick, you can set this to an mount to ban when a player is kicked
+# a certain amount of times. For example, if this option is set to 5, and the player is kicked
+# 5 times, they will be banned. You can set this to -1 to disable.
+max_kicks: -1
 
 # If this option is enabled, this will save the previous data in a .txt file
 # with information such as violations and cheats violated for.
