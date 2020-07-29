@@ -46,6 +46,11 @@ class SpeedB extends Cheat{
             $this->ticksSprinting[$name] = 0;
         }
 
+        if(!isset($this->lastMovedTick[$name])){
+            $this->lastMovedTick[$name] = $this->getServer()->getTick();
+            return;
+        }
+
         if($this->getServer()->getTick() - $this->lastMovedTick[$name] <= 1){
             $previousDistance = $this->lastDist[$name];
             $previouslyOnGround = $this->previouslyOnGround[$name];

@@ -45,10 +45,10 @@ class Mockingbird extends PluginBase{
     private $modules = [
         "Combat" => [
             "ReachA", "ReachB", "ReachC", "AutoClickerA", "AutoClickerB", "ToolboxKillaura",
-            "MultiAura", "Angle", "Hitbox"
+            "MultiAura", "Angle", "Hitbox", "AimA"
         ],
         "Movement" => [
-            "SpeedA", "SpeedB", "NoSlowdown", "FastLadder", "NoWeb", "AirJump",
+            "SpeedA", "SpeedB", "SpeedC", "NoSlowdown", "FastLadder", "NoWeb", "AirJump",
             "FlyA", "InventoryMove", "Glide", "NoFall"
         ],
         "Packet" => [

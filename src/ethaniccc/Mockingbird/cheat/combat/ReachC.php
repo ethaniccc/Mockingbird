@@ -42,12 +42,12 @@ class ReachC extends Cheat{
                         }
                     }
                 }
-                $ray = new Ray($damager->add(0, $damager->getEyeHeight()), $damager->getDirectionVector());
+                $ray = new Ray($damager->add(0, $damager->getEyeHeight(), 0), $damager->getDirectionVector());
                 $AABB = $correctInfo["AABB"];
                 $distance = $AABB->collidesRay($ray, 0, 10);
-                if($distance > 3.1){
+                if($distance > 3.05){
                     $this->addPreVL($damager->getName());
-                    if($this->getPreVL($damager->getName()) >= 3){
+                    if($this->getPreVL($damager->getName()) >= 2){
                         $this->notify($damager->getName() . " failed a check for ReachC.");
                         $this->lowerPreVL($damager->getName(), 0.5);
                     }
