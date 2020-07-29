@@ -117,6 +117,14 @@ class Mockingbird extends PluginBase{
             foreach($this->getServer()->getOnlinePlayers() as $staff){
                 if($staff->hasPermission($this->getConfig()->get("alert_permission"))) $staff->sendMessage($this->getPrefix() . TextFormat::RESET . TextFormat::RED . "$name has been kicked for using unfair advantage on other players. They were detected for: " . implode(", ", $cheats));
             }
+            ViolationHandler::addTimesPunished($name);
+            if($this->getConfig()->get("max_kicks") != -1 && ViolationHandler::getTimesPunished($name) >= $this->getConfig()->get("max_kicks")){
+                $timesKicked = ViolationHandler::getTimesPunished($name);
+                foreach($this->getServer()->getOnlinePlayers() as $staff){
+                    if($staff->hasPermission($this->getConfig()->get("alert_permission"))) $staff->sendMessage($this->getPrefix() . TextFormat::RESET . TextFormat::RED . "$name has been kicked $timesKicked and therefore has been banned from the server.");
+                }
+                $this->getServer()->getNameBans()->addBan($name, "Unfair advantage", null, "Mockingbird");
+            }
         }), 1);
     }
 
@@ -144,6 +152,7 @@ class Mockingbird extends PluginBase{
             foreach($this->getServer()->getOnlinePlayers() as $staff){
                 if($staff->hasPermission($this->getConfig()->get("alert_permission"))) $staff->sendMessage($this->getPrefix() . TextFormat::RESET . TextFormat::RED . "$name has been banned for using unfair advantage on other players. They were detected for: " . implode(", ", $cheats));
             }
+            ViolationHandler::addTimesPunished($name);
         }), 1);
     }
 
