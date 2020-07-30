@@ -92,11 +92,6 @@ ScreenshareCommand: true
 ## Combat Detections ##
 # You can choose to enable or disable cheats with (true/false)
 
-ReachA: true
-ReachB: true
-# This check is experimental.
-ReachC: false
-
 # Toolbox is a hacked client some Android users may use to
 # gain an unfair advantage against other players.
 # See Toolbox KillAura on this YouTube video: https://www.youtube.com/watch?v=K0INXOLxIj8&t
