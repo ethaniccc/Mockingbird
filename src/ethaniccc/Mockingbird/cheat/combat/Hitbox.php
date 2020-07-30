@@ -27,6 +27,10 @@ class Hitbox extends Cheat{
             return;
         }
 
+        if(!isset($this->AABB[$damaged->getName()])){
+            return;
+        }
+
         if(count($this->AABB[$damaged->getName()]) < 30){
             return;
         }
@@ -36,7 +40,7 @@ class Hitbox extends Cheat{
             $time = $arrayInfo["Time"];
             if(abs($estimatedHitTime - $time) < 20){
                 $AABB = $arrayInfo["AABB"];
-                $ray = new Ray($damager->add(0, $damager->getEyeHeight()), $damager->getDirectionVector());
+                $ray = new Ray($damager->add(0, $damager->getEyeHeight(), 0), $damager->getDirectionVector());
                 $collision = $AABB->collidesRay($ray, 0, 15);
                 if($collision == -1){
                     $this->addPreVL($damager->getName());
@@ -63,7 +67,7 @@ class Hitbox extends Cheat{
         $info = [
             // make microtime into ms
             "Time" => microtime(true) * 1000,
-            "AABB" => AABB::fromPlayer($player)
+            "AABB" => AABB::from($player)
         ];
         array_push($this->AABB[$name], $info);
     }

@@ -56,6 +56,15 @@ You can also click [here](https://discord.gg/v77FESn) to join my discord.
     Same goes for deleting a custom module.
     
     **Warning:** You cannot reload custom module code with this command.
+* "Screenshare" command
+
+    **NOTE:** This is to give you the player's view, not to actually be able
+    to view the player's screen.
+    
+    With the permission set in the config, you can use the Mockingbird screenshare
+    command, `/mbscreenshare <player>` to screenshare a player. Nobody will be able to 
+    see you while you are "screensharing" somebody.
+    
 ## Detections
 Detections not guaranteed 100% accurate.
 
@@ -65,19 +74,25 @@ Detections not guaranteed 100% accurate.
     * Consistency Detection (may rarely false)
     * Speed Detection
 * Reach
+    * ReachA: Uses ray tracing to get the distance from the
+    damager to the target and uses location history to
+    compensate for lag. **May be slow.**
 * MultiAura
 * Toolbox Killaura
+    * Also a NoSwing check :p
 * Hitbox (**experimental and will not flag, only notify**)
 ### Movement
 * AirJump
 * Fly
-    - Personal Recommendation: Enable **FlyA** and disable **FlyB**
 * Glide
 * InventoryMove (not complete / may be inaccurate)
 * FastLadder
 * NoSlowdown (while eating)
 * NoWeb
+* NoFall
 * Speed
+    - SpeedA: Basic speed check.
+    - SpeedB: Mini-Bhop check
 ### Other Detections
 * Packet Checks
 * ChestStealer
@@ -132,6 +147,7 @@ namespace ethaniccc\Mockingbird\cheat\custom{
             parent::__construct($plugin,$cheatName,$cheatType,$enabled);
         }
         
+        // personal recommendation to NOT use PlayerMoveEvent
         public function onMove(PlayerMoveEvent $event) : void{
             // Do your thing here ;)
         }

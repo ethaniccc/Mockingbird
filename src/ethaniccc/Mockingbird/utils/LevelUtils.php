@@ -79,7 +79,7 @@ class LevelUtils{
      * @param int $mode
      * @return float
      */
-    public static function getMoveDistance(Vector3 $to, Vector3 $from, int $mode) : float{
+    public static function getMoveDistance(Vector3 $to, Vector3 $from, int $mode = self::MODE_POINT_DISTANCE) : float{
         switch($mode){
             case self::MODE_X:
                 return abs($to->getX() - $from->getX());

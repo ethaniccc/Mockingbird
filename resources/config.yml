@@ -107,6 +107,8 @@ AutoClickerB: true
 
 Angle: true
 Hitbox: false
+# may be slow
+ReachA: true
 
 #######   =====================================   #######
 

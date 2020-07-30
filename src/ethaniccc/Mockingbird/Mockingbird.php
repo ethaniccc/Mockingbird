@@ -44,7 +44,7 @@ class Mockingbird extends PluginBase{
     /** @var array */
     private $modules = [
         "Combat" => [
-            "AutoClickerA", "AutoClickerB", "ToolboxKillaura",
+            "ReachA", "AutoClickerA", "AutoClickerB", "ToolboxKillaura",
             "MultiAura", "Angle", "Hitbox", "AimA"
         ],
         "Movement" => [

@@ -34,7 +34,7 @@ class ClickEvent extends PlayerEvent{
      */
     public function getTimeDiff() : float{
         if($this->newTime - $this->previousTime == 0){
-            return 0.05;
+            return 0.046;
         }
         return $this->newTime - $this->previousTime;
     }

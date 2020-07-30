@@ -3,6 +3,7 @@
 namespace ethaniccc\Mockingbird\utils\boundingbox;
 
 use pocketmine\block\Block;
+use pocketmine\entity\Entity;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
 
@@ -25,10 +26,13 @@ class AABB{
         $this->maxZ = $maxZ;
     }
 
-    public static function fromPlayer(Player $user) : AABB{
+    public static function from(Entity $user) : AABB{
         $pos = $user->getPosition();
-        // boundingBox as to hitBox
-        return new AABB($pos->x - 0.3, $pos->y, $pos->z - 0.3, $pos->x + 0.3, $pos->y + 1.8, $pos->z + 0.3);
+        return new AABB($pos->x - 0.4, $pos->y, $pos->z - 0.4, $pos->x + 0.4, $pos->y + 1.8, $pos->z + 0.4);
+    }
+
+    public static function fromPosition(Vector3 $pos) : AABB{
+        return new AABB($pos->x - 0.4, $pos->y, $pos->z - 0.4, $pos->x + 0.4, $pos->y + 1.8, $pos->z + 0.4);
     }
 
     public static function fromBlock(Block $block) : ?AABB{

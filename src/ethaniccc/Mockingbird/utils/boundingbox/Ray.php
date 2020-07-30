@@ -2,6 +2,7 @@
 
 namespace ethaniccc\Mockingbird\utils\boundingbox;
 
+use pocketmine\entity\Entity;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
 
@@ -15,8 +16,8 @@ class Ray{
     /** @var Vector3 */
     private $origin, $direction;
 
-    public static function from(Player $player) : Ray{
-        return new Ray($player->add(0, $player->getEyeHeight()), $player->getDirectionVector());
+    public static function from(Entity $player) : Ray{
+        return new Ray($player->add(0, $player->getEyeHeight(), 0), $player->getDirectionVector());
     }
 
     public function __construct(Vector3 $origin, Vector3 $direction){
