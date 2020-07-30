@@ -120,7 +120,6 @@ Hitbox: false
 
 SpeedA: true
 SpeedB: true
-SpeedC: true
 Glide: true
 NoSlowdown: true
 FastLadder: true
