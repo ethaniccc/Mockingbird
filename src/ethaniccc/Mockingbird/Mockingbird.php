@@ -49,7 +49,7 @@ class Mockingbird extends PluginBase{
         ],
         "Movement" => [
             "SpeedA", "SpeedB", "NoSlowdown", "FastLadder", "NoWeb", "AirJump",
-            "FlyA", "InventoryMove", "Glide", "NoFall"
+            "FlyA", "InventoryMove", "Glide", "NoFall", "Phase"
         ],
         "Packet" => [
             "BadPitchPacket", "AttackingWhileEating", "InvalidCreativeTransaction",

@@ -125,6 +125,7 @@ NoFall: true
 AirJump: true
 FlyA: true
 InventoryMove: false
+Phase: false
 
 ## Packet Checks ##
 # These checks are to detect if packets sent to the server are valid.
