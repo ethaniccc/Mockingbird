@@ -23,6 +23,8 @@ use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\boundingbox\Ray;
+use ethaniccc\Mockingbird\utils\LevelUtils;
+use ethaniccc\Mockingbird\utils\MathUtils;
 use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\Player;
@@ -30,28 +32,17 @@ use pocketmine\Player;
 class ReachA extends Cheat{
 
     /** @var array */
-    private $AABB = [];
+    private $attacked, $entityHit, $distances, $lastMoved = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
 
-    /**
-     * @param EntityDamageByEntityEvent $event
-     * This reach check WILL NOT WORK FOR MOBILE PLAYERS.
-     * The reason of this being it uses a ray trace to determine
-     * the distance from the point of the damager's eye height to the
-     * bounding box of the damaged entity. This method also depends on the
-     * direction vector of the player. Therefore if a mobile player is NOT using
-     * split controls, this check is ineffective.
-     * TODO: Make a ReachB check for mobile players.
-     */
     public function onHit(EntityDamageByEntityEvent $event) : void{
-
         if($event instanceof EntityDamageByChildEntityEvent){
             return;
         }
-        
+
         $damager = $event->getDamager();
         $damaged = $event->getEntity();
 
@@ -59,50 +50,70 @@ class ReachA extends Cheat{
             return;
         }
 
-        $damagedName = $damaged->getName();
-        $damagerName = $damager->getName();
+        $name = $damager->getName();
 
-        if(!isset($this->AABB[$damagedName])){
-            return;
-        }
-        $estimatedHitTime = (microtime(true) * 1000) - $damager->getPing();
-        foreach($this->AABB[$damagedName] as $info){
-            $time = $info["Time"];
-            if(($time - $estimatedHitTime) > 0 && ($time - $estimatedHitTime) < 5){
-                $timeDiff = ($time - $estimatedHitTime);
-                $correctAABB = $info["AABB"];
-                $ray = Ray::from($damager);
-                $distance = $correctAABB->collidesRay($ray, 0, 10);
-                $maxDistance = ($damager->isCreative() ? 6 : 3) + ($timeDiff * 0.01);
-                if($distance > $maxDistance){
-                    $this->addPreVL($damagerName);
-                    if($this->getPreVL($damagerName) >= 2){
-                        $this->addViolation($damagerName);
-                        $data = [
-                            "VL" => self::getCurrentViolations($damagerName),
-                            "Distance" => round($distance, 2)
-                        ];
-                        $this->notifyStaff($damagerName, $this->getName(), $data);
-                    }
-                } else {
-                    $this->lowerPreVL($damagerName);
-                }
-                return;
-            }
-        }
+        $this->attacked[$name] = true;
+        $this->entityHit[$name] = $damaged->getName();
     }
 
+    /**
+     * @param MoveEvent $event
+     * This reach check still does not work well with mobile players due to
+     * the way the check is done.
+     * TODO: Add a ReachB check to work with mobile players.
+     */
     public function onMove(MoveEvent $event) : void{
         $player = $event->getPlayer();
         $name = $player->getName();
+        if(!isset($this->entityHit[$name])){
+            $this->lastMoved[$name] = microtime(true) * 1000;
+            return;
+        }
+        if(!isset($this->attacked[$name])){
+            $this->attacked[$name] = false;
+        }
+        if(!isset($this->distances[$name])){
+            $this->distances[$name] = [];
+        }
 
-        if(!isset($this->AABB[$name])){
-            $this->AABB[$name] = [];
+        if($this->attacked[$name]){
+            if(isset($this->distances[$name])){
+                if(count($this->distances[$name]) >= 10){
+                    array_shift($this->distances[$name]);
+                }
+            }
+            if(!isset($this->lastMoved[$name]) || (microtime(true) * 1000) - $this->lastMoved[$name] <= 500){
+                $this->attacked[$name] = false;
+                $playerHit = $this->getServer()->getPlayer($this->entityHit[$name]);
+                if($playerHit === null){
+                    $this->lastMoved[$name] = microtime(true) * 1000;
+                    return;
+                }
+                // we do a check for the distance from a ray from the player's eye height
+                // to the edge of the player's hitbox.
+                $ray = Ray::from($player);
+                $distance = AABB::from($playerHit)->collidesRay($ray, 0, 10);
+                if($distance != -1){
+                    $this->distances[$name][] = $distance;
+                }
+
+                if(count($this->distances[$name]) >= 10){
+                    $averageDist = MathUtils::getAverage($this->distances[$name]);
+                    $expectedDistance = $player->isCreative() ? (LevelUtils::isNearGround($playerHit, 1) ? 5.1 : 6) : (LevelUtils::isNearGround($playerHit, 1) ? 3.1 : 4.15);
+                    if($averageDist > 3.25 && $distance > $expectedDistance){
+                        $this->addPreVL($name);
+                        if($this->getPreVL($name) >= 3){
+                            $this->addViolation($name);
+                            $this->notifyStaff($name, $this->getName(), ["VL" => self::getCurrentViolations($name), "Dist" => round($distance, 3)]);
+                        }
+                    } else {
+                        $this->lowerPreVL($name, 0.8);
+                    }
+                }
+            }
         }
-        if(count($this->AABB[$name]) === 40){
-            array_shift($this->AABB[$name]);
-        }
-        $this->AABB[$name][] = ["Time" => microtime(true) * 1000, "AABB" => AABB::fromPosition($event->getTo())];
+
+        $this->lastMoved[$name] = microtime(true) * 1000;
     }
 
 }

@@ -44,11 +44,11 @@ class AABB{
 
     public static function from(Entity $user) : AABB{
         $pos = $user->getPosition();
-        return new AABB($pos->x - 0.4, $pos->y, $pos->z - 0.4, $pos->x + 0.4, $pos->y + 1.8, $pos->z + 0.4);
+        return new AABB($pos->x - 0.3, $pos->y, $pos->z - 0.3, $pos->x + 0.3, $pos->y + 1.8, $pos->z + 0.3);
     }
 
     public static function fromPosition(Vector3 $pos) : AABB{
-        return new AABB($pos->x - 0.4, $pos->y, $pos->z - 0.4, $pos->x + 0.4, $pos->y + 1.8, $pos->z + 0.4);
+        return new AABB($pos->x - 0.3, $pos->y, $pos->z - 0.3, $pos->x + 0.3, $pos->y + 1.8, $pos->z + 0.3);
     }
 
     public static function fromBlock(Block $block) : ?AABB{

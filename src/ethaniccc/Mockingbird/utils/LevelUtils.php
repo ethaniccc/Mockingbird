@@ -109,15 +109,16 @@ class LevelUtils{
 
     /**
      * @param Player $player
+     * @param float $minY
      * @return bool
      */
-    public static function isNearGround(Player $player) : bool{
+    public static function isNearGround(Player $player, float $minY = -1.2) : bool{
         $expand = 0.3;
         $position = $player->asVector3();
         $level = $player->getLevel();
         for($x = -$expand; $x <= $expand; $x += $expand){
             for($z = -$expand; $z <= $expand; $z += $expand){
-                for($y = -1.2; $y <= -0.5; $y += 0.1){
+                for($y = $minY; $y <= -0.5; $y += 0.1){
                     if($level->getBlock($position->add($x, $y, $z))->getId() !== 0){
                         return true;
                     }
