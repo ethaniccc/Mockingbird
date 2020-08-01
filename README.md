@@ -10,7 +10,7 @@ This may also false-positive on players who are laggy (e.g: high ping).
     - Inspo for this project. Also for the structure of this plugin lol. You can check out
     Mavoric (dev) by clicking [here](https://github.com/Bavfalcon9/Mavoric/tree/v2.0.0/)
 * shura62
-    - Helped with reach checks :D!
+    - Helped on Discord with Mockingbird!
 * Jonhan
     - Gave **some** checks for Bukkit that I was able to port over to PocketMine.
     You can click [here](https://www.youtube.com/channel/UCZ_Pg7e-1JMlHtqnWw6KIcw) to check out his channel!
@@ -19,8 +19,8 @@ This may also false-positive on players who are laggy (e.g: high ping).
 Mockingbird has a test server - here are the details if you want to join:
 
 ```
-IP: mockingbird.mcpro.io
-Port: 40647
+IP: 104.194.10.127
+Port: 25640
 ```
 You can also click [here](https://discord.gg/v77FESn) to join my discord.
 ## Commands
@@ -71,16 +71,16 @@ Detections not guaranteed 100% accurate.
 ### Combat
 * Angle
 * AutoClicker
-    * Consistency Detection (may rarely false)
+    * Consistency Detection (may sometimes false?)
     * Speed Detection
 * Reach
     * ReachA: Uses ray tracing to get the distance from the
-    damager to the target and uses location history to
-    compensate for lag. **May be slow.**
+    damager to the target. This check will not work for mobile players.
 * MultiAura
 * Toolbox Killaura
     * Also a NoSwing check :p
-* Hitbox (**experimental and will not flag, only notify**)
+* Hitbox
+    - This check is not complete and should **not** be used. Especially on production servers.
 ### Movement
 * AirJump
 * Fly

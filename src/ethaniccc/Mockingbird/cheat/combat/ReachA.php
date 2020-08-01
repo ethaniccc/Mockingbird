@@ -100,7 +100,7 @@ class ReachA extends Cheat{
                 if(count($this->distances[$name]) >= 10){
                     $averageDist = MathUtils::getAverage($this->distances[$name]);
                     $expectedDistance = $player->isCreative() ? (LevelUtils::isNearGround($playerHit, 1) ? 5.1 : 6) : (LevelUtils::isNearGround($playerHit, 1) ? 3.1 : 4.15);
-                    if($averageDist > 3.25 && $distance > $expectedDistance){
+                    if($averageDist > 3.2 && $distance > $expectedDistance){
                         $this->addPreVL($name);
                         if($this->getPreVL($name) >= 3){
                             $this->addViolation($name);

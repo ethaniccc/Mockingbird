@@ -3,3 +3,4 @@ resources/notes/*
 start.cmd
 compile.cmd
 upload/*
+.vscode/*
