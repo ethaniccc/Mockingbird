@@ -1,6 +1,7 @@
 .idea/
 resources/notes/*
 start.cmd
+upload.cmd
 compile.cmd
 upload/*
 .vscode/*

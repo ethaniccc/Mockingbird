@@ -25,6 +25,7 @@ use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\boundingbox\Ray;
 use ethaniccc\Mockingbird\utils\LevelUtils;
 use ethaniccc\Mockingbird\utils\MathUtils;
+use pocketmine\entity\Living;
 use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\Player;
@@ -46,7 +47,7 @@ class ReachA extends Cheat{
         $damager = $event->getDamager();
         $damaged = $event->getEntity();
 
-        if(!$damager instanceof Player || !$damaged instanceof Player){
+        if(!$damager instanceof Player || !$damaged instanceof Living){
             return;
         }
 
@@ -84,25 +85,32 @@ class ReachA extends Cheat{
             }
             if(!isset($this->lastMoved[$name]) || (microtime(true) * 1000) - $this->lastMoved[$name] <= 500){
                 $this->attacked[$name] = false;
-                $playerHit = $this->getServer()->getPlayer($this->entityHit[$name]);
-                if($playerHit === null){
+                $entityHit = null;
+                foreach($player->getLevel()->getEntities() as $entity){
+                    if($entity instanceof Living){
+                        if($entity->getName() === $this->entityHit[$player->getName()]){
+                            $entityHit = $entity;
+                        }
+                    }
+                }
+                if($entityHit === null){
                     $this->lastMoved[$name] = microtime(true) * 1000;
                     return;
                 }
                 // we do a check for the distance from a ray from the player's eye height
                 // to the edge of the player's hitbox.
                 $ray = Ray::from($player);
-                $distance = AABB::from($playerHit)->collidesRay($ray, 0, 10);
+                $distance = AABB::from($entityHit)->collidesRay($ray, 0, 10);
                 if($distance != -1){
                     $this->distances[$name][] = $distance;
                 }
 
                 if(count($this->distances[$name]) >= 10){
                     $averageDist = MathUtils::getAverage($this->distances[$name]);
-                    $expectedDistance = $player->isCreative() ? (LevelUtils::isNearGround($playerHit, 1) ? 5.1 : 6) : (LevelUtils::isNearGround($playerHit, 1) ? 3.1 : 4.15);
-                    if($averageDist > 3.2 && $distance > $expectedDistance){
+                    $expectedDistance = $player->isCreative() ? (LevelUtils::isNearGround($entityHit) ? 5.1 : 6) : (LevelUtils::isNearGround($entityHit) ? 3.1 : 4.125);
+                    if($averageDist >= 3.1 && $distance > $expectedDistance){
                         $this->addPreVL($name);
-                        if($this->getPreVL($name) >= 3){
+                        if($this->getPreVL($name) >= 1){
                             $this->addViolation($name);
                             $this->notifyStaff($name, $this->getName(), ["VL" => self::getCurrentViolations($name), "Dist" => round($distance, 3)]);
                         }

@@ -21,6 +21,7 @@ Github: https://www.github.com/ethaniccc
 namespace ethaniccc\Mockingbird\utils;
 
 use pocketmine\block\Block;
+use pocketmine\entity\Living;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -79,7 +80,7 @@ class LevelUtils{
      * @param int $mode
      * @return float
      */
-    public static function getMoveDistance(Vector3 $to, Vector3 $from, int $mode = self::MODE_POINT_DISTANCE) : float{
+    public static function getDistance(Vector3 $to, Vector3 $from, int $mode = self::MODE_POINT_DISTANCE) : float{
         switch($mode){
             case self::MODE_X:
                 return abs($to->getX() - $from->getX());
@@ -112,7 +113,7 @@ class LevelUtils{
      * @param float $minY
      * @return bool
      */
-    public static function isNearGround(Player $player, float $minY = -1.2) : bool{
+    public static function isNearGround(Living $player, float $minY = -1.2) : bool{
         $expand = 0.3;
         $position = $player->asVector3();
         $level = $player->getLevel();
