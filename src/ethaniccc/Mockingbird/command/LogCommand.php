@@ -53,15 +53,7 @@ class LogCommand extends Command implements PluginIdentifiableCommand{
                 break;
             case "UI":
             default:
-                if(Server::getInstance()->getPluginManager()->getPlugin("FormAPI") !== null){
-                    $this->setDescription("Get the AntiCheat logs.");
-                    $this->setUsage(TextFormat::RED . "/logs");
-                    $this->mode = "UI";
-                } else {
-                    Server::getInstance()->getLogger()->debug("FormAPI not found but UI mode chosen. Defaulting to 'normal' mode.");
-                    $this->setDescription("Get the AntiCheat logs of a player!");
-                    $this->setUsage(TextFormat::RED . "/logs <player>");
-                }
+                $this->mode = "UI";
                 break;
         }
     }
