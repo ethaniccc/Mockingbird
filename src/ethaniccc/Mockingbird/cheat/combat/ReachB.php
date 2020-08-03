@@ -52,7 +52,7 @@ class ReachB extends Cheat{
 
         $name = $damager->getName();
         $distance = LevelUtils::getDistance($damager->asVector3(), $damaged->asVector3());
-        if($distance > 4.2){
+        if($distance > 6){
             $this->addViolation($name);
             $this->notifyStaff($name, $this->getName(), $this->genericAlertData($damager));
         }

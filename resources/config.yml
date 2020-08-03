@@ -107,8 +107,8 @@ AutoClickerB: true
 
 Angle: true
 Hitbox: false
-# may be slow
 ReachA: true
+ReachB: false
 
 #######   =====================================   #######
 
@@ -126,6 +126,8 @@ AirJump: true
 FlyA: true
 InventoryMove: false
 Phase: false
+# Will most likely not work with mobile players!
+Scaffold: false
 
 ## Packet Checks ##
 # These checks are to detect if packets sent to the server are valid.
