@@ -32,7 +32,7 @@ use pocketmine\Player;
 class ReachA extends Cheat{
 
     /** @var array */
-    private $distances, $cooldown = [];
+    private $distances, $cooldown, $ticksOffGround = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
@@ -64,6 +64,15 @@ class ReachA extends Cheat{
             }
         }
 
+        if(!isset($this->ticksOffGround[$damaged->getName()])){
+            $this->ticksOffGround[$damaged->getName()] = 0;
+        }
+        if(!LevelUtils::isNearGround($damaged, -0.75)){
+            ++$this->ticksOffGround[$damaged->getName()];
+        } else {
+            $this->ticksOffGround[$damaged->getName()] = 0;
+        }
+
         // we do a check for the distance from a ray from the player's eye height
         // to the edge of the player's hitbox.
         $ray = Ray::from($damager);
@@ -71,25 +80,15 @@ class ReachA extends Cheat{
         $distance = $AABB->collidesRay($ray, 0, 10);
 
         if($distance != -1){
-            if(count($this->distances[$name]) >= 3){
-                array_shift($this->distances[$name]);
-            }
-            $this->distances[$name][] = $distance;
-            if(count($this->distances[$name]) >= 3){
-                $distAvg = MathUtils::getAverage($this->distances[$name]);
-                if($damager->isCreative()){
-                    return;
+            $expectedDist = $this->ticksOffGround[$damaged->getName()] < 3 ? 3.2 : 4;
+            if($distance > $expectedDist){
+                $this->addPreVL($name);
+                if($this->getPreVL($name) >= 2){
+                    $this->addViolation($name);
+                    $this->notifyStaff($name, $this->getName(), ["VL" => self::getCurrentViolations($name), "Dist" => round($distance, 2)]);
                 }
-                $expectedDist = LevelUtils::isNearGround($damaged, -0.6) ? 3.2 : 4;
-                if($distAvg > $expectedDist && $distance > $expectedDist){
-                    $this->addPreVL($name);
-                    if($this->getPreVL($name) >= 1){
-                        $this->addViolation($name);
-                        $this->notifyStaff($name, $this->getName(), ["VL" => self::getCurrentViolations($name), "Dist" => round($distance,2)]);
-                    }
-                } else {
-                    $this->lowerPreVL($name, 0.8);
-                }
+            } else {
+                $this->lowerPreVL($name, 0.85);
             }
         }
     }
