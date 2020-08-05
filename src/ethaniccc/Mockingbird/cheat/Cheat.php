@@ -321,19 +321,24 @@ class Cheat implements Listener{
                 return;
             }
         }
-        if($this->getPlugin()->getConfig()->get("alerts") === true){
-            foreach($this->getServer()->getOnlinePlayers() as $player){
-                if($player->hasPermission($this->getPlugin()->getConfig()->get("alert_permission"))){
-                    $dataReport = TextFormat::DARK_RED . "[";
-                    foreach($data as $dataName => $info){
-                        if(array_key_last($data) !== $dataName) $dataReport .= TextFormat::GRAY . $dataName . ": " . TextFormat::RED . $info . TextFormat::DARK_RED . " | ";
-                        else $dataReport .= TextFormat::GRAY . $dataName . ": " . TextFormat::RED . $info;
-                    }
-                    $dataReport .= TextFormat::DARK_RED . "]";
+        $dataReport = TextFormat::DARK_RED . "[";
+        foreach($data as $dataName => $info){
+            if(array_key_last($data) !== $dataName) $dataReport .= TextFormat::GRAY . $dataName . ": " . TextFormat::RED . $info . TextFormat::DARK_RED . " | ";
+            else $dataReport .= TextFormat::GRAY . $dataName . ": " . TextFormat::RED . $info;
+        }
+        $dataReport .= TextFormat::DARK_RED . "]";
+        foreach($this->getServer()->getOnlinePlayers() as $player){
+            if($player->hasPermission($this->getPlugin()->getConfig()->get("alert_permission"))){
+                $staff = $this->getPlugin()->getStaff($player->getName());
+                if($staff === null){
+                    break;
+                }
+                if($staff->hasAlertsEnabled()){
                     $player->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RESET . TextFormat::RED . $name . TextFormat::GRAY . " has failed the check for " . TextFormat::RED . $cheat . TextFormat::RESET . " $dataReport");
                 }
             }
         }
+        $this->getServer()->getLogger()->info($this->getPlugin()->getPrefix() . TextFormat::RESET . TextFormat::RED . $name . TextFormat::GRAY . " has failed the check for " . TextFormat::RED . $cheat . TextFormat::RESET . " $dataReport");
     }
 
     /**

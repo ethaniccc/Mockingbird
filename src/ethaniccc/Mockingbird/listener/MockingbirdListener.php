@@ -25,6 +25,7 @@ use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
@@ -84,6 +85,13 @@ class MockingbirdListener implements Listener{
                 $event->call();
                 $this->previousClickTime[$playerName] = $currentTime;
             }
+        }
+    }
+
+    public function onJoin(PlayerJoinEvent $event) : void{
+        $name = $event->getPlayer()->getName();
+        if($event->getPlayer()->hasPermission($this->getPlugin()->getConfig()->get("alert_permission"))){
+            $this->getPlugin()->registerStaff($name);
         }
     }
 

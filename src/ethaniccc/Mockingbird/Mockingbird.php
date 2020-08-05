@@ -22,12 +22,14 @@ namespace ethaniccc\Mockingbird;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\cheat\ViolationHandler;
+use ethaniccc\Mockingbird\command\AlertsCommand;
 use ethaniccc\Mockingbird\command\DisableModuleCommand;
 use ethaniccc\Mockingbird\command\EnableModuleCommand;
 use ethaniccc\Mockingbird\command\LogCommand;
 use ethaniccc\Mockingbird\command\ReloadModuleCommand;
 use ethaniccc\Mockingbird\command\ScreenshareCommand;
 use ethaniccc\Mockingbird\listener\MockingbirdListener;
+use ethaniccc\Mockingbird\utils\staff\Staff;
 use pocketmine\event\HandlerList;
 use pocketmine\permission\Permission;
 use pocketmine\permission\PermissionManager;
@@ -69,6 +71,8 @@ class Mockingbird extends PluginBase{
     private $enabledModules = [];
     /** @var array */
     private $disabledModules = [];
+    /** @var array */
+    private $staff = [];
 
     public function onEnable(){
         if(!file_exists($this->getDataFolder() . "config.yml")){
@@ -105,7 +109,7 @@ class Mockingbird extends PluginBase{
      * @return string
      */
     public function getPrefix() : string{
-        return !is_string($this->getConfig()->get("prefix")) ? TextFormat::BOLD . TextFormat::RED . "Mockingbird> " : $this->getConfig()->get("prefix") . " ";
+        return !is_string($this->getConfig()->get("prefix")) ? TextFormat::BOLD . TextFormat::RED . "Mockingbird> " . TextFormat::RESET : $this->getConfig()->get("prefix") . " ";
     }
 
     /**
@@ -243,15 +247,35 @@ class Mockingbird extends PluginBase{
         return $this->modules;
     }
 
+    /**
+     * @param string $name
+     */
+    public function registerStaff(string $name) : void{
+        $this->staff[$name] = new Staff($name);
+    }
+
+    /**
+     * @param string $name
+     * @return Staff|null
+     */
+    public function getStaff(string $name) : ?Staff{
+        return isset($this->staff[$name]) ? $this->staff[$name] : null;
+    }
+
     private function loadAllModules(bool $debug = true) : void{
         $loadedModules = 0;
         foreach($this->modules as $type => $modules){
             $namespace = "ethaniccc\\Mockingbird\\cheat\\" . (strtolower($type)) . "\\";
             foreach($modules as $module){
+                $declaredNamespace = $namespace;
                 if($type === "Custom"){
                     require_once $this->getDataFolder() . "custom_modules/$module.php";
                 }
-                $class = $namespace . "$module";
+                if(strpos($module, "\\") !== false){
+                    $declaredNamespace = $namespace . explode("\\", $module)[0] . "\\";
+                    $module = explode("\\", $module)[1];
+                }
+                $class = $declaredNamespace . "$module";
                 $enabled = $this->getConfig()->get("dev_mode") === true ? true : $this->getConfig()->get($module);
                 switch($type){
                     case "Custom":
@@ -306,11 +330,12 @@ class Mockingbird extends PluginBase{
 
     private function loadAllCommands() : void{
         $commandMap = $this->getServer()->getCommandMap();
-        $this->getConfig()->get("LogCommand") === true ? $commandMap->register($this->getName(), new LogCommand("logs", $this)) : $this->getLogger()->debug("Log command disabled");
-        $this->getConfig()->get("ScreenshareCommand") === true ? $commandMap->register($this->getName(), new ScreenshareCommand("mbscreenshare", $this)) :  $this->getLogger()->debug("Screenshare command disabled");
+        $this->getConfig()->get("LogCommand") ? $commandMap->register($this->getName(), new LogCommand("logs", $this)) : $this->getLogger()->debug("Log command disabled");
+        $this->getConfig()->get("ScreenshareCommand") ? $commandMap->register($this->getName(), new ScreenshareCommand("mbscreenshare", $this)) :  $this->getLogger()->debug("Screenshare command disabled");
         $commandMap->register($this->getName(), new ReloadModuleCommand("mbreload", $this));
         $commandMap->register($this->getName(), new EnableModuleCommand("mbenable", $this));
         $commandMap->register($this->getName(), new DisableModuleCommand("mbdisable", $this));
+        $commandMap->register($this->getName(), new AlertsCommand("mbalerts", $this));
     }
 
     private function registerPermissions() : void{
