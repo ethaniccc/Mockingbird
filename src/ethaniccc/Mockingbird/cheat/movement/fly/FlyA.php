@@ -16,7 +16,7 @@ $$ | \_/ $$ |\$$$$$$  |\$$$$$$$\ $$ | \$$\ $$ |$$ |  $$ |\$$$$$$$ |$$$$$$$  |$$ 
 Github: https://www.github.com/ethaniccc
 */
 
-namespace ethaniccc\Mockingbird\cheat\movement;
+namespace ethaniccc\Mockingbird\cheat\movement\fly;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\cheat\StrictRequirements;

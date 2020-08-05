@@ -16,7 +16,7 @@ $$ | \_/ $$ |\$$$$$$  |\$$$$$$$\ $$ | \$$\ $$ |$$ |  $$ |\$$$$$$$ |$$$$$$$  |$$ 
 Github: https://www.github.com/ethaniccc
 */
 
-namespace ethaniccc\Mockingbird\cheat\movement;
+namespace ethaniccc\Mockingbird\cheat\movement\speed;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\event\MoveEvent;

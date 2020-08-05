@@ -18,7 +18,7 @@ $$ | \_/ $$ |\$$$$$$  |\$$$$$$$\ $$ | \$$\ $$ |$$ |  $$ |\$$$$$$$ |$$$$$$$  |$$ 
 Github: https://www.github.com/ethaniccc
 */
 
-namespace ethaniccc\Mockingbird\cheat\combat;
+namespace ethaniccc\Mockingbird\cheat\combat\autoclicker;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\cheat\StrictRequirements;
@@ -38,7 +38,7 @@ class AutoClickerB extends Cheat implements StrictRequirements{
         $name = $player->getName();
         if($cps > 23){
             $this->addPreVL($name);
-            if($this->getPreVL($name) >= 2){
+            if($this->getPreVL($name) >= 10){
                 $this->addViolation($name);
                 $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
             }

@@ -42,6 +42,9 @@ class ClickEvent extends PlayerEvent{
      * @return float
      */
     public function getCPS() : float{
+        if($this->getTimeDiff() == 0){
+            return 100;
+        }
         return round(1 / ($this->getTimeDiff()), 0);
     }
 
@@ -49,9 +52,6 @@ class ClickEvent extends PlayerEvent{
      * @return float
      */
     public function getTimeDiff() : float{
-        if($this->newTime - $this->previousTime == 0){
-            return 0.046;
-        }
         return $this->newTime - $this->previousTime;
     }
 

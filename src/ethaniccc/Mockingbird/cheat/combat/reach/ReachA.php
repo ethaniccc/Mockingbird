@@ -16,7 +16,7 @@ $$ | \_/ $$ |\$$$$$$  |\$$$$$$$\ $$ | \$$\ $$ |$$ |  $$ |\$$$$$$$ |$$$$$$$  |$$ 
 Github: https://www.github.com/ethaniccc
 */
 
-namespace ethaniccc\Mockingbird\cheat\combat;
+namespace ethaniccc\Mockingbird\cheat\combat\reach;
 
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;

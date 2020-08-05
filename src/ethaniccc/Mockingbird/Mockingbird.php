@@ -44,12 +44,15 @@ class Mockingbird extends PluginBase{
     /** @var array */
     private $modules = [
         "Combat" => [
-            "ReachA", "ReachB", "AutoClickerA", "AutoClickerB", "ToolboxKillaura",
-            "MultiAura", "Angle", "Hitbox", "AimA"
+            "reach\\ReachA", "reach\\ReachB",
+            "autoclicker\\AutoClickerA", "autoclicker\\AutoClickerB",
+            "ToolboxKillaura", "MultiAura", "Angle", "Hitbox"
         ],
         "Movement" => [
-            "SpeedA", "SpeedB", "NoSlowdown", "FastLadder", "NoWeb", "AirJump",
-            "FlyA", "InventoryMove", "Glide", "NoFall", "Phase", "Scaffold"
+            "fly\\FlyA",
+            "speed\\SpeedA", "speed\\SpeedB",
+            "NoSlowdown", "FastLadder", "NoWeb", "AirJump",
+            "InventoryMove", "Glide", "NoFall", "Phase", "Scaffold"
         ],
         "Packet" => [
             "BadPitchPacket", "AttackingWhileEating", "InvalidCreativeTransaction",
@@ -250,11 +253,15 @@ class Mockingbird extends PluginBase{
                 }
                 $class = $namespace . "$module";
                 $enabled = $this->getConfig()->get("dev_mode") === true ? true : $this->getConfig()->get($module);
-                if($type === "Custom"){
-                    // All custom modules have to be enabled.
-                    $enabled = true;
-                } elseif($type === "Packet"){
-                    $enabled = is_bool($this->getConfig()->get("PacketChecks")) ? $this->getConfig()->get("PacketChecks") : false;
+                switch($type){
+                    case "Custom":
+                        $enabled = true;
+                        break;
+                    case "Packet":
+                        $enabled = is_bool($this->getConfig()->get("PacketChecks")) ? $this->getConfig()->get("PacketChecks") : false;
+                        break;
+                    default:
+                        break;
                 }
                 $newModule = new $class($this, $module, $type, $enabled);
                 if($newModule->isEnabled()){

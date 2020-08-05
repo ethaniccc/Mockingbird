@@ -18,7 +18,7 @@ $$ | \_/ $$ |\$$$$$$  |\$$$$$$$\ $$ | \$$\ $$ |$$ |  $$ |\$$$$$$$ |$$$$$$$  |$$ 
 Github: https://www.github.com/ethaniccc
 */
 
-namespace ethaniccc\Mockingbird\cheat\combat;
+namespace ethaniccc\Mockingbird\cheat\combat\autoclicker;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\event\ClickEvent;

@@ -16,7 +16,7 @@ $$ | \_/ $$ |\$$$$$$  |\$$$$$$$\ $$ | \$$\ $$ |$$ |  $$ |\$$$$$$$ |$$$$$$$  |$$ 
 Github: https://www.github.com/ethaniccc
 */
 
-namespace ethaniccc\Mockingbird\cheat\combat;
+namespace ethaniccc\Mockingbird\cheat\combat\reach;
 
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
@@ -26,9 +26,6 @@ use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\Player;
 
 class ReachB extends Cheat{
-
-    /** @var array */
-    private $positions = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);

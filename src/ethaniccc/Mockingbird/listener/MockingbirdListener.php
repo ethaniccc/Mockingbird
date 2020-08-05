@@ -22,6 +22,8 @@ use ethaniccc\Mockingbird\event\ClickEvent;
 use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\event\PlayerHitPlayerEvent;
 use ethaniccc\Mockingbird\Mockingbird;
+use pocketmine\event\entity\EntityDamageByChildEntityEvent;
+use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
@@ -62,13 +64,7 @@ class MockingbirdListener implements Listener{
             $this->previousPosition[$playerName] = $packet->position;
         } elseif($packet instanceof InventoryTransactionPacket){
             if($packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY){
-                $currentTime = Server::getInstance()->getTick() * 50;
-                $ids = [];
-                foreach($packet->trData as $data){
-                    if(is_int($data)){
-                        array_push($ids, $data);
-                    }
-                }
+                $currentTime = microtime(true);
                 if(!isset($this->previousClickTime[$playerName])){
                     $this->previousClickTime[$playerName] = $currentTime;
                     return;
@@ -76,12 +72,6 @@ class MockingbirdListener implements Listener{
                 $event = new ClickEvent($player, $this->previousClickTime[$playerName], $currentTime);
                 $event->call();
                 $this->previousClickTime[$playerName] = $currentTime;
-                $entityHitID = $ids[0];
-                $damaged = $player->getLevel()->getEntity($entityHitID);
-                if($damaged instanceof Player){
-                    $event = new PlayerHitPlayerEvent($player, $damaged);
-                    $event->call();
-                }
             }
         } elseif($packet instanceof LevelSoundEventPacket){
             if($packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE){
@@ -94,6 +84,15 @@ class MockingbirdListener implements Listener{
                 $event->call();
                 $this->previousClickTime[$playerName] = $currentTime;
             }
+        }
+    }
+
+    public function onHit(EntityDamageByEntityEvent $event) : void{
+        $damager = $event->getDamager();
+        $damaged = $event->getEntity();
+        if($damager instanceof Player && $damaged instanceof Player && !$event instanceof EntityDamageByChildEntityEvent){
+            $event = new PlayerHitPlayerEvent($damager, $damaged);
+            $event->call();
         }
     }
 
