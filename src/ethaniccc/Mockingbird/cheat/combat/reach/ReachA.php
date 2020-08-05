@@ -32,7 +32,7 @@ use pocketmine\Player;
 class ReachA extends Cheat{
 
     /** @var array */
-    private $distances, $cooldown, $ticksOffGround = [];
+    private $distances, $cooldown = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
@@ -64,31 +64,24 @@ class ReachA extends Cheat{
             }
         }
 
-        if(!isset($this->ticksOffGround[$damaged->getName()])){
-            $this->ticksOffGround[$damaged->getName()] = 0;
-        }
-        if(!LevelUtils::isNearGround($damaged, -0.75)){
-            ++$this->ticksOffGround[$damaged->getName()];
-        } else {
-            $this->ticksOffGround[$damaged->getName()] = 0;
-        }
+        $onGround = LevelUtils::isNearGround($damaged, -0.75);
 
         // we do a check for the distance from a ray from the player's eye height
         // to the edge of the player's hitbox.
         $ray = Ray::from($damager);
         $AABB = AABB::from($damaged);
-        $distance = $AABB->collidesRay($ray, 0, 10);
+        $distance = round($AABB->collidesRay($ray, 0, 10), 2);
 
         if($distance != -1){
-            $expectedDist = $this->ticksOffGround[$damaged->getName()] < 3 ? 3.2 : 4;
+            $expectedDist = $onGround ? 3.2 : 4.1;
             if($distance > $expectedDist){
                 $this->addPreVL($name);
-                if($this->getPreVL($name) >= 2){
+                if($this->getPreVL($name) >= 2.5){
                     $this->addViolation($name);
-                    $this->notifyStaff($name, $this->getName(), ["VL" => self::getCurrentViolations($name), "Dist" => round($distance, 2)]);
+                    $this->notifyStaff($name, $this->getName(), ["VL" => self::getCurrentViolations($name), "Dist" => $distance]);
                 }
             } else {
-                $this->lowerPreVL($name, 0.85);
+                $this->lowerPreVL($name, 0.8);
             }
         }
     }

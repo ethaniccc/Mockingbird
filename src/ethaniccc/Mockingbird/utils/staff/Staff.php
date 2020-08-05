@@ -10,6 +10,7 @@ class Staff{
     /** @var string */
     private $player = "";
     private $alertsEnabled = true;
+    private $debugMessages = false;
 
     public function __construct(string $name){
         $this->player = $name;
@@ -25,6 +26,14 @@ class Staff{
 
     public function setAlertsEnabled(bool $alertsEnabled) : void{
         $this->alertsEnabled = $alertsEnabled;
+    }
+
+    public function hasDebugMessagesEnabled() : bool{
+        return $this->debugMessages;
+    }
+
+    public function setDebugMessagesEnabled(bool $enabled = true) : void{
+        $this->debugMessages = $enabled;
     }
 
 }
