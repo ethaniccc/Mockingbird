@@ -36,7 +36,7 @@ class FastEat extends Cheat implements StrictRequirements{
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
-        $this->setRequiredTPS(19);
+        $this->setRequiredTPS(20);
     }
 
     public function receivePacket(DataPacketReceiveEvent $event) : void{
@@ -62,6 +62,7 @@ class FastEat extends Cheat implements StrictRequirements{
                     $event->setCancelled();
                     $this->addViolation($name);
                     $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+                    $this->debugNotify("$name finished eating a consumable within $timeDiff ticks, at least 20 ticks were expected.");
                 }
             }
             unset($this->startEatTick[$name]);

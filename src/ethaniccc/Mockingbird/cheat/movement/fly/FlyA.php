@@ -96,6 +96,7 @@ class FlyA extends Cheat implements StrictRequirements{
                             $this->addViolation($name);
                             $this->notifyStaff($name, $this->getName(), $this->genericAlertData($event->getPlayer()));
                             $this->lowerPreVL($name, 0);
+                            $this->debugNotify("Fall distance for $name was $yDiff, expected $predictedDiff.");
                         }
                     }
                 } else {

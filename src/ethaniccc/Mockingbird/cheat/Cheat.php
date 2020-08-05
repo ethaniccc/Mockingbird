@@ -376,11 +376,20 @@ class Cheat implements Listener{
     /**
      * @param string $message
      */
-    protected function notify(string $message) : void{
+    protected function debugNotify(string $message) : void{
         if(!$this->isEnabled()){
             return;
         }
-        $this->getServer()->broadcastMessage(TextFormat::RED . "[Mockingbird Experimental || {$this->getName()}] $message");
+        foreach($this->getServer()->getOnlinePlayers() as $player){
+            $staff = $this->getPlugin()->getStaff($player->getName());
+            if($staff === null){
+                break;
+            }
+            if($staff->hasDebugMessagesEnabled()){
+                $player->sendMessage(TextFormat::DARK_RED . TextFormat::BOLD . "[MB || {$this->getName()}] " . TextFormat::RESET . TextFormat::DARK_GRAY . $message);
+            }
+        }
+        $this->debug($message);
     }
 
     /**

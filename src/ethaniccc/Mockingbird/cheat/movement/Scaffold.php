@@ -26,6 +26,7 @@ class Scaffold extends Cheat{
             if($this->getPreVL($player->getName()) >= 10){
                 $this->addViolation($player->getName());
                 $this->notifyStaff($player->getName(), $this->getName(), $this->genericAlertData($player));
+                $this->debugNotify("{$player->getName()}'s Ray did not collide with the bounding box of the block placed.");
             }
         } else {
             $this->lowerPreVL($player->getName(), 0);

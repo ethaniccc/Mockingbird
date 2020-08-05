@@ -73,7 +73,11 @@ class ReachA extends Cheat{
         $distance = round($AABB->collidesRay($ray, 0, 10), 2);
 
         if($distance != -1){
+            if($damager->isCreative()){
+                return;
+            }
             $expectedDist = $onGround ? 3.2 : 4.1;
+            $this->debugNotify("$name hit an entity with a distance value of $distance, but $expectedDist distance was expected.");
             if($distance > $expectedDist){
                 $this->addPreVL($name);
                 if($this->getPreVL($name) >= 2.5){

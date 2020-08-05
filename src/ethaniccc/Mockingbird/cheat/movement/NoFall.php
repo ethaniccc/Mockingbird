@@ -54,6 +54,7 @@ class NoFall extends Cheat{
                     $this->addViolation($name);
                     $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                     $this->lowerPreVL($name, 0.5);
+                    $this->debugNotify("$name sent a MovePacket with the onGround value to set to true when not on ground for >= 3 ticks.");
                 }
             } else {
                 $this->lowerPreVL($name, 0);

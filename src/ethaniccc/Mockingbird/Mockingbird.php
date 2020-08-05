@@ -23,6 +23,7 @@ namespace ethaniccc\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\cheat\ViolationHandler;
 use ethaniccc\Mockingbird\command\AlertsCommand;
+use ethaniccc\Mockingbird\command\DebugCommand;
 use ethaniccc\Mockingbird\command\DisableModuleCommand;
 use ethaniccc\Mockingbird\command\EnableModuleCommand;
 use ethaniccc\Mockingbird\command\LogCommand;
@@ -336,6 +337,7 @@ class Mockingbird extends PluginBase{
         $commandMap->register($this->getName(), new EnableModuleCommand("mbenable", $this));
         $commandMap->register($this->getName(), new DisableModuleCommand("mbdisable", $this));
         $commandMap->register($this->getName(), new AlertsCommand("mbalerts", $this));
+        $commandMap->register($this->getName(), new DebugCommand("mbdebug", $this));
     }
 
     private function registerPermissions() : void{
