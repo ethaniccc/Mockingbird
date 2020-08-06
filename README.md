@@ -8,7 +8,7 @@ This may also false-positive on players who are laggy (e.g: high ping).
 #### Special Thanks
 * Bavfalcon9
     - Inspo for this project. Also for the structure of this plugin lol. You can check out
-    Mavoric (dev) by clicking [here](https://github.com/Bavfalcon9/Mavoric/tree/v2.0.0/)
+    Mavoric (dev) by clicking [here](https://github.com/Bavfalcon9/Mavoric/tree/v2.0.0/) (**archived :d**)
 * shura62
     - Helped on Discord with Mockingbird!
 * Jonhan
@@ -17,7 +17,6 @@ This may also false-positive on players who are laggy (e.g: high ping).
 
 ### Test Server
 Mockingbird has a test server - here are the details if you want to join:
-
 ```
 IP: 104.194.10.127
 Port: 25640
@@ -64,7 +63,17 @@ You can also click [here](https://discord.gg/v77FESn) to join my discord.
     With the permission set in the config, you can use the Mockingbird screenshare
     command, `/mbscreenshare <player>` to screenshare a player. Nobody will be able to 
     see you while you are "screensharing" somebody.
-    
+* Alerts Command
+
+    With this command, you can toggle alerts. Just do `/mbalerts`, and if you have alerts enabled, it will disable alerts, same vice-versa.
+
+    When you join you will automatically have alerts enabled.
+* Debug Command
+
+    With this command, you can enable debug information about checks - you will need the alert permission to use this command though.
+
+    When you join, you will automatically have debug information off, to toggle debug information, you can use `/mbdebug` and it will enable debug
+    if you have it off, and disable if you currently have it on.
 ## Detections
 Detections not guaranteed 100% accurate.
 
@@ -76,11 +85,15 @@ Detections not guaranteed 100% accurate.
 * Reach
     * ReachA: Uses ray tracing to get the distance from the
     damager to the target. This check will not work for mobile players.
+    * ReachB: Uses XZ location distance to check the distance between two players.
+    This is inefficent and is only intended for use to make a reach check with mobile players
+    using reach.
 * MultiAura
 * Toolbox Killaura
     * Also a NoSwing check :p
 * Hitbox
-    - This check is not complete and should **not** be used. Especially on production servers.
+    - This check is not complete and should **not** be used. Especially on production servers. This check
+    will only give debug output.
 ### Movement
 * AirJump
 * Fly
@@ -91,8 +104,8 @@ Detections not guaranteed 100% accurate.
 * NoWeb
 * NoFall
 * Speed
-    - SpeedA: Basic speed check.
-    - SpeedB: Mini-Bhop check
+    * SpeedA: Basic speed check.
+    * SpeedB: Mini-Bhop check
 ### Other Detections
 * Packet Checks
 * ChestStealer
@@ -156,3 +169,4 @@ namespace ethaniccc\Mockingbird\cheat\custom{
 
 }
 ```
+You can check the `Cheat` class for all class methods.
