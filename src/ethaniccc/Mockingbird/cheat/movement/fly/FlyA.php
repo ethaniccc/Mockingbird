@@ -92,18 +92,17 @@ class FlyA extends Cheat implements StrictRequirements{
                 if(!MathUtils::isRoughlyEqual($yDiff, $predictedDiff)){
                     if(!$this->recentlyHit($name) && !$this->recentlyFell($name) && !$this->recentlyJoined($name) && !LevelUtils::isNearBlock($event->getPlayer(), BlockIds::COBWEB, 2)){
                         $this->addPreVL($name);
-                        if($this->getPreVL($name) >= 2){
+                        if($this->getPreVL($name) >= 3){
                             $this->addViolation($name);
                             $this->notifyStaff($name, $this->getName(), $this->genericAlertData($event->getPlayer()));
-                            $this->lowerPreVL($name, 0);
-                            $this->debugNotify("Fall distance for $name was $yDiff, expected $predictedDiff.");
                         }
+                        $this->debugNotify("Y distance for $name was $yDiff, expected $predictedDiff.");
                     }
                 } else {
-                    $this->lowerPreVL($name);
+                    $this->lowerPreVL($name, 0);
                 }
             } else {
-                $this->lowerPreVL($name);
+                $this->lowerPreVL($name, 0);
             }
 
             $this->previousY[$name] = $position->getY();

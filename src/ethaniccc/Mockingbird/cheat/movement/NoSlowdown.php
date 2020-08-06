@@ -52,7 +52,7 @@ class NoSlowdown extends Cheat implements StrictRequirements{
         $player = $event->getPlayer();
         $name = $player->getName();
 
-        if($player->isFlying()) return;
+        if($player->isFlying() || $player->getAllowFlight()) return;
         if($player->getEffect(1) !== null){
             if($player->getEFfect(1)->getEffectLevel() > 10) return;
         }
@@ -68,14 +68,7 @@ class NoSlowdown extends Cheat implements StrictRequirements{
             }
         }
 
-        $from = $event->getFrom();
-        $to = $event->getTo();
-
-        $distX = ($to->x - $from->x);
-        $distZ = ($to->z - $from->z);
-
-        $distanceSquared = abs(($distX * $distX) + ($distZ * $distZ));
-        $distance = sqrt($distanceSquared);
+        $distance = $event->getDistanceXZ();
 
         if($this->playerIsEating($player) && !$this->wasRecentlyHit($name)){
             if(!$player->isUsingItem()){

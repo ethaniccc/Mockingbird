@@ -54,6 +54,7 @@ class EditionFaker extends Cheat implements Blatant{
             $desktop = !in_array((int) $givenOS, [DeviceOS::ANDROID, DeviceOS::IOS]);
 
             if(!$desktop && $pc){
+                $this->debugNotify("A player logging in gave a DeviceOS of $givenOS, but with further detection is not on mobile.");
                 $this->fakers[spl_object_hash($event->getPlayer())] = 0;
             }
 

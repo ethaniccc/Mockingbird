@@ -31,7 +31,7 @@ class Timer extends Cheat implements StrictRequirements{
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
         $this->setRequiredTPS(20.0);
-        $this->setRequiredPing(10000);
+        $this->setRequiredPing(1000000);
     }
 
     public function onMove(MoveEvent $event) : void{

@@ -38,6 +38,12 @@ class ReachA extends Cheat{
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
 
+    /**
+     * @param EntityDamageByEntityEvent $event
+     * TODO: Make this check compensate for lag with a method such
+     * as location history.
+     * TODO: Find out why reach goes above 4 when player is off the ground (4.2, etc). Isn't normal reach ~4 blocks?
+     */
     public function onHit(EntityDamageByEntityEvent $event) : void{
         if($event instanceof EntityDamageByChildEntityEvent){
             return;
@@ -64,28 +70,28 @@ class ReachA extends Cheat{
             }
         }
 
-        $onGround = LevelUtils::isNearGround($damaged, -0.75);
+        $onGround = $damaged->isOnGround();
 
         // we do a check for the distance from a ray from the player's eye height
         // to the edge of the player's hitbox.
         $ray = Ray::from($damager);
         $AABB = AABB::from($damaged);
-        $distance = round($AABB->collidesRay($ray, 0, 10), 2);
+        $distance = round($AABB->collidesRay($ray, 0, 10), 3);
 
         if($distance != -1){
             if($damager->isCreative()){
                 return;
             }
             $expectedDist = $onGround ? 3.2 : 4.1;
-            $this->debugNotify("$name hit an entity with a distance value of $distance, but $expectedDist distance was expected.");
-            if($distance > $expectedDist){
+            if($distance > $expectedDist && abs($distance - $expectedDist) > 0.05){
                 $this->addPreVL($name);
-                if($this->getPreVL($name) >= 2.5){
+                if($this->getPreVL($name) >= 1.5){
                     $this->addViolation($name);
                     $this->notifyStaff($name, $this->getName(), ["VL" => self::getCurrentViolations($name), "Dist" => $distance]);
                 }
+                $this->debugNotify("$name hit an entity with a distance value of $distance, but $expectedDist distance was expected.");
             } else {
-                $this->lowerPreVL($name, 0.8);
+                $this->lowerPreVL($name, 0.9);
             }
         }
     }

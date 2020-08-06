@@ -89,6 +89,7 @@ class SpeedA extends Cheat{
                     $this->addViolation($name);
                     $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                 }
+                $this->debugNotify("$name moved at a distance of $distance, expected around $expectedDistance");
             } else {
                 $this->lowerPreVL($name);
             }
