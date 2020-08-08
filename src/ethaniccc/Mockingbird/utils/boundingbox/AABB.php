@@ -110,12 +110,4 @@ class AABB{
         return $tmin;
     }
 
-    public function getMin() : Vector3{
-        return new Vector3($this->minX, $this->minY, $this->minZ);
-    }
-
-    public function getMax() : Vector3{
-        return new Vector3($this->maxX, $this->maxY, $this->maxZ);
-    }
-
 }

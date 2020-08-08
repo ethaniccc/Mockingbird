@@ -63,6 +63,10 @@ class MathUtils{
         }
     }
 
+    public static function getTimeMS() : float{
+        return microtime(true) * 1000;
+    }
+
     public static function getPerfectAim(Vector3 $player, Vector3 $target) : array{
         $horizontal = sqrt(($target->getX() - $player->getX()) ** 2 + ($target->getZ() - $player->getZ()) ** 2);
         $vertical = $target->getY() - $player->getY();

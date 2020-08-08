@@ -18,13 +18,13 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\combat\reach;
 
+use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\boundingbox\Ray;
 use ethaniccc\Mockingbird\utils\LevelUtils;
 use ethaniccc\Mockingbird\utils\MathUtils;
-use pocketmine\entity\Living;
 use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\Player;
@@ -32,18 +32,32 @@ use pocketmine\Player;
 class ReachA extends Cheat{
 
     /** @var array */
-    private $distances, $cooldown = [];
+    private $history, $distances, $onGroundTicks = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
 
-    /**
-     * @param EntityDamageByEntityEvent $event
-     * TODO: Make this check compensate for lag with a method such
-     * as location history.
-     * TODO: Find out why reach goes above 4 when player is off the ground (4.2, etc). Isn't normal reach ~4 blocks?
-     */
+    public function onMove(MoveEvent $event) : void{
+        $player = $event->getPlayer();
+        $name = $player->getName();
+        if(!isset($this->history[$name])){
+            $this->history[$name] = [];
+        }
+        if(count($this->history[$name]) === 40){
+            array_shift($this->history[$name]);
+        }
+        $this->history[$name][] = ["Time" => MathUtils::getTimeMS(), "AABB" => AABB::fromPosition($event->getTo())];
+        if(!isset($this->onGroundTicks[$name])){
+            $this->onGroundTicks[$name] = 0;
+        }
+        if(LevelUtils::isNearGround($player)){
+            ++$this->onGroundTicks[$name];
+        } else {
+            $this->onGroundTicks[$name] = 0;
+        }
+    }
+
     public function onHit(EntityDamageByEntityEvent $event) : void{
         if($event instanceof EntityDamageByChildEntityEvent){
             return;
@@ -52,48 +66,69 @@ class ReachA extends Cheat{
         $damager = $event->getDamager();
         $damaged = $event->getEntity();
 
-        if(!$damager instanceof Player || !$damaged instanceof Living){
+        if(!$damager instanceof Player || !$damaged instanceof Player){
             return;
         }
 
-        $name = $damager->getName();
-        if(!isset($this->distances[$name])){
-            $this->distances[$name] = [];
-        }
-        if(!isset($this->cooldown[$name])){
-            $this->cooldown[$name] = $this->getServer()->getTick();
-        } else {
-            if($this->getServer()->getTick() - $this->cooldown[$name] >= $event->getAttackCooldown()){
-                $this->cooldown[$name] = $this->getServer()->getTick();
-            } else {
-                return;
-            }
-        }
+        $damagerName = $damager->getName();
+        $damagedName = $damaged->getName();
 
-        $onGround = $damaged->isOnGround();
-
-        // we do a check for the distance from a ray from the player's eye height
-        // to the edge of the player's hitbox.
-        $ray = Ray::from($damager);
-        $AABB = AABB::from($damaged);
-        $distance = round($AABB->collidesRay($ray, 0, 10), 3);
-
-        if($distance != -1){
-            if($damager->isCreative()){
-                return;
-            }
-            $expectedDist = $onGround ? 3.2 : 4.1;
-            if($distance > $expectedDist && abs($distance - $expectedDist) > 0.05){
-                $this->addPreVL($name);
-                if($this->getPreVL($name) >= 1.5){
-                    $this->addViolation($name);
-                    $this->notifyStaff($name, $this->getName(), ["VL" => self::getCurrentViolations($name), "Dist" => $distance]);
+        if(isset($this->history[$damagedName])){
+            if(count($this->history[$damagedName]) >= 20){
+                $AABB = $this->getApproxHitClient(MathUtils::getTimeMS() - $damager->getPing(), $this->history[$damagedName]);
+                if($AABB !== null){
+                    $ray = Ray::from($damager);
+                    $distance = $AABB->collidesRay($ray, 0, 10);
+                    if($distance != -1){
+                        if(!isset($this->distances[$damagerName])){
+                            $this->distances[$damagerName] = [];
+                        }
+                        if(count($this->distances[$damagerName]) === 20){
+                            array_shift($this->distances[$damagerName]);
+                        }
+                        $this->distances[$damagerName][] = $distance;
+                        if(count($this->distances[$damagerName]) === 20){
+                            $averageDistance = MathUtils::getAverage($this->distances[$damagerName]);
+                            $expectedDistance = $this->onGroundTicks[$damagedName] >= 10 ? 3.15 : 4;
+                            if($averageDistance > $expectedDistance && $distance > $expectedDistance){
+                                $this->addViolation($damagerName);
+                                $this->notifyStaff($damagerName, $this->getName(), ["VL" => self::getCurrentViolations($damagerName), "Dist" => round($distance, 2)]);
+                                $this->debugNotify("$damagerName hit $damagedName with a distance of $distance, while $expectedDistance expected. Average distance was higher than expected distance.");
+                            }
+                        }
+                    }
                 }
-                $this->debugNotify("$name hit an entity with a distance value of $distance, but $expectedDist distance was expected.");
-            } else {
-                $this->lowerPreVL($name, 0.9);
             }
         }
+    }
+
+    /**
+     * @param float $approximateTime
+     * @param array $history
+     * @return AABB|null
+     * This function's intent is to give the same functionality TreeMap#floorKey gives in Java.
+     * TODO: There has to be a better way to do this right? (PR's open ;p)
+     */
+    private function getApproxHitClient(float $approximateTime, array $history) : ?AABB{
+        $probables = [];
+        $times = [];
+        foreach($history as $info){
+            $time = $info["Time"];
+            if($time <= $approximateTime){
+                $probables[] = $info;
+                $times[] = $time;
+            }
+        }
+        if(count($times) === 0){
+            return null;
+        }
+        $approxTime = max($times);
+        foreach($probables as $info){
+            if($info["Time"] === $approxTime){
+                return $info["AABB"];
+            }
+        }
+        return null;
     }
 
 }

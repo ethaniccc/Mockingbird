@@ -29,6 +29,7 @@ class MultiAura extends Cheat implements StrictRequirements{
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+        $this->setRequiredTPS(19.0);
     }
 
     public function onHit(PlayerHitPlayerEvent $event) : void{

@@ -331,7 +331,7 @@ class Mockingbird extends PluginBase{
 
     private function loadAllCommands() : void{
         $commandMap = $this->getServer()->getCommandMap();
-        $this->getConfig()->get("LogCommand") ? $commandMap->register($this->getName(), new LogCommand("logs", $this)) : $this->getLogger()->debug("Log command disabled");
+        $this->getConfig()->get("LogCommand") ? $commandMap->register($this->getName(), new LogCommand("mblogs", $this)) : $this->getLogger()->debug("Log command disabled");
         $this->getConfig()->get("ScreenshareCommand") ? $commandMap->register($this->getName(), new ScreenshareCommand("mbscreenshare", $this)) :  $this->getLogger()->debug("Screenshare command disabled");
         $commandMap->register($this->getName(), new ReloadModuleCommand("mbreload", $this));
         $commandMap->register($this->getName(), new EnableModuleCommand("mbenable", $this));

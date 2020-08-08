@@ -54,7 +54,7 @@ class AutoClickerA extends Cheat{
         }
         array_push($this->deviations[$name], $deviation);
         $averageDeviation = MathUtils::getAverage($this->deviations[$name]);
-        if($averageDeviation < 15){
+        if($averageDeviation < 5){
             $this->addPreVL($name);
             if($this->getPreVL($name) >= 4.5){
                 $this->addViolation($name);
@@ -62,7 +62,7 @@ class AutoClickerA extends Cheat{
                 $this->lowerPreVL($name, 0.5);
             }
         } else {
-            $this->lowerPreVL($name);
+            $this->lowerPreVL($name, 0.9);
         }
     }
 

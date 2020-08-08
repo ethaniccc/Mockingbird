@@ -25,10 +25,10 @@ You can also click [here](https://discord.gg/v77FESn) to join my discord.
 ## Commands
 * Log Command
     
-    If enabled in the config, the `/log` command has two options: a normal
-    `/logs <player>` or a UI with `/logs` without arguments.
+    If enabled in the config, the `log` command has two options: a normal
+    `/mblogs <player>` or a UI with `/mblogs` without arguments.
     
-    The `/log` command will tell you how many violations a player currently has, 
+    The `/mblogs` command will tell you how many violations a player currently has, 
     how many violations they have in total (when a player gets punished their current violation count resets to 0),
     and the average TPS the server had when the player got violated.
     
