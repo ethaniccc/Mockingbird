@@ -70,6 +70,10 @@ class ReachA extends Cheat{
             return;
         }
 
+        if($damager->isCreative()){
+            return;
+        }
+
         $damagerName = $damager->getName();
         $damagedName = $damaged->getName();
 
