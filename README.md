@@ -63,6 +63,8 @@ You can also click [here](https://discord.gg/v77FESn) to join my discord.
     With the permission set in the config, you can use the Mockingbird screenshare
     command, `/mbscreenshare <player>` to screenshare a player. Nobody will be able to 
     see you while you are "screensharing" somebody.
+    
+    To end a screenshare session, you may do `/mbscreenshare stop`
 * Alerts Command
 
     With this command, you can toggle alerts. Just do `/mbalerts`, and if you have alerts enabled, it will disable alerts, same vice-versa.
@@ -83,11 +85,10 @@ Detections not guaranteed 100% accurate.
     * Consistency Detection (may sometimes false?)
     * Speed Detection
 * Reach
-    * ReachA: Uses ray tracing to get the distance from the
-    damager to the target. This check will not work for mobile players.
+    * ReachA: Uses ray tracing and location history to get the distance from the
+    damager to the target. This check will **most likely** not work for mobile players.
     * ReachB: Uses XZ location distance to check the distance between two players.
-    This is inefficent and is only intended for use to make a reach check with mobile players
-    using reach.
+    This is inefficient and is only intended for a reach check with mobile players.
 * MultiAura
 * Toolbox Killaura
     * Also a NoSwing check :p

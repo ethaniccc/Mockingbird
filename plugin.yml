@@ -3,5 +3,5 @@ name: Mockingbird
 version: 1.0-beta
 main: ethaniccc\Mockingbird\Mockingbird
 api: 3.14.0
-protocol: 407
+protocol: 408
 ...
