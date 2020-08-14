@@ -41,7 +41,7 @@ class AutoClickerA extends Cheat{
         if(!isset($this->speeds[$name])){
             $this->speeds[$name] = [];
         }
-        if(count($this->speeds[$name]) === 25){
+        if(count($this->speeds[$name]) === 50){
             array_shift($this->speeds[$name]);
         }
         array_push($this->speeds[$name], $speed);
@@ -49,12 +49,12 @@ class AutoClickerA extends Cheat{
         if(!isset($this->deviations[$name])){
             $this->deviations[$name] = [];
         }
-        if(count($this->deviations[$name]) === 25){
+        if(count($this->deviations[$name]) === 50){
             array_shift($this->deviations[$name]);
         }
         array_push($this->deviations[$name], $deviation);
         $averageDeviation = MathUtils::getAverage($this->deviations[$name]);
-        if($averageDeviation < 5){
+        if($averageDeviation <= 7.5){
             $this->addPreVL($name);
             if($this->getPreVL($name) >= 4.5){
                 $this->addViolation($name);

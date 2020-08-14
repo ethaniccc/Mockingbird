@@ -32,7 +32,7 @@ use pocketmine\Player;
 class ReachA extends Cheat{
 
     /** @var array */
-    private $history, $distances, $onGroundTicks = [];
+    private $locationHistory, $distances, $onGroundTicks = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
@@ -41,13 +41,13 @@ class ReachA extends Cheat{
     public function onMove(MoveEvent $event) : void{
         $player = $event->getPlayer();
         $name = $player->getName();
-        if(!isset($this->history[$name])){
-            $this->history[$name] = [];
+        if(!isset($this->locationHistory[$name])){
+            $this->locationHistory[$name] = [];
         }
-        if(count($this->history[$name]) === 40){
-            array_shift($this->history[$name]);
+        if(count($this->locationHistory[$name]) === 40){
+            array_shift($this->locationHistory[$name]);
         }
-        $this->history[$name][] = ["Time" => MathUtils::getTimeMS(), "AABB" => AABB::fromPosition($event->getTo())];
+        $this->locationHistory[$name][] = ["Time" => MathUtils::getTimeMS(), "Location" => $event->getTo()];
         if(!isset($this->onGroundTicks[$name])){
             $this->onGroundTicks[$name] = 0;
         }
@@ -77,10 +77,11 @@ class ReachA extends Cheat{
         $damagerName = $damager->getName();
         $damagedName = $damaged->getName();
 
-        if(isset($this->history[$damagedName])){
-            if(count($this->history[$damagedName]) >= 20){
-                $AABB = $this->getApproxHitClient(MathUtils::getTimeMS() - $damager->getPing(), $this->history[$damagedName]);
-                if($AABB !== null){
+        if(isset($this->locationHistory[$damagedName])){
+            if(count($this->locationHistory[$damagedName]) >= 20){
+                $info = $this->getApproxHitClient(MathUtils::getTimeMS() - $damager->getPing(), $this->locationHistory[$damagedName]);
+                if($info !== null){
+                    $AABB = $info["AABB"];
                     $ray = Ray::from($damager);
                     $distance = $AABB->collidesRay($ray, 0, 10);
                     if($distance != -1){
@@ -95,9 +96,13 @@ class ReachA extends Cheat{
                             $averageDistance = MathUtils::getAverage($this->distances[$damagerName]);
                             $expectedDistance = $this->onGroundTicks[$damagedName] >= 10 ? 3.15 : 4;
                             if($averageDistance > $expectedDistance && $distance > $expectedDistance){
-                                $this->addViolation($damagerName);
-                                $this->notifyStaff($damagerName, $this->getName(), ["VL" => self::getCurrentViolations($damagerName), "Dist" => round($distance, 2)]);
-                                $this->debugNotify("$damagerName hit $damagedName with a distance of $distance, while $expectedDistance expected. Average distance was higher than expected distance.");
+                                $this->addPreVL($damagerName);
+                                if($this->getPreVL($damagerName) >= 2){
+                                    $this->addViolation($damagerName);
+                                    $this->notifyStaff($damagerName, $this->getName(), ["VL" => self::getCurrentViolations($damagerName), "Dist" => round($distance, 2)]);
+                                    $this->debugNotify("$damagerName hit $damagedName with a distance of $distance, while $expectedDistance expected. Average distance was higher than expected distance.");
+                                    $this->lowerPreVL($damagerName, 0.5);
+                                }
                             }
                         }
                     }
@@ -109,11 +114,11 @@ class ReachA extends Cheat{
     /**
      * @param float $approximateTime
      * @param array $history
-     * @return AABB|null
+     * @return array|null
      * This function's intent is to give the same functionality TreeMap#floorKey gives in Java.
      * TODO: There has to be a better way to do this right? (PR's open ;p)
      */
-    private function getApproxHitClient(float $approximateTime, array $history) : ?AABB{
+    private function getApproxHitClient(float $approximateTime, array $history) : ?array{
         $probables = [];
         $times = [];
         foreach($history as $info){
@@ -129,7 +134,7 @@ class ReachA extends Cheat{
         $approxTime = max($times);
         foreach($probables as $info){
             if($info["Time"] === $approxTime){
-                return $info["AABB"];
+                return ["AABB" => AABB::fromPosition($info["Location"]), "Location" => $info["Location"]];
             }
         }
         return null;
