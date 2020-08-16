@@ -23,7 +23,6 @@ use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\boundingbox\Ray;
-use ethaniccc\Mockingbird\utils\LevelUtils;
 use ethaniccc\Mockingbird\utils\MathUtils;
 use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
@@ -32,7 +31,7 @@ use pocketmine\Player;
 class ReachA extends Cheat{
 
     /** @var array */
-    private $locationHistory, $distances, $onGroundTicks = [];
+    private $locationHistory, $distances = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
@@ -48,14 +47,6 @@ class ReachA extends Cheat{
             array_shift($this->locationHistory[$name]);
         }
         $this->locationHistory[$name][] = ["Time" => MathUtils::getTimeMS(), "Location" => $event->getTo()];
-        if(!isset($this->onGroundTicks[$name])){
-            $this->onGroundTicks[$name] = 0;
-        }
-        if(LevelUtils::isNearGround($player)){
-            ++$this->onGroundTicks[$name];
-        } else {
-            $this->onGroundTicks[$name] = 0;
-        }
     }
 
     public function onHit(EntityDamageByEntityEvent $event) : void{
@@ -94,10 +85,10 @@ class ReachA extends Cheat{
                         $this->distances[$damagerName][] = $distance;
                         if(count($this->distances[$damagerName]) === 20){
                             $averageDistance = MathUtils::getAverage($this->distances[$damagerName]);
-                            $expectedDistance = $this->onGroundTicks[$damagedName] >= 10 ? 3.15 : 4;
+                            $expectedDistance = $damager->getY() >= $damaged->getY() ? 3.15 : 4;
                             if($averageDistance > $expectedDistance && $distance > $expectedDistance){
                                 $this->addPreVL($damagerName);
-                                if($this->getPreVL($damagerName) >= 2){
+                                if($this->getPreVL($damagerName) >= 1.25){
                                     $this->addViolation($damagerName);
                                     $this->notifyStaff($damagerName, $this->getName(), ["VL" => self::getCurrentViolations($damagerName), "Dist" => round($distance, 2)]);
                                     $this->debugNotify("$damagerName hit $damagedName with a distance of $distance, while $expectedDistance expected. Average distance was higher than expected distance.");

@@ -55,7 +55,7 @@ class Timer extends Cheat implements StrictRequirements{
 
         if(isset($this->playerPreviousTimeDiff[$name])){
             // the player decided not to move and not cause of lag.
-            if($this->playerPreviousTimeDiff[$name] > 100 && ($time <= 100 && $time >= 50)){
+            if($this->playerPreviousTimeDiff[$name] > 100 && ($time >= 100)){
                 $this->playerBalance[$name] = 0;
             }
         }

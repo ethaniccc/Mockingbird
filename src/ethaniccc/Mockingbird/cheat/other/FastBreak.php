@@ -62,6 +62,7 @@ class FastBreak extends Cheat implements StrictRequirements{
             // InstaBreak?
             $this->addViolation($name);
             $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+            $this->debugNotify("$name may have triggered a block break event without a start break action.");
         } else {
             $timeDiff = microtime(true) - $this->startBreakTick[$name];
             $expectedDiff = $event->getBlock()->getBreakTime($player->getInventory()->getItemInHand());

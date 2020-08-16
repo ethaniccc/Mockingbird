@@ -113,7 +113,7 @@ class LevelUtils{
      * @param float $minY
      * @return bool
      */
-    public static function isNearGround(Living $player, float $minY = -1.2) : bool{
+    public static function isNearGround(Living $player, float $minY = -0.5) : bool{
         $expand = 0.3;
         $position = $player->asVector3();
         $level = $player->getLevel();

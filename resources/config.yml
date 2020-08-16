@@ -89,7 +89,7 @@ ScreenshareCommand: true
 ## Combat Detections ##
 # You can choose to enable or disable cheats with (true/false)
 
-# Toolbox is a hacked client some Android users may use to
+# Toolbox is a hacked client some Android staff may use to
 # gain an unfair advantage against other players.
 # See Toolbox KillAura on this YouTube video: https://www.youtube.com/watch?v=K0INXOLxIj8&t
 ToolboxKillaura: true
@@ -121,6 +121,7 @@ NoWeb: true
 NoFall: true
 AirJump: true
 FlyA: true
+FlyB: false
 InventoryMove: false
 Phase: false
 # Will most likely not work with mobile players!
