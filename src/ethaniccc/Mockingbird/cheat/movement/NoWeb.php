@@ -64,12 +64,13 @@ class NoWeb extends Cheat implements StrictRequirements{
 
             $expectedDistance = 0.115;
             if($player->getEffect(1) !== null){
-                $expectedDistance *= (4 / 3) * $player->getEffect(1)->getEffectLevel();
+                $expectedDistance *= (4 / 3) * ($player->getEffect(1)->getEffectLevel() + 1);
             }
             if($distance > $expectedDistance){
                 if(!isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] = 0;
                 $this->suspicionLevel[$name] += 1;
                 if($this->suspicionLevel[$name] >= 2.5){
+                    $this->supress($event);
                     $this->addViolation($name);
                     $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                 }

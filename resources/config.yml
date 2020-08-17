@@ -77,6 +77,11 @@ stop_tps: 18
 # /log command. There are two options: normal and UI
 log_command_type: normal
 
+# This option is for if detected cheats should be suppressed. If a player is
+# using speed (moves too fast), Mockingbird will revert their movement. Same for other cheats.
+# Some cheats may not be suppressed, such as experimental ones or packet checks.
+supression: true
+
 #######   =====================================   #######
 ### Commands ###
 

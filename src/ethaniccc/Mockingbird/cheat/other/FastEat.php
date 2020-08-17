@@ -59,7 +59,7 @@ class FastEat extends Cheat implements StrictRequirements{
             if($this->playerIsEating($player)){
                 $timeDiff = $this->getServer()->getTick() - $this->startEatTick[$name];
                 if($timeDiff < 20){
-                    $event->setCancelled();
+                    $this->supress($event);
                     $this->addViolation($name);
                     $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                     $this->debugNotify("$name finished eating a consumable within $timeDiff ticks, at least 20 ticks were expected.");

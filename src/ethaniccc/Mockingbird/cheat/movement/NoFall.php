@@ -51,6 +51,7 @@ class NoFall extends Cheat{
             if($event->onGround()){
                 $this->addPreVL($name);
                 if($this->getPreVL($name) >= 3){
+                    // no point in suppressing this since pocketmine still applies fall damage
                     $this->addViolation($name);
                     $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                     $this->lowerPreVL($name, 0.5);

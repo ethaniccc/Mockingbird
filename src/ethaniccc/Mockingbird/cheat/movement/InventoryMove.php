@@ -51,6 +51,7 @@ class InventoryMove extends Cheat implements StrictRequirements{
             if($player->getMotion()->x == 0 && $player->getMotion()->z == 0){
                 $this->addPreVL($name);
                 if($this->getPreVL($name) >= 5){
+                    $this->supress($event);
                     $this->addViolation($name);
                     $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                     $this->lowerPreVL($name, 0.5);

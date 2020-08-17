@@ -53,7 +53,7 @@ class Nuker extends Cheat implements StrictRequirements{
             }
             $this->suspicionLevel[$name] += 1;
             if($this->suspicionLevel[$name] >= 5){
-                $event->setCancelled();
+                $this->supress($event);
                 $this->addViolation($name);
                 $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                 $this->suspicionLevel[$name] = 1;

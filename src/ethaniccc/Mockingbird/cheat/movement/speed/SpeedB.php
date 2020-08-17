@@ -87,6 +87,7 @@ class SpeedB extends Cheat{
                 if(count($this->movements[$name]) > 15){
                     $speedDeviation = MathUtils::getDeviation($this->movements[$name]);
                     if($speedDeviation < 0.0001 && !LevelUtils::isNearBlock($player, BlockIds::WATER) && !LevelUtils::isNearBlock($player, BlockIds::COBWEB)){
+                        $this->supress($event);
                         $this->addViolation($name);
                         $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                         $this->debugNotify("$name had a speed deviation of $speedDeviation, but at least 0.0001 deviation was expected.");

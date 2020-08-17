@@ -67,7 +67,7 @@ class FastBreak extends Cheat implements StrictRequirements{
             $timeDiff = microtime(true) - $this->startBreakTick[$name];
             $expectedDiff = $event->getBlock()->getBreakTime($player->getInventory()->getItemInHand());
             if($timeDiff < $expectedDiff){
-                $event->setCancelled();
+                $this->supress($event);
                 if(!isset($this->suspicionLevel[$name])){
                     $this->suspicionLevel[$name] = 0;
                 }

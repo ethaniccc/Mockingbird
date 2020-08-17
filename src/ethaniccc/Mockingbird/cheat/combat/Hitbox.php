@@ -61,6 +61,7 @@ class Hitbox extends Cheat{
                 if($collision == -1){
                     $this->addPreVL($damager->getName());
                     if($this->getPreVL($damager->getName()) >= 10){
+                        // experimental, no suppression.
                         $this->debugNotify("{$damager->getName()} has failed an experimental check for Hitbox - damager's ray did not collide with entity's hitbox.");
                         $this->lowerPreVL($damager->getName(), 0);
                     }

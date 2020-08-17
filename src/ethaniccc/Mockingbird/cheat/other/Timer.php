@@ -61,6 +61,7 @@ class Timer extends Cheat implements StrictRequirements{
         }
 
         if($this->playerBalance[$name] >= 500){
+            // no suppression for this check.
             $this->addViolation($name);
             $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
             $this->playerBalance[$name] = 0;

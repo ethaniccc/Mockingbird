@@ -48,6 +48,7 @@ class MultiAura extends Cheat implements StrictRequirements{
         if($damaged->getName() != $this->lastHit[$name]["Entity"]){
             if(microtime(true) - $this->lastHit[$name]["Time"] < 0.01){
                 if($damaged->distance($this->getServer()->getPlayer($this->lastHit[$name]["Entity"])) > 3){
+                    $this->supress($event);
                     $this->addViolation($name);
                     $this->notifyStaff($name, $this->getName(), $this->genericAlertData($damager));
                 }

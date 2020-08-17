@@ -41,6 +41,7 @@ class FlyB extends Cheat{
                 if($this->offGroundTicks[$name] >= 10 && $horizontalDist > 0.1 && ($distY == 0 || $acceleration == 0)){
                     $this->addPreVL($name);
                     if($this->getPreVL($name) >= 3){
+                        $this->supress($event);
                         $this->addViolation($name);
                         $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                     }

@@ -50,6 +50,7 @@ class ReachB extends Cheat{
         $name = $damager->getName();
         $distance = LevelUtils::getDistance($damager->asVector3(), $damaged->asVector3());
         if($distance > 6){
+            $this->supress($event);
             $this->addViolation($name);
             $this->notifyStaff($name, $this->getName(), $this->genericAlertData($damager));
             $this->debugNotify("$name hit another entity from $distance blocks away. At most 6 expected.");

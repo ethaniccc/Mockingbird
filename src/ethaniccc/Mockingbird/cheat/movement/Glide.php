@@ -64,6 +64,7 @@ class Glide extends Cheat{
         array_push($this->fallDistances[$name], $yDist);
         if(count($this->fallDistances[$name]) >= 15){
             if(MathUtils::getAverage($this->fallDistances[$name]) - $yDist == 0){
+                $this->supress($event);
                 $this->addViolation($name);
                 $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
             }

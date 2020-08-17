@@ -77,6 +77,7 @@ class NoSlowdown extends Cheat implements StrictRequirements{
             if($distance > 0.165){
                 $this->addPreVL($name);
                 if($this->getPreVL($name) >= 2){
+                    $this->supress($event);
                     $this->addViolation($name);
                     $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                     $this->suspicionLevel[$name] = 0;

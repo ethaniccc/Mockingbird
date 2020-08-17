@@ -93,6 +93,7 @@ class FlyA extends Cheat implements StrictRequirements{
                     if(!$this->recentlyHit($name) && !$this->recentlyFell($name) && !$this->recentlyJoined($name) && !LevelUtils::isNearBlock($event->getPlayer(), BlockIds::COBWEB, 2)){
                         $this->addPreVL($name);
                         if($this->getPreVL($name) >= 3){
+                            $this->supress($event);
                             $this->addViolation($name);
                             $this->notifyStaff($name, $this->getName(), $this->genericAlertData($event->getPlayer()));
                         }

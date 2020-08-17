@@ -86,6 +86,7 @@ class SpeedA extends Cheat{
             if($distance > $expectedDistance){
                 $this->addPreVL($name);
                 if($this->getPreVL($name) >= 3){
+                    $this->supress($event);
                     $this->addViolation($name);
                     $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
                 }

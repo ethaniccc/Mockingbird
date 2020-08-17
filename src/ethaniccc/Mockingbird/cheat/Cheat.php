@@ -20,9 +20,13 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat;
 
+use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\Mockingbird;
 use Exception;
+use pocketmine\event\Cancellable;
+use pocketmine\event\Event;
 use pocketmine\event\Listener;
+use pocketmine\math\Vector3;
 use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
@@ -230,6 +234,19 @@ class Cheat implements Listener{
      */
     protected function getServer() : Server{
         return Server::getInstance();
+    }
+
+    /**
+     * @param Event $event
+     */
+    protected function supress(Event $event) : void{
+        if($this->getPlugin()->getConfig()->get("supression")){
+            if($event instanceof MoveEvent){
+                $event->getPlayer()->teleport(new Vector3($event->getPlayer()->lastX, $event->getPlayer()->lastY, $event->getPlayer()->lastZ));
+            } elseif($event instanceof Cancellable){
+                $event->setCancelled();
+            }
+        }
     }
 
     /**

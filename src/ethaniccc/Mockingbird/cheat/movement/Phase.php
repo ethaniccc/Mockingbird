@@ -6,6 +6,7 @@ use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\event\MoveEvent;
 
+//TODO: Make this more effective.
 class Phase extends Cheat{
 
     /** @var array */
@@ -42,6 +43,7 @@ class Phase extends Cheat{
         }
 
         if($this->moveTicks[$name] > 10 && $this->inTicks[$name] > 10){
+            $this->supress($event);
             $this->addViolation($name);
             $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
         }

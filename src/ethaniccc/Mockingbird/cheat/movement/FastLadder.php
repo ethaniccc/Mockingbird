@@ -63,6 +63,7 @@ class FastLadder extends Cheat implements StrictRequirements{
                     // Player is spam jumping and PlayerJumpEvent not being triggered?
                     return;
                 }
+                $this->supress($event);
                 $this->addViolation($name);
                 $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
             }
