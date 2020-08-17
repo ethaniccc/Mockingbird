@@ -25,6 +25,8 @@ use ethaniccc\Mockingbird\Mockingbird;
 
 class Angle extends Cheat implements Blatant{
 
+    private $lastHitTick = [];
+
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
         $this->setMaxViolations(10);
@@ -32,7 +34,18 @@ class Angle extends Cheat implements Blatant{
 
     public function onHit(PlayerHitPlayerEvent $event) : void{
         $damager = $event->getDamager();
-        if($event->getAngle() > 120){
+        $name = $damager->getName();
+
+        if(isset($this->lastHitTick[$name])){
+            if($this->getServer()->getTick() - $this->lastHitTick[$name] >= 10){
+                $this->lastHitTick[$name] = $this->getServer()->getTick();
+            } else {
+                return;
+            }
+        } else {
+            $this->lastHitTick[$name] = $this->getServer()->getTick();
+        }
+        if($event->getAngle() > 140){
             $this->addViolation($damager->getName());
             $this->notifyStaff($damager->getName(), $this->getName(), ["VL" => self::getCurrentViolations($damager->getName()), "Angle" => round($event->getAngle(), 0)]);
         }
