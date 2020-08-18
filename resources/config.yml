@@ -13,7 +13,7 @@
 # Github: https://www.github.com/ethaniccc                               
 
 #### DO NOT TOUCH THIS ####
-version: 1.0
+version: 1.2-beta
 
 # If developer mode is enabled, all checks will be enabled,
 # which may leave false-positives. This should NEVER be enabled
@@ -127,6 +127,7 @@ NoFall: true
 AirJump: true
 FlyA: true
 FlyB: false
+FlyC: false
 InventoryMove: false
 Phase: false
 # Will most likely not work with mobile players!

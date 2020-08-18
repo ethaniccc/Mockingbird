@@ -23,13 +23,12 @@ use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\event\PlayerHitPlayerEvent;
 use ethaniccc\Mockingbird\Mockingbird;
 
-class Angle extends Cheat implements Blatant{
+class Angle extends Cheat{
 
     private $lastHitTick = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
-        $this->setMaxViolations(10);
     }
 
     public function onHit(PlayerHitPlayerEvent $event) : void{

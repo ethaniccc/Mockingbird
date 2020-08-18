@@ -109,7 +109,7 @@ class LevelUtils{
     }
 
     /**
-     * @param Player $player
+     * @param Living $player
      * @param float $minY
      * @return bool
      */
