@@ -25,19 +25,21 @@ class PlayerHitPlayerEvent extends PlayerEvent{
 
     /** @var Player */
     private $damaged;
-    
     private $attackCoolDown;
-  
+    private $knockback;
+
     /**
      * PlayerHitPlayerEvent constructor.
      * @param Player $damager
      * @param Player $damaged
      * @param int $attackCoolDown
+     * @param float $knockback
      */
-    public function __construct(Player $damager, Player $damaged,int $attackCoolDown){
+    public function __construct(Player $damager, Player $damaged, int $attackCoolDown, float $knockback){
         $this->player = $damager;
         $this->damaged = $damaged;
         $this->attackCoolDown = $attackCoolDown;
+        $this->knockback = $knockback;
     }
 
     public function getPlayerHit() : Player{
@@ -80,6 +82,10 @@ class PlayerHitPlayerEvent extends PlayerEvent{
         $dotResult = $damagerDirectionVector->dot($distDiff);
 
         return rad2deg(acos($dotResult));
+    }
+
+    public function getKnockback() : float{
+        return $this->knockback;
     }
 
 }
