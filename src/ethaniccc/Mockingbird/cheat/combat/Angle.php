@@ -12,7 +12,7 @@ $$ | \_/ $$ |\$$$$$$  |\$$$$$$$\ $$ | \$$\ $$ |$$ |  $$ |\$$$$$$$ |$$$$$$$  |$$ 
                                                          $$\   $$ |
                                                          \$$$$$$  |
                                                           \______/
-~ Made by @ethaniccc idot </3
+~ Made by @ethaniccc idot && BlackJack </3
 Github: https://www.github.com/ethaniccc
 */
 
@@ -36,7 +36,7 @@ class Angle extends Cheat{
         $name = $damager->getName();
 
         if(isset($this->lastHitTick[$name])){
-            if($this->getServer()->getTick() - $this->lastHitTick[$name] >= 10){
+            if($this->getServer()->getTick() - $this->lastHitTick[$name] >= $event->getAttackCoolDown()){
                 $this->lastHitTick[$name] = $this->getServer()->getTick();
             } else {
                 return;
@@ -45,8 +45,9 @@ class Angle extends Cheat{
             $this->lastHitTick[$name] = $this->getServer()->getTick();
         }
         if($event->getAngle() > 140){
-            $this->addViolation($damager->getName());
-            $this->notifyStaff($damager->getName(), $this->getName(), ["VL" => self::getCurrentViolations($damager->getName()), "Angle" => round($event->getAngle(), 0)]);
+            //TODO Angle bug hack: safe check
+            //$this->addViolation($damager->getName());
+            $this->notifyStaff($damager->getName(), $this->getName(), ["Angle" => round($event->getAngle(), 0)]);
         }
     }
 

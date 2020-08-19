@@ -25,41 +25,37 @@ class PlayerHitPlayerEvent extends PlayerEvent{
 
     /** @var Player */
     private $damaged;
-
+    
+    private $attackCoolDown;
+  
     /**
      * PlayerHitPlayerEvent constructor.
      * @param Player $damager
      * @param Player $damaged
+     * @param int $attackCoolDown
      */
-    public function __construct(Player $damager, Player $damaged){
+    public function __construct(Player $damager, Player $damaged,int $attackCoolDown){
         $this->player = $damager;
         $this->damaged = $damaged;
+        $this->attackCoolDown = $attackCoolDown;
     }
 
-    /**
-     * @return Player
-     */
     public function getPlayerHit() : Player{
         return $this->damaged;
     }
 
-    /**
-     * @return Player
-     */
     public function getDamager() : Player{
         return $this->player;
     }
 
-    /**
-     * @return float
-     */
+    public function getAttackCoolDown() : int{
+        return $this->attackCoolDown;
+    }
+
     public function getVectorDistance() : float{
         return $this->player->distance($this->damaged);
     }
 
-    /**
-     * @return float
-     */
     public function getVectorDistanceXZ() : float{
         $damagerVector = clone $this->player->asVector3();
         $damagedVector = clone $this->damaged->asVector3();
@@ -69,9 +65,6 @@ class PlayerHitPlayerEvent extends PlayerEvent{
         return sqrt($distanceSquared);
     }
 
-    /**
-     * @return float
-     */
     public function getAngle() : float{
         $damagerDirectionVector = clone $this->player->getDirectionVector();
         $damagerDirectionVector->y = 0;
