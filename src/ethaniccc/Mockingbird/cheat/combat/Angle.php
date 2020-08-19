@@ -45,8 +45,7 @@ class Angle extends Cheat{
             $this->lastHitTick[$name] = $this->getServer()->getTick();
         }
         if($event->getAngle() > 140){
-            //safe check
-            $event->setCancelled();
+            //TODO Angle bug hack: safe check
             //$this->addViolation($damager->getName());
             $this->notifyStaff($damager->getName(), $this->getName(), ["Angle" => round($event->getAngle(), 0)]);
         }
