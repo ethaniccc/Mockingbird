@@ -28,6 +28,7 @@ use pocketmine\block\BlockIds;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\player\PlayerJoinEvent;
+use pocketmine\item\ItemIds;
 use pocketmine\Player;
 
 class FlyA extends Cheat implements StrictRequirements{
@@ -88,7 +89,7 @@ class FlyA extends Cheat implements StrictRequirements{
             $lastOnGround = $this->lastOnGround[$name];
             $lastLastOnGround = $this->lastLastOnGround[$name];
 
-            if(!$onGround && !$lastOnGround && !$lastLastOnGround && abs($predictedDiff) >= 0.005){
+            if(!$onGround && !$lastOnGround && !$lastLastOnGround && abs($predictedDiff) >= 0.005 && $player->getArmorInventory()->getChestplate()->getId() !== ItemIds::ELYTRA){
                 if(!MathUtils::isRoughlyEqual($yDiff, $predictedDiff)){
                     if(!$this->recentlyHit($name) && !$this->recentlyFell($name) && !$this->recentlyJoined($name) && !LevelUtils::isNearBlock($event->getPlayer(), BlockIds::COBWEB, 2)){
                         $this->addPreVL($name);
