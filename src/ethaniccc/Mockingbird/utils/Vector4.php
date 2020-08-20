@@ -13,4 +13,8 @@ class Vector4 extends Vector3{
         $this->time = $time;
     }
 
+    public function __toString(){
+        return parent::__toString();
+    }
+
 }

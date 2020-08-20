@@ -84,8 +84,19 @@ class MoveEvent extends PlayerEvent{
     /**
      * @return float
      */
+    public function getDistanceX() : float{
+        return $this->to->x - $this->from->x;
+    }
+
+    /**
+     * @return float
+     */
     public function getDistanceY() : float{
         return $this->to->getY() - $this->from->getY();
+    }
+
+    public function getDistanceZ() : float{
+        return $this->to->z - $this->from->z;
     }
 
     /**

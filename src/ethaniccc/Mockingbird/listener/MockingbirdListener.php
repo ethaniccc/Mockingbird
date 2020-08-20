@@ -21,12 +21,15 @@ namespace ethaniccc\Mockingbird\listener;
 use ethaniccc\Mockingbird\event\ClickEvent;
 use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\event\PlayerHitPlayerEvent;
+use ethaniccc\Mockingbird\event\PlayerVelocityEvent;
+use ethaniccc\Mockingbird\event\ServerVelocityEvent;
 use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
+use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
@@ -35,12 +38,10 @@ use pocketmine\Server;
 
 class MockingbirdListener implements Listener{
 
-    /** @var Mockingbird */
     private $plugin;
-    /** @var array */
     private $previousPosition = [];
-    /** @var array */
     private $previousClickTime = [];
+    private $cooldown = [];
 
     public function __construct(Mockingbird $plugin){
         $this->plugin = $plugin;
@@ -101,7 +102,26 @@ class MockingbirdListener implements Listener{
         if($damager instanceof Player && $damaged instanceof Player && !$event instanceof EntityDamageByChildEntityEvent){
             $event = new PlayerHitPlayerEvent($damager, $damaged, $event->getAttackCooldown(), $event->getKnockBack());
             $event->call();
+            $name = $damaged->getName();
+            if(!isset($this->cooldown[$name])){
+                $this->cooldown[$name] = Server::getInstance()->getTick();
+            } else {
+                if(Server::getInstance()->getTick() - $this->cooldown[$name] >= $event->getAttackCoolDown()){
+                    $this->cooldown[$name] = Server::getInstance()->getTick();
+                } else {
+                    return;
+                }
+            }
         }
+    }
+
+    public function onMove(MoveEvent $event) : void{
+        $dx = $event->getDistanceX();
+        $dy = $event->getDistanceY();
+        $dz = $event->getDistanceZ();
+        $velocity = new Vector3($dx, $dy, $dz);
+        $velocityEvent = new PlayerVelocityEvent($event->getPlayer(), $velocity);
+        $velocityEvent->call();
     }
 
 }
