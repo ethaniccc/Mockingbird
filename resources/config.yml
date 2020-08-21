@@ -130,7 +130,8 @@ FlyB: false
 FlyC: false
 InventoryMove: false
 Phase: false
-Velocity: true
+VelocityA: true
+VelocityB: false
 # Will most likely not work with mobile players!
 Scaffold: false
 

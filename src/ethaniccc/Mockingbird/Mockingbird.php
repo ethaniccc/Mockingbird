@@ -45,6 +45,7 @@ class Mockingbird extends PluginBase{
     private $developerMode = false;
 
     /** @var array */
+    // TODO: Make a new system for this so I don't have to hardcode checks into here.
     private $modules = [
         "Combat" => [
             "reach\\ReachA", "reach\\ReachB",
