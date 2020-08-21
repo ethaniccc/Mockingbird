@@ -127,7 +127,6 @@ NoFall: true
 AirJump: true
 FlyA: true
 FlyB: false
-FlyC: false
 InventoryMove: false
 Phase: false
 VelocityA: true
