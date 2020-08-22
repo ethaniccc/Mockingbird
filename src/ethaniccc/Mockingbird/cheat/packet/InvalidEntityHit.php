@@ -40,6 +40,7 @@ class InvalidEntityHit extends Cheat implements Blatant{
         $player = $event->getPlayer();
         $name = $player->getName();
 
+        /* wtf why is this breaking?
         if($packet instanceof InventoryTransactionPacket){
             if($packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK){
                 $target = $player->getLevel()->getEntity($packet->trData->entityRuntimeId);
@@ -48,6 +49,7 @@ class InvalidEntityHit extends Cheat implements Blatant{
                 }
             }
         }
+        */
     }
 
 }

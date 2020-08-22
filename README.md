@@ -11,6 +11,8 @@ This may also false-positive on players who are laggy (e.g: high ping).
     Mavoric (dev) by clicking [here](https://github.com/Bavfalcon9/Mavoric/tree/v2.0.0/) (**archived :d**)
 * shura62
     - Helped on Discord with Mockingbird!
+* Blackjack200
+    - Contributed :p
 * Jonhan
     - Gave **some** checks for Bukkit that I was able to port over to PocketMine.
     You can click [here](https://www.youtube.com/channel/UCZ_Pg7e-1JMlHtqnWw6KIcw) to check out his channel!
@@ -64,7 +66,7 @@ You can also click [here](https://discord.gg/v77FESn) to join my discord.
     command, `/mbscreenshare <player>` to screenshare a player. Nobody will be able to 
     see you while you are "screensharing" somebody.
     
-    To end a screenshare session, you may do `/mbscreenshare stop`
+    To end a screenshare session, you may do `/mbscreenshare end`
 * Alerts Command
 
     With this command, you can toggle alerts. Just do `/mbalerts`, and if you have alerts enabled, it will disable alerts, same vice-versa.
@@ -78,7 +80,6 @@ You can also click [here](https://discord.gg/v77FESn) to join my discord.
     if you have it off, and disable if you currently have it on.
 ## Detections
 Detections not guaranteed 100% accurate.
-
 ### Combat
 * Angle
 * AutoClicker
@@ -98,7 +99,8 @@ Detections not guaranteed 100% accurate.
 ### Movement
 * AirJump
 * Fly
-* Glide
+    * FlyA: General prediction check.
+    * FlyB: Horizontal and vertical check (extra).
 * InventoryMove (not complete / may be inaccurate)
 * FastLadder
 * NoSlowdown (while eating)
@@ -107,6 +109,10 @@ Detections not guaranteed 100% accurate.
 * Speed
     * SpeedA: Basic speed check.
     * SpeedB: Mini-Bhop check
+* Velocity
+    * VelocityA: Vertical check (may sometimes false?)
+ * Scaffold
+    - **WARNING**: This check is experimental.
 ### Other Detections
 * Packet Checks
 * ChestStealer
@@ -161,7 +167,7 @@ namespace ethaniccc\Mockingbird\cheat\custom{
             parent::__construct($plugin,$cheatName,$cheatType,$enabled);
         }
         
-        // personal recommendation to NOT use PlayerMoveEvent
+        // personal recommendation to NOT use PlayerMoveEvent and use Mockingbird's custom MoveEvent instead
         public function onMove(PlayerMoveEvent $event) : void{
             // Do your thing here ;)
         }
@@ -170,4 +176,4 @@ namespace ethaniccc\Mockingbird\cheat\custom{
 
 }
 ```
-You can check the `Cheat` class for all class methods.
+You can check the `Cheat` class for all class methods such as `Cheat::fail()`.

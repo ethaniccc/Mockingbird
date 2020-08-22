@@ -49,12 +49,12 @@ class LogCommand extends Command implements PluginIdentifiableCommand{
         switch($this->getPlugin()->getConfig()->get("log_command_type")){
             case "normal":
                 $this->setDescription("Get the AntiCheat logs of a player!");
-                $this->setUsage(TextFormat::RED . "/logs <player>");
+                $this->setUsage(TextFormat::RED . "/mblogs <player>");
                 break;
             case "UI":
             default:
                 $this->setDescription("Get the AntiCheat logs of players!");
-                $this->setUsage(TextFormat::RED . "/logs");
+                $this->setUsage(TextFormat::RED . "/mblogs");
                 $this->mode = "UI";
                 break;
         }
