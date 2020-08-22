@@ -107,7 +107,7 @@ AutoClickerA: true
 # AutoClickerB is a speed check.
 AutoClickerB: true
 
-Angle: true
+Angle: false
 Hitbox: false
 ReachA: true
 ReachB: false
