@@ -122,7 +122,7 @@ class Mockingbird extends PluginBase{
         $name = $player->getName();
         $this->getScheduler()->scheduleDelayedTask(new ClosureTask(function(int $currentTick) use ($player, $name) : void{
             $player->kick($this->getConfig()->get("punish_prefix") . TextFormat::RESET . "\n" . TextFormat::YELLOW . "You were kicked from this server for unfair advantage.", false);
-            Cheat::setViolations($name, 0);
+            ViolationHandler::setViolations($name, 0);
             $cheats = ViolationHandler::getCheatsViolatedFor($name);
             foreach($this->getServer()->getOnlinePlayers() as $staff){
                 if($staff->hasPermission($this->getConfig()->get("alert_permission"))) $staff->sendMessage($this->getPrefix() . TextFormat::RESET . TextFormat::RED . "$name has been kicked for using unfair advantage on other players. They were detected for: " . implode(", ", $cheats));
@@ -157,7 +157,7 @@ class Mockingbird extends PluginBase{
                 }
             }
             $this->getServer()->getNameBans()->addBan($name, "Unfair advantage / Hacking", null, "Mockingbird");
-            Cheat::setViolations($name, 0);
+            ViolationHandler::setViolations($name, 0);
             $cheats = ViolationHandler::getCheatsViolatedFor($name);
             foreach($this->getServer()->getOnlinePlayers() as $staff){
                 if($staff->hasPermission($this->getConfig()->get("alert_permission"))) $staff->sendMessage($this->getPrefix() . TextFormat::RESET . TextFormat::RED . "$name has been banned for using unfair advantage on other players. They were detected for: " . implode(", ", $cheats));

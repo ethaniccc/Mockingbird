@@ -23,7 +23,6 @@ namespace ethaniccc\Mockingbird\cheat;
 use ethaniccc\Mockingbird\event\MockingbirdCheatEvent;
 use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\Mockingbird;
-use ethaniccc\Mockingbird\tasks\AsyncClosureTask;
 use Exception;
 use pocketmine\event\Cancellable;
 use pocketmine\event\Event;
@@ -101,21 +100,6 @@ class Cheat implements Listener{
         $this->enabled = $enabled;
     }
 
-    /**
-     * @param string $name
-     * @param float $amount
-     */
-    public static function setViolations(string $name, float $amount) : void{
-        ViolationHandler::setViolations($name, $amount);
-    }
-
-    /**
-     * @param string $name
-     * @return int
-     */
-    public static function getCurrentViolations(string $name) : int{
-        return ViolationHandler::getCurrentViolations($name);
-    }
 
     /**
      * @return Mockingbird
