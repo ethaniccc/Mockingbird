@@ -287,6 +287,8 @@ class Mockingbird extends PluginBase{
         // NOTE: This will not load the source of the custom module **sad noises**
         foreach($this->enabledModules as $module){
             HandlerList::unregisterAll($module);
+            // destruct the object as it is not going to be used anymore when we reload modules.
+            $module = null;
         }
         unset($this->enabledModules);
         $this->enabledModules = [];
