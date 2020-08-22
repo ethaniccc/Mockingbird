@@ -39,9 +39,9 @@ namespace ethaniccc\Mockingbird\cheat\custom{
                 return;
             }
             if (sqrt($distX + $distZ) > $allowed) {
-                $this->addViolation($player->getName());
-                $this->notifyStaff($player->getName(), $this->getName(), $this->genericAlertData($player));
+                $this->fail($player, "{$player->getName()} moved too fast in one instance!");
             }
+            $this->debugNotify("hello this is a test message 2");
             $this->lastMovements[$player->getId()] = $this->getServer()->getTick();
         }
 

@@ -41,40 +41,9 @@ use pocketmine\utils\TextFormat;
 
 class Mockingbird extends PluginBase{
 
-    /** @var bool */
     private $developerMode = false;
-
-    /** @var array */
-    // TODO: Make a new system for this so I don't have to hardcode checks into here.
-    private $modules = [
-        "Combat" => [
-            "reach\\ReachA", "reach\\ReachB",
-            "autoclicker\\AutoClickerA", "autoclicker\\AutoClickerB",
-            "ToolboxKillaura", "MultiAura", "Angle", "Hitbox"
-        ],
-        "Movement" => [
-            "fly\\FlyA", "fly\\FlyB",
-            "speed\\SpeedA", "speed\\SpeedB",
-            "velocity\\VelocityA",
-            "NoSlowdown", "FastLadder", "NoWeb", "AirJump",
-            "InventoryMove", "NoFall", "Phase", "Scaffold"
-        ],
-        "Packet" => [
-            "BadPitchPacket", "AttackingWhileEating", "InvalidCreativeTransaction",
-            "InvalidCraftingTransaction"
-        ],
-        "Other" => [
-            "ChestStealer", "FastEat", "Nuker", "FastBreak", "Timer",
-            "EditionFaker"
-        ],
-        "Custom" => []
-    ];
-
-    /** @var array */
     private $enabledModules = [];
-    /** @var array */
     private $disabledModules = [];
-    /** @var array */
     private $staff = [];
 
     public function onEnable(){
@@ -86,15 +55,9 @@ class Mockingbird extends PluginBase{
             $this->saveDefaultConfig();
         }
         @mkdir($this->getDataFolder() . "custom_modules", 0777);
-        $customModules = scandir($this->getDataFolder() . "custom_modules");
-        foreach($customModules as $customModule){
-            $className = explode(".php", $customModule)[0];
-            if($className !== "." && $className !== ".."){
-                array_push($this->modules["Custom"], $className);
-            }
-        }
         $this->getLogger()->debug(TextFormat::AQUA . "Mockingbird has been enabled.");
-        $this->loadAllModules();
+        $this->loadModules();
+        $this->loadModules(true);
         $this->loadAllCommands();
         $this->registerPermissions();
         if($this->isDeveloperMode()){
@@ -244,13 +207,6 @@ class Mockingbird extends PluginBase{
     }
 
     /**
-     * @return array
-     */
-    public function getAllModules() : array{
-        return $this->modules;
-    }
-
-    /**
      * @param string $name
      */
     public function registerStaff(string $name) : void{
@@ -265,49 +221,64 @@ class Mockingbird extends PluginBase{
         return isset($this->staff[$name]) ? $this->staff[$name] : null;
     }
 
-    private function loadAllModules(bool $debug = true) : void{
+    public function loadModule(Cheat $module) : void{
+        $this->getServer()->getPluginManager()->registerEvents($module, $this);
+    }
+
+    private function loadModules(bool $custom = false, bool $debug = true) : void{
         $loadedModules = 0;
-        foreach($this->modules as $type => $modules){
-            $namespace = "ethaniccc\\Mockingbird\\cheat\\" . (strtolower($type)) . "\\";
-            foreach($modules as $module){
-                $declaredNamespace = $namespace;
-                if($type === "Custom"){
-                    require_once $this->getDataFolder() . "custom_modules/$module.php";
-                }
-                if(strpos($module, "\\") !== false){
-                    $declaredNamespace = $namespace . explode("\\", $module)[0] . "\\";
-                    $module = explode("\\", $module)[1];
-                }
-                $class = $declaredNamespace . "$module";
-                $enabled = $this->getConfig()->get("dev_mode") === true ? true : $this->getConfig()->get($module);
-                switch($type){
-                    case "Custom":
-                        $enabled = true;
-                        break;
-                    case "Packet":
-                        $enabled = is_bool($this->getConfig()->get("PacketChecks")) ? $this->getConfig()->get("PacketChecks") : false;
-                        break;
-                    default:
-                        break;
-                }
-                $newModule = new $class($this, $module, $type, $enabled);
-                if($newModule->isEnabled()){
-                    $this->getServer()->getPluginManager()->registerEvents($newModule, $this);
-                    $loadedModules++;
-                    array_push($this->enabledModules, $newModule);
-                } else {
-                    array_push($this->disabledModules, $newModule);
+        if(!$custom){
+            foreach(scandir($this->getFile() . '/src/ethaniccc/Mockingbird/cheat') as $type){
+                if(is_dir($this->getFile() . "/src/ethaniccc/Mockingbird/cheat/$type") && !in_array($type, ['.', '..'])){
+                    foreach(scandir($this->getFile() . "/src/ethaniccc/Mockingbird/cheat/$type") as $module){
+                        $currentPath = "ethaniccc\\Mockingbird\\cheat\\$type\\";
+                        if(is_dir($this->getFile() . "/src/ethaniccc/Mockingbird/cheat/$type/$module") && !in_array($module, ['.', '..'])){
+                            foreach(scandir($this->getFile() . "/src/ethaniccc/Mockingbird/cheat/$type/$module") as $subModule){
+                                if(!is_dir($this->getFile() . "/src/ethaniccc/Mockingbird/cheat/$type/$module/$subModule")){
+                                    $className = explode(".php", $subModule)[0];
+                                    $class = $currentPath . "$module\\$className";
+                                    $enabled = (bool) $this->getConfig()->get($className);
+                                    $enabled = $this->isDeveloperMode() ? true : $enabled;
+                                    $newDetection = new $class($this, $className, $type, $enabled);
+                                    $this->loadModule($newDetection);
+                                    $newDetection->isEnabled() ? $this->enabledModules[] = $newDetection : $this->disabledModules[] = $newDetection;
+                                    if($newDetection->isEnabled()){
+                                        $loadedModules++;
+                                    }
+                                }
+                            }
+                        } elseif(!is_dir($module)){
+                            $className = explode(".php", $module)[0];
+                            $class = $currentPath . $className;
+                            $enabled = (bool) $this->getConfig()->get($className);
+                            if($type === "packet"){
+                                $enabled = (bool) $this->getConfig()->get("PacketChecks");
+                            }
+                            $enabled = $this->isDeveloperMode() ? true : $enabled;
+                            $newDetection = new $class($this, $className, $type, $enabled);
+                            $this->loadModule($newDetection);
+                            $newDetection->isEnabled() ? $this->enabledModules[] = $newDetection : $this->disabledModules[] = $newDetection;
+                            if($newDetection->isEnabled()){
+                                $loadedModules++;
+                            }
+                        }
+                    }
                 }
             }
-        }
-        $moduleNames = [];
-        foreach($this->getEnabledModules() as $module){
-            array_push($moduleNames, $module->getName());
-        }
-        if($debug){
-            $this->getLogger()->debug(TextFormat::GREEN . "$loadedModules modules have been loaded: " . implode(", ", $moduleNames));
+            $debug ? $this->getLogger()->debug("$loadedModules general modules have been loaded.") : $this->getLogger()->info(TextFormat::GREEN . "$loadedModules general modules have been loaded.");
         } else {
-            $this->getLogger()->info(TextFormat::GREEN . "$loadedModules modules have been loaded: " . implode(", ", $moduleNames));
+            foreach(scandir($this->getDataFolder() . "custom_modules") as $customModule){
+                if(is_dir($customModule)){
+                    break;
+                }
+                $path = $this->getDataFolder() . "custom_modules/$customModule";
+                require_once $path;
+                $class = explode(".php", $customModule)[0];
+                // hardcoded type and enabled parameters
+                $this->loadModule(new $class($this, $class, "Custom", true));
+                $loadedModules++;
+            }
+            $debug ? $this->getLogger()->debug("$loadedModules custom modules have been loaded.") : $this->getLogger()->info(TextFormat::GREEN . "$loadedModules custom modules have been loaded.");
         }
     }
 
@@ -319,16 +290,10 @@ class Mockingbird extends PluginBase{
         }
         unset($this->enabledModules);
         $this->enabledModules = [];
-        unset($this->modules["Custom"]);
-        $this->modules["Custom"] = [];
-        $customModules = scandir($this->getDataFolder() . "custom_modules");
-        foreach($customModules as $customModule){
-            $className = explode(".php", $customModule)[0];
-            if($className !== "." && $className !== ".."){
-                array_push($this->modules["Custom"], $className);
-            }
-        }
-        $this->loadAllModules(false);
+        unset($this->disabledModules);
+        $this->enabledModules = [];
+        $this->loadModules(false, false);
+        $this->loadModules(true, false);
     }
 
     private function loadAllCommands() : void{

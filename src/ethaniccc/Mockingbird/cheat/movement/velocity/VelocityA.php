@@ -41,7 +41,7 @@ class VelocityA extends Cheat{
                 return;
             }
             $this->ticksSinceSend[$name] += 1;
-            $maxTicks = (int) ($player->getPing() / 50) + 10 + (20 - $this->getServer()->getTicksPerSecond());
+            $maxTicks = (int) ($player->getPing() / 50) + 5 + (20 - $this->getServer()->getTicksPerSecond());
             if($this->ticksSinceSend[$name] <= $maxTicks && $event->getDistanceY() <= $this->lastVertical[$name] * 0.99
             && LevelUtils::getBlockAbove($player)->getId() === 0
             && !LevelUtils::isNearBlock($player,BlockIds::COBWEB)

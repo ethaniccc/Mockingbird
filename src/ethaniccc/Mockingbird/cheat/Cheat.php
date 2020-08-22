@@ -23,6 +23,7 @@ namespace ethaniccc\Mockingbird\cheat;
 use ethaniccc\Mockingbird\event\MockingbirdCheatEvent;
 use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\Mockingbird;
+use ethaniccc\Mockingbird\tasks\AsyncClosureTask;
 use Exception;
 use pocketmine\event\Cancellable;
 use pocketmine\event\Event;
@@ -269,7 +270,7 @@ class Cheat implements Listener{
                         $registeredStaff = $this->getPlugin()->getStaff($staff->getName());
                         if($registeredStaff !== null){
                             if($registeredStaff->hasAlertsEnabled()){
-                                $staff->sendMessage(TextFormat::AQUA . "(" . TextFormat::RED . $this->getName() . TextFormat::AQUA . ") " . TextFormat::RESET . TextFormat::RED . $message . TextFormat::DARK_RED . " [" . TextFormat::WHITE . "VL: " . TextFormat::RED . ViolationHandler::getCurrentViolations($name) . TextFormat::DARK_RED . "]");
+                                $staff->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RESET . TextFormat::RED . $message . TextFormat::DARK_RED . " [" . TextFormat::WHITE . "VL: " . TextFormat::RED . ViolationHandler::getCurrentViolations($name) . TextFormat::DARK_RED . "]");
                             }
                         }
                     }
