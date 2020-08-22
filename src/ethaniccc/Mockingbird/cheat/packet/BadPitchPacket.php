@@ -39,9 +39,8 @@ class BadPitchPacket extends Cheat implements Blatant{
         $packet = $event->getPacket();
         if($packet instanceof MovePlayerPacket){
             if(abs($packet->pitch) > 90){
-                $this->addViolation($name);
                 $givenPitch = abs($packet->pitch);
-                $this->debugNotify("$name gave a MovePacket with the pitch value of $givenPitch but max pitch is 90");
+                $this->fail($player, "$name gave a packet with a pitch of $givenPitch, max pitch is 90");
             }
         }
     }

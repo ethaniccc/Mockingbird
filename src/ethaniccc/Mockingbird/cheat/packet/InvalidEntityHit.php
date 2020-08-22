@@ -44,7 +44,7 @@ class InvalidEntityHit extends Cheat implements Blatant{
             if($packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK){
                 $target = $player->getLevel()->getEntity($packet->trData->entityRuntimeId);
                 if($target instanceof ItemEntity or $target instanceof Arrow){
-                    $this->addViolation($name);
+                    $this->fail($player, "$name attempted to attack an invalid entity");
                 }
             }
         }

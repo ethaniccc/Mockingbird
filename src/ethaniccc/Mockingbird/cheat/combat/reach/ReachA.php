@@ -89,10 +89,8 @@ class ReachA extends Cheat{
                             if($averageDistance > $expectedDistance && $distance > $expectedDistance){
                                 $this->addPreVL($damagerName);
                                 if($this->getPreVL($damagerName) >= 1.25){
-                                    $this->supress($event);
-                                    $this->addViolation($damagerName);
-                                    $this->notifyStaff($damagerName, $this->getName(), ["VL" => self::getCurrentViolations($damagerName), "Dist" => round($distance, 2)]);
-                                    $this->debugNotify("$damagerName hit $damagedName with a distance of $distance, while $expectedDistance expected. Average distance was higher than expected distance.");
+                                    $this->suppress($event);
+                                    $this->fail($damager, "$damagerName hit $damagedName at a distance of $averageDistance blocks.");
                                     $this->lowerPreVL($damagerName, 0.5);
                                 }
                             }

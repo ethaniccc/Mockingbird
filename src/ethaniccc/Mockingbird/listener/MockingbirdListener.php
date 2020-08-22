@@ -21,7 +21,6 @@ namespace ethaniccc\Mockingbird\listener;
 use ethaniccc\Mockingbird\event\ClickEvent;
 use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\event\PlayerHitPlayerEvent;
-use ethaniccc\Mockingbird\event\PlayerVelocityEvent;
 use ethaniccc\Mockingbird\event\ServerVelocityEvent;
 use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\entity\EntityDamageByChildEntityEvent;
@@ -94,6 +93,7 @@ class MockingbirdListener implements Listener{
         if($event->getPlayer()->hasPermission($this->getPlugin()->getConfig()->get("alert_permission"))){
             $this->getPlugin()->registerStaff($name);
         }
+        $event->getPlayer()->setInvisible(false);
     }
 
     public function onHit(EntityDamageByEntityEvent $event) : void{
@@ -113,15 +113,6 @@ class MockingbirdListener implements Listener{
                 }
             }
         }
-    }
-
-    public function onMove(MoveEvent $event) : void{
-        $dx = $event->getDistanceX();
-        $dy = $event->getDistanceY();
-        $dz = $event->getDistanceZ();
-        $velocity = new Vector3($dx, $dy, $dz);
-        $velocityEvent = new PlayerVelocityEvent($event->getPlayer(), $velocity);
-        $velocityEvent->call();
     }
 
 }

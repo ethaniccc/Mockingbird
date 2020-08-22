@@ -22,6 +22,7 @@ use ethaniccc\Mockingbird\cheat\Blatant;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\event\PlayerHitPlayerEvent;
 use ethaniccc\Mockingbird\Mockingbird;
+use ethaniccc\Mockingbird\utils\LevelUtils;
 
 class Angle extends Cheat{
 
@@ -44,10 +45,10 @@ class Angle extends Cheat{
         } else {
             $this->lastHitTick[$name] = $this->getServer()->getTick();
         }
-        if($event->getAngle() > 140){
-            //TODO Angle bug hack: safe check
-            //$this->addViolation($damager->getName());
-            $this->notifyStaff($damager->getName(), $this->getName(), ["Angle" => round($event->getAngle(), 0)]);
+        if($event->getAngle() > 140 && LevelUtils::getDistance($damager, $event->getPlayerHit()) > 1){
+            // TODO Angle bug hack: safe check
+            // $this->fail($damager, "Hit another entity at an angle of {$event->getAngle()}");
+            $this->debugNotify("$name hit another entity at an angle of {$event->getAngle()}");
         }
     }
 

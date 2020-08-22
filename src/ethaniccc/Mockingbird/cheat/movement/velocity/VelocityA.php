@@ -5,6 +5,8 @@ namespace ethaniccc\Mockingbird\cheat\movement\velocity;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\Mockingbird;
+use ethaniccc\Mockingbird\utils\LevelUtils;
+use pocketmine\block\BlockIds;
 use pocketmine\event\entity\EntityMotionEvent;
 use pocketmine\Player;
 use pocketmine\event\player\PlayerDeathEvent;
@@ -39,13 +41,15 @@ class VelocityA extends Cheat{
                 return;
             }
             $this->ticksSinceSend[$name] += 1;
-            $maxTicks = (int) ($player->getPing() / 50) + 5 + (20 - $this->getServer()->getTicksPerSecond());
-            if($this->ticksSinceSend[$name] <= $maxTicks && $event->getDistanceY() <= $this->lastVertical[$name] * 0.99){
+            $maxTicks = (int) ($player->getPing() / 50) + 10 + (20 - $this->getServer()->getTicksPerSecond());
+            if($this->ticksSinceSend[$name] <= $maxTicks && $event->getDistanceY() <= $this->lastVertical[$name] * 0.99
+            && LevelUtils::getBlockAbove($player)->getId() === 0
+            && !LevelUtils::isNearBlock($player,BlockIds::COBWEB)
+            && !LevelUtils::isNearBlock($player,BlockIds::WATER)){
                 $this->addPreVL($name);
             } else {
                 if($this->getPreVL($name) >= $maxTicks){
-                    $this->addViolation($name);
-                    $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+                    $this->fail($player, "$name's vertical velocity was lower than normal");
                 }
                 $this->lowerPreVL($name, 0);
                 unset($this->lastVertical[$name]);

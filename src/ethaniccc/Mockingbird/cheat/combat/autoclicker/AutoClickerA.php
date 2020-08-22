@@ -57,9 +57,7 @@ class AutoClickerA extends Cheat{
         if($averageDeviation <= 7.5){
             $this->addPreVL($name);
             if($this->getPreVL($name) >= 4.5){
-                $this->addViolation($name);
-                $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
-                $this->lowerPreVL($name, 0.5);
+                $this->fail($player, "$name's clicking was too consistent", [], "$name's click deviation was $averageDeviation");
             }
         } else {
             $this->lowerPreVL($name, 0.9);

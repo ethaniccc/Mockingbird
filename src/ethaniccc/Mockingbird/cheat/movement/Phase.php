@@ -43,9 +43,8 @@ class Phase extends Cheat{
         }
 
         if($this->moveTicks[$name] > 10 && $this->inTicks[$name] > 10){
-            $this->supress($event);
-            $this->addViolation($name);
-            $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+            $this->suppress($event);
+            // TODO: Make a better phase check.
         }
     }
 

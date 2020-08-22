@@ -41,7 +41,7 @@ class InvalidCraftingTransaction extends Cheat implements Blatant{
         $packet = $event->getPacket();
         if($packet instanceof InventoryTransactionPacket){
             if(empty($packet->actions) && $packet->transactionType !== InventoryTransactionPacket::TYPE_USE_ITEM){
-                $this->addViolation($event->getPlayer()->getName());
+                $this->fail($event->getPlayer(), "{$event->getPlayer()->getName()} made an invalid crafting transaction");
             }
         }
     }

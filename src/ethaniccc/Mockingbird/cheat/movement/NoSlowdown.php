@@ -77,9 +77,8 @@ class NoSlowdown extends Cheat implements StrictRequirements{
             if($distance > 0.165){
                 $this->addPreVL($name);
                 if($this->getPreVL($name) >= 2){
-                    $this->supress($event);
-                    $this->addViolation($name);
-                    $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+                    $this->suppress($event);
+                    $this->fail($player, "$name moved too fast while eating");
                     $this->suspicionLevel[$name] = 0;
                 }
             } else {

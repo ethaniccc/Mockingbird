@@ -70,9 +70,8 @@ class NoWeb extends Cheat implements StrictRequirements{
                 if(!isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] = 0;
                 $this->suspicionLevel[$name] += 1;
                 if($this->suspicionLevel[$name] >= 2.5){
-                    $this->supress($event);
-                    $this->addViolation($name);
-                    $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+                    $this->suppress($event);
+                    $this->fail($player, "$name moved too fast while in cobweb");
                 }
             } else {
                 if(isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] *= 0.5;

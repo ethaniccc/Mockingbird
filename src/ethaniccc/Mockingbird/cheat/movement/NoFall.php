@@ -34,7 +34,7 @@ class NoFall extends Cheat{
     public function onMove(MoveEvent $event){
         $player = $event->getPlayer();
         $name = $player->getName();
-        $onGround = LevelUtils::isNearGround($player);
+        $onGround = LevelUtils::isNearGround($player, -1);
         $yDist = $event->getDistanceY();
         if(!isset($this->lastOnGround[$name])){
             $this->lastOnGround[$name] = $onGround;
@@ -52,8 +52,7 @@ class NoFall extends Cheat{
                 $this->addPreVL($name);
                 if($this->getPreVL($name) >= 3){
                     // no point in suppressing this since pocketmine still applies fall damage
-                    $this->addViolation($name);
-                    $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+                    $this->fail($player, "$name gave on ground values to be true when not near the ground");
                     $this->lowerPreVL($name, 0.5);
                     $this->debugNotify("$name sent a MovePacket with the onGround value to set to true when not on ground for >= 3 ticks.");
                 }

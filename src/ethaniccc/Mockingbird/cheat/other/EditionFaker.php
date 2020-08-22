@@ -65,7 +65,7 @@ class EditionFaker extends Cheat implements Blatant{
         $name = spl_object_hash($event->getPlayer());
         if(isset($this->fakers[$name])){
             unset($this->fakers[$name]);
-            $this->addViolation($event->getPlayer()->getName());
+            $this->fail($event->getPlayer(), "$name faked their device OS");
         }
     }
 

@@ -55,15 +55,14 @@ class Timer extends Cheat implements StrictRequirements{
 
         if(isset($this->playerPreviousTimeDiff[$name])){
             // the player decided not to move and not cause of lag.
-            if($this->playerPreviousTimeDiff[$name] > 100 && ($time >= 100)){
+            if($this->playerPreviousTimeDiff[$name] > 100 && ($time <= 100 && $time >= 50)){
                 $this->playerBalance[$name] = 0;
             }
         }
 
         if($this->playerBalance[$name] >= 500){
             // no suppression for this check.
-            $this->addViolation($name);
-            $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+            $this->fail($player, "$name sent too many move packets in a short period of time.");
             $this->playerBalance[$name] = 0;
         }
 

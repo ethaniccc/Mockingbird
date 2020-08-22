@@ -48,7 +48,7 @@ class AttackingWhileEating extends Cheat implements Blatant{
                     return;
                 }
                 if($this->getServer()->getTick() - $this->lastAttackTick[$name] == 0){
-                    $this->addViolation($name);
+                    $this->fail($player, "$name attacked an entity while eating");
                 }
             }
         }

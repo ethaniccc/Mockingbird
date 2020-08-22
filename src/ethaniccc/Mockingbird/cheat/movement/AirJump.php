@@ -52,8 +52,7 @@ class AirJump extends Cheat implements StrictRequirements{
                 }
                 $this->suspicionLevel[$name] += 1;
                 if($this->suspicionLevel[$name] >= 2){
-                    $this->addViolation($name);
-                    $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+                    $this->fail($player, "$name jumped on air");
                     $this->suspicionLevel[$name] += 1;
                 }
             } else {

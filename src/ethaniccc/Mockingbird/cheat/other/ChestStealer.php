@@ -57,9 +57,8 @@ class ChestStealer extends Cheat implements StrictRequirements{
             if($timeDiff < 0.001){
                 $this->addPreVL($name);
                 if($this->getPreVL($name) >= 4){
-                    $this->supress($event);
-                    $this->addViolation($name);
-                    $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+                    $this->suppress($event);
+                    $this->fail($player, "$name made transactions in chests too fast");
                     $this->debugNotify("$name made 4 (or more) inventory transactions in less than 0.001 seconds.");
                 }
             } else {

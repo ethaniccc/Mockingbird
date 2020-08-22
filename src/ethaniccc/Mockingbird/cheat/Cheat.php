@@ -20,8 +20,10 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat;
 
+use ethaniccc\Mockingbird\event\MockingbirdCheatEvent;
 use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\Mockingbird;
+use ethaniccc\Mockingbird\tasks\AsyncClosureTask;
 use Exception;
 use pocketmine\event\Cancellable;
 use pocketmine\event\Event;
@@ -152,79 +154,73 @@ class Cheat implements Listener{
 
     /**
      * @param float $tps
-     * @throws Exception
      */
     public function setRequiredTPS(float $tps){
         if(!$this instanceof StrictRequirements){
-            throw new Exception("Module {$this->getName()} is not an instance of StrictRequirements.");
+            return;
         } else {
             $this->requiredTPS = $tps;
         }
     }
 
     /**
-     * @return float|int
-     * @throws Exception
+     * @return float|int|null
      */
     public function getRequiredTPS(){
         if(!$this instanceof StrictRequirements){
-            throw new Exception("Module {$this->getName()} is not an instance of StrictRequirements.");
+            return null;
         }
         return $this->requiredTPS === null ? 19 : $this->requiredTPS;
     }
 
     /**
      * @param int $ping
-     * @throws Exception
      */
     public function setRequiredPing(int $ping){
         if(!$this instanceof StrictRequirements){
-            throw new Exception("Module {$this->getName()} is not an instance of StrictRequirements.");
+            return;
         } else {
             $this->requiredPing = $ping;
         }
     }
 
     /**
-     * @return int
-     * @throws Exception
+     * @return int|null
      */
     public function getRequiredPing(){
         if(!$this instanceof StrictRequirements){
-            throw new Exception("Module {$this->getName()} is not an instance of StrictRequirements.");
+            return null;
         }
         return $this->requiredPing === null ? 200 : $this->requiredPing;
     }
 
     /**
-     * @return int
+     * @return int|null
      * @throws Exception
      */
     public function getMaxViolations(){
         if(!$this instanceof Blatant){
-            throw new Exception("Module {$this->getName()} is not an instance of Blatant");
+            return null;
         }
         return $this->maxBlatantViolations;
     }
 
     /**
      * @param int $violations
-     * @throws Exception
      */
     public function setMaxViolations(int $violations){
         if(!$this instanceof Blatant){
-            throw new Exception("Module {$this->getName()} is not an instance of Blatant");
+            return;
         }
         $this->maxBlatantViolations = $violations;
     }
 
     /**
      * @param string $name
-     * @throws Exception
      */
     public function resetBlatantViolations(string $name){
         if(!$this instanceof Blatant){
-            throw new Exception("Module {$this->getName()} is not an instance of Blatant");
+            return;
         }
         $this->blatantViolations[$name] = 0;
     }
@@ -239,7 +235,7 @@ class Cheat implements Listener{
     /**
      * @param Event $event
      */
-    protected function supress(Event $event) : void{
+    protected function suppress(Event $event) : void{
         if($this->getPlugin()->getConfig()->get("supression")){
             if($event instanceof MoveEvent){
                 $event->getPlayer()->teleport(new Vector3($event->getPlayer()->lastX, $event->getPlayer()->lastY, $event->getPlayer()->lastZ));
@@ -251,111 +247,54 @@ class Cheat implements Listener{
 
     /**
      * @param Player $player
-     * @return array
+     * @param string $message
+     * @param array $extraData
+     * @param null $debugMessage
      */
-    protected function genericAlertData(Player $player) : array{
-        return ["VL" => self::getCurrentViolations($player->getName()), "Ping" => $player->getPing()];
-    }
-
-    /**
-     * @param string $name
-     */
-    protected function addViolation(string $name) : void{
-        if(!$this->isEnabled()){
-            return;
-        }
-        if($this->getServer()->getPlayer($name)->hasPermission($this->getPlugin()->getConfig()->get("bypass_permission"))){
-            return;
-        }
-        if($this->isLowTPS()){
-            $tps = $this->getServer()->getTicksPerSecond();
-            $this->getServer()->getLogger()->debug("Violation was cancelled due to low TPS ($tps)");
-            return;
-        }
-        if($this instanceof StrictRequirements){
-            if($this->getServer()->getPlayer($name)->getPing() > $this->getRequiredPing()){
-                $this->getServer()->getLogger()->debug("Ping requirements were not met for {$this->getName()} (Ping: {$this->getServer()->getPlayer($name)->getPing()})");
-                return;
-            }
-            if($this->getServer()->getTicksPerSecond() < $this->getRequiredTPS()){
-                $this->getServer()->getLogger()->debug("TPS requirements were not met for {$this->getName()} (TPS: {$this->getServer()->getTicksPerSecond()})");
-                return;
-            }
-        }
-        $counter = 1;
-        if($this->getPlugin()->getConfig()->get("dynamic_violations")){
-            if(isset($this->lastViolationTime[$name])){
-                $timeDiff = $this->getServer()->getTick() - $this->lastViolationTime[$name];
-                if($timeDiff < 20 && $timeDiff !== 0){
-                    $counter = round(10 / $timeDiff, 0);
-                } elseif($timeDiff === 0){
-                    $counter = 20;
+    protected function fail(Player $player, string $message, array $extraData = [], $debugMessage = null){
+        $name = $player->getName();
+        $isExempt = (!$this->isEnabled()
+            || $player->hasPermission($this->getPlugin()->getConfig()->get("bypass_permission"))
+            || $this->isLowTPS()
+            || $this instanceof StrictRequirements ? ($player->getPing() > $this->getRequiredPing() || $this->getServer()->getTicksPerSecond() < $this->getRequiredTPS()) : false
+        );
+        if(!$isExempt){
+            $addedViolations = 1;
+            if($this->getPlugin()->getConfig()->get("dynamic_violations")){
+                if(isset($this->lastViolationTime[$name])){
+                    $timeDiff = $this->getServer()->getTick() - $this->lastViolationTime[$name];
+                    if($timeDiff < 20 && $timeDiff !== 0){
+                        $addedViolations = round(10 / $timeDiff, 0);
+                    } elseif($timeDiff === 0){
+                        $addedViolations = 20;
+                    } else {
+                        $addedViolations = 1;
+                    }
                 } else {
-                    $counter = 1;
+                    $addedViolations = 1;
                 }
-            } else {
-                $counter = 1;
+                $this->lastViolationTime[$name] = $this->getServer()->getTick();
             }
-            $this->lastViolationTime[$name] = $this->getServer()->getTick();
-        }
-        ViolationHandler::addViolation($name, $this->getName(), $counter);
-        if($this instanceof Blatant){
-            if(!isset($this->blatantViolations[$name])){
-                $this->blatantViolations[$name] = 0;
-            }
-            $this->blatantViolations[$name] += 1;
-            if($this->blatantViolations[$name] >= $this->getMaxViolations()){
-                $this->punish($name);
-            }
-        }
-        if(self::getCurrentViolations($name) >= $this->getPlugin()->getConfig()->get("max_violations")){
-            $this->punish($name);
-        }
-    }
-
-    /**
-     * @param string $name
-     * @param string $cheat
-     * @param array $data
-     */
-    protected function notifyStaff(string $name, string $cheat, array $data) : void{
-        if(!$this->isEnabled()){
-            return;
-        }
-        if($this->getServer()->getPlayer($name)->hasPermission($this->getPlugin()->getConfig()->get("bypass_permission"))){
-            return;
-        }
-        if($this->isLowTPS()){
-            $this->getServer()->getLogger()->debug("Alert was cancelled due to low TPS ({$this->getServer()->getTicksPerSecond()})");
-            return;
-        }
-        if(!isset($this->notifyCooldown[$name])){
-            $this->notifyCooldown[$name] = microtime(true);
-        } else {
-            if(microtime(true) - $this->notifyCooldown[$name] >= 1){
-                $this->notifyCooldown[$name] = microtime(true);
-            } else {
-                return;
-            }
-        }
-        $dataReport = TextFormat::DARK_RED . "[";
-        foreach($data as $dataName => $info){
-            if(array_key_last($data) !== $dataName) $dataReport .= TextFormat::GRAY . $dataName . ": " . TextFormat::RED . $info . TextFormat::DARK_RED . " | ";
-            else $dataReport .= TextFormat::GRAY . $dataName . ": " . TextFormat::RED . $info;
-        }
-        $dataReport .= TextFormat::DARK_RED . "]";
-        foreach($this->getServer()->getOnlinePlayers() as $player){
-            if($player->hasPermission($this->getPlugin()->getConfig()->get("alert_permission"))){
-                $staff = $this->getPlugin()->getStaff($player->getName());
-                if($staff === null){
-                    break;
+            $cheatEvent = new MockingbirdCheatEvent($player, $this, $message, $addedViolations, $extraData, $debugMessage);
+            $cheatEvent->call();
+            if(!$cheatEvent->isCancelled()){
+                $addedViolations = $cheatEvent->getAddedViolations();
+                ViolationHandler::addViolation($name, $this->getName(), $addedViolations);
+                foreach(Server::getInstance()->getOnlinePlayers() as $staff){
+                    if($staff->hasPermission($this->getPlugin()->getConfig()->get("alert_permission"))){
+                        $registeredStaff = $this->getPlugin()->getStaff($staff->getName());
+                        if($registeredStaff !== null){
+                            if($registeredStaff->hasAlertsEnabled()){
+                                $staff->sendMessage(TextFormat::AQUA . "(" . TextFormat::RED . $this->getName() . TextFormat::AQUA . ") " . TextFormat::RESET . TextFormat::RED . $message . TextFormat::DARK_RED . " [" . TextFormat::WHITE . "VL: " . TextFormat::RED . ViolationHandler::getCurrentViolations($name) . TextFormat::DARK_RED . "]");
+                            }
+                        }
+                    }
                 }
-                if($staff->hasAlertsEnabled()){
-                    $player->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RESET . TextFormat::RED . $name . TextFormat::GRAY . " has failed the check for " . TextFormat::RED . $cheat . TextFormat::RESET . " $dataReport");
+                if(ViolationHandler::getCurrentViolations($name) >= $this->getPlugin()->getConfig()->get("max_violations")){
+                    $this->punish($name);
                 }
             }
         }
-        $this->getServer()->getLogger()->info($this->getPlugin()->getPrefix() . TextFormat::RESET . TextFormat::RED . $name . TextFormat::GRAY . " has failed the check for " . TextFormat::RED . $cheat . TextFormat::RESET . " $dataReport");
     }
 
     /**

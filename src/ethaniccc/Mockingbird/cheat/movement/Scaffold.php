@@ -25,8 +25,7 @@ class Scaffold extends Cheat{
             $this->addPreVL($player->getName());
             if($this->getPreVL($player->getName()) >= 10){
                 // still experimental so no suppression. plus, if this somehow falses, it may cause issues.
-                $this->addViolation($player->getName());
-                $this->notifyStaff($player->getName(), $this->getName(), $this->genericAlertData($player));
+                $this->fail($player, "{$player->getName()} placed a block without looking at it");
                 $this->debugNotify("{$player->getName()}'s Ray did not collide with the bounding box of the block placed.");
             }
         } else {

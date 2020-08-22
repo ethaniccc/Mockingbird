@@ -59,22 +59,20 @@ class FastBreak extends Cheat implements StrictRequirements{
         }
 
         if(!isset($this->startBreakTick[$name])){
-            // InstaBreak?
-            $this->addViolation($name);
-            $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
-            $this->debugNotify("$name may have triggered a block break event without a start break action.");
+            // InstaBreak or some other poorly coded cheat?
+            $this->fail($player, "$name attempted to break a block without starting a break action");
         } else {
             $timeDiff = microtime(true) - $this->startBreakTick[$name];
             $expectedDiff = $event->getBlock()->getBreakTime($player->getInventory()->getItemInHand());
             if($timeDiff < $expectedDiff){
-                $this->supress($event);
+                // suppression for this is annoying asf
+                // $this->supress($event);
                 if(!isset($this->suspicionLevel[$name])){
                     $this->suspicionLevel[$name] = 0;
                 }
                 $this->suspicionLevel[$name] += 1;
                 if($this->suspicionLevel[$name] >= 5){
-                    $this->addViolation($name);
-                    $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
+                    $this->fail($player, "$name broke a block too fast");
                     $this->suspicionLevel[$name] = 1;
                 }
             } else {

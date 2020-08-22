@@ -42,8 +42,7 @@ class InvalidCreativeTransaction extends Cheat implements Blatant{
         if($packet instanceof InventoryTransactionPacket){
             foreach($packet->actions as $action){
                 if($action->sourceType === NetworkInventoryAction::SOURCE_CREATIVE && !$player->isCreative()){
-                    $this->addViolation($name);
-                    $this->debugNotify("$name made a creative inventory transaction while not in creative.");
+                    $this->fail($player, "$name made a creative inventory transaction while not in creative");
                 }
             }
         }

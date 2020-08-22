@@ -81,6 +81,7 @@ class ScreenshareCommand extends Command implements PluginIdentifiableCommand{
                             }
                         }
                         $sender->teleport($this->previousPosition[$name]);
+                        $sender->setInvisible(false);
                         unset($this->previousPosition[$name]);
                         unset($this->screenshareTask[$name]);
                     } else {

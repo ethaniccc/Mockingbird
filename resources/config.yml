@@ -119,7 +119,6 @@ ReachB: false
 
 SpeedA: true
 SpeedB: true
-Glide: true
 NoSlowdown: true
 FastLadder: true
 NoWeb: true
@@ -128,9 +127,7 @@ AirJump: true
 FlyA: true
 FlyB: false
 InventoryMove: false
-Phase: false
 VelocityA: true
-VelocityB: false
 # Will most likely not work with mobile players!
 Scaffold: false
 

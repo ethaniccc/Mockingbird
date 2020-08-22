@@ -67,9 +67,8 @@ class ToolboxKillaura extends Cheat implements StrictRequirements{
             if(!isset($this->allowedToHit[$name])){
                 $this->addPreVL($name);
                 if($this->getPreVL($name) >= 2){
-                    $this->supress($event);
-                    $this->addViolation($name);
-                    $this->notifyStaff($name, $this->getName(), $this->genericAlertData($damager));
+                    $this->suppress($event);
+                    $this->fail($damager, "$name hit another entity without an arm swing action.");
                     $this->lowerPreVL($name, 0);
                 }
             } else {
@@ -77,9 +76,8 @@ class ToolboxKillaura extends Cheat implements StrictRequirements{
                 if($time >= 0.20){
                     $this->addPreVL($name);
                     if($this->getPreVL($name) >= 2){
-                        $this->supress($event);
-                        $this->addViolation($name);
-                        $this->notifyStaff($name, $this->getName(), $this->genericAlertData($damager));
+                        $this->suppress($event);
+                        $this->fail($damager, "$name hit another entity without an arm swing action.");
                         $this->lowerPreVL($name, 0);
                     }
                 } else {

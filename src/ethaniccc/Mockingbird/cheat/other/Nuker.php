@@ -28,7 +28,6 @@ use pocketmine\event\block\BlockBreakEvent;
 class Nuker extends Cheat implements StrictRequirements{
 
     private $lastBreak = [];
-    private $suspicionLevel = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
@@ -48,20 +47,14 @@ class Nuker extends Cheat implements StrictRequirements{
 
         $timeDiff = microtime(true) - $this->lastBreak[$name];
         if($timeDiff < 0.006){
-            if(!isset($this->suspicionLevel[$name])){
-                $this->suspicionLevel[$name] = 0;
-            }
-            $this->suspicionLevel[$name] += 1;
-            if($this->suspicionLevel[$name] >= 5){
-                $this->supress($event);
-                $this->addViolation($name);
-                $this->notifyStaff($name, $this->getName(), $this->genericAlertData($player));
-                $this->suspicionLevel[$name] = 1;
+            $this->addPreVL($name);
+            if($this->getPreVL($name) >= 5){
+                $this->suppress($event);
+                $this->fail($player, "$name broke too many blocks in a short period of time");
+                $this->lowerPreVL($name, 0.25);
             }
         } else {
-            if(isset($this->suspicionLevel[$name])){
-                $this->suspicionLevel[$name] *= 0.5;
-            }
+            $this->lowerPreVL($name, 0.5);
         }
 
         $this->lastBreak[$name] = microtime(true);

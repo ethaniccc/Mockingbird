@@ -148,15 +148,8 @@ class LevelUtils{
         return false;
     }
 
-    public static function getBlockWalkingOn(Player $player) : ?Block{
-        $x = $player->getX();
-        $z = $player->getZ();
-        for($y = -1; $y <= -0.5; $y += 0.5){
-            if($player->getLevel()->getBlockAt($x, $y, $z)->getId() !== 0){
-                return $player->getLevel()->getBlockAt($x, $y, $z);
-            }
-        }
-        return null;
+    public static function getBlockAbove(Player $player) : Block{
+        return $player->getLevel()->getBlock($player->add(0, 2, 0));
     }
 
 }

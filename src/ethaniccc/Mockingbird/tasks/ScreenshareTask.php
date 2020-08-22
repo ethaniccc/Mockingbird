@@ -28,11 +28,8 @@ use pocketmine\utils\TextFormat;
 
 class ScreenshareTask extends Task{
 
-    /** @var Mockingbird */
     private $plugin;
-    /** @var string */
     private $player, $target;
-    /** @var ScreenshareCommand */
     private $command;
 
     public function __construct(Mockingbird $plugin, string $player, string $target, ScreenshareCommand $command){
@@ -49,26 +46,27 @@ class ScreenshareTask extends Task{
             $id = $this->getTaskId();
             $this->plugin->getScheduler()->cancelTask($id);
             if($player !== null){
+                $player->setInvisible(false);
                 $player->sendMessage($this->plugin->getPrefix() . TextFormat::RED . "We have lost the player and your screenshare has been ended.");
                 $player->teleport($this->command->previousPosition[$player->getName()]);
             }
             unset($this->command->previousPosition[$this->player]);
             unset($this->command->screenshareTask[$this->player]);
         } else {
-            $player->hidePlayer($target);
+            $player->setInvisible(true);
             foreach(Server::getInstance()->getOnlinePlayers() as $other){
                 $other->hidePlayer($player);
             }
-            $player->sendPosition($target->asVector3(), $target->getYaw(), $target->getPitch(), MovePlayerPacket::MODE_TELEPORT);
+            $player->teleport($target, $player->getYaw(), $player->getPitch());
         }
     }
 
-   public function getPlayer() : ?Player{
+    public function getPlayer() : ?Player{
         return Server::getInstance()->getPlayer($this->player);
-   }
+    }
 
-   public function getTarget() : ?Player{
+    public function getTarget() : ?Player{
         return Server::getInstance()->getPlayer($this->target);
-   }
+    }
 
 }
