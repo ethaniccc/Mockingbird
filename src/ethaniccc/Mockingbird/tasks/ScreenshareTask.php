@@ -46,14 +46,13 @@ class ScreenshareTask extends Task{
             $id = $this->getTaskId();
             $this->plugin->getScheduler()->cancelTask($id);
             if($player !== null){
-                $player->setInvisible(false);
                 $player->sendMessage($this->plugin->getPrefix() . TextFormat::RED . "We have lost the player and your screenshare has been ended.");
                 $player->teleport($this->command->previousPosition[$player->getName()]);
             }
             unset($this->command->previousPosition[$this->player]);
             unset($this->command->screenshareTask[$this->player]);
         } else {
-            $player->setInvisible(true);
+            $player->hidePlayer($other);
             foreach(Server::getInstance()->getOnlinePlayers() as $other){
                 $other->hidePlayer($player);
             }
