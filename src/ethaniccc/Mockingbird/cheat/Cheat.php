@@ -263,6 +263,9 @@ class Cheat implements Listener{
             $cheatEvent = new MockingbirdCheatEvent($player, $this, $message, $addedViolations, $extraData, $debugMessage);
             $cheatEvent->call();
             if(!$cheatEvent->isCancelled()){
+                if($debugMessage !== null){
+                    $this->debugNotify($debugMessage);
+                }
                 $addedViolations = $cheatEvent->getAddedViolations();
                 ViolationHandler::addViolation($name, $this->getName(), $addedViolations);
                 foreach(Server::getInstance()->getOnlinePlayers() as $staff){
@@ -270,7 +273,7 @@ class Cheat implements Listener{
                         $registeredStaff = $this->getPlugin()->getStaff($staff->getName());
                         if($registeredStaff !== null){
                             if($registeredStaff->hasAlertsEnabled()){
-                                $staff->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RESET . TextFormat::RED . $message . TextFormat::DARK_RED . " [" . TextFormat::WHITE . "VL: " . TextFormat::RED . ViolationHandler::getCurrentViolations($name) . TextFormat::DARK_RED . "]");
+                                $staff->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RESET . TextFormat::GRAY . "(" . TextFormat::AQUA . $this->getName() . TextFormat::GRAY . ") " . TextFormat::RESET . TextFormat::RED . $message . TextFormat::DARK_RED . " [" . TextFormat::WHITE . "VL: " . TextFormat::RED . ViolationHandler::getCurrentViolations($name) . TextFormat::DARK_RED . "]");
                             }
                         }
                     }

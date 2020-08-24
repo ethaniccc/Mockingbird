@@ -74,7 +74,7 @@ class SpeedB extends Cheat{
             $previouslyOnGround = $this->previouslyOnGround[$name];
 
             if(!$onGround && !$previouslyOnGround && $this->ticksSprinting[$name] > 10){
-                $approximateFriction = 0.99;
+                $approximateFriction = 0.98;
                 $expectedDistance = $previousDistance * $approximateFriction;
                 $distanceDiff = round($distance - $expectedDistance, 5);
                 if(!isset($this->movements[$name])){
@@ -89,7 +89,6 @@ class SpeedB extends Cheat{
                     if($speedDeviation < 0.0001 && !LevelUtils::isNearBlock($player, BlockIds::WATER) && !LevelUtils::isNearBlock($player, BlockIds::COBWEB)){
                         $this->suppress($event);
                         $this->fail($player, "$name's speed was consistent in the air");
-                        $this->debugNotify("$name had a speed deviation of $speedDeviation, but at least 0.0001 deviation was expected.");
                     }
                 }
             }

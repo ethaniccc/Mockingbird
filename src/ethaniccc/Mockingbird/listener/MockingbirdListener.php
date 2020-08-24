@@ -24,12 +24,16 @@ use ethaniccc\Mockingbird\event\PlayerHitPlayerEvent;
 use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
+use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
+use pocketmine\event\player\PlayerJumpEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
+use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
+use pocketmine\network\mcpe\protocol\types\DeviceOS;
 use pocketmine\Player;
 use pocketmine\Server;
 
@@ -47,6 +51,10 @@ class MockingbirdListener implements Listener{
         return $this->plugin;
     }
 
+    /**
+     * @param DataPacketReceiveEvent $event
+     * @priority HIGHEST
+     */
     public function receivePacket(DataPacketReceiveEvent $event) : void{
         $packet = $event->getPacket();
         $player = $event->getPlayer();
@@ -57,7 +65,7 @@ class MockingbirdListener implements Listener{
                 $this->previousPosition[$playerName] = $packet->position;
                 return;
             }
-            $event = new MoveEvent($player, $this->previousPosition[$playerName], $packet->position, $packet->onGround, $packet->mode);
+            $event = new MoveEvent($player, $this->previousPosition[$playerName], $packet->position, $packet->onGround, $packet->mode, $packet->yaw, $packet->pitch);
             $event->call();
             $this->previousPosition[$playerName] = $packet->position;
         } elseif($packet instanceof InventoryTransactionPacket){
@@ -82,24 +90,60 @@ class MockingbirdListener implements Listener{
                 $event->call();
                 $this->previousClickTime[$playerName] = $currentTime;
             }
+        } elseif($packet instanceof LoginPacket){
+            // if EditionFaker is disabled, or somehow EditionFaker is bypassed, this can be used as the AntiCheat's disabler (for some detections)!
+            $isMobile = !in_array($packet->clientData["DeviceOS"], [DeviceOS::ANDROID, DeviceOS::IOS, DeviceOS::AMAZON]);
+            $this->getPlugin()->getUserManager()->register($player, $isMobile);
         }
     }
 
+    public function onJump(PlayerJumpEvent $event) : void{
+        $this->getPlugin()->getUserManager()->get($event->getPlayer())->handleJump($event);
+    }
+
+    /**
+     * @param PlayerJoinEvent $event
+     * @priority HIGHEST
+     */
     public function onJoin(PlayerJoinEvent $event) : void{
         $name = $event->getPlayer()->getName();
         if($event->getPlayer()->hasPermission($this->getPlugin()->getConfig()->get("alert_permission"))){
             $this->getPlugin()->registerStaff($name);
         }
-        $event->getPlayer()->setInvisible(false);
+        $this->getPlugin()->getUserManager()->get($event->getPlayer())->handleJoin($event);
     }
 
+    /**
+     * @param EntityDamageByEntityEvent $event
+     * @priority HIGHEST
+     */
     public function onHit(EntityDamageByEntityEvent $event) : void{
         $damager = $event->getDamager();
         $damaged = $event->getEntity();
         if($damager instanceof Player && $damaged instanceof Player && !$event instanceof EntityDamageByChildEntityEvent){
+            $this->getPlugin()->getUserManager()->get($damaged)->handleHit($event);
             $event = new PlayerHitPlayerEvent($damager, $damaged, $event->getAttackCooldown(), $event->getKnockBack());
             $event->call();
         }
+    }
+
+    /**
+     * @param EntityDamageEvent $event
+     * @priority HIGHEST
+     */
+    public function onDamage(EntityDamageEvent $event) : void{
+        $entity = $event->getEntity();
+        if($entity instanceof Player){
+            $this->getPlugin()->getUserManager()->get($entity)->handleDamage($event);
+        }
+    }
+
+    /**
+     * @param MoveEvent $event
+     * @priority HIGHEST
+     */
+    public function onMove(MoveEvent $event) : void{
+        $this->getPlugin()->getUserManager()->get($event->getPlayer())->handleMove($event);
     }
 
 }

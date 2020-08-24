@@ -48,7 +48,9 @@ class InventoryMove extends Cheat implements StrictRequirements{
         if($timeDiff == 0){
             // If the player's motion is not being set, for example, when a player
             // is hit and takes knockback.
-            if($player->getMotion()->x == 0 && $player->getMotion()->z == 0){
+            $user = $this->getPlugin()->getUserManager()->get($player);
+            if($user->hasNoMotion()
+            && $user->timePassedSinceHit(20)){
                 $this->addPreVL($name);
                 if($this->getPreVL($name) >= 5){
                     $this->suppress($event);
@@ -62,15 +64,7 @@ class InventoryMove extends Cheat implements StrictRequirements{
     }
 
     public function onMove(MoveEvent $event) : void{
-        if($event->getTo()->getX() - $event->getFrom()->getX() == 0 && $event->getTo()->getZ() - $event->getFrom()->getZ() == 0){
-            return;
-        }
-
-        $distX = $event->getTo()->getX() - $event->getFrom()->getX();
-        $distZ = $event->getTo()->getZ() - $event->getFrom()->getZ();
-        $distanceSquared = ($distX * $distX) + ($distZ * $distZ);
-        $distance = sqrt($distanceSquared);
-        if($distance < 0.1){
+        if($event->getDistanceXZ() < 0.1){
             return;
         }
         $this->lastMoveTick[$event->getPlayer()->getName()] = $this->getServer()->getTick();

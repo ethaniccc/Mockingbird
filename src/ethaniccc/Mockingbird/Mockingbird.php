@@ -31,6 +31,7 @@ use ethaniccc\Mockingbird\command\ReloadModuleCommand;
 use ethaniccc\Mockingbird\command\ScreenshareCommand;
 use ethaniccc\Mockingbird\listener\MockingbirdListener;
 use ethaniccc\Mockingbird\utils\staff\Staff;
+use ethaniccc\Mockingbird\utils\user\UserManager;
 use pocketmine\event\HandlerList;
 use pocketmine\permission\Permission;
 use pocketmine\permission\PermissionManager;
@@ -45,6 +46,7 @@ class Mockingbird extends PluginBase{
     private $enabledModules = [];
     private $disabledModules = [];
     private $staff = [];
+    private $userManager;
 
     public function onEnable(){
         if(!file_exists($this->getDataFolder() . "config.yml")){
@@ -69,18 +71,17 @@ class Mockingbird extends PluginBase{
             }), 100, 200);
         }
         $this->registerListener();
+        $this->userManager = new UserManager();
     }
 
-    /**
-     * @return string
-     */
+    public function getUserManager() : UserManager{
+        return $this->userManager;
+    }
+
     public function getPrefix() : string{
         return !is_string($this->getConfig()->get("prefix")) ? TextFormat::BOLD . TextFormat::RED . "Mockingbird> " . TextFormat::RESET : $this->getConfig()->get("prefix") . " ";
     }
 
-    /**
-     * @param Player $player
-     */
     public function kickPlayerTask(Player $player) : void{
         $name = $player->getName();
         $this->getScheduler()->scheduleDelayedTask(new ClosureTask(function(int $currentTick) use ($player, $name) : void{
@@ -101,9 +102,6 @@ class Mockingbird extends PluginBase{
         }), 1);
     }
 
-    /**
-     * @param Player $player
-     */
     public function banPlayerTask(Player $player) : void{
         $name = $player->getName();
         $this->getScheduler()->scheduleDelayedTask(new ClosureTask(function(int $currentTick) use ($player, $name) : void{
@@ -129,9 +127,6 @@ class Mockingbird extends PluginBase{
         }), 1);
     }
 
-    /**
-     * @return bool
-     */
     public function isDeveloperMode() : bool{
         return $this->developerMode;
     }
@@ -158,24 +153,14 @@ class Mockingbird extends PluginBase{
         }
     }
 
-    /**
-     * @return array
-     */
     public function getEnabledModules() : array{
         return $this->enabledModules;
     }
 
-    /**
-     * @return array
-     */
     public function getDisabledModules() : array{
         return $this->disabledModules;
     }
 
-    /**
-     * @param string $module
-     * @return Cheat|null
-     */
     public function getModuleByName(string $module) : ?Cheat{
         foreach($this->enabledModules as $mod){
             if(strtolower($mod->getName()) === strtolower($module)){
@@ -190,33 +175,20 @@ class Mockingbird extends PluginBase{
         return null;
     }
 
-    /**
-     * @param $module Cheat
-     */
     public function enableModule($module) : void{
         $this->getServer()->getPluginManager()->registerEvents($module, $this);
         $module->setEnabled();
     }
 
-    /**
-     * @param $module Cheat
-     */
     public function disableModule($module) : void{
         HandlerList::unregisterAll($module);
         $module->setEnabled(false);
     }
 
-    /**
-     * @param string $name
-     */
     public function registerStaff(string $name) : void{
         $this->staff[$name] = new Staff($name);
     }
 
-    /**
-     * @param string $name
-     * @return Staff|null
-     */
     public function getStaff(string $name) : ?Staff{
         return isset($this->staff[$name]) ? $this->staff[$name] : null;
     }

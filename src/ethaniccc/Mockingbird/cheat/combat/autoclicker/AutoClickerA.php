@@ -54,7 +54,7 @@ class AutoClickerA extends Cheat{
         }
         array_push($this->deviations[$name], $deviation);
         $averageDeviation = MathUtils::getAverage($this->deviations[$name]);
-        if($averageDeviation <= 7.5){
+        if($averageDeviation <= 7.5 && !$this->getPlugin()->getUserManager()->get($player)->isMobile()){
             $this->addPreVL($name);
             if($this->getPreVL($name) >= 4.5){
                 $this->fail($player, "$name's clicking was too consistent", [], "$name's click deviation was $averageDeviation");

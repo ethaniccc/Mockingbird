@@ -28,6 +28,7 @@ use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\Player;
 
+// FIXME: how tf is this falsing when a player is getting hit while eating
 class AttackingWhileEating extends Cheat implements Blatant{
 
     private $lastAttackTick = [];
@@ -38,6 +39,7 @@ class AttackingWhileEating extends Cheat implements Blatant{
     }
 
     public function receivePacket(DataPacketReceiveEvent $event) : void{
+        /*
         $player = $event->getPlayer();
         $name = $player->getName();
         $packet = $event->getPacket();
@@ -52,6 +54,7 @@ class AttackingWhileEating extends Cheat implements Blatant{
                 }
             }
         }
+        */
     }
 
     public function onHit(EntityDamageByEntityEvent $event) : void{

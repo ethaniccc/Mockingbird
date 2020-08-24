@@ -21,12 +21,11 @@ class Scaffold extends Cheat{
         $AABB = AABB::fromBlock($block);
         $isLookingAtBlock = $AABB->collidesRay($ray, 0, 10) != -1;
 
-        if(!$isLookingAtBlock){
+        if(!$isLookingAtBlock && !$this->getPlugin()->getUserManager()->get($player)->isMobile()){
             $this->addPreVL($player->getName());
-            if($this->getPreVL($player->getName()) >= 10){
+            if($this->getPreVL($player->getName()) >= 7){
                 // still experimental so no suppression. plus, if this somehow falses, it may cause issues.
                 $this->fail($player, "{$player->getName()} placed a block without looking at it");
-                $this->debugNotify("{$player->getName()}'s Ray did not collide with the bounding box of the block placed.");
             }
         } else {
             $this->lowerPreVL($player->getName(), 0);

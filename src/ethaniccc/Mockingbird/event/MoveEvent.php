@@ -36,9 +36,9 @@ class MoveEvent extends PlayerEvent{
     /** @var bool */
     private $onGround;
     /** @var int */
-    private $mode = self::MODE_NORMAL;
-    /** @var int */
-    private $lastMovedTick = 0;
+    private $mode;
+    private $yaw;
+    private $pitch;
 
     /**
      * MoveEvent constructor.
@@ -47,14 +47,17 @@ class MoveEvent extends PlayerEvent{
      * @param Vector3 $to
      * @param bool $onGround
      * @param int $mode
+     * @param float $yaw
+     * @param float $pitch
      */
-    public function __construct(Player $player, Vector3 $from, Vector3 $to, bool $onGround, int $mode){
+    public function __construct(Player $player, Vector3 $from, Vector3 $to, bool $onGround, int $mode, float $yaw, float $pitch){
         $this->player = $player;
         $this->from = $from;
         $this->to = $to;
         $this->onGround = $onGround;
         $this->mode = $mode;
-
+        $this->yaw = $yaw;
+        $this->pitch = $pitch;
     }
 
     public function getMode() : int{
@@ -118,6 +121,14 @@ class MoveEvent extends PlayerEvent{
      */
     public function getTo() : Vector3{
         return $this->to;
+    }
+
+    public function getYaw() : float{
+        return $this->yaw;
+    }
+
+    public function getPitch() : float{
+        return $this->pitch;
     }
 
 }

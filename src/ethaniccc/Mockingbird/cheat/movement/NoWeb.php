@@ -21,71 +21,35 @@ Github: https://www.github.com/ethaniccc
 namespace ethaniccc\Mockingbird\cheat\movement;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
-use ethaniccc\Mockingbird\cheat\StrictRequirements;
+use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\Mockingbird;
+use ethaniccc\Mockingbird\utils\LevelUtils;
 use pocketmine\block\BlockIds;
-use pocketmine\event\player\PlayerJumpEvent;
-use pocketmine\event\player\PlayerMoveEvent;
-use pocketmine\Player;
 
-class NoWeb extends Cheat implements StrictRequirements{
-
-    private $jumped = [];
-    private $suspicionLevel = [];
+class NoWeb extends Cheat{
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
 
-    public function onMove(PlayerMoveEvent $event) : void{
+    public function onMove(MoveEvent $event) : void{
         $player = $event->getPlayer();
         $name = $player->getName();
+        $user = $this->getPlugin()->getUserManager()->get($player);
 
-        if($this->hasRecentlyJumped($player)) return;
-
-        $level = $player->getLevel();
-        $position = $player->asVector3();
-        $blocksAround = [
-            $level->getBlock($position),
-            $level->getBlock($position->add(0, 1, 0)),
-            $level->getBlock($position->subtract(0, 1, 0))
-        ];
-        $continue = false;
-        foreach($blocksAround as $block) if($block->getId() === BlockIds::COBWEB) $continue = true;
-        if($continue){
-            $from = $event->getFrom();
-            $to = $event->getTo();
-
-            $distX = ($to->x - $from->x);
-            $distZ = ($to->z - $from->z);
-
-            $distanceSquared = abs(($distX * $distX) + ($distZ * $distZ));
-            $distance = sqrt($distanceSquared);
-
-            $expectedDistance = 0.115;
-            if($player->getEffect(1) !== null){
-                $expectedDistance *= (4 / 3) * ($player->getEffect(1)->getEffectLevel() + 1);
-            }
-            if($distance > $expectedDistance){
-                if(!isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] = 0;
-                $this->suspicionLevel[$name] += 1;
-                if($this->suspicionLevel[$name] >= 2.5){
-                    $this->suppress($event);
-                    $this->fail($player, "$name moved too fast while in cobweb");
+        if(LevelUtils::isNearBlock($player, BlockIds::COBWEB)
+        && $user->ticksPassedSinceJump(10)
+        && $user->hasNoMotion()){
+            $expectedDistance = 0.115 * (1 + $player->getEffect(1) !== null ? 0.2 * ($player->getEffect(1)->getAmplifier() + 1) : 0);
+            if($event->getDistanceXZ() > $expectedDistance){
+                $this->addPreVL($name);
+                if($this->getPreVL($name) > 3){
+                    $this->fail($player, "$name moved too fast in cobweb");
                 }
             } else {
-                if(isset($this->suspicionLevel[$name])) $this->suspicionLevel[$name] *= 0.5;
+                $this->lowerPreVL($name, 0);
             }
         }
-    }
-
-    public function onJump(PlayerJumpEvent $event) : void{
-        $name = $event->getPlayer()->getName();
-        $this->jumped[$name] = $this->getServer()->getTick();
-    }
-
-    private function hasRecentlyJumped(Player $player) : bool{
-        return isset($this->jumped[$player->getName()]) ? $this->getServer()->getTick() - $this->jumped[$player->getName()] <= 10 : false;
     }
 
 }

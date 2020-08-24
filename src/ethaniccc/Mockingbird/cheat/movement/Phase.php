@@ -43,7 +43,6 @@ class Phase extends Cheat{
         }
 
         if($this->moveTicks[$name] > 10 && $this->inTicks[$name] > 10){
-            $this->suppress($event);
             // TODO: Make a better phase check.
         }
     }

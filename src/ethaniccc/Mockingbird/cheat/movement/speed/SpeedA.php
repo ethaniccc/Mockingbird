@@ -31,6 +31,7 @@ use pocketmine\event\player\PlayerJumpEvent;
 use pocketmine\item\ItemIds;
 use pocketmine\Player;
 
+// TODO: Update this with the new User class stuff, too lazy for now xd
 class SpeedA extends Cheat{
 
     /** @var array */
