@@ -47,7 +47,10 @@ class FlyA extends Cheat implements StrictRequirements{
                 && $user->timePassedSinceDamage(5)
                 && $user->timePassedSinceJoin(40)
                 && $user->timePassedSinceHit(15)
-                && !LevelUtils::isNearBlock($player, BlockIds::COBWEB, 2)){
+                && !LevelUtils::isNearBlock($player, BlockIds::COBWEB, 2)
+                && !$player->isFlying()
+                && !$player->getAllowFlight()
+                && !$player->isSpectator()){
                     $this->addPreVL($name);
                     if($this->getPreVL($name) >= 3){
                         $this->suppress($event);

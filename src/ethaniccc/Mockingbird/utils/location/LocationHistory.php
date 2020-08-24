@@ -35,7 +35,7 @@ class LocationHistory{
             }
         }
         ksort($probables);
-        return end($probables) ?? null;
+        return end($probables) !== false ? end($probables) : null;
     }
 
 }

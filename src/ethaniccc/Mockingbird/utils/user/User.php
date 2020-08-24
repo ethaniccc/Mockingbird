@@ -6,6 +6,7 @@ use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\utils\LevelUtils;
 use ethaniccc\Mockingbird\utils\location\LocationHistory;
 use ethaniccc\Mockingbird\utils\location\Vector4;
+use pocketmine\entity\Entity;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\player\PlayerJoinEvent;
@@ -29,6 +30,9 @@ class User{
 
     private $lastHitTick = 0;
     private $damagedTick = 0;
+
+    private $lastHitEntity;
+    private $lastAttackedTick = 0;
 
     public function __construct(Player $player, bool $isMobile){
         $this->player = $player;
@@ -119,7 +123,20 @@ class User{
     }
 
     public function handleHit(EntityDamageByEntityEvent $event) : void{
-        $this->lastHitTick = $this->player->getServer()->getTick();
+        if(spl_object_hash($event->getDamager()) === spl_object_hash($this->player)){
+            $this->lastHitEntity = $event->getEntity();
+            $this->lastAttackedTick = $this->player->getServer()->getTick();
+        } else {
+            $this->lastHitTick = $this->player->getServer()->getTick();
+        }
+    }
+
+    public function getLastAttackedEntity() : ?Entity{
+        return $this->lastHitEntity;
+    }
+
+    public function timePassedSinceAttack(int $tickDiff) : bool{
+        return $this->player->getServer()->getTick() - $this->lastAttackedTick >= $tickDiff;
     }
 
     public function timePassedSinceHit(int $tickDiff) : bool{

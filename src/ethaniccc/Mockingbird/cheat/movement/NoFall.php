@@ -36,7 +36,12 @@ class NoFall extends Cheat{
         if($event->onGround()
         && $user->getOffGroundTicks() >= 10
         && $event->getDistanceY() < 0){
-            $this->fail($player, "$name gave onGround value true when not near ground");
+            $this->addPreVL($name);
+            if($this->getPreVL($name) >= 3){
+                $this->fail($player, "$name gave onGround value true when not near ground");
+            }
+        } else {
+            $this->lowerPreVL($name, 0);
         }
     }
 
