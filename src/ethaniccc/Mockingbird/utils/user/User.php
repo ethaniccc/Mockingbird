@@ -12,6 +12,7 @@ use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerJumpEvent;
 use pocketmine\math\Vector3;
+use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\Player;
 
 class User{
@@ -33,13 +34,19 @@ class User{
 
     private $lastHitEntity;
     private $lastAttackedTick = 0;
+    /** @var ClientData */
+	private $clientData;
+	/** @var LoginPacket */
+	private $packet;
 
-    public function __construct(Player $player, bool $isMobile){
+    public function __construct(Player $player, bool $isMobile, LoginPacket $packet){
         $this->player = $player;
         $this->isMobile = $isMobile;
         $this->locationHistory = new LocationHistory($player);
         $this->lastMoveDelta = new Vector3(0, 0, 0);
         $this->moveDelta = new Vector3(0, 0, 0);
+        $this->clientData = new ClientData($packet->clientData);
+        $this->packet = $packet;
     }
 
     public function getPlayer() : Player{
