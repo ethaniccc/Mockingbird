@@ -194,7 +194,9 @@ class Mockingbird extends PluginBase{
     }
 
     public function loadModule(Cheat $module) : void{
-    	$this->getLogger()->alert(sprintf("Load Module %s",$module->getName()));
+    	if($module->isEnabled()) {
+		    $this->getLogger()->alert(sprintf("Load Module %s" , $module->getName()));
+	    }
         $this->getServer()->getPluginManager()->registerEvents($module, $this);
     }
 
