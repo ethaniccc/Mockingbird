@@ -2,6 +2,7 @@
 
 namespace ethaniccc\Mockingbird\utils\user;
 
+use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\Player;
 
 class UserManager{
@@ -12,8 +13,8 @@ class UserManager{
         return $this->users[spl_object_hash($player)] ?? null;
     }
 
-    public function register(Player $player, bool $isMobile) : void{
-        $this->users[spl_object_hash($player)] = new User($player, $isMobile);
+    public function register(Player $player, bool $isMobile, LoginPacket $packet) : void{
+        $this->users[spl_object_hash($player)] = new User($player, $isMobile, $packet);
     }
 
     public function unregister(Player $player) : void{
