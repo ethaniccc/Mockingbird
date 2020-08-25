@@ -139,6 +139,7 @@ PacketChecks: true
 ## Other Detections ##
 # You can choose to enable or disable cheats with (true/false)
 
+#YOU MUST TO ENABLE XBOX-AUTH BECAUSE SOME PROXY CAN REWRITE LOGINPACKET
 EditionFaker: true
 ChestStealer: true
 FastEat: true
