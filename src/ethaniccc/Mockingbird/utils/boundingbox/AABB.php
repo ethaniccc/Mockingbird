@@ -20,6 +20,7 @@ namespace ethaniccc\Mockingbird\utils\boundingbox;
 
 use pocketmine\block\Block;
 use pocketmine\entity\Entity;
+use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
 
@@ -28,12 +29,13 @@ use pocketmine\Player;
  * @package ethaniccc\Mockingbird\utils\boundingbox
  * @author shura62 (tysm <3)
  */
-class AABB{
+class AABB extends AxisAlignedBB{
 
     private $minX, $minY, $minZ;
     private $maxX, $maxY, $maxZ;
 
     public function __construct(float $minX, float $minY, float $minZ, float $maxX, float $maxY, float $maxZ) {
+        parent::__construct($minX, $minY, $minZ, $maxX, $maxX, $maxZ);
         $this->minX = $minX;
         $this->minY = $minY;
         $this->minZ = $minZ;
