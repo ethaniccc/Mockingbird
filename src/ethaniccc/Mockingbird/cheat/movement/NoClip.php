@@ -26,6 +26,9 @@ use pocketmine\event\player\PlayerMoveEvent;
 class NoClip extends Cheat {
 	public function onPlayerMove(PlayerMoveEvent $event) : void {
 		$player = $event->getPlayer();
+		
+		if($player->isSpectator()) return;
+		
 		$name = $player->getName();
 		
 		$head = $player->getLevel()->getBlock($player->add(0 , 1 , 0));
@@ -36,10 +39,6 @@ class NoClip extends Cheat {
 		
 		$fromBlockAABB = $fromBlock->getBoundingBox();
 		$toBlockAABB = $toBlock->getBoundingBox();
-		
-		if($fromBlock->getId() === 0 || $toBlock->getId() === 0) {
-			return;
-		}
 		
 		if($fromBlockAABB === null || $toBlockAABB === null) {
 			return;
@@ -54,7 +53,7 @@ class NoClip extends Cheat {
 		}
 		
 		$event->setCancelled();
-		$this->fail($player, "$name tried NoClip.");
+		$this->fail($player , "$name tried NoClip.");
 		//TODO FALSE DETECTION WHEN LAG (Chunk Cache)
 	}
 }
