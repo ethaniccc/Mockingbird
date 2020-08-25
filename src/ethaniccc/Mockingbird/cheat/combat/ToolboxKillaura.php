@@ -25,7 +25,7 @@ use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\event\PlayerHitPlayerEvent;
 use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
-use use pocketmine\event\entity\EntityDamageByChildEntityEvent;
+use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\AnimatePacket;
 use pocketmine\Player;
