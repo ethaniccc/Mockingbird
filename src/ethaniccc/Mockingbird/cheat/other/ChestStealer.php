@@ -54,7 +54,7 @@ class ChestStealer extends Cheat implements StrictRequirements{
             }
 
             $timeDiff = microtime(true) - $this->lastTransaction[$name];
-            if($timeDiff < 0.001){
+            if($timeDiff < 0.014){
                 $this->addPreVL($name);
                 if($this->getPreVL($name) >= 4){
                     $this->suppress($event);
