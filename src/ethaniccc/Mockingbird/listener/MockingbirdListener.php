@@ -93,7 +93,7 @@ class MockingbirdListener implements Listener{
         } elseif($packet instanceof LoginPacket){
             // if EditionFaker is disabled, or somehow EditionFaker is bypassed, this can be used as the AntiCheat's disabler (for some detections)!
             $isMobile = in_array($packet->clientData["DeviceOS"], [DeviceOS::ANDROID, DeviceOS::IOS, DeviceOS::AMAZON]);
-            $this->getPlugin()->getUserManager()->register($player, $isMobile);
+            $this->getPlugin()->getUserManager()->register($player, $isMobile, $packet);
         }
     }
 
