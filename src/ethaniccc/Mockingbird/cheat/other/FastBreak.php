@@ -25,62 +25,34 @@ use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\entity\Effect;
 use pocketmine\event\block\BlockBreakEvent;
-use pocketmine\event\server\DataPacketReceiveEvent;
-use pocketmine\network\mcpe\protocol\PlayerActionPacket;
+use pocketmine\item\Tool;
 
 class FastBreak extends Cheat implements StrictRequirements{
-
-    private $startBreakTick = [];
-    private $suspicionLevel = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
-
-    public function receivePacket(DataPacketReceiveEvent $event) : void{
-        $packet = $event->getPacket();
-        if($packet instanceof PlayerActionPacket){
-            if($packet->action === PlayerActionPacket::ACTION_START_BREAK){
-                $this->startBreakTick[$event->getPlayer()->getName()] = microtime(true);
-            }
-        }
-    }
-
-    public function onBlockBreak(BlockBreakEvent $event) : void{
-        $player = $event->getPlayer();
-        $name = $player->getName();
-
-        if($player->getEffect(Effect::HASTE) !== null){
-            return;
-        }
-
-        if($player->isCreative()){
-            return;
-        }
-
-        if(!isset($this->startBreakTick[$name])){
-            // InstaBreak or some other poorly coded cheat?
-            $this->fail($player, "$name attempted to break a block without starting a break action");
-        } else {
-            $timeDiff = microtime(true) - $this->startBreakTick[$name];
-            $expectedDiff = $event->getBlock()->getBreakTime($player->getInventory()->getItemInHand());
-            if($timeDiff < $expectedDiff){
-                // suppression for this is annoying asf
-                // $this->supress($event);
-                if(!isset($this->suspicionLevel[$name])){
-                    $this->suspicionLevel[$name] = 0;
-                }
-                $this->suspicionLevel[$name] += 1;
-                if($this->suspicionLevel[$name] >= 5){
-                    $this->fail($player, "$name broke a block too fast");
-                    $this->suspicionLevel[$name] = 1;
-                }
-            } else {
-                if(isset($this->suspicionLevel[$name])){
-                    $this->suspicionLevel[$name] *= 0.5;
-                }
-            }
-        }
-    }
+	
+	public function onBlockBreak(BlockBreakEvent $event) : void {
+		$player = $event->getPlayer();
+		if($player->hasEffect(Effect::HASTE) || $player->isCreative()) {
+			return;
+		}
+		
+		if($event->getInstaBreak()) {
+			$item = $event->getItem();
+			if($event->getBlock()->getHardness() !== 0) {
+				if($item instanceof Tool) {
+					if($item->getMiningEfficiency($event->getBlock()) < 12) {
+						$this->fail($player , "{$player->getName()} break block too fast");
+						$event->setCancelled();
+					}
+				} else {
+					$this->fail($player , "{$player->getName()} break block too fast");
+					$event->setCancelled();
+				}
+			}
+		}
+	}
 
 }

@@ -142,6 +142,6 @@ PacketChecks: true
 EditionFaker: true
 ChestStealer: true
 FastEat: true
-FastBreak: false
+FastBreak: true
 Nuker: true
 Timer: true
