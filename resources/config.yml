@@ -119,7 +119,7 @@ ReachB: false
 
 SpeedA: true
 SpeedB: true
-NoSlowdown: true
+NoSlowdown: false
 FastLadder: true
 NoWeb: true
 NoFall: true
