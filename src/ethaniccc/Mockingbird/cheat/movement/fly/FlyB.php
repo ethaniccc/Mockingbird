@@ -28,7 +28,10 @@ class FlyB extends Cheat{
                 $acceleration = $deltaY - $user->getLastMoveDelta()->getY();
                 if($user->getOffGroundTicks() >= 10
                 && $horizontalDist > 0.1
-                && ($deltaY == 0 || $acceleration == 0)){
+                && ($deltaY == 0 || $acceleration == 0)
+	            && !$player->isFlying()
+	            && !$player->getAllowFlight()
+	            && !$player->isSpectator()){
                     $this->addPreVL($name);
                     if($this->getPreVL($name) >= 3){
                         $this->suppress($event);
