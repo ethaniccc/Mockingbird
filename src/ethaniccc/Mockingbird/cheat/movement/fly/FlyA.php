@@ -27,7 +27,6 @@ use ethaniccc\Mockingbird\utils\MathUtils;
 use ethaniccc\Mockingbird\utils\user\User;
 use pocketmine\block\Air;
 use pocketmine\block\BlockIds;
-use pocketmine\block\Transparent;
 use pocketmine\item\ItemIds;
 
 class FlyA extends Cheat implements StrictRequirements{
@@ -50,7 +49,7 @@ class FlyA extends Cheat implements StrictRequirements{
                 && $user->timePassedSinceJoin(40)
                 && $user->timePassedSinceHit(15)
                 && !LevelUtils::isNearBlock($player, BlockIds::COBWEB, 2)
-                && (!LevelUtils::getBlockUnder($player, 1) instanceof Transparent && !LevelUtils::getBlockUnder($player, 1) instanceof Air)
+                && LevelUtils::getBlockUnder($player, 1) instanceof Air
                 && !$player->isFlying()
                 && !$player->getAllowFlight()
                 && !$player->isSpectator()){

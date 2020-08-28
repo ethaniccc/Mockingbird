@@ -8,7 +8,6 @@ use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\utils\LevelUtils;
 use ethaniccc\Mockingbird\utils\user\User;
 use pocketmine\block\Air;
-use pocketmine\block\Transparent;
 use pocketmine\math\Vector3;
 
 class FlyB extends Cheat{
@@ -31,7 +30,7 @@ class FlyB extends Cheat{
                 if($user->getOffGroundTicks() >= 10
                 && $horizontalDist > 0.1
                 && ($deltaY == 0 || $acceleration == 0)
-                && (!LevelUtils::getBlockUnder($player, 1) instanceof Transparent && !LevelUtils::getBlockUnder($player, 1) instanceof Air)
+                && LevelUtils::getBlockUnder($player, 1) instanceof Air
 	            && !$player->isFlying()
 	            && !$player->getAllowFlight()
 	            && !$player->isSpectator()){

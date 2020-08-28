@@ -26,6 +26,7 @@ class VelocityA extends Cheat{
             $vertical = $event->getVector()->y;
             $this->lastVertical[$name] = $vertical;
             $this->ticksSinceSend[$name] = 0;
+            $this->lowerPreVL($name, 0);
         }
     }
 
