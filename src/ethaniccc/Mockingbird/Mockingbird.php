@@ -219,10 +219,12 @@ class Mockingbird extends PluginBase{
                                     $enabled = (bool) $this->getConfig()->get($className);
                                     $enabled = $this->isDeveloperMode() ? true : $enabled;
                                     $newDetection = new $class($this, $className, $type, $enabled);
-                                    $this->loadModule($newDetection);
-                                    $newDetection->isEnabled() ? $this->enabledModules[] = $newDetection : $this->disabledModules[] = $newDetection;
                                     if($newDetection->isEnabled()){
+                                        $this->loadModule($newDetection);
+                                        $this->enabledModules[] = $newDetection;
                                         $loadedModules++;
+                                    } else {
+                                        $this->disabledModules[] = $newDetection;
                                     }
                                 }
                             }
