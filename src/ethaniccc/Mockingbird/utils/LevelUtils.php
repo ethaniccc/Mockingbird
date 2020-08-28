@@ -41,6 +41,7 @@ class LevelUtils{
      * @param float|int $radius
      * @param int $type
      * @return array
+     * TODO: What the fuck is this mess?
      */
     public static function getSurroundingBlocks($player, float $radius = 1, int $type = self::MODE_NORMAL) : array{
         $position = $player->asVector3();
@@ -120,7 +121,8 @@ class LevelUtils{
         for($x = -$expand; $x <= $expand; $x += $expand){
             for($z = -$expand; $z <= $expand; $z += $expand){
                 for($y = $minY; $y <= -0.5; $y += 0.1){
-                    if($level->getBlock($position->add($x, $y, $z))->getId() !== 0){
+                    $block = $level->getBlock($position->add($x, $y, $z));
+                    if($block->getId() !== 0){
                         return true;
                     }
                 }

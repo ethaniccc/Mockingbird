@@ -31,7 +31,6 @@ class EditionFaker extends Cheat{
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
-        $this->setMaxViolations(1);
     }
 
     public function receivePacket(DataPacketReceiveEvent $event) : void{

@@ -47,6 +47,9 @@ class Cheat implements Listener{
     /** @var array */
     private $lastViolationTime = [];
 
+    private $requiredTPS = 20;
+    private $requiredPing = 10000;
+
     /** @var array */
     private $preVL = [];
 
@@ -122,6 +125,22 @@ class Cheat implements Listener{
         if(isset($this->preVL[$name])){
             $this->preVL[$name] *= $multiplier;
         }
+    }
+
+    public function setRequiredTPS(float $tps) : void{
+        $this->requiredTPS = $tps;
+    }
+
+    public function getRequiredTPS() : float{
+        return $this->requiredTPS;
+    }
+
+    public function setRequiredPing(int $ping) : void{
+        $this->requiredPing = $ping;
+    }
+
+    public function getRequiredPing() : int{
+        return $this->requiredPing;
     }
 
     /**
