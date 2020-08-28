@@ -109,8 +109,10 @@ AutoClickerB: true
 
 Angle: false
 Hitbox: false
-ReachA: true
+ReachA: false
 ReachB: false
+# pls consider trying this out since it also works with mobile players and may be more accurate
+ReachC: true
 
 #######   =====================================   #######
 

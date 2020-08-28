@@ -18,7 +18,6 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\combat;
 
-use ethaniccc\Mockingbird\cheat\Blatant;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\event\PlayerHitPlayerEvent;
 use ethaniccc\Mockingbird\Mockingbird;

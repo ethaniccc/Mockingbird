@@ -47,8 +47,15 @@ class Mockingbird extends PluginBase{
     private $disabledModules = [];
     private $staff = [];
     private $userManager;
+    private static $reloaded;
 
     public function onEnable(){
+        if(self::$reloaded !== null){
+            $this->getLogger()->alert("Reloading Mockingbird with /reload may result in your server crashing, to prevent this, Mockingbird will disable itself.");
+            $this->getServer()->getPluginManager()->disablePlugin($this);
+            return;
+        }
+        self::$reloaded = true;
         if(!file_exists($this->getDataFolder() . "config.yml")){
             $this->saveDefaultConfig();
         }

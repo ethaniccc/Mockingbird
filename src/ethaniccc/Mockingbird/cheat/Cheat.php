@@ -45,19 +45,6 @@ class Cheat implements Listener{
     private $enabled;
 
     /** @var array */
-    private $notifyCooldown = [];
-
-    /** @var float */
-    private $requiredTPS;
-    /** @var int */
-    private $requiredPing;
-
-    /** @var array */
-    private $blatantViolations = [];
-    /** @var int */
-    private $maxBlatantViolations;
-
-    /** @var array */
     private $lastViolationTime = [];
 
     /** @var array */
@@ -135,79 +122,6 @@ class Cheat implements Listener{
         if(isset($this->preVL[$name])){
             $this->preVL[$name] *= $multiplier;
         }
-    }
-
-    /**
-     * @param float $tps
-     */
-    public function setRequiredTPS(float $tps){
-        if(!$this instanceof StrictRequirements){
-            return;
-        } else {
-            $this->requiredTPS = $tps;
-        }
-    }
-
-    /**
-     * @return float|int|null
-     */
-    public function getRequiredTPS(){
-        if(!$this instanceof StrictRequirements){
-            return null;
-        }
-        return $this->requiredTPS === null ? 19 : $this->requiredTPS;
-    }
-
-    /**
-     * @param int $ping
-     */
-    public function setRequiredPing(int $ping){
-        if(!$this instanceof StrictRequirements){
-            return;
-        } else {
-            $this->requiredPing = $ping;
-        }
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getRequiredPing(){
-        if(!$this instanceof StrictRequirements){
-            return null;
-        }
-        return $this->requiredPing === null ? 200 : $this->requiredPing;
-    }
-
-    /**
-     * @return int|null
-     * @throws Exception
-     */
-    public function getMaxViolations(){
-        if(!$this instanceof Blatant){
-            return null;
-        }
-        return $this->maxBlatantViolations;
-    }
-
-    /**
-     * @param int $violations
-     */
-    public function setMaxViolations(int $violations){
-        if(!$this instanceof Blatant){
-            return;
-        }
-        $this->maxBlatantViolations = $violations;
-    }
-
-    /**
-     * @param string $name
-     */
-    public function resetBlatantViolations(string $name){
-        if(!$this instanceof Blatant){
-            return;
-        }
-        $this->blatantViolations[$name] = 0;
     }
 
     /**

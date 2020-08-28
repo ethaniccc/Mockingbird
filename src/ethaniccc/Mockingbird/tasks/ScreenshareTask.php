@@ -52,7 +52,7 @@ class ScreenshareTask extends Task{
             unset($this->command->previousPosition[$this->player]);
             unset($this->command->screenshareTask[$this->player]);
         } else {
-            $player->hidePlayer($other);
+            $player->hidePlayer($target);
             foreach(Server::getInstance()->getOnlinePlayers() as $other){
                 $other->hidePlayer($player);
             }

@@ -28,6 +28,7 @@ class User{
     private $currentYaw, $currentPitch, $previousYaw, $previousPitch = 0;
     private $offGroundTicks = 0;
     private $lastJumpedTick = 0;
+    private $lastTeleportTick = 0;
 
     private $lastHitTick = 0;
     private $damagedTick = 0;
@@ -57,6 +58,10 @@ class User{
         return $this->player->getName();
     }
 
+    public function getClientData() : ClientData{
+        return $this->clientData;
+    }
+
     public function handleMove(MoveEvent $event) : void{
         $this->lastMoveDelta = $this->moveDelta;
         $this->moveDelta = new Vector3($event->getDistanceX(), $event->getDistanceY(), $event->getDistanceZ());
@@ -71,6 +76,9 @@ class User{
         $this->serverOnGround = LevelUtils::isNearGround($this->player);
         // off ground ticks will be done with server side information.
         $this->serverOnGround ? $this->offGroundTicks = 0 : ++$this->offGroundTicks;
+        if($event->getMode() === MoveEvent::MODE_TELEPORT){
+            $this->lastTeleportTick = $this->player->getServer()->getTick();
+        }
     }
 
     public function getOffGroundTicks() : int{
@@ -121,12 +129,16 @@ class User{
         return $this->previousPitch;
     }
 
+    public function timePassedSinceTeleport(int $tickDiff) : bool{
+        return $this->player->getServer()->getTick() - $this->lastTeleportTick >= $tickDiff;
+    }
+
     public function hasNoMotion() : bool{
         return (new Vector3(0, 0, 0))->distance($this->player->getMotion()) == 0;
     }
 
     public function isMobile() : bool{
-        return $this->isMobile;
+        return $this->clientData->isMobile();
     }
 
     public function handleHit(EntityDamageByEntityEvent $event) : void{

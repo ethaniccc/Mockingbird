@@ -20,18 +20,16 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\packet;
 
-use ethaniccc\Mockingbird\cheat\Blatant;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\types\NetworkInventoryAction;
 
-class InvalidCreativeTransaction extends Cheat implements Blatant{
+class InvalidCreativeTransaction extends Cheat{
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
-        $this->setMaxViolations(1);
     }
 
     public function receivePacket(DataPacketReceiveEvent $event) : void{

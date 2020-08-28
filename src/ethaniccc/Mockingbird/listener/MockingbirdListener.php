@@ -120,7 +120,7 @@ class MockingbirdListener implements Listener{
     public function onHit(EntityDamageByEntityEvent $event) : void{
         $damager = $event->getDamager();
         $damaged = $event->getEntity();
-        if($damager instanceof Player && $damaged instanceof Player && !$event instanceof EntityDamageByChildEntityEvent){
+        if($damager instanceof Player && $damaged instanceof Player && !$event instanceof EntityDamageByChildEntityEvent && !$event->isCancelled()){
             $this->getPlugin()->getUserManager()->get($damaged)->handleHit($event);
             $event = new PlayerHitPlayerEvent($damager, $damaged, $event->getAttackCooldown(), $event->getKnockBack());
             $event->call();

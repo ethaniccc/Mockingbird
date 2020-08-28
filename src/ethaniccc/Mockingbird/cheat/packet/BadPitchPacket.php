@@ -20,17 +20,15 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\packet;
 
-use ethaniccc\Mockingbird\cheat\Blatant;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 
-class BadPitchPacket extends Cheat implements Blatant{
+class BadPitchPacket extends Cheat{
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
-        $this->setMaxViolations(1);
     }
 
     public function receivePacket(DataPacketReceiveEvent $event) : void{

@@ -20,7 +20,6 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\packet;
 
-use ethaniccc\Mockingbird\cheat\Blatant;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
@@ -29,13 +28,12 @@ use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\Player;
 
 // FIXME: how tf is this falsing when a player is getting hit while eating
-class AttackingWhileEating extends Cheat implements Blatant{
+class AttackingWhileEating extends Cheat{
 
     private $lastAttackTick = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
-        $this->setMaxViolations(5);
     }
 
     public function receivePacket(DataPacketReceiveEvent $event) : void{

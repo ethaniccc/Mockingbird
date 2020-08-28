@@ -31,8 +31,8 @@ use pocketmine\Player;
  */
 class AABB extends AxisAlignedBB{
 
-    private $minX, $minY, $minZ;
-    private $maxX, $maxY, $maxZ;
+    public $minX, $minY, $minZ;
+    public $maxX, $maxY, $maxZ;
 
     public function __construct(float $minX, float $minY, float $minZ, float $maxX, float $maxY, float $maxZ) {
         parent::__construct($minX, $minY, $minZ, $maxX, $maxX, $maxZ);
@@ -50,7 +50,7 @@ class AABB extends AxisAlignedBB{
     }
 
     public static function fromPosition(Vector3 $pos) : AABB{
-        return new AABB($pos->x - 0.3, $pos->y, $pos->z - 0.3, $pos->x + 0.3, $pos->y + 1.8, $pos->z + 0.3);
+        return new AABB($pos->x - 0.4, $pos->y - 1.5, $pos->z - 0.4, $pos->x + 0.4, $pos->y + 0.5, $pos->z + 0.4);
     }
 
     public static function fromBlock(Block $block) : ?AABB{
@@ -110,6 +110,21 @@ class AABB extends AxisAlignedBB{
             }
         }
         return $tmin;
+    }
+
+    public function getCornerVectors() : array{
+        return [
+            // top vectors
+            new Vector3($this->maxX, $this->maxY, $this->maxZ),
+            new Vector3($this->minX, $this->maxY, $this->maxZ),
+            new Vector3($this->minX, $this->maxY, $this->minZ),
+            new Vector3($this->maxX, $this->maxY, $this->minZ),
+            // bottom vectors
+            new Vector3($this->maxX, $this->minY, $this->maxZ),
+            new Vector3($this->minX, $this->minY, $this->maxZ),
+            new Vector3($this->minX, $this->minY, $this->minZ),
+            new Vector3($this->maxX, $this->minY, $this->minZ)
+        ];
     }
 
 }

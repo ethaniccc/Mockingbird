@@ -18,15 +18,14 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\cheat\other;
 
-use ethaniccc\Mockingbird\cheat\Blatant;
 use ethaniccc\Mockingbird\cheat\Cheat;
+use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\Mockingbird;
-use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\types\DeviceOS;
 
-class EditionFaker extends Cheat implements Blatant{
+class EditionFaker extends Cheat{
 
     private $fakers = [];
 
@@ -61,11 +60,10 @@ class EditionFaker extends Cheat implements Blatant{
         }
     }
 
-    public function onJoin(PlayerJoinEvent $event) : void{
-        $name = spl_object_hash($event->getPlayer());
-        if(isset($this->fakers[$name])){
-            unset($this->fakers[$name]);
-            $this->fail($event->getPlayer(), "$name faked their device OS");
+    // even without the blatant interface, there is nothing left for you edition fakers ;)
+    public function onMove(MoveEvent $event) : void{
+        if(isset($this->fakers[spl_object_hash($event->getPlayer())])){
+            $this->fail($event->getPlayer(), "{$event->getPlayer()->getName()} is faking their device information");
         }
     }
 
