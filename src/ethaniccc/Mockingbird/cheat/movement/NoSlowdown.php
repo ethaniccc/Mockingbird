@@ -25,73 +25,81 @@ use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\player\PlayerItemConsumeEvent;
-use pocketmine\event\server\DataPacketReceiveEvent;
-use pocketmine\network\mcpe\protocol\ActorEventPacket;
-use pocketmine\Player;
+use pocketmine\item\Bow;
+use pocketmine\item\Consumable;
+use pocketmine\item\Food;
+use pocketmine\item\ItemIds;
 
 class NoSlowdown extends Cheat implements StrictRequirements{
 
-    private $startedEatingTick = [];
+    private $usingItemTicks = [];
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
 
     public function onMove(MoveEvent $event) : void{
-
-        if($event->getMode() !== MoveEvent::MODE_NORMAL){
+        $player = $event->getPlayer();
+        $user = $this->getPlugin()->getUserManager()->get($player);
+        $name = $player->getName();
+        if($player->isFlying()){
             return;
         }
-
-        $player = $event->getPlayer();
-        $name = $player->getName();
-
-        if($player->isFlying() || $player->getAllowFlight()) return;
-        if($player->getEffect(1) !== null){
-            if($player->getEFfect(1)->getEffectLevel() > 10) return;
-        }
-
-        $distance = $event->getDistanceXZ();
-
-        if($this->playerIsEating($player) && $this->getPlugin()->getUserManager()->get($player)->timePassedSinceHit(10)){
-            if(!$player->isUsingItem()){
-                unset($this->startedEatingTick[$name]);
+        // why is this true after right clicking in air with item in hand??
+        if($player->isUsingItem()){
+            // why... :sob:
+            $useIsValid = function() use($player) : bool{
+                if(($item = $player->getInventory()->getItemInHand()) instanceof Consumable){
+                    if($player->getFood() < $player->getMaxFood()){
+                        return true;
+                    } else {
+                        if($item instanceof Food){
+                            return in_array($item->getId(), [ItemIds::GOLDEN_APPLE, ItemIds::ENCHANTED_GOLDEN_APPLE]);
+                        } else {
+                            return true;
+                        }
+                    }
+                } else {
+                    return $item instanceof Bow;
+                }
+            };
+            if(!($useIsValid)()){
+                return;
             }
-            if($distance > 0.165){
+            if(!isset($this->usingItemTicks[$name])){
+                $this->usingItemTicks[$name] = 0;
+            }
+            ++$this->usingItemTicks[$name];
+            if($this->usingItemTicks[$name] < 9){
+                return;
+            }
+            $currentMoveX = $user->getMoveDelta()->getX();
+            $currentMoveZ = $user->getMoveDelta()->getZ();
+            $lastMoveX = $user->getLastMoveDelta()->getX();
+            $lastMoveZ = $user->getLastMoveDelta()->getX();
+            $expectedX = $lastMoveX * 0.2;
+            $expectedZ = $lastMoveZ * 0.2;
+            $equalnessX = ($currentMoveX - $expectedX);
+            $equalnessZ = ($currentMoveZ - $expectedZ);
+            $effectLevel = $player->getEffect(1) === null ? 0 : $player->getEffect(1)->getAmplifier() + 1;
+            if($equalnessX < -0.1 || $equalnessZ < -0.1 && $effectLevel <= 5
+            && $user->timePassedSinceHit(40)
+            && $user->hasNoMotion()){
                 $this->addPreVL($name);
-                if($this->getPreVL($name) >= 2){
-                    $this->suppress($event);
-                    $this->fail($player, "$name moved too fast while eating");
+                if($this->getPreVL($name) >= 3){
+                    $this->fail($player, "$name moved too fast while using an item");
                 }
             } else {
-                $this->lowerPreVL($name);
+                $this->lowerPreVL($name, 0);
             }
+        } else {
+            unset($this->usingItemTicks[$name]);
         }
     }
 
-    public function receivePacket(DataPacketReceiveEvent $event) : void{
-        $packet = $event->getPacket();
-        $name = $event->getPlayer()->getName();
-        if($packet instanceof ActorEventPacket){
-            $action = $packet->event;
-            switch($action){
-                case ActorEventPacket::EATING_ITEM:
-                    if(!isset($this->startedEatingTick[$name])) $this->startedEatingTick[$name] = $this->getServer()->getTick();
-                    break;
-            }
-        }
-    }
-
-    public function onCompleteEating(PlayerItemConsumeEvent $event) : void{
-        $name = $event->getPlayer()->getName();
-        unset($this->startedEatingTick[$name]);
-    }
-
-    private function playerIsEating(Player $player) : bool{
-        if(isset($this->startedEatingTick[$player->getName()])){
-            if($this->getServer()->getTick() - $this->startedEatingTick[$player->getName()] >= 25) unset($this->startedEatingTick[$player->getName()]);
-        }
-        return isset($this->startedEatingTick[$player->getName()]) ? $this->getServer()->getTick() - $this->startedEatingTick[$player->getName()] >= 15 : false;
+    public function onConsume(PlayerItemConsumeEvent $event) : void{
+        // WHYYY?!?!?!?!
+        unset($this->usingItemTicks[$event->getPlayer()->getName()]);
     }
 
 }
