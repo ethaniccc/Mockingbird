@@ -19,6 +19,9 @@ class Scaffold extends Cheat{
         $player = $event->getPlayer();
         $ray = Ray::from($player);
         $AABB = AABB::fromBlock($block);
+        if($AABB === null){
+            return;
+        }
         $isLookingAtBlock = $AABB->collidesRay($ray, 0, 10) != -1;
 
         if(!$isLookingAtBlock && !$this->getPlugin()->getUserManager()->get($player)->isMobile()){

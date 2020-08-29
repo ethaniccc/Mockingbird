@@ -35,28 +35,20 @@ use pocketmine\utils\TextFormat;
 
 class Cheat implements Listener{
 
-    /** @var string */
     private $cheatName;
-
-    /** @var string */
     private $cheatType;
-
-    /** @var bool */
     private $enabled;
 
-    /** @var array */
     private $lastViolationTime = [];
 
     private $requiredTPS = 20;
     private $requiredPing = 10000;
 
-    /** @var array */
     private $preVL = [];
 
-    /** @var Mockingbird */
     private $plugin;
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled){
         $this->cheatName = $cheatName;
         $this->cheatType = $cheatType;
         $this->enabled = $enabled;
@@ -167,9 +159,9 @@ class Cheat implements Listener{
      * @param Player $player
      * @param string $message
      * @param array $extraData
-     * @param null $debugMessage
+     * @param string $debugMessage
      */
-    protected function fail(Player $player, string $message, array $extraData = [], $debugMessage = null){
+    protected function fail(Player $player, string $message, array $extraData = [], string $debugMessage = null){
         $name = $player->getName();
         $isExempt = (!$this->isEnabled()
             || $player->hasPermission($this->getPlugin()->getConfig()->get("bypass_permission"))
