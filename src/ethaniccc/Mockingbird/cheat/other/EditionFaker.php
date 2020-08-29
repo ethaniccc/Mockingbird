@@ -30,6 +30,10 @@ class EditionFaker extends Cheat{
     private $fakers = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
+	    if(!$this->getServer()->getOnlineMode()){
+		    $this->getPlugin()->getLogger()->debug('EditionFaker MUST need online mode');
+		    $this->setEnabled(false);
+	    }
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
     }
 
