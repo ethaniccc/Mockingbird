@@ -141,6 +141,8 @@ PacketChecks: true
 ## Other Detections ##
 # You can choose to enable or disable cheats with (true/false)
 
+# For EditionFaker, online mode must be enabled due to the login packet being modified.
+# It is reccommended that you keep this check on.
 EditionFaker: true
 ChestStealer: true
 FastEat: true
