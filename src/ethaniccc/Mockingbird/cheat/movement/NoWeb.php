@@ -37,10 +37,15 @@ class NoWeb extends Cheat{
         $name = $player->getName();
         $user = $this->getPlugin()->getUserManager()->get($player);
 
-        if(LevelUtils::isNearBlock($player, BlockIds::COBWEB)
+        if($player->getLevelNonNull()->getBlock($player->subtract(0, 0.25, 0))->getId() === BlockIds::COBWEB
         && $user->ticksPassedSinceJump(10)
-        && $user->hasNoMotion()){
-            $expectedDistance = 0.115 * (1 + $player->getEffect(1) !== null ? 0.2 * ($player->getEffect(1)->getAmplifier() + 1) : 0);
+        && $user->hasNoMotion()
+        && !$player->isCreative()
+        && !$player->isSpectator()){
+            $expectedDistance = 0.115;
+            if($player->getEffect(1) !== null){
+                $expectedDistance *= 1 + (0.2 * $player->getEffect(1)->getAmplifier());
+            }
             if($event->getDistanceXZ() > $expectedDistance){
                 $this->addPreVL($name);
                 if($this->getPreVL($name) > 3){
