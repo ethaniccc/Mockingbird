@@ -36,10 +36,10 @@ class AutoClickerB extends Cheat implements StrictRequirements{
         $cps = $event->getCPS();
         $player = $event->getPlayer();
         $name = $player->getName();
-        if($cps > 23){
+        if($cps > 25){
             $this->addPreVL($name);
             if($this->getPreVL($name) >= 10){
-                $this->fail($player, "$name clicked at $cps, at max 23 cps expected.", []);
+                $this->fail($player, "$name clicked at $cps, at max 25 cps expected.", []);
             }
         } else {
             $this->lowerPreVL($name);

@@ -93,26 +93,12 @@ ScreenshareCommand: true
 
 ## Combat Detections ##
 # You can choose to enable or disable cheats with (true/false)
-
-# Toolbox is a hacked client some Android staff may use to
-# gain an unfair advantage against other players.
-# See Toolbox KillAura on this YouTube video: https://www.youtube.com/watch?v=K0INXOLxIj8&t
-ToolboxKillaura: true
-
 MultiAura: true
-
 # AutoClickerA is a consistency check.
 AutoClickerA: true
-
 # AutoClickerB is a speed check.
 AutoClickerB: true
-
-Angle: false
-Hitbox: false
 ReachA: false
-ReachB: false
-# pls consider trying this out since it also works with mobile players and may be more accurate
-ReachC: true
 
 #######   =====================================   #######
 
@@ -123,15 +109,12 @@ SpeedA: true
 SpeedB: true
 NoSlowdown: true
 FastLadder: true
-NoWeb: true
 NoFall: true
 AirJump: true
 FlyA: true
-FlyB: false
-InventoryMove: false
+FlyB: true
 VelocityA: true
-# Will most likely not work with mobile players!
-Scaffold: false
+# VelocityB is not included here because it is not finished yet.
 
 ## Packet Checks ##
 # These checks are to detect if packets sent to the server are valid.
@@ -142,10 +125,6 @@ PacketChecks: true
 # You can choose to enable or disable cheats with (true/false)
 
 # For EditionFaker, online mode must be enabled due to the login packet being modified.
-# It is reccommended that you keep this check on.
+# It is recommended that you keep this check on.
 EditionFaker: true
-ChestStealer: true
-FastEat: true
-FastBreak: false
-Nuker: true
 Timer: true

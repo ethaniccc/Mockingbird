@@ -81,45 +81,28 @@ You can also click [here](https://discord.gg/v77FESn) to join my discord.
 ## Detections
 Detections not guaranteed 100% accurate.
 ### Combat
-* Angle
 * AutoClicker
     * Consistency Detection (may sometimes false?)
     * Speed Detection
 * Reach
-    * ReachA: Uses ray tracing and location history to get the distance from the
-    damager to the target. This check will **most likely** not work for mobile players.
-    * ReachB: Uses XZ location distance to check the distance between two players.
-    This is inefficient and is only intended for a reach check with mobile players.
 * MultiAura
-* Toolbox Killaura
-    * Also a NoSwing check :p
-* Hitbox
-    - This check is not complete and should **not** be used. Especially on production servers. This check
-    will only give debug output.
 ### Movement
 * AirJump
 * Fly
     * FlyA: General prediction check.
     * FlyB: Horizontal and vertical check (extra).
-* InventoryMove (not complete / may be inaccurate)
 * FastLadder
-* NoSlowdown (while eating)
-* NoWeb
+* NoSlowdown
 * NoFall
 * Speed
     * SpeedA: Basic speed check.
     * SpeedB: Mini-Bhop check
 * Velocity
     * VelocityA: Vertical check (may sometimes false?)
- * Scaffold
-    - **WARNING**: This check is experimental.
+    * VelocityB: **NOT COMPLETE**
 ### Other Detections
 * Packet Checks
-* ChestStealer
-* FastEat
-* FastBreak (not complete / may be inaccurate)
-* Nuker
-* Timer (not complete / may be inaccurate)
+* Timer (might be inaccurate sometimes)
 * EditionFaker
 ## Custom Modules
 A feature that Mockingbird has is Custom Modules, which you can use to
@@ -168,8 +151,9 @@ namespace ethaniccc\Mockingbird\cheat\custom{
         }
         
         // personal recommendation to NOT use PlayerMoveEvent and use Mockingbird's custom MoveEvent instead
+        // this is because PlayerMoveEvent is synchronous to the server ticks
         public function onMove(PlayerMoveEvent $event) : void{
-            // Do your thing here ;)
+            // Do your thing here ;p
         }
 
     }

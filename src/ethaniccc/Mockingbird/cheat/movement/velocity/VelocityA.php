@@ -41,9 +41,10 @@ class VelocityA extends Cheat{
                 unset($this->ticksSinceSend[$name]);
                 return;
             }
-            $this->ticksSinceSend[$name] += 1;
+            ++$this->ticksSinceSend[$name];
             $maxTicks = (int) ($player->getPing() / 50) + 5 + (20 - $this->getServer()->getTicksPerSecond());
-            if($this->ticksSinceSend[$name] <= $maxTicks && $event->getDistanceY() <= $this->lastVertical[$name] * 0.99
+            // changed threshold from 0.99 to 0.98 for a hope for less falses. will *sometimes* detect 0.99 linear velocity.
+            if($this->ticksSinceSend[$name] <= $maxTicks && $event->getDistanceY() <= $this->lastVertical[$name] * 0.985
             && LevelUtils::getBlockAbove($player)->getId() === 0
             && !LevelUtils::isNearBlock($player,BlockIds::COBWEB)
             && !LevelUtils::isNearBlock($player,BlockIds::WATER)){
