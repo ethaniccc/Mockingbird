@@ -165,4 +165,11 @@ final class ViolationHandler{
         ];
     }
 
+    public static function resetAllViolations() : void{
+        foreach(self::$violations as $name => $violations){
+            // this will not clear the "total violations" section
+            self::setViolations($name, 0);
+        }
+    }
+
 }

@@ -52,6 +52,16 @@ punish_prefix: "§l§b§cMocking§4bird"
 # they are punished by Mockingbird
 max_violations: 75
 
+# This option is for if you want violations to reset after a certain time. This will
+# probably help with legit players **sometimes** false-flagging checks.
+# This will NOT clear the "total violations" section or the previous cheats violated for,
+# this option will only clear the player of their current violations.
+# Options: true / false
+reset_violations: true
+# If reset_violations is enabled, this option is for how often do you want violations to reset in seconds.
+# The default value for this is 600 seconds
+reset_time: 600
+
 # This option is for dynamic violations. For example, if a player
 # failed a speed check, and then failed it a second time by the next tick
 # (20 ticks a second), they will have 10 - 20 violations added. If they fail a check
@@ -98,7 +108,9 @@ MultiAura: true
 AutoClickerA: true
 # AutoClickerB is a speed check.
 AutoClickerB: true
-ReachA: false
+# New reach check that shouldn't false much, please make an issue with evidence if this check falses on the github repository
+# https://www.github.com/ethaniccc/Mockingbird/issues
+ReachA: true
 
 #######   =====================================   #######
 
