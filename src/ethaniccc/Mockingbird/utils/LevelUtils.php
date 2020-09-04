@@ -33,48 +33,6 @@ class LevelUtils{
     public const MODE_Z = 2;
     public const MODE_POINT_DISTANCE = 3;
 
-    public const MODE_NORMAL = 0;
-    public const MODE_ID = 1;
-
-    /**
-     * @param $player
-     * @param float|int $radius
-     * @param int $type
-     * @return array
-     * TODO: What the fuck is this mess?
-     */
-    public static function getSurroundingBlocks($player, float $radius = 1, int $type = self::MODE_NORMAL) : array{
-        $position = $player->asVector3();
-        $level = $player->getLevel();
-        $currentAddLevel = 0;
-        $levelsCompleted = 0;
-        $blocksAroundPlayer = [];
-        while($levelsCompleted != $radius){
-            array_push($blocksAroundPlayer, $level->getBlock($position->add(0 + $currentAddLevel, 0 + $currentAddLevel, 0 + $currentAddLevel)));
-            if($currentAddLevel != 0){
-                array_push($blocksAroundPlayer, $level->getBlock($position->add(0 - $currentAddLevel, 0 - $currentAddLevel, 0 - $currentAddLevel)));
-            }
-            array_push($blocksAroundPlayer, $level->getBlock($position->add(1 + $currentAddLevel, 0 + $currentAddLevel, 0 + $currentAddLevel)));
-            array_push($blocksAroundPlayer, $level->getBlock($position->add(1 - $currentAddLevel, 0 - $currentAddLevel, 0 - $currentAddLevel)));
-            array_push($blocksAroundPlayer, $level->getBlock($position->add(0 + $currentAddLevel, 0 + $currentAddLevel, 1 + $currentAddLevel)));
-            array_push($blocksAroundPlayer, $level->getBlock($position->add(0 - $currentAddLevel, 0 - $currentAddLevel, 1 - $currentAddLevel)));
-            array_push($blocksAroundPlayer, $level->getBlock($position->add(1 + $currentAddLevel, 0 + $currentAddLevel, 1 + $currentAddLevel)));
-            array_push($blocksAroundPlayer, $level->getBlock($position->add(1 + $currentAddLevel, 0 - $currentAddLevel, 1 + $currentAddLevel)));
-            array_push($blocksAroundPlayer, $level->getBlock($position->add(1 - $currentAddLevel, 0, 1 + $currentAddLevel)));
-            array_push($blocksAroundPlayer, $level->getBlock($position->add(1 + $currentAddLevel, 0, 1 - $currentAddLevel)));
-            $currentAddLevel++;
-            $levelsCompleted++;
-        }
-        if($type === self::MODE_ID){
-            $blockIds = [];
-            foreach($blocksAroundPlayer as $block){
-                array_push($blockIds, $block->getId());
-            }
-            return $blockIds;
-        }
-        return $blocksAroundPlayer;
-    }
-
     /**
      * @param Vector3 $to
      * @param Vector3 $from
