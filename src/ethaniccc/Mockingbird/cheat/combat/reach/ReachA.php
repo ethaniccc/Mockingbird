@@ -63,7 +63,7 @@ class ReachA extends Cheat{
                 }
                 $distance = min($distances);
                 if($distance > 3){
-                    $this->debugNotify("$name hit a player from distance: $distance");
+                    $this->debugNotify("$name hit a player from distance: $distance PreVL: {$this->getPreVL($name)}");
                     $this->addPreVL($name);
                     if($this->getPreVL($name) >= 2){
                         $roundedDistance = round($distance, 2);

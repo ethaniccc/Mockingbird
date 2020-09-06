@@ -5,6 +5,7 @@ namespace ethaniccc\Mockingbird\cheat\movement\velocity;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\Mockingbird;
+use ethaniccc\Mockingbird\utils\MathUtils;
 use pocketmine\event\entity\EntityMotionEvent;
 use pocketmine\Player;
 
@@ -49,12 +50,8 @@ class VelocityB extends Cheat{
             $expectedXDelta = $this->lastX[$name];
             $expectedZDelta = $this->lastZ[$name];
             if($this->ticksSinceSend[$name] <= $maxTicks){
-                $previousMoveDelta = clone $user->getLastMoveDelta();
-                // TODO: Attempt to assume which keys the client is pressing since this affects knockback.
-                // The thing that sucks is that I *think* I know what to do after I get which keys the client is pressing, but
-                // don't know how to get the keys the client is pressing..... sad thonk moment ;d
-                // Therefore, please **DO NOT** enable this in config, as it will just waste your server resources.
-                // senpayeh let me skid off your code XD
+                $previousMoveDelta = clone $this->moveDelta[$name];
+                // TODO: I hate it here
             } else {
                 if($this->getPreVL($name) >= $maxTicks){
                     $this->fail($player, "$name's horizontal velocity is less than normal.");

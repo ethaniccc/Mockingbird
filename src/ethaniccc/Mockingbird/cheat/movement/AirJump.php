@@ -38,6 +38,7 @@ class AirJump extends Cheat implements StrictRequirements{
         if(!LevelUtils::isNearGround($player, -1)){
             $this->addPreVL($name);
             if($this->getPreVL($name) >= 2){
+                $this->suppress($event);
                 $this->fail($player, "$name jumped in the air");
             }
         } else {

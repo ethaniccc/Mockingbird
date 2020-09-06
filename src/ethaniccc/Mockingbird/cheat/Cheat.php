@@ -239,6 +239,11 @@ class Cheat implements Listener{
         if(!$this->isEnabled()){
             return;
         }
+        $this->getServer()->getAsyncPool()->submitTask(new AsyncClosureTask(function() use($message){
+            $log = fopen("plugin_data/Mockingbird/debug_log.txt", "a");
+            fwrite($log, "$message\n");
+            fclose($log);
+        }));
         $this->getServer()->getLogger()->debug("[Mockingbird || {$this->getName()}]: $message");
     }
 

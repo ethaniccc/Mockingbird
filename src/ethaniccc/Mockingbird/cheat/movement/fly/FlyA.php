@@ -56,8 +56,8 @@ class FlyA extends Cheat implements StrictRequirements{
                 && $event->getMode() === MoveEvent::MODE_NORMAL
                 && $player->isAlive()){
                     $this->addPreVL($name);
-                    if($this->getPreVL($name) >= 3){
-                        $this->lowerPreVL($name, 0.33);
+                    if($this->getPreVL($name) >= 10){
+                        $this->lowerPreVL($name, 0.75);
                         $this->suppress($event);
                         $this->fail($player, "$name's Y distance was not as expected", [], "$name's Y distance was $yDelta, predicted $predictedDelta");
                     }

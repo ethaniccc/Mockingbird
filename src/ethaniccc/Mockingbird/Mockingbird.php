@@ -63,6 +63,7 @@ class Mockingbird extends PluginBase{
         if($this->getConfig()->get("version") !== $this->getDescription()->getVersion()){
             $this->saveDefaultConfig();
         }
+        @unlink($this->getDataFolder() . "debug_log.txt");
         @mkdir($this->getDataFolder() . "custom_modules", 0777);
         $this->getLogger()->debug(TextFormat::AQUA . "Mockingbird has been enabled.");
         $this->loadModules();

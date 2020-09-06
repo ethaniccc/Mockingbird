@@ -18,6 +18,7 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\utils;
 
+use ErrorException;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
 
@@ -100,8 +101,12 @@ class MathUtils{
     }
 
     public static function angle(Vector3 $vec1, Vector3 $vec2) : float{
-        $dot = min(max($vec1->dot($vec2) / ($vec1->length() * $vec2->length()), -1), 1);
-        return acos($dot);
+        try{
+            $dot = min(max($vec1->dot($vec2) / ($vec1->length() * $vec2->length()), -1), 1);
+            return acos($dot);
+        } catch(ErrorException $e){
+            return 0;
+        }
     }
 
 }

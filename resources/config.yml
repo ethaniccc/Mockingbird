@@ -59,8 +59,8 @@ max_violations: 75
 # Options: true / false
 reset_violations: true
 # If reset_violations is enabled, this option is for how often do you want violations to reset in seconds.
-# The default value for this is 600 seconds
-reset_time: 600
+# The default value for this is 300 seconds
+reset_time: 300
 
 # This option is for dynamic violations. For example, if a player
 # failed a speed check, and then failed it a second time by the next tick

@@ -23,6 +23,7 @@ class User{
 
     private $currentLocation, $lastLocation;
     private $moveDelta, $lastMoveDelta;
+    private $moveDistance, $lastMoveDistance;
     private $locationHistory;
     private $clientOnGround, $serverOnGround = true;
     private $currentYaw, $currentPitch, $previousYaw, $previousPitch = 0;
@@ -73,12 +74,22 @@ class User{
         $this->currentYaw = $event->getYaw();
         $this->previousPitch = $this->currentPitch;
         $this->currentPitch = $event->getPitch();
+        $this->lastMoveDistance = $this->moveDistance;
+        $this->moveDistance = $event->getDistanceXZ();
         $this->serverOnGround = LevelUtils::isNearGround($this->player);
         // off ground ticks will be done with server side information.
         $this->serverOnGround ? $this->offGroundTicks = 0 : ++$this->offGroundTicks;
         if($event->getMode() === MoveEvent::MODE_TELEPORT){
             $this->lastTeleportTick = $this->player->getServer()->getTick();
         }
+    }
+
+    public function getMoveDistance() : ?float{
+        return $this->moveDistance;
+    }
+
+    public function getLastMoveDistance() : ?float{
+        return $this->lastMoveDistance;
     }
 
     public function getOffGroundTicks() : int{

@@ -60,6 +60,7 @@ class SpeedA extends Cheat{
         && $user->timePassedSinceHit(20)){
             $this->addPreVL($name);
             if($this->getPreVL($name) >= 6){
+                $this->suppress($event);
                 $this->fail($player, "$name moved too fast.");
             }
         } else {
