@@ -24,12 +24,9 @@ use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\utils\LevelUtils;
-use pocketmine\block\Air;
 use pocketmine\event\player\PlayerJumpEvent;
 
 class AirJump extends Cheat implements StrictRequirements{
-
-    private $suspicionLevel = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
         parent::__construct($plugin, $cheatName, $cheatType, $enabled);
@@ -38,32 +35,14 @@ class AirJump extends Cheat implements StrictRequirements{
     public function onJump(PlayerJumpEvent $event) : void{
         $player = $event->getPlayer();
         $name = $player->getName();
-        if(!$player->isOnGround()){
-            $blocksNear = LevelUtils::getSurroundingBlocks($player, 3);
-            $continue = true;
-            foreach($blocksNear as $block){
-                if(!$block instanceof Air){
-                    $continue = false;
-                }
-            }
-            if($continue){
-                if(!isset($this->suspicionLevel[$name])){
-                    $this->suspicionLevel[$name] = 0;
-                }
-                $this->suspicionLevel[$name] += 1;
-                if($this->suspicionLevel[$name] >= 2){
-                    $this->fail($player, "$name jumped on air");
-                    $this->suspicionLevel[$name] += 1;
-                }
-            } else {
-                if(isset($this->suspicionLevel[$name])){
-                    $this->suspicionLevel[$name] *= 0.75;
-                }
+        if(!LevelUtils::isNearGround($player, -1)){
+            $this->addPreVL($name);
+            if($this->getPreVL($name) >= 2){
+                $this->suppress($event);
+                $this->fail($player, "$name jumped in the air");
             }
         } else {
-            if(isset($this->suspicionLevel[$name])){
-                $this->suspicionLevel[$name] *= 0.5;
-            }
+            $this->lowerPreVL($name, 0);
         }
     }
 }

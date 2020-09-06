@@ -34,10 +34,11 @@ class NoFall extends Cheat{
         $user = $this->getPlugin()->getUserManager()->get($player);
 
         if($event->onGround()
-        && $user->getOffGroundTicks() >= 10
+        && $user->getOffGroundTicks() >= 3
         && $event->getDistanceY() < 0){
             $this->addPreVL($name);
-            if($this->getPreVL($name) >= 3){
+            $maxPreVL = (int) ($player->getPing() / 50) + 5;
+            if($this->getPreVL($name) >= $maxPreVL){
                 $this->fail($player, "$name gave onGround value true when not near ground");
             }
         } else {

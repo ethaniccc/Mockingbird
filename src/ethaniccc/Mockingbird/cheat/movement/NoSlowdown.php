@@ -86,7 +86,9 @@ class NoSlowdown extends Cheat implements StrictRequirements{
             && $user->timePassedSinceHit(40)
             && $user->hasNoMotion()){
                 $this->addPreVL($name);
-                if($this->getPreVL($name) >= 3){
+                $maxPreVL = (int) ($player->getPing() / 50) + 4;
+                if($this->getPreVL($name) >= $maxPreVL){
+                    $this->suppress($event);
                     $this->fail($player, "$name moved too fast while using an item");
                 }
             } else {

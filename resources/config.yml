@@ -13,7 +13,7 @@
 # Github: https://www.github.com/ethaniccc                               
 
 #### DO NOT TOUCH THIS ####
-version: 1.2-beta
+version: 1.3-beta
 
 # If developer mode is enabled, all checks will be enabled,
 # which may leave false-positives. This should NEVER be enabled
@@ -51,6 +51,16 @@ punish_prefix: "§l§b§cMocking§4bird"
 # This option is for the max violations a player can get before
 # they are punished by Mockingbird
 max_violations: 75
+
+# This option is for if you want violations to reset after a certain time. This will
+# probably help with legit players **sometimes** false-flagging checks.
+# This will NOT clear the "total violations" section or the previous cheats violated for,
+# this option will only clear the player of their current violations.
+# Options: true / false
+reset_violations: true
+# If reset_violations is enabled, this option is for how often do you want violations to reset in seconds.
+# The default value for this is 300 seconds
+reset_time: 300
 
 # This option is for dynamic violations. For example, if a player
 # failed a speed check, and then failed it a second time by the next tick
@@ -93,26 +103,14 @@ ScreenshareCommand: true
 
 ## Combat Detections ##
 # You can choose to enable or disable cheats with (true/false)
-
-# Toolbox is a hacked client some Android staff may use to
-# gain an unfair advantage against other players.
-# See Toolbox KillAura on this YouTube video: https://www.youtube.com/watch?v=K0INXOLxIj8&t
-ToolboxKillaura: true
-
 MultiAura: true
-
 # AutoClickerA is a consistency check.
 AutoClickerA: true
-
 # AutoClickerB is a speed check.
 AutoClickerB: true
-
-Angle: false
-Hitbox: false
-ReachA: false
-ReachB: false
-# pls consider trying this out since it also works with mobile players and may be more accurate
-ReachC: true
+# New reach check that shouldn't false much, please make an issue with evidence if this check falses on the github repository
+# https://www.github.com/ethaniccc/Mockingbird/issues
+ReachA: true
 
 #######   =====================================   #######
 
@@ -123,15 +121,12 @@ SpeedA: true
 SpeedB: true
 NoSlowdown: true
 FastLadder: true
-NoWeb: true
 NoFall: true
 AirJump: true
 FlyA: true
-FlyB: false
-InventoryMove: false
+FlyB: true
 VelocityA: true
-# Will most likely not work with mobile players!
-Scaffold: false
+# VelocityB is not included here because it is not finished yet.
 
 ## Packet Checks ##
 # These checks are to detect if packets sent to the server are valid.
@@ -142,10 +137,6 @@ PacketChecks: true
 # You can choose to enable or disable cheats with (true/false)
 
 # For EditionFaker, online mode must be enabled due to the login packet being modified.
-# It is reccommended that you keep this check on.
+# It is recommended that you keep this check on.
 EditionFaker: true
-ChestStealer: true
-FastEat: true
-FastBreak: false
-Nuker: true
 Timer: true

@@ -37,6 +37,7 @@ class FastLadder extends Cheat implements StrictRequirements{
 
     public function onMove(MoveEvent $event) : void{
         $player = $event->getPlayer();
+        $user = $this->getPlugin()->getUserManager()->get($player);
         $name = $player->getName();
 
         if($event->getMode() !== MoveEvent::MODE_NORMAL){
@@ -56,13 +57,10 @@ class FastLadder extends Cheat implements StrictRequirements{
 
         if(LevelUtils::isNearBlock($player, BlockIds::LADDER, 0.25)){
             $yDist = round($event->getDistanceY(), 1);
-            if($yDist == 0) return;
-            $expectedDist = 0.2;
-            if($yDist > $expectedDist){
-                if($yDist === 0.3){
-                    // Player is spam jumping and PlayerJumpEvent not being triggered?
-                    return;
-                }
+            $maxDist = 0.3;
+            if($yDist > $maxDist
+            && $user->hasNoMotion()
+            && $user->timePassedSinceHit(20)){
                 $this->suppress($event);
                 $this->fail($player, "$name climbed up a ladder too fast");
             }

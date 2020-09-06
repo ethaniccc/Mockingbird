@@ -36,4 +36,8 @@ class Staff{
         $this->debugMessages = $enabled;
     }
 
+    public function notify(string $message) : void{
+        $this->getPlayer()->sendMessage($message);
+    }
+
 }

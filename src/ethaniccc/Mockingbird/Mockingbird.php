@@ -63,6 +63,7 @@ class Mockingbird extends PluginBase{
         if($this->getConfig()->get("version") !== $this->getDescription()->getVersion()){
             $this->saveDefaultConfig();
         }
+        @unlink($this->getDataFolder() . "debug_log.txt");
         @mkdir($this->getDataFolder() . "custom_modules", 0777);
         $this->getLogger()->debug(TextFormat::AQUA . "Mockingbird has been enabled.");
         $this->loadModules();
@@ -76,6 +77,17 @@ class Mockingbird extends PluginBase{
                     $level->setTime(6000);
                 }
             }), 100, 200);
+        }
+        if($this->getConfig()->get("reset_violations")){
+            $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(function() : void{
+                ViolationHandler::resetAllViolations();
+                foreach($this->getServer()->getOnlinePlayers() as $player){
+                    $staff = $this->getStaff($player->getName());
+                    if($staff !== null){
+                        $staff->notify($this->getPrefix() . TextFormat::RESET . TextFormat::RED . "All current violations have been reset.");
+                    }
+                }
+            }), ((int) $this->getConfig()->get("reset_time")) * 20);
         }
         $this->registerListener();
         $this->userManager = new UserManager();

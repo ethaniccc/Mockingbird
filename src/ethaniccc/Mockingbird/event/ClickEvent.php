@@ -24,28 +24,27 @@ use pocketmine\Player;
 class ClickEvent extends PlayerEvent{
 
     /** @var float */
-    private $previousTime, $newTime;
+    private $previousTime, $newTime, $cps;
 
     /**
      * ClickEvent constructor.
      * @param Player $player
      * @param float $previousTime
      * @param float $newTime
+     * @param int $cps
      */
-    public function __construct(Player $player, float $previousTime, float $newTime){
+    public function __construct(Player $player, float $previousTime, float $newTime, int $cps){
         $this->player = $player;
         $this->previousTime = $previousTime;
         $this->newTime = $newTime;
+        $this->cps = $cps;
     }
 
     /**
      * @return float
      */
     public function getCPS() : float{
-        if($this->getTimeDiff() == 0){
-            return 100;
-        }
-        return round(1 / ($this->getTimeDiff()), 0);
+        return $this->cps;
     }
 
     /**

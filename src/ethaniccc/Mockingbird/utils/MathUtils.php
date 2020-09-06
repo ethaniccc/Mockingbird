@@ -18,6 +18,7 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\utils;
 
+use ErrorException;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
 
@@ -86,6 +87,26 @@ class MathUtils{
         $timePerTick = 50;
         $estimatedTime = $scaledTime / $timePerTick;
         return round($estimatedTime, 0);
+    }
+
+    public static function getDirectionVector(float $yaw, float $pitch) : Vector3{
+        $vector = new Vector3(0, 0, 0);
+        $rotX = deg2rad($yaw);
+        $rotY = deg2rad($pitch);
+        $vector->y = -sin($rotY);
+        $xz = cos($rotY);
+        $vector->x = -$xz * sin($rotX);
+        $vector->z = $xz * cos($rotX);
+        return $vector;
+    }
+
+    public static function angle(Vector3 $vec1, Vector3 $vec2) : float{
+        try{
+            $dot = min(max($vec1->dot($vec2) / ($vec1->length() * $vec2->length()), -1), 1);
+            return acos($dot);
+        } catch(ErrorException $e){
+            return 0;
+        }
     }
 
 }

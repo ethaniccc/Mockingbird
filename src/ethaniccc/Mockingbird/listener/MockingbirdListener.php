@@ -42,6 +42,7 @@ class MockingbirdListener implements Listener{
     private $plugin;
     private $previousPosition = [];
     private $previousClickTime = [];
+    private $clicks = [];
 
     public function __construct(Mockingbird $plugin){
         $this->plugin = $plugin;
@@ -75,7 +76,8 @@ class MockingbirdListener implements Listener{
                     $this->previousClickTime[$playerName] = $currentTime;
                     return;
                 }
-                $event = new ClickEvent($player, $this->previousClickTime[$playerName], $currentTime);
+                $cps = $this->getCPS($player);
+                $event = new ClickEvent($player, $this->previousClickTime[$playerName], $currentTime, $cps);
                 $event->call();
                 $this->previousClickTime[$playerName] = $currentTime;
             }
@@ -86,7 +88,8 @@ class MockingbirdListener implements Listener{
                     $this->previousClickTime[$playerName] = $currentTime;
                     return;
                 }
-                $event = new ClickEvent($player, $this->previousClickTime[$playerName], $currentTime);
+                $cps = $this->getCPS($player);
+                $event = new ClickEvent($player, $this->previousClickTime[$playerName], $currentTime, $cps);
                 $event->call();
                 $this->previousClickTime[$playerName] = $currentTime;
             }
@@ -144,6 +147,22 @@ class MockingbirdListener implements Listener{
      */
     public function onMove(MoveEvent $event) : void{
         $this->getPlugin()->getUserManager()->get($event->getPlayer())->handleMove($event);
+    }
+
+    private function getCPS(Player $player){
+        // ahahahaa.... copy pasta thx John: https://github.com/Bavfalcon9/Mavoric/blob/stable/src/Bavfalcon9/Mavoric/Core/Detections/AutoClicker.php
+        $name = $player->getName();
+        if(!isset($this->clicks[$name])){
+            $this->clicks[$name] = [];
+        }
+        $currentTime = microtime(true);
+        array_unshift($this->clicks[$name], $currentTime);
+        if(!empty($this->clicks[$name])){
+            return count(array_filter($this->clicks[$name], function(float $t) use ($currentTime){
+                return $currentTime - $t <= 1;
+            }));
+        }
+        return 0;
     }
 
 }

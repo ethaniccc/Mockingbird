@@ -43,18 +43,21 @@ class FlyA extends Cheat implements StrictRequirements{
             $lastYDelta = $user->getLastMoveDelta()->y;
             $yDelta = $user->getMoveDelta()->y;
             $predictedDelta = ($lastYDelta - 0.08) * 0.980000019073486;
-            if($user->getOffGroundTicks() >= 3 && abs($predictedDelta) > 0.05 && $player->getArmorInventory()->getChestplate()->getId() !== ItemIds::ELYTRA){
+            if($user->getOffGroundTicks() >= 10 && abs($predictedDelta) > 0.05 && $player->getArmorInventory()->getChestplate()->getId() !== ItemIds::ELYTRA){
                 if(!MathUtils::isRoughlyEqual($yDelta, $predictedDelta)
-                && $user->timePassedSinceDamage(5)
+                && $user->timePassedSinceDamage(10)
                 && $user->timePassedSinceJoin(40)
-                && $user->timePassedSinceHit(15)
+                && $user->timePassedSinceHit(20)
                 && !LevelUtils::isNearBlock($player, BlockIds::COBWEB, 2)
                 && LevelUtils::getBlockUnder($player, 1) instanceof Air
                 && !$player->isFlying()
                 && !$player->getAllowFlight()
-                && !$player->isSpectator()){
+                && !$player->isSpectator()
+                && $event->getMode() === MoveEvent::MODE_NORMAL
+                && $player->isAlive()){
                     $this->addPreVL($name);
-                    if($this->getPreVL($name) >= 3){
+                    if($this->getPreVL($name) >= 10){
+                        $this->lowerPreVL($name, 0.75);
                         $this->suppress($event);
                         $this->fail($player, "$name's Y distance was not as expected", [], "$name's Y distance was $yDelta, predicted $predictedDelta");
                     }
