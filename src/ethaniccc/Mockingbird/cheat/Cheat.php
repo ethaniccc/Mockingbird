@@ -240,7 +240,7 @@ class Cheat implements Listener{
             return;
         }
         $this->getServer()->getAsyncPool()->submitTask(new AsyncClosureTask(function() use($message){
-            $log = fopen("plugin_data/Mockingbird/debug_log.txt", "a");
+            $log = @fopen("plugin_data/Mockingbird/debug_log.txt", "a");
             fwrite($log, "$message\n");
             fclose($log);
         }));
