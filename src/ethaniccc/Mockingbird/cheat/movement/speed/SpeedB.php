@@ -33,12 +33,13 @@ class SpeedB extends Cheat{
     public function onMove(MoveEvent $event) : void{
         $player = $event->getPlayer();
         $user = $this->getPlugin()->getUserManager()->get($player);
-        if(!$user->getServerOnGround() && $event->getMode() === MoveEvent::MODE_NORMAL){
+        if(!$user->getServerOnGround() && $event->getMode() === MoveEvent::MODE_NORMAL
+        && !$player->isFlying()){
             $name = $user->getName();
             $currentMoveDelta = $user->getMoveDistance();
             $lastMoveDelta = $user->getLastMoveDistance();
             // hmmm 0.91 is more accurate than 0.98 (<- player drag)
-            $expectedMoveDelta = $lastMoveDelta * 0.91 + 0.025999999;
+            $expectedMoveDelta = $lastMoveDelta * 0.91 + 0.026;
             $equalness = $currentMoveDelta - $expectedMoveDelta;
             if(!isset($this->lastEqualness[$name])){
                 $this->lastEqualness[$name] = $equalness;
@@ -47,7 +48,7 @@ class SpeedB extends Cheat{
             if($equalness > 0.0001){
                 $this->addPreVL($name);
                 if($this->getPreVL($name) >= 3){
-                    $this->lowerPreVL($name, (2 / 3));
+                    $this->lowerPreVL($name, 2 / 3);
                     $this->suppress($event);
                     $this->fail($player, "$name failed a movement prediction check off-ground", [], "$name's friction was off by $equalness, last equalness was {$this->lastEqualness[$name]}");
                 }

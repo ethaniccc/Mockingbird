@@ -62,7 +62,7 @@ class ReachA extends Cheat{
                     $distances[] = $currentLocation->distance($vector);
                 }
                 $distance = min($distances);
-                if($distance > 3){
+                if($distance > 3.05){
                     $this->debugNotify("$name hit a player from distance: $distance PreVL: {$this->getPreVL($name)}");
                     $this->addPreVL($name);
                     if($this->getPreVL($name) >= 2){

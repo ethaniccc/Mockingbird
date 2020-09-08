@@ -73,23 +73,20 @@ class NoSlowdown extends Cheat implements StrictRequirements{
             if($this->usingItemTicks[$name] < 9){
                 return;
             }
-            $currentMoveX = $user->getMoveDelta()->getX();
-            $currentMoveZ = $user->getMoveDelta()->getZ();
-            $lastMoveX = $user->getLastMoveDelta()->getX();
-            $lastMoveZ = $user->getLastMoveDelta()->getX();
-            $expectedX = $lastMoveX * 0.2;
-            $expectedZ = $lastMoveZ * 0.2;
-            $equalnessX = ($currentMoveX - $expectedX);
-            $equalnessZ = ($currentMoveZ - $expectedZ);
+            $currentMoveDist = $user->getMoveDistance();
+            $lastMoveDist = $user->getLastMoveDistance();
+            $expectedMoveDist = $lastMoveDist * 0.2;
+            $equalness = $currentMoveDist - $expectedMoveDist;
+            $this->debugNotify("$equalness");
             $effectLevel = $player->getEffect(1) === null ? 0 : $player->getEffect(1)->getAmplifier() + 1;
-            if($equalnessX < -0.1 || $equalnessZ < -0.1 && $effectLevel <= 5
+            if($equalness > 0.1 && $effectLevel <= 5
             && $user->timePassedSinceHit(40)
             && $user->hasNoMotion()){
                 $this->addPreVL($name);
                 $maxPreVL = (int) ($player->getPing() / 50) + 4;
                 if($this->getPreVL($name) >= $maxPreVL){
                     $this->suppress($event);
-                    $this->fail($player, "$name moved too fast while using an item");
+                    $this->fail($player, "$name moved too fast while using an item", [], "$name breached prediction with a prediction difference of $equalness");
                 }
             } else {
                 $this->lowerPreVL($name, 0);

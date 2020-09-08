@@ -153,7 +153,7 @@ class User{
     }
 
     public function handleHit(EntityDamageByEntityEvent $event) : void{
-        if(spl_object_hash($event->getDamager()) === spl_object_hash($this->player)){
+        if(spl_object_hash($event->getDamager()) == spl_object_hash($this->player)){
             $this->lastHitEntity = $event->getEntity();
             $this->lastAttackedTick = $this->player->getServer()->getTick();
         } else {
