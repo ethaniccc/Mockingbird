@@ -57,11 +57,12 @@ class SpeedA extends Cheat{
         }
         if($distance > $expectedDistance
         && $user->hasNoMotion()
-        && $user->timePassedSinceHit(20)){
+        && $user->timePassedSinceHit(20)
+        && !$player->getInventory()->getItemInHand()->hasEnchantment(\pocketmine\item\enchantment\Enchantment::RIPTIDE)){
             $this->addPreVL($name);
             if($this->getPreVL($name) >= 6){
                 $this->suppress($event);
-                $this->fail($player, "$name moved too fast.");
+                $this->fail($player, "$name moved faster than normal");
             }
         } else {
             $this->lowerPreVL($name, 0.85);

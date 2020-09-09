@@ -39,11 +39,11 @@ class FlyA extends Cheat implements StrictRequirements{
         $player = $event->getPlayer();
         $name = $player->getName();
         $user = $this->getPlugin()->getUserManager()->get($player);
-        if($user instanceof User && $event->getMode() === MoveEvent::MODE_NORMAL){
+        if($user instanceof User && $event->getMode() === MoveEvent::MODE_NORMAL && $player->isAlive()){
             $lastYDelta = $user->getLastMoveDelta()->y;
             $yDelta = $user->getMoveDelta()->y;
             $predictedDelta = ($lastYDelta - 0.08) * 0.980000019073486;
-            if($user->getOffGroundTicks() >= 10 && abs($predictedDelta) > 0.05 && $player->getArmorInventory()->getChestplate()->getId() !== ItemIds::ELYTRA){
+            if($user->getOffGroundTicks() >= 5 && abs($predictedDelta) > 0.05 && $player->getArmorInventory()->getChestplate()->getId() !== ItemIds::ELYTRA){
                 if(!MathUtils::isRoughlyEqual($yDelta, $predictedDelta)
                 && $user->timePassedSinceDamage(10)
                 && $user->timePassedSinceJoin(40)
@@ -54,10 +54,10 @@ class FlyA extends Cheat implements StrictRequirements{
                 && !$player->getAllowFlight()
                 && !$player->isSpectator()
                 && $event->getMode() === MoveEvent::MODE_NORMAL
-                && $player->isAlive()){
+                && !$player->getInventory()->getItemInHand()->hasEnchantment(\pocketmine\item\enchantment\Enchantment::RIPTIDE)){
                     $this->addPreVL($name);
-                    if($this->getPreVL($name) >= 10){
-                        $this->lowerPreVL($name, 0.75);
+                    if($this->getPreVL($name) >= 5){
+                        $this->lowerPreVL($name, 0.6);
                         $this->suppress($event);
                         $this->fail($player, "$name's Y distance was not as expected", [], "$name's Y distance was $yDelta, predicted $predictedDelta");
                     }

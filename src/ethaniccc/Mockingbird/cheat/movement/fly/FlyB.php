@@ -22,18 +22,17 @@ class FlyB extends Cheat{
         $name = $player->getName();
         if($event->getMode() === MoveEvent::MODE_NORMAL && (new Vector3(0, 0, 0))->distance($player->getMotion()) == 0 && (!$player->getAllowFlight() || !$player->isFlying() || $player->isSpectator())){
             if(($user = $this->getPlugin()->getUserManager()->get($player)) instanceof User){
-                $deltaX = $event->getDistanceX();
+                $distance = $event->getDistanceXZ();
                 $deltaY = $event->getDistanceY();
-                $deltaZ = $event->getDistanceZ();
-                $horizontalDist = hypot($deltaX, $deltaZ);
                 $acceleration = $deltaY - $user->getLastMoveDelta()->getY();
                 if($user->getOffGroundTicks() >= 10
-                && $horizontalDist > 0.1
+                && $distance > 0.1
                 && ($deltaY == 0 || $acceleration == 0)
                 && LevelUtils::getBlockUnder($player, 1) instanceof Air
 	            && !$player->isFlying()
 	            && !$player->getAllowFlight()
-	            && !$player->isSpectator()){
+                && !$player->isSpectator()
+                && !$player->getInventory()->getItemInHand()->hasEnchantment(\pocketmine\item\enchantment\Enchantment::RIPTIDE)){
                     $this->addPreVL($name);
                     if($this->getPreVL($name) >= 3){
                         $this->suppress($event);

@@ -38,6 +38,9 @@ class AutoClickerA extends Cheat{
         $speed = $event->getTimeDiff();
         $player = $event->getPlayer();
         $name = $player->getName();
+        if($speed > 0.5){
+            return;
+        }
         if(!isset($this->speeds[$name])){
             $this->speeds[$name] = [];
         }
@@ -54,7 +57,7 @@ class AutoClickerA extends Cheat{
         }
         array_push($this->deviations[$name], $deviation);
         $averageDeviation = MathUtils::getAverage($this->deviations[$name]);
-        if($averageDeviation <= 2.5 && !$this->getPlugin()->getUserManager()->get($player)->isMobile() && $event->getCPS() >= 10){
+        if($averageDeviation <= 5 && !$this->getPlugin()->getUserManager()->get($player)->isMobile() && $event->getCPS() >= 10){
             $this->addPreVL($name);
             if($this->getPreVL($name) >= 4.5){
                 $this->fail($player, "$name's clicking was too consistent", [], "$name's click deviation was $averageDeviation");

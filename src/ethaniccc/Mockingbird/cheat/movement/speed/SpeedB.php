@@ -45,12 +45,13 @@ class SpeedB extends Cheat{
                 $this->lastEqualness[$name] = $equalness;
                 return;
             }
-            if($equalness > 0.0001){
+            if($equalness > 0.0001
+            && !$player->getInventory()->getItemInHand()->hasEnchantment(\pocketmine\item\enchantment\Enchantment::RIPTIDE)){
                 $this->addPreVL($name);
                 if($this->getPreVL($name) >= 3){
                     $this->lowerPreVL($name, 2 / 3);
                     $this->suppress($event);
-                    $this->fail($player, "$name failed a movement prediction check off-ground", [], "$name's friction was off by $equalness, last equalness was {$this->lastEqualness[$name]}");
+                    $this->fail($player, "$name's speed did not match up with friction", [], "$name's friction was off by $equalness, last equalness was {$this->lastEqualness[$name]}");
                 }
             } else {
                 $this->lowerPreVL($name, 0);
