@@ -24,7 +24,6 @@ use ethaniccc\Mockingbird\event\MockingbirdCheatEvent;
 use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\tasks\AsyncClosureTask;
-use Exception;
 use pocketmine\event\Cancellable;
 use pocketmine\event\Event;
 use pocketmine\event\Listener;
@@ -37,6 +36,7 @@ class Cheat implements Listener{
 
     private $cheatName;
     private $cheatType;
+    private $settings;
     private $enabled;
 
     private $lastViolationTime = [];
@@ -48,41 +48,52 @@ class Cheat implements Listener{
 
     private $plugin;
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled){
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
         $this->cheatName = $cheatName;
         $this->cheatType = $cheatType;
-        $this->enabled = $enabled;
+        if($settings === null){
+            throw new \Exception("$cheatName received invalid settings");
+        }
+        $this->settings = $settings;
+        $this->enabled = $this->getSetting("enabled");
         $this->plugin = $plugin;
     }
 
-    /**
-     * @return string
-     */
     public function getName() : string{
         return $this->cheatName;
     }
 
-    /**
-     * @return string
-     */
     public function getType() : string{
         return $this->cheatType;
     }
 
-    /**
-     * @return bool
-     */
     public function isEnabled() : bool{
         return $this->enabled;
     }
 
-    /**
-     * @param bool $enabled
-     */
     public function setEnabled(bool $enabled = true) : void{
         $this->enabled = $enabled;
     }
 
+    public function getSettings() : array{
+        return $this->settings;
+    }
+
+    public function getSetting(string $key){
+        return $this->getSettings()[$key] ?? null;
+    }
+
+    public function basicFailData(Player $player) : array{
+        return ["{player}" => $player->getName()];
+    }
+
+    public function formatFailMessage(array $data = []) : string{
+        $failMessage = $this->getSetting("message");
+        foreach($data as $key => $info){
+            $failMessage = str_replace($key, $info, $failMessage);
+        }
+        return $failMessage;
+    }
 
     /**
      * @return Mockingbird

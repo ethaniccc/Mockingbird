@@ -26,15 +26,15 @@ class SpeedB extends Cheat{
 
     private $lastEqualness = [];
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
     public function onMove(MoveEvent $event) : void{
         $player = $event->getPlayer();
         $user = $this->getPlugin()->getUserManager()->get($player);
         if(!$user->getServerOnGround() && $event->getMode() === MoveEvent::MODE_NORMAL
-        && !$player->isFlying()){
+        && !$player->isFlying() && $user->hasNoMotion()){
             $name = $user->getName();
             $currentMoveDelta = $user->getMoveDistance();
             $lastMoveDelta = $user->getLastMoveDistance();
@@ -45,13 +45,13 @@ class SpeedB extends Cheat{
                 $this->lastEqualness[$name] = $equalness;
                 return;
             }
-            if($equalness > 0.0001
+            if($equalness > $this->getSetting("max_breach")
             && !$player->getInventory()->getItemInHand()->hasEnchantment(\pocketmine\item\enchantment\Enchantment::RIPTIDE)){
                 $this->addPreVL($name);
                 if($this->getPreVL($name) >= 3){
                     $this->lowerPreVL($name, 2 / 3);
                     $this->suppress($event);
-                    $this->fail($player, "$name's speed did not match up with friction", [], "$name's friction was off by $equalness, last equalness was {$this->lastEqualness[$name]}");
+                    $this->fail($player, $this->formatFailMessage($this->basicFailData($player)), [], "$name's friction was off by $equalness, last equalness was {$this->lastEqualness[$name]}");
                 }
             } else {
                 $this->lowerPreVL($name, 0);

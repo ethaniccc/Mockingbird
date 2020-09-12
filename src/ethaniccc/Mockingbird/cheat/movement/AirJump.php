@@ -28,18 +28,18 @@ use pocketmine\event\player\PlayerJumpEvent;
 
 class AirJump extends Cheat implements StrictRequirements{
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
     public function onJump(PlayerJumpEvent $event) : void{
         $player = $event->getPlayer();
         $name = $player->getName();
-        if(!LevelUtils::isNearGround($player, -1)){
+        if(!LevelUtils::isNearGround($player, $this->getSetting("threshold"))){
             $this->addPreVL($name);
             if($this->getPreVL($name) >= 2){
                 $this->suppress($event);
-                $this->fail($player, "$name jumped in the air");
+                $this->fail($player, $this->formatFailMessage($this->basicFailData($player)));
             }
         } else {
             $this->lowerPreVL($name, 0);

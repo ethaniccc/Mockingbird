@@ -20,7 +20,7 @@ version: 1.4-beta
 # on production servers.
 dev_mode: false
 
-## General Settings ##
+####### General Settings #######
 
 # You can choose this to be any permission you'd like so
 # that staff members get Mockingbird alerts, etc.
@@ -81,7 +81,7 @@ max_kicks: -1
 save_previous_violations: false
 
 # This is for the TPS level detections should be stopped at.
-stop_tps: 18
+stop_tps: 16
 
 # This option is for choosing what type of mode you want to use for the
 # /log command. There are two options: normal and UI
@@ -92,51 +92,130 @@ log_command_type: normal
 # Some cheats may not be suppressed, such as experimental ones or packet checks.
 supression: true
 
-#######   =====================================   #######
-### Commands ###
+#######   Commands   #######
 
 # Set the value to true if you want the command enabled, and false if you don't.
 LogCommand: true
 ScreenshareCommand: true
 
-#######   =====================================   #######
+#######  Detections   #######
 
 ## Combat Detections ##
-# You can choose to enable or disable cheats with (true/false)
-MultiAura: true
-# AutoClickerA is a consistency check.
-AutoClickerA: true
-# AutoClickerB is a speed check.
-AutoClickerB: true
-# New reach check that shouldn't false much, please make an issue with evidence if this check falses on the github repository
-# https://www.github.com/ethaniccc/Mockingbird/issues
-ReachA: true
-
-#######   =====================================   #######
+MultiAura:
+  enabled: true
+  time: 0.01
+  # the distance that the entities have to be within in order to flag
+  entity_distance: 3
+  # tags: {player}
+  message: "{player} hit too many entities in a short period of time"
+AutoClickerA:
+  enabled: true
+  # the amount of clicking samples the check should take
+  samples: 35
+  # the higher this is, the more it may false positive, but it *might* catch more cheaters
+  consistency: 5
+  # the minimum cps the player has to be clicking in order to be flagged
+  min_cps: 10
+  # tags: {player}
+  message: "{player}'s clicking was too consistent"
+AutoClickerB:
+  enabled: true
+  max_cps: 25
+  # tags: {player}, {cps}
+  message: "{player} clicked too fast at {cps} CPS"
+ReachA:
+  enabled: true
+  # max reach in minecraft both Java and Bedrock is 3.
+  max_reach: 3.5
+  # tags: {player}, {distance}
+  message: "{player} hit another player from a distance of {distance}"
 
 ## Movement Detections ##
-# You can choose to enable or disable cheats with (true/false)
-
-SpeedA: true
-SpeedB: true
-NoSlowdown: true
-FastLadder: true
-NoFall: true
-AirJump: true
-FlyA: true
-FlyB: true
-VelocityA: true
-# VelocityB is not included here because it is not finished yet.
+SpeedA:
+  enabled: true
+  max_speed_on_ground: 0.375
+  max_speed_off_ground: 0.78
+  # tags: {player}
+  message: "{player} moved too fast"
+SpeedB:
+  enabled: true
+  # SpeedB is a prediction check to predict the player's next motion off the ground
+  # if the prediction is wrong, then it is probably a speed heck such as bhop, normal jetpack, etc.
+  # you should only change this value little by little if you are experiencing falses
+  max_breach: 0.0001
+  # tags: {player}
+  message: "{player}'s movement was consistent off the ground"
+NoSlowdown:
+  enabled: true
+  # Only change this value if you know what you are doing. If you are experiencing falses positives
+  # even with this value at 0.2, please make an issue at the GitHub repository.
+  max_breach: 0.15
+  # tags: {player}
+  message: "{player} moved too fast while using an item"
+FastLadder:
+  enabled: true
+  max_climb_speed: 0.3
+  # tags: {player}
+  message: "{player} moved too fast when climbing a ladder"
+NoFall:
+  enabled: true
+  # tags: {player}
+  message: "{player} gave onGround value true when not near the ground"
+AirJump:
+  enabled: true
+  # how close to the ground the player has to be. this should at the least be -0.5
+  threshold: -1
+  # tags: {player}
+  message: "{player} jumped in the air"
+HighJump:
+  enabled: true
+  # tags: {player}
+  message: "{player} jumped too high"
+FlyA:
+  enabled: true
+  # FlyA is a prediction check which checks if the player's next Y distance is as expected.
+  # For max breach, this will check if the absolute value of the distance given subtracted
+  # by the expected distance is lower than this number. Only change this if you are having
+  # false positives or if you know what you are doing.
+  max_breach: 0.015
+  # tags: {player}
+  message: "{player}'s Y distance was not as expected"
+FlyB:
+  enabled: true
+  # tags: {player}
+  message: "{player} failed a horizontal (and / or) vertical fly check"
+VelocityA:
+  enabled: true
+  # the higher this is, the more it can detect, but the more it will false positive.
+  # at 0.95, this can detect 95% vertical velocity and lower, at 0.96, this can detect 96% velocity
+  # and lower and so on.
+  percentage: 0.95
+  # tags: {player}
+  message: "{player}'s vertical velocity was lower than normal"
+VelocityB:
+  # this check is not finished yet and will do nothing but waste your server resources.
+  enabled: false
+  message: "{player}'s horizontal velocity was lower than normal"
 
 ## Packet Checks ##
 # These checks are to detect if packets sent to the server are valid.
 # You can choose to enable or disable cheats with (true/false)
-PacketChecks: true
+PacketChecks:
+  enabled: true
+  # There is no custom message for packet checks.
 
 ## Other Detections ##
-# You can choose to enable or disable cheats with (true/false)
-
 # For EditionFaker, online mode must be enabled due to the login packet being modified.
 # It is recommended that you keep this check on.
-EditionFaker: true
-Timer: true
+EditionFaker:
+  enabled: true
+  # tags: {player}
+  message: "{player} is faking their device information"
+Timer:
+  enabled: true
+  # Only change this value if you know what ypu are doing or if you are experiencing false positives.
+  # PLEASE NOTE: Some bypasses and hacks send too many move packets, such as the Jetpack bypass in Horion.
+  # If a module that sends too many move packets are used, this may flag.
+  max_balance: 500
+  # tags: {player}
+  message: "{player} sent too many move packets in an instance"

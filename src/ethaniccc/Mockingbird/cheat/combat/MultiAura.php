@@ -27,8 +27,8 @@ class MultiAura extends Cheat implements StrictRequirements{
 
     private $lastHit = [];
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
         $this->setRequiredTPS(19.0);
     }
 
@@ -46,10 +46,10 @@ class MultiAura extends Cheat implements StrictRequirements{
         }
 
         if($damaged->getName() != $this->lastHit[$name]["Entity"]){
-            if(($timeDiff = microtime(true) - $this->lastHit[$name]["Time"]) < 0.01){
-                if($damaged->distance($this->getServer()->getPlayer($this->lastHit[$name]["Entity"])) > 3){
+            if(($timeDiff = microtime(true) - $this->lastHit[$name]["Time"]) < $this->getSetting("time")){
+                if($damaged->distance($this->getServer()->getPlayer($this->lastHit[$name]["Entity"])) > $this->getSetting("entity_distance")){
                     $this->suppress($event);
-                    $this->fail($damager, "$name hit more than 2 entities within a time period of $timeDiff");
+                    $this->fail($damager, $this->formatFailMessage($this->basicFailData($damager)));
                 }
             }
         }

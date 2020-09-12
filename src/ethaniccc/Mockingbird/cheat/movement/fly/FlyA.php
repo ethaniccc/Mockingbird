@@ -29,10 +29,10 @@ use pocketmine\block\Air;
 use pocketmine\block\BlockIds;
 use pocketmine\item\ItemIds;
 
-class FlyA extends Cheat implements StrictRequirements{
+class FlyA extends Cheat{
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
     public function onMove(MoveEvent $event) : void{
@@ -44,7 +44,7 @@ class FlyA extends Cheat implements StrictRequirements{
             $yDelta = $user->getMoveDelta()->y;
             $predictedDelta = ($lastYDelta - 0.08) * 0.980000019073486;
             if($user->getOffGroundTicks() >= 5 && abs($predictedDelta) > 0.05 && $player->getArmorInventory()->getChestplate()->getId() !== ItemIds::ELYTRA){
-                if(!MathUtils::isRoughlyEqual($yDelta, $predictedDelta)
+                if(abs($predictedDelta - $yDelta) >= $this->getSetting("max_breach")
                 && $user->timePassedSinceDamage(10)
                 && $user->timePassedSinceJoin(40)
                 && $user->timePassedSinceHit(20)

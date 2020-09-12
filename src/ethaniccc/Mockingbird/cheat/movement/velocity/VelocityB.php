@@ -13,8 +13,8 @@ class VelocityB extends Cheat{
 
     private $lastX, $lastZ, $moveDelta, $ticksSinceSend = [];
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
     public function onMotion(EntityMotionEvent $event) : void{

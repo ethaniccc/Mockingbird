@@ -29,11 +29,8 @@ use pocketmine\block\Ice;
 
 class SpeedA extends Cheat{
 
-    private const MAX_ONGROUND = 0.375;
-    private const MAX_OFFGROUND = 0.78;
-
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
     public function onMove(MoveEvent $event) : void{
@@ -47,7 +44,7 @@ class SpeedA extends Cheat{
         if(!LevelUtils::getBlockAbove($player) instanceof Air){
             return;
         }
-        $expectedDistance = $user->getServerOnGround() ? self::MAX_ONGROUND : self::MAX_OFFGROUND;
+        $expectedDistance = $user->getServerOnGround() ? $this->getSetting("max_speed_on_ground") : $this->getSetting("max_speed_off_ground");
         $onIce = $user->getServerOnGround() ? LevelUtils::getBlockUnder($player, 0.5) instanceof Ice : LevelUtils::getBlockUnder($player, 1.2) instanceof Ice;
         if($onIce){
             $expectedDistance *= 4 / 3;

@@ -15,8 +15,8 @@ class VelocityA extends Cheat{
 
     private $lastVertical, $ticksSinceSend = [];
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
     public function onMotion(EntityMotionEvent $event) : void{
@@ -43,14 +43,14 @@ class VelocityA extends Cheat{
             }
             ++$this->ticksSinceSend[$name];
             $maxTicks = (int) ($player->getPing() / 50) + 5 + (20 - $this->getServer()->getTicksPerSecond());
-            if($this->ticksSinceSend[$name] <= $maxTicks && $event->getDistanceY() <= $this->lastVertical[$name] * 0.99
+            if($this->ticksSinceSend[$name] <= $maxTicks && $event->getDistanceY() <= $this->lastVertical[$name] * $this->getSetting("percentage")
             && LevelUtils::getBlockAbove($player)->getId() === 0
             && !LevelUtils::isNearBlock($player,BlockIds::COBWEB)
             && !LevelUtils::isNearBlock($player,BlockIds::WATER)){
                 $this->addPreVL($name);
             } else {
                 if($this->getPreVL($name) >= $maxTicks){
-                    $this->fail($player, "$name's vertical velocity was lower than normal");
+                    $this->fail($player, $this->formatFailMessage($this->basicFailData($player)));
                 }
                 $this->lowerPreVL($name, 0);
                 unset($this->lastVertical[$name]);

@@ -13,14 +13,15 @@ use pocketmine\math\Vector3;
 class FlyB extends Cheat{
 
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
     public function onMove(MoveEvent $event) : void{
         $player = $event->getPlayer();
+        $user = $this->getPlugin()->getUserManager()->get($player);
         $name = $player->getName();
-        if($event->getMode() === MoveEvent::MODE_NORMAL && (new Vector3(0, 0, 0))->distance($player->getMotion()) == 0 && (!$player->getAllowFlight() || !$player->isFlying() || $player->isSpectator())){
+        if($event->getMode() === MoveEvent::MODE_NORMAL && $user->hasNoMotion() && (!$player->getAllowFlight() || !$player->isFlying() || $player->isSpectator())){
             if(($user = $this->getPlugin()->getUserManager()->get($player)) instanceof User){
                 $distance = $event->getDistanceXZ();
                 $deltaY = $event->getDistanceY();
@@ -36,7 +37,7 @@ class FlyB extends Cheat{
                     $this->addPreVL($name);
                     if($this->getPreVL($name) >= 3){
                         $this->suppress($event);
-                        $this->fail($player, "$name failed a horizontal (and / or) vertical check");
+                        $this->fail($player, $this->formatFailMessage($this->basicFailData($player)));
                     }
                 } else {
                     $this->lowerPreVL($name, 0.5);

@@ -24,8 +24,8 @@ use pocketmine\Player;
 
 class MathUtils{
 
-    public static function isRoughlyEqual(float $d1, float $d2) : bool{
-        return abs($d1 - $d2) < 0.015;
+    public static function isRoughlyEqual(float $d1, float $d2, float $min = 0.015) : bool{
+        return abs($d1 - $d2) < $min;
     }
 
     public static function getAverage(array $numbers) : float{

@@ -30,8 +30,8 @@ class AutoClickerA extends Cheat{
     /** @var array */
     private $speeds, $deviations = [];
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
     public function onClick(ClickEvent $event) : void{
@@ -44,7 +44,7 @@ class AutoClickerA extends Cheat{
         if(!isset($this->speeds[$name])){
             $this->speeds[$name] = [];
         }
-        if(count($this->speeds[$name]) === 50){
+        if(count($this->speeds[$name]) === $this->getSetting("samples")){
             array_shift($this->speeds[$name]);
         }
         array_push($this->speeds[$name], $speed);
@@ -52,15 +52,15 @@ class AutoClickerA extends Cheat{
         if(!isset($this->deviations[$name])){
             $this->deviations[$name] = [];
         }
-        if(count($this->deviations[$name]) === 50){
+        if(count($this->deviations[$name]) === $this->getSetting("samples")){
             array_shift($this->deviations[$name]);
         }
         array_push($this->deviations[$name], $deviation);
         $averageDeviation = MathUtils::getAverage($this->deviations[$name]);
-        if($averageDeviation <= 5 && !$this->getPlugin()->getUserManager()->get($player)->isMobile() && $event->getCPS() >= 10){
+        if($averageDeviation <= $this->getSetting("consistency") && !$this->getPlugin()->getUserManager()->get($player)->isMobile() && $event->getCPS() >= $this->getSetting("min_cps")){
             $this->addPreVL($name);
             if($this->getPreVL($name) >= 4.5){
-                $this->fail($player, "$name's clicking was too consistent", [], "$name's click deviation was $averageDeviation");
+                $this->fail($player, $this->formatFailMessage($this->basicFailData($player)), [], "$name's click deviation was $averageDeviation, expected at least {$this->getSetting("consistency")}. Samples: {$this->getSetting("samples")}");
             }
         } else {
             $this->lowerPreVL($name, 0.9);

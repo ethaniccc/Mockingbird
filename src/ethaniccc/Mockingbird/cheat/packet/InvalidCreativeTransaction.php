@@ -28,8 +28,8 @@ use pocketmine\network\mcpe\protocol\types\NetworkInventoryAction;
 
 class InvalidCreativeTransaction extends Cheat{
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
     public function receivePacket(DataPacketReceiveEvent $event) : void{

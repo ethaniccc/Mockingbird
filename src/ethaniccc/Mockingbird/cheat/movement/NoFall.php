@@ -24,8 +24,8 @@ use ethaniccc\Mockingbird\Mockingbird;
 
 class NoFall extends Cheat{
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
     public function onMove(MoveEvent $event){
@@ -34,12 +34,12 @@ class NoFall extends Cheat{
         $user = $this->getPlugin()->getUserManager()->get($player);
 
         if($event->onGround()
-        && $user->getOffGroundTicks() >= 3
+        && $user->getOffGroundTicks() >= 5
         && $event->getDistanceY() < 0){
             $this->addPreVL($name);
             $maxPreVL = (int) ($player->getPing() / 50) + 5;
             if($this->getPreVL($name) >= $maxPreVL){
-                $this->fail($player, "$name gave onGround value true when not near ground");
+                $this->fail($player, $this->formatFailMessage($this->basicFailData($player)));
             }
         } else {
             $this->lowerPreVL($name, 0);

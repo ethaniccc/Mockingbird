@@ -13,8 +13,8 @@ class ReachA extends Cheat{
 
     private $cooldown, $hitInfo = [];
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
     /**
@@ -62,12 +62,14 @@ class ReachA extends Cheat{
                     $distances[] = $currentLocation->distance($vector);
                 }
                 $distance = min($distances);
-                if($distance > 3.05){
+                if($distance > $this->getSetting("max_reach")){
                     $this->debugNotify("$name hit a player from distance: $distance PreVL: {$this->getPreVL($name)}");
                     $this->addPreVL($name);
                     if($this->getPreVL($name) >= 2){
-                        $roundedDistance = round($distance, 2);
-                        $this->fail($player, "$name hit a player at a distance of $roundedDistance");
+                        $roundedDistance = round($distance, 3);
+                        $data = $this->basicFailData($player);
+                        $data["{distance}"] = $roundedDistance;
+                        $this->fail($player, $this->formatFailMessage($data));
                         $this->lowerPreVL($name, 0);
                     }
                 } else {

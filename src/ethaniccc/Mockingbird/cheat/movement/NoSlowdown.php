@@ -34,8 +34,8 @@ class NoSlowdown extends Cheat implements StrictRequirements{
 
     private $usingItemTicks = [];
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
     public function onMove(MoveEvent $event) : void{
@@ -79,7 +79,7 @@ class NoSlowdown extends Cheat implements StrictRequirements{
             $equalness = $currentMoveDist - $expectedMoveDist;
             $this->debugNotify("$equalness");
             $effectLevel = $player->getEffect(1) === null ? 0 : $player->getEffect(1)->getAmplifier() + 1;
-            if($equalness > 0.1 && $effectLevel <= 5
+            if($equalness > $this->getSetting("max_breach") && $effectLevel <= 5
             && $user->timePassedSinceHit(40)
             && $user->hasNoMotion()){
                 $this->addPreVL($name);

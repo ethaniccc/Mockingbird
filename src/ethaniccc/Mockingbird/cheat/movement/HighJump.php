@@ -13,8 +13,8 @@ class HighJump extends Cheat{
 
     private $ticksSinceJump = [];
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
     public function onJump(PlayerJumpEvent $event) : void{
@@ -42,7 +42,7 @@ class HighJump extends Cheat{
             } else {
                 if($this->getPreVL($name) >= $maxTicks){
                     $this->suppress($event);
-                    $this->fail($player, "$name jumped too high");
+                    $this->fail($player, $this->formatFailMessage($this->basicFailData($player)));
                 }
                 $this->lowerPreVL($name, 0);
                 unset($this->ticksSinceJump[$name]);
