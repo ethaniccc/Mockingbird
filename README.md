@@ -125,8 +125,8 @@ namespace ethaniccc\Mockingbird\cheat\custom{
 
     class NewSpeed extends Cheat{
     
-        public function __construct(Mockingbird $plugin,string $cheatName,string $cheatType,bool $enabled = true){
-            parent::__construct($plugin,$cheatName,$cheatType,$enabled);
+        public function __construct(Mockingbird $plugin,string $cheatName,string $cheatType, ?array $settings){
+            parent::__construct($plugin,$cheatName,$cheatType,$settings);
         }
 
     }
@@ -146,8 +146,8 @@ namespace ethaniccc\Mockingbird\cheat\custom{
 
     class NewSpeed extends Cheat{
     
-        public function __construct(Mockingbird $plugin,string $cheatName,string $cheatType,bool $enabled = true){
-            parent::__construct($plugin,$cheatName,$cheatType,$enabled);
+        public function __construct(Mockingbird $plugin,string $cheatName,string $cheatType, ?array $settings){
+            parent::__construct($plugin,$cheatName,$cheatType,$settings);
         }
         
         // personal recommendation to NOT use PlayerMoveEvent and use Mockingbird's custom MoveEvent instead

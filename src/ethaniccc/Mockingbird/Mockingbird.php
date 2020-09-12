@@ -268,8 +268,8 @@ class Mockingbird extends PluginBase{
                 $path = $this->getDataFolder() . "custom_modules/$customModule";
                 require_once $path;
                 $class = explode(".php", $customModule)[0];
-                // hardcoded type and enabled parameters
-                $this->loadModule(new $class($this, $class, "Custom", true));
+                // hardcoded type and settings parameters
+                $this->loadModule(new $class($this, $class, "Custom", ["enabled" => true]));
                 $loadedModules++;
             }
             $debug ? $this->getLogger()->debug("$loadedModules custom modules have been loaded.") : $this->getLogger()->info(TextFormat::GREEN . "$loadedModules custom modules have been loaded.");
