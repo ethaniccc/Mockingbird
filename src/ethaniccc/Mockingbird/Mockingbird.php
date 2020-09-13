@@ -250,10 +250,12 @@ class Mockingbird extends PluginBase{
                                 $settings = ["enabled" => $this->getConfig()->getNested("PacketChecks")["enabled"]];
                             }
                             $newDetection = new $class($this, $className, $type, $settings);
-                            $this->loadModule($newDetection);
-                            $newDetection->isEnabled() ? $this->enabledModules[] = $newDetection : $this->disabledModules[] = $newDetection;
                             if($newDetection->isEnabled()){
+                                $this->loadModule($newDetection);
                                 $loadedModules++;
+                                $this->enabledModules[] = $newDetection;
+                            } else {
+                                $this->disabledModules[] = $newDetection;
                             }
                         }
                     }
