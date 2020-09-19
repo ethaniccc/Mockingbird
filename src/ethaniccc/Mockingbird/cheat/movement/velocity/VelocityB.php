@@ -1,5 +1,21 @@
 <?php
 
+/*
+$$\      $$\                     $$\       $$\                     $$\       $$\                 $$\
+$$$\    $$$ |                    $$ |      \__|                    $$ |      \__|                $$ |
+$$$$\  $$$$ | $$$$$$\   $$$$$$$\ $$ |  $$\ $$\ $$$$$$$\   $$$$$$\  $$$$$$$\  $$\  $$$$$$\   $$$$$$$ |
+$$\$$\$$ $$ |$$  __$$\ $$  _____|$$ | $$  |$$ |$$  __$$\ $$  __$$\ $$  __$$\ $$ |$$  __$$\ $$  __$$ |
+$$ \$$$  $$ |$$ /  $$ |$$ /      $$$$$$  / $$ |$$ |  $$ |$$ /  $$ |$$ |  $$ |$$ |$$ |  \__|$$ /  $$ |
+$$ |\$  /$$ |$$ |  $$ |$$ |      $$  _$$<  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |$$ |      $$ |  $$ |
+$$ | \_/ $$ |\$$$$$$  |\$$$$$$$\ $$ | \$$\ $$ |$$ |  $$ |\$$$$$$$ |$$$$$$$  |$$ |$$ |      \$$$$$$$ |
+\__|     \__| \______/  \_______|\__|  \__|\__|\__|  \__| \____$$ |\_______/ \__|\__|       \_______|
+                                                         $$\   $$ |
+                                                         \$$$$$$  |
+                                                          \______/
+~ Made by @ethaniccc idot </3
+Github: https://www.github.com/ethaniccc
+*/
+
 namespace ethaniccc\Mockingbird\cheat\movement\velocity;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
@@ -50,11 +66,11 @@ class VelocityB extends Cheat{
             $expectedXDelta = $this->lastX[$name];
             $expectedZDelta = $this->lastZ[$name];
             if($this->ticksSinceSend[$name] <= $maxTicks){
-                $previousMoveDelta = clone $this->moveDelta[$name];
-                // TODO: I hate it here
+                $xzExpectedDelta = hypot($expectedXDelta, $expectedZDelta);
+                // TODO: Make a 50% horizontal velocity check *for now*
             } else {
                 if($this->getPreVL($name) >= $maxTicks){
-                    $this->fail($player, "$name's horizontal velocity is less than normal.");
+                    $this->fail($player, null, $this->formatFailMessage($this->basicFailData($player)));
                 }
                 $this->lowerPreVL($name, 0);
                 unset($this->lastX[$name]);

@@ -62,12 +62,6 @@ reset_violations: true
 # The default value for this is 300 seconds
 reset_time: 300
 
-# This option is for dynamic violations. For example, if a player
-# failed a speed check, and then failed it a second time by the next tick
-# (20 ticks a second), they will have 10 - 20 violations added. If they fail a check
-# after only 5 ticks, 5 violations will be added, etc.
-dynamic_violations: false
-
 # Do you want the player to be kicked, banned, or ip-banned? (You can also choose "none")
 # Options: none, kick, ban, ip-ban
 punishment_type: kick
@@ -87,11 +81,6 @@ stop_tps: 16
 # /log command. There are two options: normal and UI
 log_command_type: normal
 
-# This option is for if detected cheats should be suppressed. If a player is
-# using speed (moves too fast), Mockingbird will revert their movement. Same for other cheats.
-# Some cheats may not be suppressed, such as experimental ones or packet checks.
-supression: true
-
 #######   Commands   #######
 
 # Set the value to true if you want the command enabled, and false if you don't.
@@ -108,27 +97,31 @@ MultiAura:
   entity_distance: 3
   # tags: {player}
   message: "{player} hit too many entities in a short period of time"
+  suppression: true
 AutoClickerA:
   enabled: true
   # the amount of clicking samples the check should take
-  samples: 35
+  samples: 40
   # the higher this is, the more it may false positive, but it *might* catch more cheaters
-  consistency: 5
+  consistency: 7.5
   # the minimum cps the player has to be clicking in order to be flagged
-  min_cps: 10
+  min_cps: 8
   # tags: {player}
   message: "{player}'s clicking was too consistent"
+  # suppression is not available for this check
 AutoClickerB:
   enabled: true
   max_cps: 25
   # tags: {player}, {cps}
   message: "{player} clicked too fast at {cps} CPS"
+  # suppression is not available for this check
 ReachA:
   enabled: true
   # max reach in minecraft both Java and Bedrock is 3.
-  max_reach: 3.5
+  max_reach: 3.2
   # tags: {player}, {distance}
   message: "{player} hit another player from a distance of {distance}"
+  suppression: true
 
 ## Movement Detections ##
 SpeedA:
@@ -137,6 +130,7 @@ SpeedA:
   max_speed_off_ground: 0.78
   # tags: {player}
   message: "{player} moved too fast"
+  suppression: true
 SpeedB:
   enabled: true
   # SpeedB is a prediction check to predict the player's next motion off the ground
@@ -145,6 +139,7 @@ SpeedB:
   max_breach: 0.0001
   # tags: {player}
   message: "{player}'s movement was consistent off the ground"
+  suppression: true
 NoSlowdown:
   enabled: true
   # Only change this value if you know what you are doing. If you are experiencing falses positives
@@ -152,25 +147,29 @@ NoSlowdown:
   max_breach: 0.15
   # tags: {player}
   message: "{player} moved too fast while using an item"
+  suppression: true
 FastLadder:
   enabled: true
   max_climb_speed: 0.3
   # tags: {player}
   message: "{player} moved too fast when climbing a ladder"
+  suppression: true
 NoFall:
   enabled: true
   # tags: {player}
   message: "{player} gave onGround value true when not near the ground"
+  # suppression is not available for this check
 AirJump:
   enabled: true
-  # how close to the ground the player has to be. this should at the least be -0.5
-  threshold: -1
   # tags: {player}
   message: "{player} jumped in the air"
+  # suppression is not available for this check
 HighJump:
-  enabled: true
+  # this check is not stable and will false
+  enabled: false
   # tags: {player}
-  message: "{player} jumped too high"
+  message: "{player} jumped higher than the max jump limit"
+  suppression: true
 FlyA:
   enabled: true
   # FlyA is a prediction check which checks if the player's next Y distance is as expected.
@@ -180,22 +179,26 @@ FlyA:
   max_breach: 0.015
   # tags: {player}
   message: "{player}'s Y distance was not as expected"
+  suppression: true
 FlyB:
   enabled: true
   # tags: {player}
   message: "{player} failed a horizontal (and / or) vertical fly check"
+  suppression: true
 VelocityA:
   enabled: true
   # the higher this is, the more it can detect, but the more it will false positive.
-  # at 0.95, this can detect 95% vertical velocity and lower, at 0.96, this can detect 96% velocity
+  # at 0.95, this can detect < 95% vertical velocity and lower, at 0.96, this can detect < 96% velocity
   # and lower and so on.
-  percentage: 0.95
+  percentage: 0.995
   # tags: {player}
   message: "{player}'s vertical velocity was lower than normal"
+  # suppression is not available for this check
 VelocityB:
   # this check is not finished yet and will do nothing but waste your server resources.
   enabled: false
   message: "{player}'s horizontal velocity was lower than normal"
+  # suppression is not available for this check
 
 ## Packet Checks ##
 # These checks are to detect if packets sent to the server are valid.
@@ -203,6 +206,7 @@ VelocityB:
 PacketChecks:
   enabled: true
   # There is no custom message for packet checks.
+  # suppression is not available for packet checks
 
 ## Other Detections ##
 # For EditionFaker, online mode must be enabled due to the login packet being modified.
@@ -211,6 +215,7 @@ EditionFaker:
   enabled: true
   # tags: {player}
   message: "{player} is faking their device information"
+  # suppression is not available for this check
 Timer:
   enabled: true
   # Only change this value if you know what ypu are doing or if you are experiencing false positives.
@@ -219,3 +224,4 @@ Timer:
   max_balance: 500
   # tags: {player}
   message: "{player} sent too many move packets in an instance"
+  # suppression is not available for this check

@@ -77,7 +77,6 @@ class NoSlowdown extends Cheat implements StrictRequirements{
             $lastMoveDist = $user->getLastMoveDistance();
             $expectedMoveDist = $lastMoveDist * 0.2;
             $equalness = $currentMoveDist - $expectedMoveDist;
-            $this->debugNotify("$equalness");
             $effectLevel = $player->getEffect(1) === null ? 0 : $player->getEffect(1)->getAmplifier() + 1;
             if($equalness > $this->getSetting("max_breach") && $effectLevel <= 5
             && $user->timePassedSinceHit(40)
@@ -86,7 +85,7 @@ class NoSlowdown extends Cheat implements StrictRequirements{
                 $maxPreVL = (int) ($player->getPing() / 50) + 4;
                 if($this->getPreVL($name) >= $maxPreVL){
                     $this->suppress($event);
-                    $this->fail($player, "$name moved too fast while using an item", [], "$name breached prediction with a prediction difference of $equalness");
+                    $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)), [], "$name breached prediction with a prediction difference of $equalness");
                 }
             } else {
                 $this->lowerPreVL($name, 0);

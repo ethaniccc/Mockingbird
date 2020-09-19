@@ -27,8 +27,7 @@ use ethaniccc\Mockingbird\utils\MathUtils;
 
 class AutoClickerA extends Cheat{
 
-    /** @var array */
-    private $speeds, $deviations = [];
+    private $speeds = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
         parent::__construct($plugin, $cheatName, $cheatType, $settings);
@@ -36,11 +35,11 @@ class AutoClickerA extends Cheat{
 
     public function onClick(ClickEvent $event) : void{
         $speed = $event->getTimeDiff();
-        $player = $event->getPlayer();
-        $name = $player->getName();
         if($speed > 0.5){
             return;
         }
+        $player = $event->getPlayer();
+        $name = $player->getName();
         if(!isset($this->speeds[$name])){
             $this->speeds[$name] = [];
         }
@@ -48,22 +47,14 @@ class AutoClickerA extends Cheat{
             array_shift($this->speeds[$name]);
         }
         array_push($this->speeds[$name], $speed);
-        $deviation = MathUtils::getDeviation($this->speeds[$name]);
-        if(!isset($this->deviations[$name])){
-            $this->deviations[$name] = [];
-        }
-        if(count($this->deviations[$name]) === $this->getSetting("samples")){
-            array_shift($this->deviations[$name]);
-        }
-        array_push($this->deviations[$name], $deviation);
-        $averageDeviation = MathUtils::getAverage($this->deviations[$name]);
-        if($averageDeviation <= $this->getSetting("consistency") && !$this->getPlugin()->getUserManager()->get($player)->isMobile() && $event->getCPS() >= $this->getSetting("min_cps")){
+        $deviation = MathUtils::getDeviation($this->speeds[$name]) * 1000;
+        if($deviation <= $this->getSetting("consistency") && !$this->getPlugin()->getUserManager()->get($player)->isMobile() && $event->getCPS() >= $this->getSetting("min_cps")){
             $this->addPreVL($name);
-            if($this->getPreVL($name) >= 4.5){
-                $this->fail($player, $this->formatFailMessage($this->basicFailData($player)), [], "$name's click deviation was $averageDeviation, expected at least {$this->getSetting("consistency")}. Samples: {$this->getSetting("samples")}");
+            if($this->getPreVL($name) >= 3){
+                $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)), [], "$name: d: $deviation, s: {$this->getSetting("samples")}, cR: {$this->getSetting("consistency")}");
             }
         } else {
-            $this->lowerPreVL($name, 0.9);
+            $this->lowerPreVL($name);
         }
     }
 

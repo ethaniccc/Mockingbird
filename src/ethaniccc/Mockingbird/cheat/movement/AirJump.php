@@ -34,15 +34,10 @@ class AirJump extends Cheat implements StrictRequirements{
 
     public function onJump(PlayerJumpEvent $event) : void{
         $player = $event->getPlayer();
+        $user = $this->getPlugin()->getUserManager()->get($player);
         $name = $player->getName();
-        if(!LevelUtils::isNearGround($player, $this->getSetting("threshold"))){
-            $this->addPreVL($name);
-            if($this->getPreVL($name) >= 2){
-                $this->suppress($event);
-                $this->fail($player, $this->formatFailMessage($this->basicFailData($player)));
-            }
-        } else {
-            $this->lowerPreVL($name, 0);
+        if($user->getOffGroundTicks() >= 10){
+            $this->fail($player, null, $this->formatFailMessage($this->basicFailData($player)));
         }
     }
 }

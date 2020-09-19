@@ -39,7 +39,7 @@ class NoFall extends Cheat{
             $this->addPreVL($name);
             $maxPreVL = (int) ($player->getPing() / 50) + 5;
             if($this->getPreVL($name) >= $maxPreVL){
-                $this->fail($player, $this->formatFailMessage($this->basicFailData($player)));
+                $this->fail($player, null, $this->formatFailMessage($this->basicFailData($player)));
             }
         } else {
             $this->lowerPreVL($name, 0);

@@ -1,5 +1,21 @@
 <?php
 
+/*
+$$\      $$\                     $$\       $$\                     $$\       $$\                 $$\
+$$$\    $$$ |                    $$ |      \__|                    $$ |      \__|                $$ |
+$$$$\  $$$$ | $$$$$$\   $$$$$$$\ $$ |  $$\ $$\ $$$$$$$\   $$$$$$\  $$$$$$$\  $$\  $$$$$$\   $$$$$$$ |
+$$\$$\$$ $$ |$$  __$$\ $$  _____|$$ | $$  |$$ |$$  __$$\ $$  __$$\ $$  __$$\ $$ |$$  __$$\ $$  __$$ |
+$$ \$$$  $$ |$$ /  $$ |$$ /      $$$$$$  / $$ |$$ |  $$ |$$ /  $$ |$$ |  $$ |$$ |$$ |  \__|$$ /  $$ |
+$$ |\$  /$$ |$$ |  $$ |$$ |      $$  _$$<  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |$$ |      $$ |  $$ |
+$$ | \_/ $$ |\$$$$$$  |\$$$$$$$\ $$ | \$$\ $$ |$$ |  $$ |\$$$$$$$ |$$$$$$$  |$$ |$$ |      \$$$$$$$ |
+\__|     \__| \______/  \_______|\__|  \__|\__|\__|  \__| \____$$ |\_______/ \__|\__|       \_______|
+                                                         $$\   $$ |
+                                                         \$$$$$$  |
+                                                          \______/
+~ Made by @ethaniccc idot </3
+Github: https://www.github.com/ethaniccc
+*/
+
 namespace ethaniccc\Mockingbird\cheat\movement\fly;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
@@ -26,18 +42,16 @@ class FlyB extends Cheat{
                 $distance = $event->getDistanceXZ();
                 $deltaY = $event->getDistanceY();
                 $acceleration = $deltaY - $user->getLastMoveDelta()->getY();
-                if($user->getOffGroundTicks() >= 10
+                if($user->getOffGroundTicks() >= 5
                 && $distance > 0.1
                 && ($deltaY == 0 || $acceleration == 0)
-                && LevelUtils::getBlockUnder($player, 1) instanceof Air
 	            && !$player->isFlying()
 	            && !$player->getAllowFlight()
                 && !$player->isSpectator()
                 && !$player->getInventory()->getItemInHand()->hasEnchantment(\pocketmine\item\enchantment\Enchantment::RIPTIDE)){
                     $this->addPreVL($name);
                     if($this->getPreVL($name) >= 3){
-                        $this->suppress($event);
-                        $this->fail($player, $this->formatFailMessage($this->basicFailData($player)));
+                        $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)));
                     }
                 } else {
                     $this->lowerPreVL($name, 0.5);

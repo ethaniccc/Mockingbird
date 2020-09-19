@@ -49,7 +49,7 @@ class FastLadder extends Cheat implements StrictRequirements{
             return;
         }
 
-        if(LevelUtils::isNearBlock($player, BlockIds::LADDER, 0.25)){
+        if(LevelUtils::isNearBlock($user, BlockIds::LADDER, 0.25)){
             $yDist = round($event->getDistanceY(), 1);
             $maxDist = $this->getSetting("max_climb_speed");
             if($yDist > $maxDist

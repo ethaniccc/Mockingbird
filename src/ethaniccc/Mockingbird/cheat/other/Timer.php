@@ -62,7 +62,7 @@ class Timer extends Cheat implements StrictRequirements{
 
         if($this->playerBalance[$name] >= $this->getSetting("max_balance")){
             // no suppression for this check.
-            $this->fail($player, $this->formatFailMessage($this->basicFailData($player)));
+            $this->fail($player, null, $this->formatFailMessage($this->basicFailData($player)));
             $this->playerBalance[$name] = 0;
         }
 

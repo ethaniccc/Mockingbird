@@ -19,14 +19,9 @@ Github: https://www.github.com/ethaniccc
 namespace ethaniccc\Mockingbird\cheat\movement\fly;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
-use ethaniccc\Mockingbird\cheat\StrictRequirements;
 use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\Mockingbird;
-use ethaniccc\Mockingbird\utils\LevelUtils;
-use ethaniccc\Mockingbird\utils\MathUtils;
-use ethaniccc\Mockingbird\utils\user\User;
-use pocketmine\block\Air;
-use pocketmine\block\BlockIds;
+use ethaniccc\Mockingbird\utils\user\User;;
 use pocketmine\item\ItemIds;
 
 class FlyA extends Cheat{
@@ -45,21 +40,17 @@ class FlyA extends Cheat{
             $predictedDelta = ($lastYDelta - 0.08) * 0.980000019073486;
             if($user->getOffGroundTicks() >= 5 && abs($predictedDelta) > 0.05 && $player->getArmorInventory()->getChestplate()->getId() !== ItemIds::ELYTRA){
                 if(abs($predictedDelta - $yDelta) >= $this->getSetting("max_breach")
-                && $user->timePassedSinceDamage(10)
+                && $user->timePassedSinceDamage(20)
+                && $user->timePassedSinceTeleport(3)
                 && $user->timePassedSinceJoin(40)
-                && $user->timePassedSinceHit(20)
-                && !LevelUtils::isNearBlock($player, BlockIds::COBWEB, 2)
-                && LevelUtils::getBlockUnder($player, 1) instanceof Air
                 && !$player->isFlying()
                 && !$player->getAllowFlight()
                 && !$player->isSpectator()
                 && $event->getMode() === MoveEvent::MODE_NORMAL
                 && !$player->getInventory()->getItemInHand()->hasEnchantment(\pocketmine\item\enchantment\Enchantment::RIPTIDE)){
                     $this->addPreVL($name);
-                    if($this->getPreVL($name) >= 5){
-                        $this->lowerPreVL($name, 0.6);
-                        $this->suppress($event);
-                        $this->fail($player, "$name's Y distance was not as expected", [], "$name's Y distance was $yDelta, predicted $predictedDelta");
+                    if($this->getPreVL($name) >= 3){
+                        $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)), [], "$name: yD: $yDelta, pD: $predictedDelta");
                     }
                 } else {
                     $this->lowerPreVL($name);

@@ -24,6 +24,7 @@ use ethaniccc\Mockingbird\event\MockingbirdCheatEvent;
 use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\tasks\AsyncClosureTask;
+use ethaniccc\Mockingbird\utils\MathUtils;
 use pocketmine\event\Cancellable;
 use pocketmine\event\Event;
 use pocketmine\event\Listener;
@@ -52,7 +53,7 @@ class Cheat implements Listener{
         $this->cheatName = $cheatName;
         $this->cheatType = $cheatType;
         if($settings === null){
-            throw new \Exception("$cheatName received invalid settings");
+            $settings = ["enabled" => true];
         }
         $this->settings = $settings;
         $this->enabled = $this->getSetting("enabled");
@@ -157,9 +158,13 @@ class Cheat implements Listener{
      * @param Event $event
      */
     protected function suppress(Event $event) : void{
-        if($this->getPlugin()->getConfig()->get("supression")){
+        if($this->getSetting("suppression")){
             if($event instanceof MoveEvent){
-                $event->getPlayer()->teleport(new Vector3($event->getPlayer()->lastX, $event->getPlayer()->lastY, $event->getPlayer()->lastZ));
+                $user = $this->getPlugin()->getUserManager()->get($event->getPlayer());
+                $revertLocation = $user->getLocationHistory()->getLastOnGroundLocation();
+                if($revertLocation !== null){
+                    $event->getPlayer()->teleport($revertLocation);
+                }
             } elseif($event instanceof Cancellable){
                 $event->setCancelled();
             }
@@ -168,55 +173,51 @@ class Cheat implements Listener{
 
     /**
      * @param Player $player
+     * @param Event|null $event
      * @param string $message
      * @param array $extraData
      * @param string $debugMessage
      */
-    protected function fail(Player $player, string $message, array $extraData = [], string $debugMessage = null){
-        $name = $player->getName();
-        $isExempt = (!$this->isEnabled()
-            || $player->hasPermission($this->getPlugin()->getConfig()->get("bypass_permission"))
-            || $this->isLowTPS()
-            || $this instanceof StrictRequirements ? ($player->getPing() > $this->getRequiredPing() || $this->getServer()->getTicksPerSecond() < $this->getRequiredTPS()) : false
-        );
-        if(!$isExempt){
-            $addedViolations = 1;
-            if($this->getPlugin()->getConfig()->get("dynamic_violations")){
-                if(isset($this->lastViolationTime[$name])){
-                    $timeDiff = $this->getServer()->getTick() - $this->lastViolationTime[$name];
-                    if($timeDiff < 20 && $timeDiff !== 0){
-                        $addedViolations = round(10 / $timeDiff, 0);
-                    } elseif($timeDiff === 0){
-                        $addedViolations = 20;
-                    } else {
-                        $addedViolations = 1;
-                    }
-                } else {
-                    $addedViolations = 1;
-                }
-                $this->lastViolationTime[$name] = $this->getServer()->getTick();
+    protected function fail(Player $player, ?Event $event, string $message, array $extraData = [], string $debugMessage = null){
+        if(!$this->isEnabled()){
+            return;
+        }
+        if($this->isLowTPS()){
+            return;
+        }
+        if($player->hasPermission($this->getPlugin()->getConfig()->get("bypass_permission"))){
+            return;
+        }
+        if($this instanceof StrictRequirements){
+            if($player->getPing() > $this->getRequiredPing() || $this->getServer()->getTicksPerSecond() < $this->getRequiredTPS()){
+                return;
             }
-            $cheatEvent = new MockingbirdCheatEvent($player, $this, $message, $addedViolations, $extraData, $debugMessage);
-            $cheatEvent->call();
-            if(!$cheatEvent->isCancelled()){
-                if($debugMessage !== null){
-                    $this->debugNotify($debugMessage);
-                }
-                $addedViolations = $cheatEvent->getAddedViolations();
-                ViolationHandler::addViolation($name, $this->getName(), $addedViolations);
-                foreach(Server::getInstance()->getOnlinePlayers() as $staff){
-                    if($staff->hasPermission($this->getPlugin()->getConfig()->get("alert_permission"))){
-                        $registeredStaff = $this->getPlugin()->getStaff($staff->getName());
-                        if($registeredStaff !== null){
-                            if($registeredStaff->hasAlertsEnabled()){
-                                $staff->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RESET . TextFormat::GRAY . "(" . TextFormat::AQUA . $this->getName() . TextFormat::GRAY . ") " . TextFormat::RESET . TextFormat::RED . $message . TextFormat::DARK_RED . " [" . TextFormat::WHITE . "VL: " . TextFormat::RED . ViolationHandler::getCurrentViolations($name) . TextFormat::DARK_RED . "]");
-                            }
+        }
+        if($event !== null){
+            $this->suppress($event);
+        }
+        $name = $player->getName();
+        $addedViolations = 1;
+        $cheatEvent = new MockingbirdCheatEvent($player, $this, $message, $addedViolations, $extraData, $debugMessage);
+        $cheatEvent->call();
+        if(!$cheatEvent->isCancelled()){
+            if($debugMessage !== null){
+                $this->debugNotify($debugMessage);
+            }
+            $addedViolations = $cheatEvent->getAddedViolations();
+            ViolationHandler::addViolation($name, $this->getName(), $addedViolations);
+            foreach(Server::getInstance()->getOnlinePlayers() as $staff){
+                if($staff->hasPermission($this->getPlugin()->getConfig()->get("alert_permission"))){
+                    $registeredStaff = $this->getPlugin()->getStaff($staff->getName());
+                    if($registeredStaff !== null){
+                        if($registeredStaff->hasAlertsEnabled()){
+                            $staff->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RESET . TextFormat::GRAY . "(" . TextFormat::AQUA . $this->getName() . TextFormat::GRAY . ") " . TextFormat::RESET . TextFormat::RED . $message . TextFormat::DARK_RED . " [" . TextFormat::WHITE . "VL: " . TextFormat::RED . ViolationHandler::getCurrentViolations($name) . TextFormat::DARK_RED . "]");
                         }
                     }
                 }
-                if(ViolationHandler::getCurrentViolations($name) >= $this->getPlugin()->getConfig()->get("max_violations")){
-                    $this->punish($name);
-                }
+            }
+            if(ViolationHandler::getCurrentViolations($name) >= $this->getPlugin()->getConfig()->get("max_violations")){
+                $this->punish($name);
             }
         }
     }
@@ -251,9 +252,10 @@ class Cheat implements Listener{
             return;
         }
         $this->getServer()->getAsyncPool()->submitTask(new AsyncClosureTask(function() use($message){
+            // yes, just make everything shut up - problems solved!
             $log = @fopen("plugin_data/Mockingbird/debug_log.txt", "a");
-            fwrite($log, "$message\n");
-            fclose($log);
+            @fwrite($log, "$message\n");
+            @fclose($log);
         }));
         $this->getServer()->getLogger()->debug("[Mockingbird || {$this->getName()}]: $message");
     }
@@ -261,7 +263,8 @@ class Cheat implements Listener{
     /**
      * @param string $message
      */
-    protected function debugNotify(string $message) : void{
+    protected function debugNotify($message) : void{
+        $message = (string) $message;
         if(!$this->isEnabled()){
             return;
         }

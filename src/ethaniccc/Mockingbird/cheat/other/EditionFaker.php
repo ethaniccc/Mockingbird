@@ -62,7 +62,7 @@ class EditionFaker extends Cheat{
     // even without the blatant interface, there is nothing left for you edition fakers ;)
     public function onMove(MoveEvent $event) : void{
         if(isset($this->fakers[spl_object_hash($event->getPlayer())])){
-            $this->fail($event->getPlayer(), $this->formatFailMessage($this->basicFailData($event->getPlayer())));
+            $this->fail($event->getPlayer(), null, $this->formatFailMessage($this->basicFailData($event->getPlayer())));
         }
     }
 

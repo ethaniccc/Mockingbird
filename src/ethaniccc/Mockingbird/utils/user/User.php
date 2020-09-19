@@ -3,12 +3,15 @@
 namespace ethaniccc\Mockingbird\utils\user;
 
 use ethaniccc\Mockingbird\event\MoveEvent;
+use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\LevelUtils;
 use ethaniccc\Mockingbird\utils\location\LocationHistory;
 use ethaniccc\Mockingbird\utils\location\Vector4;
+use pocketmine\block\Air;
 use pocketmine\entity\Entity;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\event\entity\EntityMotionEvent;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerJumpEvent;
 use pocketmine\math\Vector3;
@@ -38,17 +41,19 @@ class User{
     private $lastAttackedTick = 0;
     /** @var ClientData */
 	private $clientData;
-	/** @var LoginPacket */
-	private $packet;
+
+	private $lastMotionTick = 0;
+	private $currentMotion, $lastMotion;
+
+	private $attackPosition;
 
     public function __construct(Player $player, bool $isMobile, LoginPacket $packet){
         $this->player = $player;
         $this->isMobile = $isMobile;
-        $this->locationHistory = new LocationHistory($player);
+        $this->locationHistory = new LocationHistory($this);
         $this->lastMoveDelta = new Vector3(0, 0, 0);
         $this->moveDelta = new Vector3(0, 0, 0);
         $this->clientData = new ClientData($packet->clientData);
-        $this->packet = $packet;
     }
 
     public function getPlayer() : Player{
@@ -68,7 +73,8 @@ class User{
         $this->moveDelta = new Vector3($event->getDistanceX(), $event->getDistanceY(), $event->getDistanceZ());
         $this->locationHistory->addLocation(new Vector4($event->getTo()->x, $event->getTo()->y, $event->getTo()->z));
         $this->lastLocation = $this->currentLocation;
-        $this->currentLocation = $event->getTo();
+        // jesus christ mojang lmao why are the move packets like dis
+        $this->currentLocation = $event->getTo()->round(4)->subtract(0, 1.62, 0);
         $this->clientOnGround = $event->onGround();
         $this->previousYaw = $this->currentYaw;
         $this->currentYaw = $event->getYaw();
@@ -76,7 +82,7 @@ class User{
         $this->currentPitch = $event->getPitch();
         $this->lastMoveDistance = $this->moveDistance;
         $this->moveDistance = $event->getDistanceXZ();
-        $this->serverOnGround = LevelUtils::isNearGround($this->player);
+        $this->serverOnGround = LevelUtils::isNearGround($this);
         // off ground ticks will be done with server side information.
         $this->serverOnGround ? $this->offGroundTicks = 0 : ++$this->offGroundTicks;
         if($event->getMode() === MoveEvent::MODE_TELEPORT){
@@ -125,19 +131,19 @@ class User{
     }
 
     public function getCurrentYaw() : float{
-        return $this->currentYaw;
+        return (float) $this->currentYaw;
     }
 
     public function getCurrentPitch() : float{
-        return $this->currentPitch;
+        return (float) $this->currentPitch;
     }
 
     public function getPreviousYaw() : float{
-        return $this->previousYaw;
+        return (float) $this->previousYaw;
     }
 
     public function getPreviousPitch() : float{
-        return $this->previousPitch;
+        return (float) $this->previousPitch;
     }
 
     public function timePassedSinceTeleport(int $tickDiff) : bool{
@@ -195,8 +201,34 @@ class User{
         $this->lastJumpedTick = $this->player->getServer()->getTick();
     }
 
-    public function ticksPassedSinceJump(int $tickDiff) : bool{
+    public function timePassedSinceJump(int $tickDiff) : bool{
         return $this->player->getServer()->getTick() - $this->lastJumpedTick >= $tickDiff;
+    }
+
+    public function handleMotion(EntityMotionEvent $event) : void{
+        $this->lastMotion = $this->currentMotion;
+        $this->currentMotion = $event->getVector();
+        $this->lastMotionTick = $this->player->getServer()->getTick();
+    }
+
+    public function getCurrentMotion() : ?Vector3{
+        return $this->currentMotion;
+    }
+
+    public function getLastMotion() : ?Vector3{
+        return $this->lastMotion;
+    }
+
+    public function timePassedSinceMotion(int $tickDiff) : bool{
+        return $this->player->getServer()->getTick() - $this->lastMotionTick >= $tickDiff;
+    }
+
+    public function setAttackPosition(Vector3 $position) : void{
+        $this->attackPosition = $position;
+    }
+
+    public function getAttackPosition() : ?Vector3{
+        return $this->attackPosition;
     }
 
 }

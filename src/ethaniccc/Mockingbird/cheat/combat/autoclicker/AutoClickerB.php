@@ -41,7 +41,7 @@ class AutoClickerB extends Cheat implements StrictRequirements{
             if($this->getPreVL($name) >= 10){
                 $data = $this->basicFailData($player);
                 $data["{cps}"] = $cps;
-                $this->fail($player, $this->formatFailMessage($data));
+                $this->fail($player, $event, $this->formatFailMessage($data));
             }
         } else {
             $this->lowerPreVL($name);

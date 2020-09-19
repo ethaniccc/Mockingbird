@@ -1,19 +1,33 @@
 <?php
 
+/*
+$$\      $$\                     $$\       $$\                     $$\       $$\                 $$\
+$$$\    $$$ |                    $$ |      \__|                    $$ |      \__|                $$ |
+$$$$\  $$$$ | $$$$$$\   $$$$$$$\ $$ |  $$\ $$\ $$$$$$$\   $$$$$$\  $$$$$$$\  $$\  $$$$$$\   $$$$$$$ |
+$$\$$\$$ $$ |$$  __$$\ $$  _____|$$ | $$  |$$ |$$  __$$\ $$  __$$\ $$  __$$\ $$ |$$  __$$\ $$  __$$ |
+$$ \$$$  $$ |$$ /  $$ |$$ /      $$$$$$  / $$ |$$ |  $$ |$$ /  $$ |$$ |  $$ |$$ |$$ |  \__|$$ /  $$ |
+$$ |\$  /$$ |$$ |  $$ |$$ |      $$  _$$<  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |$$ |      $$ |  $$ |
+$$ | \_/ $$ |\$$$$$$  |\$$$$$$$\ $$ | \$$\ $$ |$$ |  $$ |\$$$$$$$ |$$$$$$$  |$$ |$$ |      \$$$$$$$ |
+\__|     \__| \______/  \_______|\__|  \__|\__|\__|  \__| \____$$ |\_______/ \__|\__|       \_______|
+                                                         $$\   $$ |
+                                                         \$$$$$$  |
+                                                          \______/
+~ Made by @ethaniccc idot </3
+Github: https://www.github.com/ethaniccc
+*/
+
 namespace ethaniccc\Mockingbird\cheat\movement;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\Mockingbird;
-use ethaniccc\Mockingbird\utils\LevelUtils;
-use pocketmine\block\Stair;
 use pocketmine\event\player\PlayerJumpEvent;
 
 class HighJump extends Cheat{
 
     private $ticksSinceJump = [];
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings = null){
         parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
@@ -26,29 +40,19 @@ class HighJump extends Cheat{
 
     public function onMove(MoveEvent $event) : void{
         $player = $event->getPlayer();
+        $name = $player->getName();
         $user = $this->getPlugin()->getUserManager()->get($player);
-        $name = $user->getName();
-        $maxJump = $player->getJumpVelocity();
-        $yDelta = $event->getDistanceY();
-        $maxTicks = (int) ($player->getPing() / 100) + 2;
         if(isset($this->ticksSinceJump[$name])){
             ++$this->ticksSinceJump[$name];
-            if($this->ticksSinceJump[$name] <= $maxTicks){
-                if($yDelta > $maxJump && $user->timePassedSinceHit(40) && $event->getMode() === MoveEvent::MODE_NORMAL && !LevelUtils::getBlockUnder($player, -0.75) instanceof Stair){
-                    $this->addPreVL($name);
-                } else {
-                    $this->lowerPreVL($name, 0);
+            if($this->ticksSinceJump[$name] === 3){
+                $estimatedYDelta = ((($player->getJumpVelocity() - 0.08) * 0.980000019073486) - 0.08) * 0.980000019073486;
+                $yDelta = $user->getMoveDelta()->getY();
+                $equalness = $yDelta - $estimatedYDelta;
+                if($equalness > 0.1 && !$user->getServerOnGround()){
+                    $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)));
                 }
-            } else {
-                if($this->getPreVL($name) >= $maxTicks){
-                    $this->suppress($event);
-                    $this->fail($player, $this->formatFailMessage($this->basicFailData($player)));
-                }
-                $this->lowerPreVL($name, 0);
                 unset($this->ticksSinceJump[$name]);
             }
-        } else {
-            $this->lowerPreVL($name, 0);
         }
     }
 
