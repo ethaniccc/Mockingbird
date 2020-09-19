@@ -38,7 +38,7 @@ class BadPitchPacket extends Cheat{
         if($packet instanceof MovePlayerPacket){
             if(abs($packet->pitch) > 90){
                 $givenPitch = abs($packet->pitch);
-                $this->fail($player, "$name gave a packet with a pitch of $givenPitch, max pitch is 90");
+                $this->fail($player, null, "$name gave a packet with a pitch of $givenPitch, max pitch is 90");
             }
         }
     }

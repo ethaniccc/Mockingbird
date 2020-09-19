@@ -40,7 +40,7 @@ class InvalidCreativeTransaction extends Cheat{
         if($packet instanceof InventoryTransactionPacket){
             foreach($packet->actions as $action){
                 if($action->sourceType === NetworkInventoryAction::SOURCE_CREATIVE && !$player->isCreative()){
-                    $this->fail($player, "$name made a creative inventory transaction while not in creative");
+                    $this->fail($player, null, "$name made a creative inventory transaction while not in creative");
                 }
             }
         }

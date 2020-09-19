@@ -62,7 +62,7 @@ class LevelUtils{
 
     /**
      * @param Player $player
-     * @param float|int $underLevel
+     * @param float $underLevel
      * @return Block
      */
     public static function getBlockUnder(Player $player, float $underLevel = 1) : Block{
@@ -102,7 +102,7 @@ class LevelUtils{
     /**
      * @param User $user
      * @param int $blockId
-     * @param float|int $radius
+     * @param float $radius
      * @return bool
      */
     public static function isNearBlock(User $user, int $blockId, float $radius = 1) : bool{

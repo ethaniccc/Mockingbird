@@ -55,8 +55,7 @@ class FastLadder extends Cheat implements StrictRequirements{
             if($yDist > $maxDist
             && $user->hasNoMotion()
             && $user->timePassedSinceHit(20)){
-                $this->suppress($event);
-                $this->fail($player, $this->formatFailMessage($this->basicFailData($player)));
+                $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)));
             }
         }
     }
