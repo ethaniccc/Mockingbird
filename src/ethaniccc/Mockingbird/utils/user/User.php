@@ -22,7 +22,7 @@ class User{
 
     private $player;
     private $isMobile;
-    private $joinTick = 0;
+    private $timeSinceJoin = 0;
 
     private $currentLocation, $lastLocation;
     private $moveDelta, $lastMoveDelta;
@@ -31,18 +31,17 @@ class User{
     private $clientOnGround, $serverOnGround = true;
     private $currentYaw, $currentPitch, $previousYaw, $previousPitch = 0;
     private $offGroundTicks = 0;
-    private $lastJumpedTick = 0;
-    private $lastTeleportTick = 0;
+    private $timeSinceJump = 0;
+    private $timeSinceTeleport = 0;
 
-    private $lastHitTick = 0;
+    private $timeSinceHit = 0;
     private $damagedTick = 0;
 
     private $lastHitEntity;
-    private $lastAttackedTick = 0;
-    /** @var ClientData */
+    private $timeSinceAttack = 0;
 	private $clientData;
 
-	private $lastMotionTick = 0;
+	private $timeSinceMotion = 0;
 	private $currentMotion, $lastMotion;
 
 	private $attackPosition;
@@ -86,8 +85,15 @@ class User{
         // off ground ticks will be done with server side information.
         $this->serverOnGround ? $this->offGroundTicks = 0 : ++$this->offGroundTicks;
         if($event->getMode() === MoveEvent::MODE_TELEPORT){
-            $this->lastTeleportTick = $this->player->getServer()->getTick();
+            $this->timeSinceTeleport = 0;
+        } else {
+            ++$this->timeSinceTeleport;
         }
+        ++$this->timeSinceJump;
+        ++$this->timeSinceMotion;
+        ++$this->timeSinceJoin;
+        ++$this->timeSinceHit;
+        ++$this->timeSinceAttack;
     }
 
     public function getMoveDistance() : ?float{
@@ -147,7 +153,7 @@ class User{
     }
 
     public function timePassedSinceTeleport(int $tickDiff) : bool{
-        return $this->player->getServer()->getTick() - $this->lastTeleportTick >= $tickDiff;
+        return $this->timeSinceTeleport >= $tickDiff;
     }
 
     public function hasNoMotion() : bool{
@@ -161,9 +167,9 @@ class User{
     public function handleHit(EntityDamageByEntityEvent $event) : void{
         if(spl_object_hash($event->getDamager()) == spl_object_hash($this->player)){
             $this->lastHitEntity = $event->getEntity();
-            $this->lastAttackedTick = $this->player->getServer()->getTick();
+            $this->timeSinceAttack = 0;
         } else {
-            $this->lastHitTick = $this->player->getServer()->getTick();
+            $this->timeSinceHit = 0;
         }
     }
 
@@ -171,12 +177,13 @@ class User{
         return $this->lastHitEntity;
     }
 
+    // not used anywhere for now
     public function timePassedSinceAttack(int $tickDiff) : bool{
-        return $this->player->getServer()->getTick() - $this->lastAttackedTick >= $tickDiff;
+        return $this->timeSinceAttack >= $tickDiff;
     }
 
     public function timePassedSinceHit(int $tickDiff) : bool{
-        return $this->player->getServer()->getTick() - $this->lastHitTick >= $tickDiff;
+        return $this->timeSinceHit >= $tickDiff;
     }
 
     public function handleDamage(EntityDamageEvent $event) : void{
@@ -190,25 +197,25 @@ class User{
     }
 
     public function handleJoin(PlayerJoinEvent $event) : void{
-        $this->joinTick = $this->player->getServer()->getTick();
+        $this->timeSinceJoin = 0;
     }
 
     public function timePassedSinceJoin(int $tickDiff) : bool{
-        return $this->player->getServer()->getTick() - $this->joinTick >= $tickDiff;
+        return $this->timeSinceJoin >= $tickDiff;
     }
 
     public function handleJump(PlayerJumpEvent $event) : void{
-        $this->lastJumpedTick = $this->player->getServer()->getTick();
+        $this->timeSinceJump = 0;
     }
 
     public function timePassedSinceJump(int $tickDiff) : bool{
-        return $this->player->getServer()->getTick() - $this->lastJumpedTick >= $tickDiff;
+        return $this->timeSinceJump >= $tickDiff;
     }
 
     public function handleMotion(EntityMotionEvent $event) : void{
         $this->lastMotion = $this->currentMotion;
         $this->currentMotion = $event->getVector();
-        $this->lastMotionTick = $this->player->getServer()->getTick();
+        $this->timeSinceMotion = 0;
     }
 
     public function getCurrentMotion() : ?Vector3{
@@ -220,7 +227,7 @@ class User{
     }
 
     public function timePassedSinceMotion(int $tickDiff) : bool{
-        return $this->player->getServer()->getTick() - $this->lastMotionTick >= $tickDiff;
+        return $this->timeSinceMotion >= $tickDiff;
     }
 
     public function setAttackPosition(Vector3 $position) : void{

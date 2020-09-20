@@ -161,9 +161,13 @@ class Cheat implements Listener{
         if($this->getSetting("suppression")){
             if($event instanceof MoveEvent){
                 $user = $this->getPlugin()->getUserManager()->get($event->getPlayer());
-                $revertLocation = $user->getLocationHistory()->getLastOnGroundLocation();
-                if($revertLocation !== null){
-                    $event->getPlayer()->teleport($revertLocation);
+                if(!$user->getServerOnGround()){
+                    $revertLocation = $user->getLocationHistory()->getLastOnGroundLocation();
+                    if($revertLocation !== null){
+                        $event->getPlayer()->teleport($revertLocation);
+                    }
+                } else {
+                    $event->getPlayer()->teleport(new Vector3($event->getPlayer()->lastX, $event->getPlayer()->lastY, $event->getPlayer()->lastZ));
                 }
             } elseif($event instanceof Cancellable){
                 $event->setCancelled();

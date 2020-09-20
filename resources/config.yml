@@ -159,17 +159,6 @@ NoFall:
   # tags: {player}
   message: "{player} gave onGround value true when not near the ground"
   # suppression is not available for this check
-AirJump:
-  enabled: true
-  # tags: {player}
-  message: "{player} jumped in the air"
-  # suppression is not available for this check
-HighJump:
-  # this check is not stable and will false
-  enabled: false
-  # tags: {player}
-  message: "{player} jumped higher than the max jump limit"
-  suppression: true
 FlyA:
   enabled: true
   # FlyA is a prediction check which checks if the player's next Y distance is as expected.
