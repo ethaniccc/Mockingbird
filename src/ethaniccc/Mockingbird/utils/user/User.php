@@ -70,7 +70,7 @@ class User{
     public function handleMove(MoveEvent $event) : void{
         $this->lastMoveDelta = $this->moveDelta;
         $this->moveDelta = new Vector3($event->getDistanceX(), $event->getDistanceY(), $event->getDistanceZ());
-        $this->locationHistory->addLocation(new Vector4($event->getTo()->x, $event->getTo()->y, $event->getTo()->z));
+        $this->locationHistory->addLocation(new Vector4($event->getTo()->x, $event->getTo()->y, $event->getTo()->z, $event->getYaw(), $event->getPitch()));
         $this->lastLocation = $this->currentLocation;
         // jesus christ mojang lmao why are the move packets like dis
         $this->currentLocation = $event->getTo()->round(4)->subtract(0, 1.62, 0);
@@ -214,7 +214,7 @@ class User{
 
     public function handleMotion(EntityMotionEvent $event) : void{
         $this->lastMotion = $this->currentMotion;
-        $this->currentMotion = $event->getVector();
+        $this->currentMotion = Vector4::fromVector3($event->getVector());
         $this->timeSinceMotion = 0;
     }
 

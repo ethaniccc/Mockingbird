@@ -45,6 +45,10 @@ class ReachA extends Cheat{
         }
         $damagerUser = $this->getPlugin()->getUserManager()->get($damager);
         $damagedUser = $this->getPlugin()->getUserManager()->get($damaged);
+        if($damagerUser->getClientData()->isMobile()){
+            // According to John (@John.#0658), tap to touch mobile players get more reach
+            return;
+        }
         $name = $damager->getName();
         $currentTick = $this->getServer()->getTick();
         if(!isset($this->cooldown[$name])){

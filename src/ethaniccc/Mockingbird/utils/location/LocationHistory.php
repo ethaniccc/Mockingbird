@@ -51,4 +51,8 @@ class LocationHistory{
         return $this->lastGroundLocation;
     }
 
+    public function getLocations() : array{
+        return $this->locations;
+    }
+
 }
