@@ -50,6 +50,10 @@ class Mockingbird extends PluginBase{
     private static $reloaded;
 
     public function onEnable(){
+        // yes, hardcoded version
+        if($this->getConfig()->get("version") !== "1.4-beta"){
+            throw new \Exception("Config version is out of date (or is wrong - expected version to be 1.4-beta), please delete your current config to prevent any issues.");
+        }
         if(self::$reloaded !== null){
             $this->getLogger()->alert("Reloading Mockingbird with /reload may result in your server crashing, to prevent this, Mockingbird will disable itself.");
             $this->getServer()->getPluginManager()->disablePlugin($this);

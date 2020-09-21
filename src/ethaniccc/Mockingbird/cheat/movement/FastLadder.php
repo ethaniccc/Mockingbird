@@ -38,14 +38,9 @@ class FastLadder extends Cheat implements StrictRequirements{
         $user = $this->getPlugin()->getUserManager()->get($player);
         $name = $player->getName();
 
-        if($event->getMode() !== MoveEvent::MODE_NORMAL){
-            return;
-        }
-
-        if($player->isCreative()){
-            return;
-        }
-        if($player->isFlying()){
+        if($event->getMode() !== MoveEvent::MODE_NORMAL
+        || $player->isCreative()
+        || $player->isFlying()){
             return;
         }
 
@@ -53,8 +48,7 @@ class FastLadder extends Cheat implements StrictRequirements{
             $yDist = round($event->getDistanceY(), 1);
             $maxDist = $this->getSetting("max_climb_speed");
             if($yDist > $maxDist
-            && $user->hasNoMotion()
-            && $user->timePassedSinceHit(20)){
+            && $user->timePassedSinceMotion(20)){
                 $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)));
             }
         }

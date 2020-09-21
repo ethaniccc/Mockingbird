@@ -255,13 +255,15 @@ class Cheat implements Listener{
         if(!$this->isEnabled()){
             return;
         }
+        $message = "[Mockingbird || {$this->getName()}]: $message";
         $this->getServer()->getAsyncPool()->submitTask(new AsyncClosureTask(function() use($message){
             // yes, just make everything shut up - problems solved!
             $log = @fopen("plugin_data/Mockingbird/debug_log.txt", "a");
             @fwrite($log, "$message\n");
             @fclose($log);
         }));
-        $this->getServer()->getLogger()->debug("[Mockingbird || {$this->getName()}]: $message");
+        // yeah i don't think i should be shitting on the console like this lmfao
+        // $this->getServer()->getLogger()->debug("[Mockingbird || {$this->getName()}]: $message");
     }
 
     /**
