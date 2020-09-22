@@ -39,7 +39,7 @@ class VelocityA extends Cheat{
         $entity = $event->getEntity();
         if($entity instanceof Player){
             $user = $this->getPlugin()->getUserManager()->get($entity);
-            if($user->timePassedSinceTeleport(5)){
+            if($user->timePassedSinceTeleport(5) && $event->getVector()->getY() > 0){
                 $name = $entity->getName();
                 $vertical = $event->getVector()->y;
                 $this->lastVertical[$name] = $vertical;

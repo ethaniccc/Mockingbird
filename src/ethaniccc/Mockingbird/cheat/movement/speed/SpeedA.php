@@ -53,11 +53,10 @@ class SpeedA extends Cheat{
             $expectedDistance *= 1 + (0.2 * ($player->getEffect(1)->getAmplifier() + 1));
         }
         if($distance > $expectedDistance
-        && $user->hasNoMotion()
         && $user->timePassedSinceMotion(20)
         && !$player->getInventory()->getItemInHand()->hasEnchantment(\pocketmine\item\enchantment\Enchantment::RIPTIDE)){
             $this->addPreVL($name);
-            if($this->getPreVL($name) >= 6){
+            if($this->getPreVL($name) >= 4){
                 $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)), [], "d: $distance, eMD: $expectedDistance");
             }
         } else {

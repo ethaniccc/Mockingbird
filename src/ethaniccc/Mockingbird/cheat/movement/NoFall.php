@@ -35,7 +35,8 @@ class NoFall extends Cheat{
 
         if($event->onGround()
         && $user->getOffGroundTicks() >= 5
-        && $event->getDistanceY() < 0){
+        && $event->getDistanceY() < 0
+        && $user->getCurrentLocation()->getY() > 0){
             $this->addPreVL($name);
             $maxPreVL = (int) ($player->getPing() / 50) + 5;
             if($this->getPreVL($name) >= $maxPreVL){

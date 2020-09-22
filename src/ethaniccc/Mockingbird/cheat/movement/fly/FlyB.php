@@ -48,7 +48,8 @@ class FlyB extends Cheat{
 	            && !$player->isFlying()
 	            && !$player->getAllowFlight()
                 && !$player->isSpectator()
-                && !$player->getInventory()->getItemInHand()->hasEnchantment(\pocketmine\item\enchantment\Enchantment::RIPTIDE)){
+                && !$player->getInventory()->getItemInHand()->hasEnchantment(\pocketmine\item\enchantment\Enchantment::RIPTIDE)
+                && $user->getCurrentLocation()->getY() > 0){
                     $this->addPreVL($name);
                     if($this->getPreVL($name) >= 3){
                         $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)));

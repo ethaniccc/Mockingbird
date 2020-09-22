@@ -46,7 +46,8 @@ class SpeedB extends Cheat{
                 return;
             }
             if($equalness > $this->getSetting("max_breach")
-            && !$player->getInventory()->getItemInHand()->hasEnchantment(\pocketmine\item\enchantment\Enchantment::RIPTIDE)){
+            && !$player->getInventory()->getItemInHand()->hasEnchantment(\pocketmine\item\enchantment\Enchantment::RIPTIDE)
+            && $user->getCurrentLocation()->getY() > 0){
                 $this->addPreVL($name);
                 if($this->getPreVL($name) >= 3){
                     $this->lowerPreVL($name, 2 / 3);

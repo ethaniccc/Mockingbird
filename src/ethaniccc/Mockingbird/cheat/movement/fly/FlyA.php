@@ -47,7 +47,8 @@ class FlyA extends Cheat{
                 && !$player->getAllowFlight()
                 && !$player->isSpectator()
                 && $event->getMode() === MoveEvent::MODE_NORMAL
-                && !$player->getInventory()->getItemInHand()->hasEnchantment(\pocketmine\item\enchantment\Enchantment::RIPTIDE)){
+                && !$player->getInventory()->getItemInHand()->hasEnchantment(\pocketmine\item\enchantment\Enchantment::RIPTIDE)
+                && $user->getCurrentLocation()->getY() > 0){
                     $this->addPreVL($name);
                     if($this->getPreVL($name) >= 3){
                         $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)), [], "$name: yD: $yDelta, pD: $predictedDelta");
