@@ -50,6 +50,10 @@ class Mockingbird extends PluginBase{
     private static $reloaded;
 
     public function onEnable(){
+        // yes, hardcoded version
+        if($this->getConfig()->get("version") !== "1.4-beta"){
+            throw new \Exception("Config version is out of date (or is wrong - expected version to be 1.4-beta), please delete your current config to prevent any issues.");
+        }
         if(self::$reloaded !== null){
             $this->getLogger()->alert("Reloading Mockingbird with /reload may result in your server crashing, to prevent this, Mockingbird will disable itself.");
             $this->getServer()->getPluginManager()->disablePlugin($this);
@@ -227,10 +231,12 @@ class Mockingbird extends PluginBase{
                             foreach(scandir($this->getFile() . "/src/ethaniccc/Mockingbird/cheat/$type/$module") as $subModule){
                                 if(!is_dir($this->getFile() . "/src/ethaniccc/Mockingbird/cheat/$type/$module/$subModule")){
                                     $className = explode(".php", $subModule)[0];
+                                    $settings = $this->getConfig()->getNested($className);
                                     $class = $currentPath . "$module\\$className";
-                                    $enabled = (bool) $this->getConfig()->get($className);
-                                    $enabled = $this->isDeveloperMode() ? true : $enabled;
-                                    $newDetection = new $class($this, $className, $type, $enabled);
+                                    if($this->isDeveloperMode()){
+                                        $settings["enabled"] = true;
+                                    }
+                                    $newDetection = new $class($this, $className, $type, $settings);
                                     if($newDetection->isEnabled()){
                                         $this->loadModule($newDetection);
                                         $this->enabledModules[] = $newDetection;
@@ -242,17 +248,18 @@ class Mockingbird extends PluginBase{
                             }
                         } elseif(!is_dir($module)){
                             $className = explode(".php", $module)[0];
+                            $settings = $this->getConfig()->getNested($className);
                             $class = $currentPath . $className;
-                            $enabled = (bool) $this->getConfig()->get($className);
                             if($type === "packet"){
-                                $enabled = (bool) $this->getConfig()->get("PacketChecks");
+                                $settings = ["enabled" => $this->getConfig()->getNested("PacketChecks")["enabled"]];
                             }
-                            $enabled = $this->isDeveloperMode() ? true : $enabled;
-                            $newDetection = new $class($this, $className, $type, $enabled);
-                            $this->loadModule($newDetection);
-                            $newDetection->isEnabled() ? $this->enabledModules[] = $newDetection : $this->disabledModules[] = $newDetection;
+                            $newDetection = new $class($this, $className, $type, $settings);
                             if($newDetection->isEnabled()){
+                                $this->loadModule($newDetection);
                                 $loadedModules++;
+                                $this->enabledModules[] = $newDetection;
+                            } else {
+                                $this->disabledModules[] = $newDetection;
                             }
                         }
                     }
@@ -267,8 +274,8 @@ class Mockingbird extends PluginBase{
                 $path = $this->getDataFolder() . "custom_modules/$customModule";
                 require_once $path;
                 $class = explode(".php", $customModule)[0];
-                // hardcoded type and enabled parameters
-                $this->loadModule(new $class($this, $class, "Custom", true));
+                // hardcoded type and settings parameters
+                $this->loadModule(new $class($this, $class, "Custom", ["enabled" => true]));
                 $loadedModules++;
             }
             $debug ? $this->getLogger()->debug("$loadedModules custom modules have been loaded.") : $this->getLogger()->info(TextFormat::GREEN . "$loadedModules custom modules have been loaded.");

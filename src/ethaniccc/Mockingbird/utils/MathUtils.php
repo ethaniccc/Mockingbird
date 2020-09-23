@@ -24,10 +24,6 @@ use pocketmine\Player;
 
 class MathUtils{
 
-    public static function isRoughlyEqual(float $d1, float $d2) : bool{
-        return abs($d1 - $d2) < 0.015;
-    }
-
     public static function getAverage(array $numbers) : float{
         return array_sum($numbers) / count($numbers);
     }
@@ -40,28 +36,6 @@ class MathUtils{
         }
 
         return sqrt($deviation / count($numbers));
-    }
-
-    public static function getGCD(array $numbers) : float{
-        if(count($numbers) === 1 || count($numbers) === 0){
-            return 1;
-        }
-        $result = $numbers[0];
-        for($i = 1; $i < count($numbers); $i++){
-            $result = self::gcd($result, $numbers[$i]);
-        }
-        return $result;
-    }
-
-    private static function gcd(float $a, float $b) : float{
-        if($a < $b){
-            return self::gcd($b, $a);
-        }
-        if(abs($b) < 0.001){
-            return $b;
-        } else {
-            return self::gcd($b, $a - floor($a / $b) * $b);
-        }
     }
 
     public static function getTimeMS() : float{

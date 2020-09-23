@@ -25,9 +25,11 @@ use ethaniccc\Mockingbird\Mockingbird;
 use pocketmine\event\entity\EntityDamageByChildEntityEvent;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\event\entity\EntityMotionEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerJumpEvent;
+use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
@@ -69,6 +71,7 @@ class MockingbirdListener implements Listener{
             $event = new MoveEvent($player, $this->previousPosition[$playerName], $packet->position, $packet->onGround, $packet->mode, $packet->yaw, $packet->pitch);
             $event->call();
             $this->previousPosition[$playerName] = $packet->position;
+            $this->getPlugin()->getUserManager()->get($player)->handleMove($event);
         } elseif($packet instanceof InventoryTransactionPacket){
             if($packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY){
                 $currentTime = microtime(true);
@@ -80,10 +83,13 @@ class MockingbirdListener implements Listener{
                 $event = new ClickEvent($player, $this->previousClickTime[$playerName], $currentTime, $cps);
                 $event->call();
                 $this->previousClickTime[$playerName] = $currentTime;
+                if($packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK){
+                    $this->getPlugin()->getUserManager()->get($player)->setAttackPosition($packet->trData->playerPos);
+                }
             }
         } elseif($packet instanceof LevelSoundEventPacket){
             if($packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE){
-                $currentTime = Server::getInstance()->getTick() * 50;
+                $currentTime = microtime(true);
                 if(!isset($this->previousClickTime[$playerName])){
                     $this->previousClickTime[$playerName] = $currentTime;
                     return;
@@ -125,8 +131,11 @@ class MockingbirdListener implements Listener{
         $damaged = $event->getEntity();
         if($damager instanceof Player && $damaged instanceof Player && !$event instanceof EntityDamageByChildEntityEvent && !$event->isCancelled()){
             $this->getPlugin()->getUserManager()->get($damaged)->handleHit($event);
-            $event = new PlayerHitPlayerEvent($damager, $damaged, $event->getAttackCooldown(), $event->getKnockBack());
-            $event->call();
+            $hitEvent = new PlayerHitPlayerEvent($damager, $damaged, $event->getAttackCooldown(), $event->getKnockBack());
+            $hitEvent->call();
+            if($hitEvent->isCancelled()){
+                $event->setCancelled();
+            }
         }
     }
 
@@ -141,12 +150,11 @@ class MockingbirdListener implements Listener{
         }
     }
 
-    /**
-     * @param MoveEvent $event
-     * @priority HIGHEST
-     */
-    public function onMove(MoveEvent $event) : void{
-        $this->getPlugin()->getUserManager()->get($event->getPlayer())->handleMove($event);
+    public function onMotion(EntityMotionEvent $event) : void{
+        $entity = $event->getEntity();
+        if($entity instanceof Player){
+            $this->getPlugin()->getUserManager()->get($entity)->handleMotion($event);
+        }
     }
 
     private function getCPS(Player $player){

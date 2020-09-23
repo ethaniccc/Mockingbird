@@ -29,10 +29,8 @@ use pocketmine\Player;
 
 class FastLadder extends Cheat implements StrictRequirements{
 
-    private $hasJumped = [];
-
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
     public function onMove(MoveEvent $event) : void{
@@ -40,40 +38,20 @@ class FastLadder extends Cheat implements StrictRequirements{
         $user = $this->getPlugin()->getUserManager()->get($player);
         $name = $player->getName();
 
-        if($event->getMode() !== MoveEvent::MODE_NORMAL){
+        if($event->getMode() !== MoveEvent::MODE_NORMAL
+        || $player->isCreative()
+        || $player->isFlying()){
             return;
         }
 
-        if($player->isCreative()){
-            return;
-        }
-        if($player->isFlying()){
-            return;
-        }
-
-        if($this->hasRecentlyJumped($player)){
-            return;
-        }
-
-        if(LevelUtils::isNearBlock($player, BlockIds::LADDER, 0.25)){
+        if(LevelUtils::isNearBlock($user, BlockIds::LADDER, 0.25)){
             $yDist = round($event->getDistanceY(), 1);
-            $maxDist = 0.3;
+            $maxDist = $this->getSetting("max_climb_speed");
             if($yDist > $maxDist
-            && $user->hasNoMotion()
-            && $user->timePassedSinceHit(20)){
-                $this->suppress($event);
-                $this->fail($player, "$name climbed up a ladder too fast");
+            && $user->timePassedSinceMotion(20)){
+                $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)));
             }
         }
-    }
-
-    public function onJump(PlayerJumpEvent $event) : void{
-        $name = $event->getPlayer()->getName();
-        $this->hasJumped[$name] = $this->getServer()->getTick();
-    }
-
-    private function hasRecentlyJumped(Player $player) : bool{
-        return isset($this->hasJumped[$player->getName()]) ? $this->getServer()->getTick() - $this->hasJumped[$player->getName()] <= 20 : false;
     }
 
 }

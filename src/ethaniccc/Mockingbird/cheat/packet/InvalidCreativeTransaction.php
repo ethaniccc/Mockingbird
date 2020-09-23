@@ -28,8 +28,8 @@ use pocketmine\network\mcpe\protocol\types\NetworkInventoryAction;
 
 class InvalidCreativeTransaction extends Cheat{
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
     public function receivePacket(DataPacketReceiveEvent $event) : void{
@@ -40,7 +40,7 @@ class InvalidCreativeTransaction extends Cheat{
         if($packet instanceof InventoryTransactionPacket){
             foreach($packet->actions as $action){
                 if($action->sourceType === NetworkInventoryAction::SOURCE_CREATIVE && !$player->isCreative()){
-                    $this->fail($player, "$name made a creative inventory transaction while not in creative");
+                    $this->fail($player, null, "$name made a creative inventory transaction while not in creative");
                 }
             }
         }

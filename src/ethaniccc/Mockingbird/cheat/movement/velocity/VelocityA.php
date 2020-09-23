@@ -1,5 +1,21 @@
 <?php
 
+/*
+$$\      $$\                     $$\       $$\                     $$\       $$\                 $$\
+$$$\    $$$ |                    $$ |      \__|                    $$ |      \__|                $$ |
+$$$$\  $$$$ | $$$$$$\   $$$$$$$\ $$ |  $$\ $$\ $$$$$$$\   $$$$$$\  $$$$$$$\  $$\  $$$$$$\   $$$$$$$ |
+$$\$$\$$ $$ |$$  __$$\ $$  _____|$$ | $$  |$$ |$$  __$$\ $$  __$$\ $$  __$$\ $$ |$$  __$$\ $$  __$$ |
+$$ \$$$  $$ |$$ /  $$ |$$ /      $$$$$$  / $$ |$$ |  $$ |$$ /  $$ |$$ |  $$ |$$ |$$ |  \__|$$ /  $$ |
+$$ |\$  /$$ |$$ |  $$ |$$ |      $$  _$$<  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |$$ |      $$ |  $$ |
+$$ | \_/ $$ |\$$$$$$  |\$$$$$$$\ $$ | \$$\ $$ |$$ |  $$ |\$$$$$$$ |$$$$$$$  |$$ |$$ |      \$$$$$$$ |
+\__|     \__| \______/  \_______|\__|  \__|\__|\__|  \__| \____$$ |\_______/ \__|\__|       \_______|
+                                                         $$\   $$ |
+                                                         \$$$$$$  |
+                                                          \______/
+~ Made by @ethaniccc idot </3
+Github: https://www.github.com/ethaniccc
+*/
+
 namespace ethaniccc\Mockingbird\cheat\movement\velocity;
 
 use ethaniccc\Mockingbird\cheat\Cheat;
@@ -13,26 +29,34 @@ use pocketmine\event\player\PlayerDeathEvent;
 
 class VelocityA extends Cheat{
 
-    private $lastVertical, $ticksSinceSend = [];
+    private $lastVertical, $ticksSinceSend, $susLevel = [];
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
     public function onMotion(EntityMotionEvent $event) : void{
         $entity = $event->getEntity();
         if($entity instanceof Player){
-            $name = $entity->getName();
-            $vertical = $event->getVector()->y;
-            $this->lastVertical[$name] = $vertical;
-            $this->ticksSinceSend[$name] = 0;
-            $this->lowerPreVL($name, 0);
+            $user = $this->getPlugin()->getUserManager()->get($entity);
+            if($user->timePassedSinceTeleport(5) && $event->getVector()->getY() > 0){
+                $name = $entity->getName();
+                $vertical = $event->getVector()->y;
+                $this->lastVertical[$name] = $vertical;
+                $this->ticksSinceSend[$name] = 0;
+                $this->lowerPreVL($name, 0);
+            }
         }
     }
 
     public function onMove(MoveEvent $event) : void{
         $player = $event->getPlayer();
+        $user = $this->getPlugin()->getUserManager()->get($player);
         $name = $player->getName();
+
+        if(!isset($this->susLevel[$name])){
+            $this->susLevel[$name] = 0;
+        }
 
         $attacked = isset($this->lastVertical[$name]) && isset($this->ticksSinceSend[$name]) && $player->isAlive();
         if($attacked){
@@ -42,16 +66,20 @@ class VelocityA extends Cheat{
                 return;
             }
             ++$this->ticksSinceSend[$name];
-            $maxTicks = (int) ($player->getPing() / 50) + 5 + (20 - $this->getServer()->getTicksPerSecond());
-            // changed threshold from 0.99 to 0.98 for a hope for less falses. will *sometimes* detect 0.99 linear velocity.
-            if($this->ticksSinceSend[$name] <= $maxTicks && $event->getDistanceY() <= $this->lastVertical[$name] * 0.985
+            $maxTicks = (int) ($player->getPing() / 50) + 3;
+            if($this->ticksSinceSend[$name] <= $maxTicks && $event->getDistanceY() < $this->lastVertical[$name] * $this->getSetting("percentage")
             && LevelUtils::getBlockAbove($player)->getId() === 0
-            && !LevelUtils::isNearBlock($player,BlockIds::COBWEB)
-            && !LevelUtils::isNearBlock($player,BlockIds::WATER)){
+            && !LevelUtils::isNearBlock($user ,BlockIds::COBWEB)
+            && !LevelUtils::isNearBlock($user, BlockIds::WATER)){
                 $this->addPreVL($name);
             } else {
                 if($this->getPreVL($name) >= $maxTicks){
-                    $this->fail($player, "$name's vertical velocity was lower than normal");
+                    ++$this->susLevel[$name];
+                    if($this->susLevel[$name] >= 4){
+                        $this->fail($player, null, $this->formatFailMessage($this->basicFailData($player)));
+                    }
+                } else {
+                    $this->susLevel[$name] = 0;
                 }
                 $this->lowerPreVL($name, 0);
                 unset($this->lastVertical[$name]);

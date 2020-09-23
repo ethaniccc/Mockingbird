@@ -29,11 +29,8 @@ use pocketmine\block\Ice;
 
 class SpeedA extends Cheat{
 
-    private const MAX_ONGROUND = 0.375;
-    private const MAX_OFFGROUND = 0.78;
-
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
     public function onMove(MoveEvent $event) : void{
@@ -47,7 +44,7 @@ class SpeedA extends Cheat{
         if(!LevelUtils::getBlockAbove($player) instanceof Air){
             return;
         }
-        $expectedDistance = $user->getServerOnGround() ? self::MAX_ONGROUND : self::MAX_OFFGROUND;
+        $expectedDistance = $user->getServerOnGround() ? $this->getSetting("max_speed_on_ground") : $this->getSetting("max_speed_off_ground");
         $onIce = $user->getServerOnGround() ? LevelUtils::getBlockUnder($player, 0.5) instanceof Ice : LevelUtils::getBlockUnder($player, 1.2) instanceof Ice;
         if($onIce){
             $expectedDistance *= 4 / 3;
@@ -56,12 +53,11 @@ class SpeedA extends Cheat{
             $expectedDistance *= 1 + (0.2 * ($player->getEffect(1)->getAmplifier() + 1));
         }
         if($distance > $expectedDistance
-        && $user->hasNoMotion()
-        && $user->timePassedSinceHit(20)){
+        && $user->timePassedSinceMotion(20)
+        && !$player->getInventory()->getItemInHand()->hasEnchantment(\pocketmine\item\enchantment\Enchantment::RIPTIDE)){
             $this->addPreVL($name);
-            if($this->getPreVL($name) >= 6){
-                $this->suppress($event);
-                $this->fail($player, "$name moved too fast.");
+            if($this->getPreVL($name) >= 4){
+                $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)), [], "d: $distance, eMD: $expectedDistance");
             }
         } else {
             $this->lowerPreVL($name, 0.85);

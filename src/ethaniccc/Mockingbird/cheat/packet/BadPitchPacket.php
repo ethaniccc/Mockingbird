@@ -27,8 +27,8 @@ use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 
 class BadPitchPacket extends Cheat{
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
     public function receivePacket(DataPacketReceiveEvent $event) : void{
@@ -38,7 +38,7 @@ class BadPitchPacket extends Cheat{
         if($packet instanceof MovePlayerPacket){
             if(abs($packet->pitch) > 90){
                 $givenPitch = abs($packet->pitch);
-                $this->fail($player, "$name gave a packet with a pitch of $givenPitch, max pitch is 90");
+                $this->fail($player, null, "$name gave a packet with a pitch of $givenPitch, max pitch is 90");
             }
         }
     }

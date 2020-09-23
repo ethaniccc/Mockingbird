@@ -27,8 +27,8 @@ use ethaniccc\Mockingbird\Mockingbird;
 
 class AutoClickerB extends Cheat implements StrictRequirements{
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
         $this->setRequiredTPS(19.75);
     }
 
@@ -36,10 +36,12 @@ class AutoClickerB extends Cheat implements StrictRequirements{
         $cps = $event->getCPS();
         $player = $event->getPlayer();
         $name = $player->getName();
-        if($cps > 25){
+        if($cps > $this->getSetting("max_cps")){
             $this->addPreVL($name);
             if($this->getPreVL($name) >= 10){
-                $this->fail($player, "$name clicked at $cps, at max 25 cps expected.", []);
+                $data = $this->basicFailData($player);
+                $data["{cps}"] = $cps;
+                $this->fail($player, $event, $this->formatFailMessage($data));
             }
         } else {
             $this->lowerPreVL($name);

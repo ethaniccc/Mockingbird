@@ -8,7 +8,7 @@ This may also false-positive on players who are laggy (e.g: high ping).
 #### Special Thanks
 * Bavfalcon9
     - Inspo for this project. Also for the structure of this plugin lol. You can check out
-    Mavoric (dev) by clicking [here](https://github.com/Bavfalcon9/Mavoric/tree/v2.0.0/) (**archived :d**)
+    Mavoric (dev) by clicking [here](https://github.com/Bavfalcon9/Mavoric/tree/v2.0.0/) (**back (W)**)
 * shura62
     - Helped on Discord with Mockingbird!
 * Blackjack200
@@ -59,6 +59,8 @@ You can also click [here](https://discord.gg/v77FESn) to join my discord.
     **Warning:** You cannot reload custom module code with this command.
 * "Screenshare" command
 
+    Alias: `mbss`
+
     **NOTE:** This is to give you the player's view, not to actually be able
     to view the player's screen.
     
@@ -79,10 +81,10 @@ You can also click [here](https://discord.gg/v77FESn) to join my discord.
     When you join, you will automatically have debug information off, to toggle debug information, you can use `/mbdebug` and it will enable debug
     if you have it off, and disable if you currently have it on.
 ## Detections
-Detections not guaranteed 100% accurate.
+Detections are not 100% accurate and may false positive sometimes. When reporting a false positive, please give the relevant part of ther debug log for me to look at, along with reproduction steps.
 ### Combat
 * AutoClicker
-    * Consistency Detection (may sometimes false?)
+    * Consistency Detection
     * Speed Detection
 * Reach
 * MultiAura
@@ -90,15 +92,15 @@ Detections not guaranteed 100% accurate.
 * AirJump
 * Fly
     * FlyA: General prediction check.
-    * FlyB: Horizontal and vertical check (extra).
+    * FlyB: Horizontal and vertical check (extra)
 * FastLadder
 * NoSlowdown
 * NoFall
 * Speed
-    * SpeedA: Basic speed check.
-    * SpeedB: Mini-Bhop check
+    * SpeedA: Basic speed check
+    * SpeedB: Friction check
 * Velocity
-    * VelocityA: Vertical check (may sometimes false?)
+    * VelocityA: Vertical check
     * VelocityB: **NOT COMPLETE**
 ### Other Detections
 * Packet Checks
@@ -125,8 +127,8 @@ namespace ethaniccc\Mockingbird\cheat\custom{
 
     class NewSpeed extends Cheat{
     
-        public function __construct(Mockingbird $plugin,string $cheatName,string $cheatType,bool $enabled = true){
-            parent::__construct($plugin,$cheatName,$cheatType,$enabled);
+        public function __construct(Mockingbird $plugin,string $cheatName,string $cheatType, ?array $settings){
+            parent::__construct($plugin,$cheatName,$cheatType,$settings);
         }
 
     }
@@ -146,8 +148,8 @@ namespace ethaniccc\Mockingbird\cheat\custom{
 
     class NewSpeed extends Cheat{
     
-        public function __construct(Mockingbird $plugin,string $cheatName,string $cheatType,bool $enabled = true){
-            parent::__construct($plugin,$cheatName,$cheatType,$enabled);
+        public function __construct(Mockingbird $plugin,string $cheatName,string $cheatType, ?array $settings){
+            parent::__construct($plugin,$cheatName,$cheatType,$settings);
         }
         
         // personal recommendation to NOT use PlayerMoveEvent and use Mockingbird's custom MoveEvent instead

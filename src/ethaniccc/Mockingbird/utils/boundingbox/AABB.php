@@ -50,7 +50,7 @@ class AABB extends AxisAlignedBB{
     }
 
     public static function fromPosition(Vector3 $pos) : AABB{
-        return new AABB($pos->x - 0.4, $pos->y - 1.5, $pos->z - 0.4, $pos->x + 0.4, $pos->y + 0.5, $pos->z + 0.4);
+        return new AABB($pos->x - 0.3, $pos->y, $pos->z - 0.3, $pos->x + 0.3, $pos->y + 1.8, $pos->z + 0.3);
     }
 
     public static function fromBlock(Block $block) : ?AABB{

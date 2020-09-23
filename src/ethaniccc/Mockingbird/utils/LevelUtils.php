@@ -20,6 +20,8 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\utils;
 
+use ethaniccc\Mockingbird\utils\boundingbox\AABB;
+use ethaniccc\Mockingbird\utils\user\User;
 use pocketmine\block\Block;
 use pocketmine\entity\Living;
 use pocketmine\math\Vector3;
@@ -60,7 +62,7 @@ class LevelUtils{
 
     /**
      * @param Player $player
-     * @param float|int $underLevel
+     * @param float $underLevel
      * @return Block
      */
     public static function getBlockUnder(Player $player, float $underLevel = 1) : Block{
@@ -68,38 +70,46 @@ class LevelUtils{
     }
 
     /**
-     * @param Living $player
+     * @param User $user
      * @param float $minY
      * @return bool
      */
-    public static function isNearGround(Living $player, float $minY = -0.5) : bool{
-        $expand = 0.3;
-        $position = $player->asVector3();
-        $level = $player->getLevel();
-        for($x = -$expand; $x <= $expand; $x += $expand){
-            for($z = -$expand; $z <= $expand; $z += $expand){
-                for($y = $minY; $y <= -0.5; $y += 0.1){
-                    $block = $level->getBlock($position->add($x, $y, $z));
-                    if($block->getId() !== 0){
-                        return true;
+    public static function isNearGround(User $user, float $minY = -0.5) : bool{
+        // thank you @very nice name#6789
+        $position = $user->getCurrentLocation();
+        if($position !== null){
+            $AABB = AABB::fromPosition($position);
+            $AABB->minY -= 0.05;
+            $AABB->expand(0.15, 0, 0.15);
+            if(count($user->getPlayer()->getLevel()->getCollisionBlocks($AABB, true)) > 0){
+                return true;
+            } else {
+                $expand = 0.3;
+                for($x = -$expand; $x <= $expand; $x += $expand){
+                    for($z = -$expand; $z <= $expand; $z += $expand){
+                        $block = $user->getPlayer()->getLevel()->getBlockAt($position->x + $x, $position->y - 0.1, $position->z + $z);
+                        if($block->getId() !== 0){
+                            return true;
+                        }
                     }
                 }
+                return false;
             }
         }
         return false;
     }
 
     /**
-     * @param Player $player
+     * @param User $user
      * @param int $blockId
-     * @param float|int $radius
+     * @param float $radius
      * @return bool
      */
-    public static function isNearBlock(Player $player, int $blockId, float $radius = 1) : bool{
+    public static function isNearBlock(User $user, int $blockId, float $radius = 1) : bool{
         for($x = -$radius; $x <= $radius; $x += 0.5){
             for($y = -$radius; $y <= $radius; $y += 0.5){
                 for($z = -$radius; $z <= $radius; $z += 0.5){
-                    if($player->getLevel()->getBlock($player->asVector3()->add($x, $y, $z))->getId() === $blockId){
+                    if($user->getPlayer()->getLevel()->getBlock(($user->getCurrentLocation() !== null ? $user->getCurrentLocation() : $user->getPlayer()->asVector3())->add($x, $y, $z))->getId() === $blockId){
                         return true;
                     }
                 }

@@ -40,6 +40,7 @@ class ScreenshareCommand extends Command implements PluginIdentifiableCommand{
         $this->plugin = $plugin;
         $this->setDescription("Get a player's point of view with the Screenshare command!");
         $this->setPermission($this->getPlugin()->getConfig()->get("screenshare_permission"));
+        $this->setAliases(["mbss"]);
     }
 
     /**

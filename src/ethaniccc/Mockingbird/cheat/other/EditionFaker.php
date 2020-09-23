@@ -29,12 +29,8 @@ class EditionFaker extends Cheat{
 
     private $fakers = [];
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-	    if(!$this->getServer()->getOnlineMode()){
-		    $this->getPlugin()->getLogger()->debug('EditionFaker MUST need online mode');
-		    $this->setEnabled(false);
-	    }
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
     public function receivePacket(DataPacketReceiveEvent $event) : void{
@@ -66,7 +62,7 @@ class EditionFaker extends Cheat{
     // even without the blatant interface, there is nothing left for you edition fakers ;)
     public function onMove(MoveEvent $event) : void{
         if(isset($this->fakers[spl_object_hash($event->getPlayer())])){
-            $this->fail($event->getPlayer(), "{$event->getPlayer()->getName()} is faking their device information");
+            $this->fail($event->getPlayer(), null, $this->formatFailMessage($this->basicFailData($event->getPlayer())));
         }
     }
 

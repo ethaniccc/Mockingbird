@@ -23,8 +23,7 @@ use pocketmine\Player;
 
 class ClickEvent extends PlayerEvent{
 
-    /** @var float */
-    private $previousTime, $newTime, $cps;
+    public $previousTime, $newTime, $cps;
 
     /**
      * ClickEvent constructor.

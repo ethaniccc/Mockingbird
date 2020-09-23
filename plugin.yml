@@ -1,6 +1,6 @@
 ---
 name: Mockingbird
-version: 1.2-beta
+version: 1.4-beta
 main: ethaniccc\Mockingbird\Mockingbird
 api: 3.15.0
 protocol: 408

@@ -18,10 +18,11 @@ Github: https://www.github.com/ethaniccc
 
 namespace ethaniccc\Mockingbird\event;
 
+use pocketmine\event\Cancellable;
 use pocketmine\event\player\PlayerEvent;
 use pocketmine\Player;
 
-class PlayerHitPlayerEvent extends PlayerEvent{
+class PlayerHitPlayerEvent extends PlayerEvent implements Cancellable{
 
     /** @var Player */
     private $damaged;

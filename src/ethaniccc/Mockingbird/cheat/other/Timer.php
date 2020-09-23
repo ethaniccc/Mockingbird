@@ -28,8 +28,8 @@ class Timer extends Cheat implements StrictRequirements{
     /** @var array */
     private $playerBalance, $playerPreviousTimeDiff, $playerLastSentTick = [];
 
-    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, bool $enabled = true){
-        parent::__construct($plugin, $cheatName, $cheatType, $enabled);
+    public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
+        parent::__construct($plugin, $cheatName, $cheatType, $settings);
         $this->setRequiredTPS(20.0);
         $this->setRequiredPing(1000000);
     }
@@ -60,9 +60,9 @@ class Timer extends Cheat implements StrictRequirements{
             }
         }
 
-        if($this->playerBalance[$name] >= 500){
+        if($this->playerBalance[$name] >= $this->getSetting("max_balance")){
             // no suppression for this check.
-            $this->fail($player, "$name sent too many move packets in a short period of time.");
+            $this->fail($player, null, $this->formatFailMessage($this->basicFailData($player)));
             $this->playerBalance[$name] = 0;
         }
 
