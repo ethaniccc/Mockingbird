@@ -174,6 +174,11 @@ FlyB:
   # tags: {player}
   message: "{player} failed a horizontal (and / or) vertical fly check"
   suppression: true
+FlyC:
+  enabled: true
+  # tags: {player}
+  message: "{player}'s current motion Y was equal to their last motion Y"
+  suppression: true
 VelocityA:
   enabled: true
   # the higher this is, the more it can detect, but the more it will false positive.

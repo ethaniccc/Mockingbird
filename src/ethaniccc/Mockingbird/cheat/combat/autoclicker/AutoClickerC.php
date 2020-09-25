@@ -5,6 +5,7 @@ namespace ethaniccc\Mockingbird\cheat\combat\autoclicker;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\event\ClickEvent;
 use ethaniccc\Mockingbird\Mockingbird;
+use pocketmine\utils\TextFormat;
 
 class AutoClickerC extends Cheat{
 
@@ -14,18 +15,23 @@ class AutoClickerC extends Cheat{
         parent::__construct($plugin, $cheatName, $cheatType, $settings);
     }
 
+    // this falses if double clicking with butterfly consistently enough
     public function onClick(ClickEvent $event) : void{
         $player = $event->getPlayer();
+        $player->sendActionBarMessage(TextFormat::YELLOW . "CPS: " . TextFormat::LIGHT_PURPLE . $event->getCPS());
         $name = $player->getName();
-        $timeDiff = round($event->getTimeDiff() * 100000, 0);
+        $timeDiff = round($event->getTimeDiff() * 10000000, 0);
+        if($event->getTimeDiff() > 0.125){
+            return;
+        }
         if(!isset($this->timeDiffs[$name])){
             $this->timeDiffs[$name] = [];
         }
-        if(count($this->timeDiffs[$name]) === 100){
+        if(count($this->timeDiffs[$name]) === 125){
             array_shift($this->timeDiffs[$name]);
         }
         $this->timeDiffs[$name][] = $timeDiff;
-        if(count($this->timeDiffs[$name]) === 100){
+        if(count($this->timeDiffs[$name]) === 125){
             $dupedValues = [];
             foreach($this->timeDiffs[$name] as $diff){
                 @$dupedValues[$diff]++;
@@ -36,12 +42,11 @@ class AutoClickerC extends Cheat{
                 }
             }
             $duped = array_sum($dupedValues);
-            $this->debugNotify("Click duped: $duped");
-            if($duped >= 30){
+            if($duped >= 4){
                 $this->addPreVL($name);
                 if($this->getPreVL($name) >= 10){
-                    $this->lowerPreVL($name, 0.8);
-                    $this->fail($player, null, "$name had too many duplicated click times", [], "d: $duped, ");
+                    $this->fail($player, null, "$name had too many duplicated click times", [], "d: $duped");
+                    $this->timeDiffs[$name] = [];
                 }
             } else {
                 $this->lowerPreVL($name, 0.6);

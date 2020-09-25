@@ -66,8 +66,12 @@ class VelocityB extends Cheat{
             $expectedXDelta = $this->lastX[$name];
             $expectedZDelta = $this->lastZ[$name];
             if($this->ticksSinceSend[$name] <= $maxTicks){
-                $xzExpectedDelta = hypot($expectedXDelta, $expectedZDelta);
-                // TODO: Make a 50% horizontal velocity check *for now*
+                // TODO: Later in the future we should make this check better, this is only going to detect blatant velocity.
+                $expectedMotionXZ = hypot($expectedXDelta, $expectedZDelta);
+                $motionXZ = hypot($xDelta, $zDelta);
+                if($expectedMotionXZ * 0.5 <= $motionXZ){
+                    // TODO: Too lazy to finish this right now...
+                }
             } else {
                 if($this->getPreVL($name) >= $maxTicks){
                     $this->fail($player, null, $this->formatFailMessage($this->basicFailData($player)));
