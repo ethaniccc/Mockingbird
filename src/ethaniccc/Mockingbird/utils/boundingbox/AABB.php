@@ -53,15 +53,20 @@ class AABB extends AxisAlignedBB{
         return new AABB($pos->x - 0.3, $pos->y, $pos->z - 0.3, $pos->x + 0.3, $pos->y + 1.8, $pos->z + 0.3);
     }
 
-    public static function fromBlock(Block $block) : ?AABB{
+    public static function fromBlock(Block $block) : AABB{
         $b = $block->getBoundingBox();
         if($b !== null) {
             return new AABB(
                 $b->minX, $b->minY, $b->minZ,
                 $b->maxX, $b->maxY, $b->maxZ
             );
+        } else {
+            // apparently some blocks (Cobweb in my case) have no AABB
+            return new AABB(
+                $block->getX(), $block->getY(), $block->getZ(),
+                $block->getX() + 1, $block->getY() + 1, $block->getZ() + 1
+            );
         }
-        return null;
     }
 
     public function translate(float $x, float $y, float $z) : AABB{

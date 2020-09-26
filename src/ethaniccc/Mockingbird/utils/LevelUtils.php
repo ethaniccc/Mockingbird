@@ -1,8 +1,6 @@
 <?php
 
 /*
-
-
 $$\      $$\                     $$\       $$\                     $$\       $$\                 $$\
 $$$\    $$$ |                    $$ |      \__|                    $$ |      \__|                $$ |
 $$$$\  $$$$ | $$$$$$\   $$$$$$$\ $$ |  $$\ $$\ $$$$$$$\   $$$$$$\  $$$$$$$\  $$\  $$$$$$\   $$$$$$$ |
@@ -23,7 +21,6 @@ namespace ethaniccc\Mockingbird\utils;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\user\User;
 use pocketmine\block\Block;
-use pocketmine\entity\Living;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -71,29 +68,40 @@ class LevelUtils{
 
     /**
      * @param User $user
-     * @param float $minY
      * @return bool
      */
-    public static function isNearGround(User $user, float $minY = -0.5) : bool{
-        // thank you @very nice name#6789
+    public static function isNearGround(User $user) : bool{
+        // thank you @very nice name#6789, bounding boxes are yummy!
         $position = $user->getCurrentLocation();
         if($position !== null){
             $AABB = AABB::fromPosition($position);
-            $AABB->minY -= 0.05;
-            $AABB->expand(0.15, 0, 0.15);
-            if(count($user->getPlayer()->getLevel()->getCollisionBlocks($AABB, true)) > 0){
-                return true;
-            } else {
-                $expand = 0.3;
-                for($x = -$expand; $x <= $expand; $x += $expand){
-                    for($z = -$expand; $z <= $expand; $z += $expand){
-                        $block = $user->getPlayer()->getLevel()->getBlockAt($position->x + $x, $position->y - 0.1, $position->z + $z);
+            $AABB->minY -= 0.01;
+            $minX = (int) floor($AABB->minX - 1);
+            $minY = (int) floor($AABB->minY - 1);
+            $minZ = (int) floor($AABB->minZ - 1);
+            $maxX = (int) floor($AABB->maxX + 1);
+            $maxY = (int) floor($AABB->maxY + 1);
+            $maxZ = (int) floor($AABB->maxZ + 1);
+            for($z = $minZ; $z <= $maxZ; $z++){
+                for($x = $minX; $x <= $maxX; $x++){
+                    for($y = $minY; $y <= $maxY; $y++){
+                        $block = $user->getPlayer()->getLevel()->getBlockAt($x, $y, $z);
                         if($block->getId() !== 0){
-                            return true;
+                            $collisionBoxes = $block->getCollisionBoxes();
+                            if(!empty($collisionBoxes)){
+                                foreach($collisionBoxes as $bb2){
+                                    if($AABB->intersectsWith($bb2)){
+                                        return true;
+                                    }
+                                }
+                            } else {
+                                if(AABB::fromBlock($block)->intersectsWith($AABB)){
+                                    return true;
+                                }
+                            }
                         }
                     }
                 }
-                return false;
             }
         }
         return false;

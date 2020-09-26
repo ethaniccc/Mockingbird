@@ -35,6 +35,8 @@ class AutoClickerA extends Cheat{
 
     public function onClick(ClickEvent $event) : void{
         $speed = $event->getTimeDiff();
+        // so people who decide just not to click don't stop clicking after a while to bypass this
+        // also Horion autoclicker doesn't trigger this event in the air soooooooooo....
         if($speed > 0.5){
             return;
         }
@@ -48,12 +50,15 @@ class AutoClickerA extends Cheat{
         }
         array_push($this->speeds[$name], $speed);
         $deviation = MathUtils::getDeviation($this->speeds[$name]) * 1000;
+        // the player's clicking is too consistent and their CPS is equal or higher than the requires CPS - increase preVL
         if($deviation <= $this->getSetting("consistency") && !$this->getPlugin()->getUserManager()->get($player)->isMobile() && $event->getCPS() >= $this->getSetting("min_cps")){
             $this->addPreVL($name);
+            // if the player still fails after 3 times flag
             if($this->getPreVL($name) >= 3){
                 $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)), [], "$name: d: $deviation, s: {$this->getSetting("samples")}, cR: {$this->getSetting("consistency")}");
             }
         } else {
+            // reward the player
             $this->lowerPreVL($name);
         }
     }

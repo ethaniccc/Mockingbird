@@ -21,13 +21,8 @@ namespace ethaniccc\Mockingbird\cheat\movement\fly;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\Mockingbird;
-use ethaniccc\Mockingbird\utils\LevelUtils;
-use ethaniccc\Mockingbird\utils\user\User;
-use pocketmine\block\Air;
-use pocketmine\math\Vector3;
 
-class FlyB extends Cheat{
-
+class FlyC extends Cheat{
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
         parent::__construct($plugin, $cheatName, $cheatType, $settings);
@@ -35,28 +30,19 @@ class FlyB extends Cheat{
 
     public function onMove(MoveEvent $event) : void{
         $player = $event->getPlayer();
-        $user = $this->getPlugin()->getUserManager()->get($player);
         $name = $player->getName();
-        if($event->getMode() === MoveEvent::MODE_NORMAL && $user->hasNoMotion() && !$player->getAllowFlight() && !$player->isFlying() && !$player->isSpectator()){
-            if(($user = $this->getPlugin()->getUserManager()->get($player)) instanceof User){
-                $distance = $event->getDistanceXZ();
-                $deltaY = $event->getDistanceY();
-                $acceleration = $deltaY - $user->getLastMoveDelta()->getY();
-                if($user->getOffGroundTicks() >= 5
-                && $distance > 0.1
-                && ($deltaY == 0 || $acceleration == 0)
-	            && !$player->isFlying()
-	            && !$player->getAllowFlight()
-                && !$player->isSpectator()
-                && !$player->getInventory()->getItemInHand()->hasEnchantment(\pocketmine\item\enchantment\Enchantment::RIPTIDE)
-                && $user->getCurrentLocation()->getY() > 0){
-                    $this->addPreVL($name);
-                    if($this->getPreVL($name) >= 3){
-                        $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)));
-                    }
-                } else {
-                    $this->lowerPreVL($name, 0.5);
-                }
+        $user = $this->getPlugin()->getUserManager()->get($player);
+        if($user->getOffGroundTicks() >= 5
+            && !$player->isFlying()
+            && !$player->getAllowFlight()
+            && $user->getCurrentLocation()->getY() > 0){
+            $yDelta = $user->getMoveDelta()->getY();
+            $lastYDelta = $user->getLastMoveDelta()->getY();
+            // FlyA can solve a client just setting their motion Y to 0 bypassing this
+            if(($equalness = abs($yDelta - $lastYDelta)) <= 1E-10
+                && abs($yDelta) > 0 && abs($lastYDelta) > 0){
+                // this type of motion is invalid since the current Y distance can't be the same as the previous one
+                $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)), [], "$name: yD: $yDelta, lyD: $lastYDelta, e: $equalness");
             }
         }
     }
