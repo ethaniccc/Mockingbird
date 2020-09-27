@@ -54,7 +54,8 @@ class ReachA extends Cheat{
         if(!isset($this->cooldown[$name])){
             $this->cooldown[$name] = $currentTick;
         } else {
-            if($currentTick - $this->cooldown[$name] >= $event->getAttackCoolDown()){
+            // combo compensation?
+            if($currentTick - $this->cooldown[$name] >= 10){
                 $this->cooldown[$name] = $currentTick;
             } else {
                 return;

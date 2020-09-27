@@ -126,6 +126,16 @@ class LevelUtils{
         return false;
     }
 
+    public static function hasBlockAbove(User $user) : bool{
+        $currentPos = $user->getCurrentLocation();
+        if($currentPos !== null){
+            $AABB = AABB::fromPosition($currentPos);
+            $AABB->maxY += 0.1;
+            return count($user->getPlayer()->getLevel()->getCollisionBlocks($AABB, true)) > 0;
+        }
+        return false;
+    }
+
     public static function getBlockAbove(Player $player) : Block{
         return $player->getLevel()->getBlock($player->add(0, 2, 0));
     }

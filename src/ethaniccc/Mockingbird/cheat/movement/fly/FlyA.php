@@ -40,7 +40,7 @@ class FlyA extends Cheat{
             $predictedDelta = ($lastYDelta - 0.08) * 0.980000019073486;
             if($user->getOffGroundTicks() >= 5 && abs($predictedDelta) > 0.05 && $player->getArmorInventory()->getChestplate()->getId() !== ItemIds::ELYTRA){
                 if(abs($predictedDelta - $yDelta) >= $this->getSetting("max_breach")
-                && $user->timePassedSinceDamage(20)
+                && $user->timePassedSinceDamage(40)
                 && $user->timePassedSinceTeleport(3)
                 && $user->timePassedSinceJoin(40)
                 && !$player->isFlying()

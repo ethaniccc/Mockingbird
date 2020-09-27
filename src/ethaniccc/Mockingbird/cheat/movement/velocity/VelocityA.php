@@ -39,7 +39,7 @@ class VelocityA extends Cheat{
         $entity = $event->getEntity();
         if($entity instanceof Player){
             $user = $this->getPlugin()->getUserManager()->get($entity);
-            if($user->timePassedSinceTeleport(5) && $event->getVector()->getY() > 0){
+            if($user->timePassedSinceTeleport(5) && $event->getVector()->getY() > 0 && !isset($this->ticksSinceSend[$entity->getName()])){
                 $name = $entity->getName();
                 $vertical = $event->getVector()->y;
                 $this->lastVertical[$name] = $vertical;
@@ -68,7 +68,7 @@ class VelocityA extends Cheat{
             ++$this->ticksSinceSend[$name];
             $maxTicks = (int) ($player->getPing() / 50) + 3;
             if($this->ticksSinceSend[$name] <= $maxTicks && $event->getDistanceY() < $this->lastVertical[$name] * $this->getSetting("percentage")
-            && LevelUtils::getBlockAbove($player)->getId() === 0
+            && !LevelUtils::hasBlockAbove($user)
             && !LevelUtils::isNearBlock($user ,BlockIds::COBWEB)
             && !LevelUtils::isNearBlock($user, BlockIds::WATER)){
                 $this->addPreVL($name);
