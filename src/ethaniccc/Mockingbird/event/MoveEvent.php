@@ -75,13 +75,7 @@ class MoveEvent extends PlayerEvent{
      * @return float
      */
     public function getDistanceXZ() : float{
-        $from = clone $this->from;
-        $to = clone $this->to;
-
-        $from->y = 0;
-        $to->y = 0;
-
-        return $to->distance($from);
+        return hypot($this->getDistanceX(), $this->getDistanceZ());
     }
 
     /**

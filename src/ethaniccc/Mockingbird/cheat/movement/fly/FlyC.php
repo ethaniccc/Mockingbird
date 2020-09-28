@@ -40,7 +40,8 @@ class FlyC extends Cheat{
             $lastYDelta = $user->getLastMoveDelta()->getY();
             // FlyA can solve a client just setting their motion Y to 0 bypassing this
             if(($equalness = abs($yDelta - $lastYDelta)) <= 1E-10
-                && abs($yDelta) > 0 && abs($lastYDelta) > 0){
+                && abs($yDelta) > 0 && abs($lastYDelta) > 0
+                && $user->timePassedSinceMotion(10)){
                 // this type of motion is invalid since the current Y distance can't be the same as the previous one
                 $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)), [], "$name: yD: $yDelta, lyD: $lastYDelta, e: $equalness");
             }

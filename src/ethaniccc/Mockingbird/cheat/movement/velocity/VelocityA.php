@@ -29,7 +29,7 @@ use pocketmine\event\player\PlayerDeathEvent;
 
 class VelocityA extends Cheat{
 
-    private $lastVertical, $ticksSinceSend, $susLevel = [];
+    private $queuedMotion = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
         parent::__construct($plugin, $cheatName, $cheatType, $settings);
@@ -38,14 +38,22 @@ class VelocityA extends Cheat{
     public function onMotion(EntityMotionEvent $event) : void{
         $entity = $event->getEntity();
         if($entity instanceof Player){
-            $user = $this->getPlugin()->getUserManager()->get($entity);
-            if($user->timePassedSinceTeleport(5) && $event->getVector()->getY() > 0 && !isset($this->ticksSinceSend[$entity->getName()])){
-                $name = $entity->getName();
-                $vertical = $event->getVector()->y;
-                $this->lastVertical[$name] = $vertical;
-                $this->ticksSinceSend[$name] = 0;
-                $this->lowerPreVL($name, 0);
+            $name = $entity->getName();
+            if(!isset($this->queuedMotion[$name])){
+                $this->queuedMotion[$name] = [];
             }
+            // the client isn't going to move with all of those move packets so we limit the maximum amount
+            if(count($this->queuedMotion[$name]) === 10){
+                array_shift($this->queuedMotion[$name]);
+            }
+            // rip performance
+            $info = new \stdClass();
+            $info->maxTime = (int) ($entity->getPing() / 50) + 2;
+            $info->yMotion = $event->getVector()->getY();
+            $info->timePassed = 0;
+            $info->failedMovements = 0;
+            $info->maxFailedMotion = 0;
+            $this->queuedMotion[$name][] = $info;
         }
     }
 
@@ -53,46 +61,53 @@ class VelocityA extends Cheat{
         $player = $event->getPlayer();
         $user = $this->getPlugin()->getUserManager()->get($player);
         $name = $player->getName();
-
-        if(!isset($this->susLevel[$name])){
-            $this->susLevel[$name] = 0;
+        if(!isset($this->queuedMotion[$name])){
+            return;
         }
-
-        $attacked = isset($this->lastVertical[$name]) && isset($this->ticksSinceSend[$name]) && $player->isAlive();
-        if($attacked){
-            if(in_array($event->getMode(), [MoveEvent::MODE_TELEPORT, MoveEvent::MODE_RESET])){
-                unset($this->lastVertical[$name]);
-                unset($this->ticksSinceSend[$name]);
+        if(!empty($this->queuedMotion[$name])){
+            if($event->getMode() !== MoveEvent::MODE_NORMAL){
+                // remove everything in queue
+                $this->queuedMotion[$name] = [];
                 return;
             }
-            ++$this->ticksSinceSend[$name];
-            $maxTicks = (int) ($player->getPing() / 50) + 2;
-            if($this->ticksSinceSend[$name] <= $maxTicks && $event->getDistanceY() < $this->lastVertical[$name] * $this->getSetting("percentage")
-            && !LevelUtils::hasBlockAbove($user)
-            && !LevelUtils::isNearBlock($user ,BlockIds::COBWEB)
-            && !LevelUtils::isNearBlock($user, BlockIds::WATER)){
-                $this->addPreVL($name);
+            $info = $this->queuedMotion[$name][0];
+            $expectedYDelta = $info->yMotion;
+            $maxTime = $info->maxTime;
+            $deltaY = $event->getDistanceY();
+            ++$info->timePassed;
+            if($info->timePassed <= $maxTime){
+                if($deltaY < $expectedYDelta * $this->getSetting("percentage")
+                && !LevelUtils::hasBlockAbove($user)
+                && !LevelUtils::isNearBlock($user, BlockIds::COBWEB)
+                && !LevelUtils::isNearBlock($user, BlockIds::WATER)){
+                    ++$info->failedMovements;
+                    $info->maxFailedMotion = $event->getDistanceY();
+                }
             } else {
-                if($this->getPreVL($name) >= $maxTicks){
-                    ++$this->susLevel[$name];
-                    if($this->susLevel[$name] >= 4){
-                        $this->fail($player, null, $this->formatFailMessage($this->basicFailData($player)));
+                $failedMovements = $info->failedMovements;
+                if($failedMovements >= $maxTime){
+                    $this->addPreVL($name);
+                    if($this->getPreVL($name) >= 6){
+                        $divisor = $info->maxFailedMotion / $expectedYDelta;
+                        $this->fail($player, null, $this->formatFailMessage($this->basicFailData($player)), [], "$name: eD: $expectedYDelta, mD: {$info->maxFailedMotion}, d: $divisor");
                     }
                 } else {
-                    $this->susLevel[$name] = 0;
+                    $this->lowerPreVL($name, 0);
                 }
-                $this->lowerPreVL($name, 0);
-                unset($this->lastVertical[$name]);
-                unset($this->ticksSinceSend[$name]);
+                $this->queuedMotion[$name][0] = null;
+                array_shift($this->queuedMotion[$name]);
+                if(!empty($this->queuedMotion[$name])){
+                    // there is another motion in "queue" and we deal with that
+                    // with the current deltaY stored in the MoveEvent with the next motion in queue
+                    $this->onMove($event);
+                }
             }
         }
     }
 
     public function onDeath(PlayerDeathEvent $event) : void{
-        $player = $event->getPlayer();
-        $name = $player->getName();
-        unset($this->ticksSinceSend[$name]);
-        unset($this->lastVertical[$name]);
+        // remove everything in queue
+        $this->queuedMotion[$event->getPlayer()->getName()] = [];
     }
 
 }

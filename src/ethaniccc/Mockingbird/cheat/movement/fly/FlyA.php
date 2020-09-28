@@ -50,7 +50,7 @@ class FlyA extends Cheat{
                 && $event->getMode() === MoveEvent::MODE_NORMAL
                 && !$player->getInventory()->getItemInHand()->hasEnchantment(\pocketmine\item\enchantment\Enchantment::RIPTIDE)
                 && $user->getCurrentLocation()->getY() > 0
-                && $player->getMotion()->equals(new Vector3(0, 0, 0))){
+                && $user->timePassedSinceMotion(10)){
                     $this->addPreVL($name);
                     if($this->getPreVL($name) >= 3){
                         $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)), [], "$name: yD: $yDelta, pD: $predictedDelta, m: {$player->getMotion()}");

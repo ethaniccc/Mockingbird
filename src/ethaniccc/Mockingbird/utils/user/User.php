@@ -20,31 +20,31 @@ use pocketmine\Player;
 
 class User{
 
-    private $player;
-    private $isMobile;
-    private $timeSinceJoin = 0;
+    public $player;
+    public $isMobile;
+    public $timeSinceJoin = 0;
 
-    private $currentLocation, $lastLocation;
-    private $moveDelta, $lastMoveDelta;
-    private $moveDistance, $lastMoveDistance;
-    private $locationHistory;
-    private $clientOnGround, $serverOnGround = true;
-    private $currentYaw, $currentPitch, $previousYaw, $previousPitch = 0;
-    private $offGroundTicks = 0;
-    private $timeSinceJump = 0;
-    private $timeSinceTeleport = 0;
+    public $currentLocation, $lastLocation;
+    public $moveDelta, $lastMoveDelta;
+    public $moveDistance, $lastMoveDistance;
+    public $locationHistory;
+    public $clientOnGround, $serverOnGround = true;
+    public $currentYaw, $currentPitch, $previousYaw, $previousPitch = 0;
+    public $offGroundTicks = 0;
+    public $timeSinceJump = 0;
+    public $timeSinceTeleport = 0;
 
-    private $timeSinceHit = 0;
-    private $damagedTick = 0;
+    public $timeSinceHit = 0;
+    public $damagedTick = 0;
 
-    private $lastHitEntity;
-    private $timeSinceAttack = 0;
-	private $clientData;
+    public $lastHitEntity;
+    public $timeSinceAttack = 0;
+    public $clientData;
 
-	private $timeSinceMotion = 0;
-	private $currentMotion, $lastMotion;
+    public $timeSinceMotion = 0;
+    public $currentMotion, $lastMotion;
 
-	private $attackPosition;
+    public $attackPosition;
 
     public function __construct(Player $player, bool $isMobile, LoginPacket $packet){
         $this->player = $player;
@@ -215,7 +215,7 @@ class User{
     public function handleMotion(EntityMotionEvent $event) : void{
         $this->lastMotion = $this->currentMotion;
         $this->currentMotion = Vector4::fromVector3($event->getVector());
-        $this->timeSinceMotion = 0;
+        $this->timeSinceMotion -= $this->timeSinceMotion > 0 ? $this->timeSinceMotion : 2;
     }
 
     public function getCurrentMotion() : ?Vector3{
