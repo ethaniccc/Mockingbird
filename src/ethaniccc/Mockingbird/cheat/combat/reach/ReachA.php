@@ -75,7 +75,6 @@ class ReachA extends Cheat{
             $distances[] = $cornerVector->distance($eyePos);
         }
         $distance = min($distances);
-        $this->debugNotify("$distance");
         if($distance > $this->getSetting("max_reach")){
             $this->addPreVL($name);
             if($this->getPreVL($name) >= 1.5){
