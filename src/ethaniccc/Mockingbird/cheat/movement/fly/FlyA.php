@@ -23,6 +23,7 @@ use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\utils\user\User;;
 use pocketmine\item\ItemIds;
+use pocketmine\math\Vector3;
 
 class FlyA extends Cheat{
 
@@ -48,10 +49,11 @@ class FlyA extends Cheat{
                 && !$player->isSpectator()
                 && $event->getMode() === MoveEvent::MODE_NORMAL
                 && !$player->getInventory()->getItemInHand()->hasEnchantment(\pocketmine\item\enchantment\Enchantment::RIPTIDE)
-                && $user->getCurrentLocation()->getY() > 0){
+                && $user->getCurrentLocation()->getY() > 0
+                && $player->getMotion()->equals(new Vector3(0, 0, 0))){
                     $this->addPreVL($name);
                     if($this->getPreVL($name) >= 3){
-                        $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)), [], "$name: yD: $yDelta, pD: $predictedDelta");
+                        $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)), [], "$name: yD: $yDelta, pD: $predictedDelta, m: {$player->getMotion()}");
                     }
                 } else {
                     $this->lowerPreVL($name);
