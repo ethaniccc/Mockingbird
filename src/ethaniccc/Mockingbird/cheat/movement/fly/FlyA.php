@@ -21,6 +21,7 @@ namespace ethaniccc\Mockingbird\cheat\movement\fly;
 use ethaniccc\Mockingbird\cheat\Cheat;
 use ethaniccc\Mockingbird\event\MoveEvent;
 use ethaniccc\Mockingbird\Mockingbird;
+use ethaniccc\Mockingbird\utils\LevelUtils;
 use ethaniccc\Mockingbird\utils\user\User;;
 use pocketmine\item\ItemIds;
 use pocketmine\math\Vector3;
@@ -39,18 +40,17 @@ class FlyA extends Cheat{
             $lastYDelta = $user->getLastMoveDelta()->y;
             $yDelta = $user->getMoveDelta()->y;
             $predictedDelta = ($lastYDelta - 0.08) * 0.980000019073486;
-            if($user->getOffGroundTicks() >= 5 && abs($predictedDelta) > 0.05 && $player->getArmorInventory()->getChestplate()->getId() !== ItemIds::ELYTRA){
+            if($user->getOffGroundTicks() >= 3 && abs($predictedDelta) > 0.05 && $player->getArmorInventory()->getChestplate()->getId() !== ItemIds::ELYTRA){
                 if(abs($predictedDelta - $yDelta) >= $this->getSetting("max_breach")
                 && $user->timePassedSinceDamage(40)
-                && $user->timePassedSinceTeleport(3)
                 && $user->timePassedSinceJoin(40)
                 && !$player->isFlying()
                 && !$player->getAllowFlight()
                 && !$player->isSpectator()
-                && $event->getMode() === MoveEvent::MODE_NORMAL
                 && !$player->getInventory()->getItemInHand()->hasEnchantment(\pocketmine\item\enchantment\Enchantment::RIPTIDE)
                 && $user->getCurrentLocation()->getY() > 0
-                && $user->timePassedSinceMotion(10)){
+                && $user->timePassedSinceMotion(10)
+                && !LevelUtils::hasBlockAbove($user)){
                     $this->addPreVL($name);
                     if($this->getPreVL($name) >= 3){
                         $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)), [], "$name: yD: $yDelta, pD: $predictedDelta, m: {$player->getMotion()}");

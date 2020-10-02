@@ -51,7 +51,6 @@ class SpeedB extends Cheat{
             && $user->timePassedSinceMotion(5)){
                 $this->addPreVL($name);
                 if($this->getPreVL($name) >= 3){
-                    $this->lowerPreVL($name, 2 / 3);
                     $this->fail($player, $event, $this->formatFailMessage($this->basicFailData($player)), [], "$name's friction was off by $equalness, last equalness was {$this->lastEqualness[$name]}");
                 }
             } else {

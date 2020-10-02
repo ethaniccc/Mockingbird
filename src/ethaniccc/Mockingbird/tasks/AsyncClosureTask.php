@@ -10,9 +10,10 @@ class AsyncClosureTask extends AsyncTask{
 
     private $runClosure, $completeClosure;
 
-    public function __construct(Closure $runClosure, ?Closure $completeClosure = null){
+    public function __construct(Closure $runClosure, ?Closure $completeClosure = null, array $locale = []){
         $this->runClosure = $runClosure;
         $this->completeClosure = $completeClosure;
+        $this->storeLocal($locale);
     }
 
     public function onRun(){
@@ -21,7 +22,7 @@ class AsyncClosureTask extends AsyncTask{
 
     public function onCompletion(Server $server){
         if($this->completeClosure !== null){
-            ($this->completeClosure)($server, $this->getResult());
+            ($this->completeClosure)($server, $this->fetchLocal(), $this->getResult());
         }
     }
 

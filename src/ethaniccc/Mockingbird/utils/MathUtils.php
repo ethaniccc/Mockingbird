@@ -42,20 +42,6 @@ class MathUtils{
         return microtime(true) * 1000;
     }
 
-    public static function getPerfectAim(Vector3 $player, Vector3 $target) : array{
-        $horizontal = sqrt(($target->getX() - $player->getX()) ** 2 + ($target->getZ() - $player->getZ()) ** 2);
-        $vertical = $target->getY() - $player->getY();
-        $perfectPitch = -atan2($vertical, $horizontal) / M_PI * 180;
-
-        $xDist = $target->getX() - $player->getX();
-        $zDist = $target->getZ() - $player->getZ();
-        $perfectYaw = atan2($zDist, $xDist) / M_PI * 180 - 90;
-        if($perfectYaw < 0){
-            $perfectYaw += 360.0;
-        }
-        return ["Yaw" => $perfectYaw, "Pitch" => $perfectPitch];
-    }
-
     public static function microtimeToTicks(float $time) : float{
         $scaledTime = round($time * 1000, 0);
         $timePerTick = 50;

@@ -27,7 +27,7 @@ use pocketmine\Player;
 
 class VelocityB extends Cheat{
 
-    private $lastX, $lastZ, $moveDelta, $ticksSinceSend = [];
+    private $queuedMotions = [];
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
         parent::__construct($plugin, $cheatName, $cheatType, $settings);
@@ -37,49 +37,16 @@ class VelocityB extends Cheat{
         $entity = $event->getEntity();
         if($entity instanceof Player){
             $name = $entity->getName();
-            $motion = $event->getVector();
-            $this->lastX[$name] = $motion->x;
-            $this->lastZ[$name] = $motion->z;
-            $this->moveDelta[$name] = $this->getPlugin()->getUserManager()->get($entity)->getMoveDelta();
-            $this->ticksSinceSend[$name] = 0;
-            $this->lowerPreVL($name, 0);
-        }
-    }
-
-    public function onMove(MoveEvent $event) : void{
-        $player = $event->getPlayer();
-        $user = $this->getPlugin()->getUserManager()->get($player);
-        $name = $player->getName();
-        $attacked = isset($this->ticksSinceSend[$name]) && $player->isAlive();
-        if($attacked){
-            if(in_array($event->getMode(), [MoveEvent::MODE_TELEPORT, MoveEvent::MODE_RESET])){
-                unset($this->lastX[$name]);
-                unset($this->lastZ[$name]);
-                unset($this->moveDelta[$name]);
-                unset($this->ticksSinceSend[$name]);
-                return;
+            if(!isset($this->queuedMotions[$name])){
+                $this->queuedMotions[$name] = [];
             }
-            ++$this->ticksSinceSend[$name];
-            $maxTicks = (int) ($player->getPing() / 50)  + 5;
-            $xDelta = $event->getDistanceX();
-            $zDelta = $event->getDistanceZ();
-            $expectedXDelta = $this->lastX[$name];
-            $expectedZDelta = $this->lastZ[$name];
-            if($this->ticksSinceSend[$name] <= $maxTicks){
-                $xzExpectedDelta = hypot($expectedXDelta, $expectedZDelta);
-                // TODO: Make a 50% horizontal velocity check *for now*
-            } else {
-                if($this->getPreVL($name) >= $maxTicks){
-                    $this->fail($player, null, $this->formatFailMessage($this->basicFailData($player)));
-                }
-                $this->lowerPreVL($name, 0);
-                unset($this->lastX[$name]);
-                unset($this->lastZ[$name]);
-                unset($this->moveDelta[$name]);
-                unset($this->ticksSinceSend[$name]);
+            if(count($this->queuedMotions[$name]) === 10){
+                array_shift($this->queuedMotions[$name]);
             }
-        } else {
-            $this->lowerPreVL($name, 0);
+            $info = new \stdClass();
+            $info->motion = hypot($event->getVector()->getX(), $event->getVector()->getZ());
+            $info->maxTicks = (int) ($entity->getPing() / 50) + 2;
+            $this->queuedMotions[$name][] = $info;
         }
     }
 

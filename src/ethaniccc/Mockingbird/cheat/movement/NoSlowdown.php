@@ -29,13 +29,30 @@ use pocketmine\item\Bow;
 use pocketmine\item\Consumable;
 use pocketmine\item\Food;
 use pocketmine\item\ItemIds;
+use pocketmine\Player;
 
 class NoSlowdown extends Cheat implements StrictRequirements{
 
     private $usingItemTicks = [];
+    private $useIsValid;
 
     public function __construct(Mockingbird $plugin, string $cheatName, string $cheatType, ?array $settings){
         parent::__construct($plugin, $cheatName, $cheatType, $settings);
+        $this->useIsValid = function(Player $player) : bool{
+            if(($item = $player->getInventory()->getItemInHand()) instanceof Consumable){
+                if($player->getFood() < $player->getMaxFood()){
+                    return true;
+                } else {
+                    if($item instanceof Food){
+                        return in_array($item->getId(), [ItemIds::GOLDEN_APPLE, ItemIds::ENCHANTED_GOLDEN_APPLE]);
+                    } else {
+                        return true;
+                    }
+                }
+            } else {
+                return $item instanceof Bow;
+            }
+        };
     }
 
     public function onMove(MoveEvent $event) : void{
@@ -48,22 +65,7 @@ class NoSlowdown extends Cheat implements StrictRequirements{
         // why is this true after right clicking in air with item in hand??
         if($player->isUsingItem()){
             // why... :sob:
-            $useIsValid = function() use($player) : bool{
-                if(($item = $player->getInventory()->getItemInHand()) instanceof Consumable){
-                    if($player->getFood() < $player->getMaxFood()){
-                        return true;
-                    } else {
-                        if($item instanceof Food){
-                            return in_array($item->getId(), [ItemIds::GOLDEN_APPLE, ItemIds::ENCHANTED_GOLDEN_APPLE]);
-                        } else {
-                            return true;
-                        }
-                    }
-                } else {
-                    return $item instanceof Bow;
-                }
-            };
-            if(!($useIsValid)()){
+            if(!($this->useIsValid)($player)){
                 return;
             }
             if(!isset($this->usingItemTicks[$name])){
@@ -79,8 +81,7 @@ class NoSlowdown extends Cheat implements StrictRequirements{
             $equalness = $currentMoveDist - $expectedMoveDist;
             $effectLevel = $player->getEffect(1) === null ? 0 : $player->getEffect(1)->getAmplifier() + 1;
             if($equalness > $this->getSetting("max_breach") && $effectLevel <= 5
-            && $user->timePassedSinceHit(40)
-            && $user->hasNoMotion()){
+            && $user->timePassedSinceMotion(20)){
                 $this->addPreVL($name);
                 $maxPreVL = (int) ($player->getPing() / 50) + 4;
                 if($this->getPreVL($name) >= $maxPreVL){

@@ -37,6 +37,7 @@ class Timer extends Cheat implements StrictRequirements{
     public function onMove(MoveEvent $event) : void{
         $currentTick = $this->getServer()->getTick();
         $player = $event->getPlayer();
+        $user = $this->getPlugin()->getUserManager()->get($player);
         $name = $player->getName();
 
         if(!isset($this->playerBalance[$name])){

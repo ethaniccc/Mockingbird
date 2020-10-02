@@ -62,6 +62,23 @@ final class ViolationHandler{
         array_push(self::$tps[$name], Server::getInstance()->getTicksPerSecond());
     }
 
+    public static function addViolationAsync(string $name, string $cheat, int $amount, float $tps) : void{
+        if(!isset(self::$violations[$name])){
+            self::$violations[$name] = 0;
+        }
+        self::$violations[$name] += $amount;
+        if(!isset(self::$cheatsViolatedFor[$name])){
+            self::$cheatsViolatedFor[$name] = [];
+        }
+        if(!in_array($cheat, self::$cheatsViolatedFor[$name])){
+            array_push(self::$cheatsViolatedFor[$name], $cheat);
+        }
+        if(!isset(self::$tps[$name])){
+            self::$tps[$name] = [];
+        }
+        array_push(self::$tps[$name], $tps);
+    }
+
     /**
      * @param string $name
      * @return int

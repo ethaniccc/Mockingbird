@@ -61,10 +61,7 @@ class VelocityA extends Cheat{
         $player = $event->getPlayer();
         $user = $this->getPlugin()->getUserManager()->get($player);
         $name = $player->getName();
-        if(!isset($this->queuedMotion[$name])){
-            return;
-        }
-        if(!empty($this->queuedMotion[$name])){
+        if(!empty($this->queuedMotion[$name] ?? [])){
             if($event->getMode() !== MoveEvent::MODE_NORMAL){
                 // remove everything in queue
                 $this->queuedMotion[$name] = [];
@@ -79,7 +76,8 @@ class VelocityA extends Cheat{
                 if($deltaY < $expectedYDelta * $this->getSetting("percentage")
                 && !LevelUtils::hasBlockAbove($user)
                 && !LevelUtils::isNearBlock($user, BlockIds::COBWEB)
-                && !LevelUtils::isNearBlock($user, BlockIds::WATER)){
+                && !LevelUtils::isNearBlock($user, BlockIds::WATER)
+                && !$user->getServerOnGround()){
                     ++$info->failedMovements;
                     $info->maxFailedMotion = $event->getDistanceY();
                 }

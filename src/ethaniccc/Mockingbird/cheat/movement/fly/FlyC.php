@@ -39,7 +39,7 @@ class FlyC extends Cheat{
             $yDelta = $user->getMoveDelta()->getY();
             $lastYDelta = $user->getLastMoveDelta()->getY();
             // FlyA can solve a client just setting their motion Y to 0 bypassing this
-            if(($equalness = abs($yDelta - $lastYDelta)) <= 1E-10
+            if(($equalness = abs($yDelta - $lastYDelta)) <= 1E-20
                 && abs($yDelta) > 0 && abs($lastYDelta) > 0
                 && $user->timePassedSinceMotion(10)){
                 // this type of motion is invalid since the current Y distance can't be the same as the previous one

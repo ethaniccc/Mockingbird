@@ -280,7 +280,7 @@ class Cheat implements Listener{
                 break;
             }
             if($staff->hasDebugMessagesEnabled()){
-                $player->sendMessage(TextFormat::DARK_RED . TextFormat::BOLD . "[MB || {$this->getName()}] " . TextFormat::RESET . TextFormat::DARK_GRAY . $message);
+                $player->sendMessage(TextFormat::DARK_RED . TextFormat::BOLD . "[{$this->getName()}] " . TextFormat::RESET . TextFormat::DARK_GRAY . $message);
             }
         }
         $this->debug($message);
