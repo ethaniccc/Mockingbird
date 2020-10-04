@@ -1,221 +1,110 @@
-#$$\      $$\                     $$\       $$\                     $$\       $$\                 $$\
-#$$$\    $$$ |                    $$ |      \__|                    $$ |      \__|                $$ |
-#$$$$\  $$$$ | $$$$$$\   $$$$$$$\ $$ |  $$\ $$\ $$$$$$$\   $$$$$$\  $$$$$$$\  $$\  $$$$$$\   $$$$$$$ |
-#$$\$$\$$ $$ |$$  __$$\ $$  _____|$$ | $$  |$$ |$$  __$$\ $$  __$$\ $$  __$$\ $$ |$$  __$$\ $$  __$$ |
-#$$ \$$$  $$ |$$ /  $$ |$$ /      $$$$$$  / $$ |$$ |  $$ |$$ /  $$ |$$ |  $$ |$$ |$$ |  \__|$$ /  $$ |
-#$$ |\$  /$$ |$$ |  $$ |$$ |      $$  _$$<  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |$$ |      $$ |  $$ |
-#$$ | \_/ $$ |\$$$$$$  |\$$$$$$$\ $$ | \$$\ $$ |$$ |  $$ |\$$$$$$$ |$$$$$$$  |$$ |$$ |      \$$$$$$$ |
-#\__|     \__| \______/  \_______|\__|  \__|\__|\__|  \__| \____$$ |\_______/ \__|\__|       \_______|
-#                                                         $$\   $$ |                                  
-#                                                         \$$$$$$  |                                  
-#                                                          \______/      
-# ~ Made by @ethaniccc idot </3
-# Github: https://www.github.com/ethaniccc                               
+#  ███▄ ▄███▓ ▒█████   ▄████▄   ██ ▄█▀ ██▓ ███▄    █   ▄████  ▄▄▄▄    ██▓ ██▀███  ▓█████▄
+#  ▓██▒▀█▀ ██▒▒██▒  ██▒▒██▀ ▀█   ██▄█▒ ▓██▒ ██ ▀█   █  ██▒ ▀█▒▓█████▄ ▓██▒▓██ ▒ ██▒▒██▀ ██▌
+#  ▓██    ▓██░▒██░  ██▒▒▓█    ▄ ▓███▄░ ▒██▒▓██  ▀█ ██▒▒██░▄▄▄░▒██▒ ▄██▒██▒▓██ ░▄█ ▒░██   █▌
+#  ▒██    ▒██ ▒██   ██░▒▓▓▄ ▄██▒▓██ █▄ ░██░▓██▒  ▐▌██▒░▓█  ██▓▒██░█▀  ░██░▒██▀▀█▄  ░▓█▄   ▌
+#  ▒██▒   ░██▒░ ████▓▒░▒ ▓███▀ ░▒██▒ █▄░██░▒██░   ▓██░░▒▓███▀▒░▓█  ▀█▓░██░░██▓ ▒██▒░▒████▓
+#  ░ ▒░   ░  ░░ ▒░▒░▒░ ░ ░▒ ▒  ░▒ ▒▒ ▓▒░▓  ░ ▒░   ▒ ▒  ░▒   ▒ ░▒▓███▀▒░▓  ░ ▒▓ ░▒▓░ ▒▒▓  ▒
+#  ░  ░      ░  ░ ▒ ▒░   ░  ▒   ░ ░▒ ▒░ ▒ ░░ ░░   ░ ▒░  ░   ░ ▒░▒   ░  ▒ ░  ░▒ ░ ▒░ ░ ▒  ▒
+#  ░      ░   ░ ░ ░ ▒  ░        ░ ░░ ░  ▒ ░   ░   ░ ░ ░ ░   ░  ░    ░  ▒ ░  ░░   ░  ░ ░  ░
+#  ░       ░ ░  ░ ░      ░  ░    ░           ░       ░  ░       ░     ░        ░
+#  ░                                            ░               ░
+# Made by @ethaniccc idot
+# GitHub: https://www.github.com/ethaniccc/Mockingbird
 
-#### DO NOT TOUCH THIS ####
-version: 1.4-beta
+prefix: "§l§7[§cMocking§4bird§7]"
+# {tag} => explanation of tag
+# ============================================================================= #
+# {player} => the name of the player who failed the check
+# {check} => the name of the check the player failed
+# {vl} => the new amount of violations the player has for the failed check
+fail_message: "§4{player}§r§7 failed §b{check} §6[§eVL: §d{vl}§6]"
+# {player} => the player punished
+punish_message_staff: "§l§4{player}§r§7 was punished for §4cheating"
+# the message the player will receive when punished
+punish_message_player: "§bUnfair Advantage Detected"
 
-# If developer mode is enabled, all checks will be enabled,
-# which may leave false-positives. This should NEVER be enabled
-# on production servers.
-dev_mode: false
-
-####### General Settings #######
-
-# You can choose this to be any permission you'd like so
-# that staff members get Mockingbird alerts, etc.
-alert_permission: "mockingbird.alerts"
-
-# You can choose this permission to anything you'd like.
-# This permission is for getting player logs.
-log_permission: "mockingbird.logs"
-
-# This is for module permission such as using /mbenable, /mbdisable, and /mbreload
-# to enable and disable modules through commands.
-module_permission: "mockingbird.modules"
-
-# This is a permission for the screenshare command that will allow the player
-# to "screenshare" other a selected player.
-screenshare_permission: "mockingbird.screenshare"
-
-# This is a bypass permission you can give to people, this means
-# that they will NOT be violated for cheats.
-bypass_permission: "mockingbird.bypass"
-
-# Type any prefix you want for AntiCheat alerts.
-prefix: "§l§cMockingbird§4>"
-
-# Prefix shown for when a player is punished, (kick, ban, block)
-punish_prefix: "§l§b§cMocking§4bird"
-
-# This option is for the max violations a player can get before
-# they are punished by Mockingbird
-max_violations: 150
-
-# This option is for if you want violations to reset after a certain time. This will
-# probably help with legit players **sometimes** false-flagging checks.
-# This will NOT clear the "total violations" section or the previous cheats violated for,
-# this option will only clear the player of their current violations.
-# Options: true / false
-reset_violations: true
-# If reset_violations is enabled, this option is for how often do you want violations to reset in seconds.
-# The default value for this is 300 seconds
-reset_time: 300
-
-# Do you want the player to be kicked, banned, or ip-banned? (You can also choose "none")
-# Options: none, kick, ban, ip-ban
-punishment_type: kick
-# If your punishment type is kick, you can set this to an mount to ban when a player is kicked
-# a certain amount of times. For example, if this option is set to 5, and the player is kicked
-# 5 times, they will be banned. You can set this to -1 to disable.
-max_kicks: -1
-
-# If this option is enabled, this will save the previous data in a .txt file
-# with information such as violations and cheats violated for.
-save_previous_violations: false
-
-# This is for the TPS level detections should be stopped at.
-stop_tps: 16
-
-# This option is for choosing what type of mode you want to use for the
-# /log command. There are two options: normal and UI
-log_command_type: normal
-
-#######   Commands   #######
-
-# Set the value to true if you want the command enabled, and false if you don't.
-LogCommand: true
-ScreenshareCommand: true
-
-#######  Detections   #######
-
-## Combat Detections ##
-MultiAura:
-  enabled: true
-  time: 0.01
-  # the distance that the entities have to be within in order to flag
-  entity_distance: 3
-  # tags: {player}
-  message: "{player} hit too many entities in a short period of time"
-  suppression: true
+#    __
+#   /   _  _ |_  _ |_  |  \ _|_ _ _|_. _  _  _
+#   \__(_)||||_)(_||_  |__/(-|_(-(_|_|(_)| )_)
 AutoClickerA:
   enabled: true
-  # the amount of clicking samples the check should take
-  samples: 40
-  # the higher this is, the more it may false positive, but it *might* catch more cheaters
+  punish: true
+  punishment_type: kick
+  max_violations: 40
+  # check sensitivity settings
+  samples: 35
   consistency: 7.5
-  # the minimum cps the player has to be clicking in order to be flagged
-  min_cps: 8
-  # tags: {player}
-  message: "{player}'s clicking was too consistent"
-  # suppression is not available for this check
+  required_cps: 8
 AutoClickerB:
   enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 40
+  # check sensitivity settings
   max_cps: 25
-  # tags: {player}, {cps}
-  message: "{player} clicked too fast at {cps} CPS"
-  # suppression is not available for this check
-ReachA:
+KillAuraA:
   enabled: true
-  # max reach in minecraft both Java and Bedrock is 3.
-  max_reach: 3.2
-  # tags: {player}, {distance}
-  message: "{player} hit another player from a distance of {distance}"
-  suppression: true
+  punish: true
+  punishment_type: kick
+  max_violations: 25
 
-## Movement Detections ##
+#                         __
+#  |\/| _    _ _  _ _ |_  |  \ _|_ _ _|_. _  _  _
+#  |  |(_)\/(-|||(-| )|_  |__/(-|_(-(_|_|(_)| )_)
 SpeedA:
   enabled: true
-  max_speed_on_ground: 0.375
-  max_speed_off_ground: 0.78
-  # tags: {player}
-  message: "{player} moved too fast"
+  punish: true
+  punishment_type: kick
   suppression: true
+  max_violations: 25
+  # check sensitivity settings
+  max_breach: 0.00001
 SpeedB:
   enabled: true
-  # SpeedB is a prediction check to predict the player's next motion off the ground
-  # if the prediction is wrong, then it is probably a speed heck such as bhop, normal jetpack, etc.
-  # you should only change this value little by little if you are experiencing falses
-  max_breach: 0.0001
-  # tags: {player}
-  message: "{player}'s movement was consistent off the ground"
+  punish: true
+  punishment_type: kick
   suppression: true
-NoSlowdown:
-  enabled: true
-  # Only change this value if you know what you are doing. If you are experiencing falses positives
-  # even with this value at 0.2, please make an issue at the GitHub repository.
-  max_breach: 0.15
-  # tags: {player}
-  message: "{player} moved too fast while using an item"
-  suppression: true
-FastLadder:
-  enabled: true
-  max_climb_speed: 0.3
-  # tags: {player}
-  message: "{player} moved too fast when climbing a ladder"
-  suppression: true
-NoFall:
-  enabled: true
-  # tags: {player}
-  message: "{player} gave onGround value true when not near the ground"
-  # suppression is not available for this check
+  max_violations: 25
+  # check sensitivity settings
+  max_speed_on_ground: 0.325
+  max_speed_off_ground: 0.78
 FlyA:
   enabled: true
-  # FlyA is a prediction check which checks if the player's next Y distance is as expected.
-  # For max breach, this will check if the absolute value of the distance given subtracted
-  # by the expected distance is lower than this number. Only change this if you are having
-  # false positives or if you know what you are doing.
-  max_breach: 0.015
-  # tags: {player}
-  message: "{player}'s Y distance was not as expected"
+  punish: true
+  punishment_type: kick
   suppression: true
+  max_violations: 25
+  # check sensitivity settings
+  max_breach: 0.015
 FlyB:
   enabled: true
-  # tags: {player}
-  message: "{player} failed a horizontal (and / or) vertical fly check"
+  punish: true
+  punishment_type: kick
   suppression: true
-FlyC:
-  enabled: true
-  # tags: {player}
-  message: "{player}'s current motion Y was equal to their last motion Y"
-  suppression: true
+  max_violations: 25
+  # no check settings
 VelocityA:
   enabled: true
-  # the higher this is, the more it can detect, but the more it will false positive.
-  # at 0.95, this can detect < 95% vertical velocity and lower, at 0.96, this can detect < 96% velocity
-  # and lower and so on.
-  percentage: 0.995
-  # tags: {player}
-  message: "{player}'s vertical velocity was lower than normal"
-  # suppression is not available for this check
-VelocityB:
-  # this check is not finished yet and will do nothing but waste your server resources.
-  enabled: false
-  message: "{player}'s horizontal velocity was lower than normal"
-  # suppression is not available for this check
+  punish: true
+  punishment_type: kick
+  suppression: true
+  max_violations: 25
+  # check sensitivity settings
+  multiplier: 0.99
+NoFallA:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 25
 
-## Packet Checks ##
-# These checks are to detect if packets sent to the server are valid.
-# You can choose to enable or disable cheats with (true/false)
-PacketChecks:
+#  , __             _              ___  _               _
+#  /|/  \           | |            / (_)| |             | |
+#  |___/ __,   __  | |   _ _|_   |     | |     _   __  | |   ,
+#  |    /  |  /    |/_) |/  |    |     |/ \   |/  /    |/_) / \_
+#  |    \_/|_/\___/| \_/|__/|_/   \___/|   |_/|__/\___/| \_/ \/
+BadPacketA:
+  # this checks is the yaw the client gives is valid
   enabled: true
-  # There is no custom message for packet checks.
-  # suppression is not available for packet checks
-
-## Other Detections ##
-# For EditionFaker, online mode must be enabled due to the login packet being modified.
-# It is recommended that you keep this check on.
-EditionFaker:
-  enabled: true
-  # tags: {player}
-  message: "{player} is faking their device information"
-  # suppression is not available for this check
-Timer:
-  enabled: true
-  # Only change this value if you know what ypu are doing or if you are experiencing false positives.
-  # PLEASE NOTE: Some bypasses and hacks send too many move packets, such as the Jetpack bypass in Horion.
-  # If a module that sends too many move packets are used, this may flag.
-  max_balance: 500
-  # tags: {player}
-  message: "{player} sent too many move packets in an instance"
-  # suppression is not available for this check
+  punish: true
+  punishment_type: ban
+  max_violations: 1
