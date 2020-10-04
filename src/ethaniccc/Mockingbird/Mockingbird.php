@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace ethaniccc\Mockingbird;
 
+use ethaniccc\Mockingbird\commands\ToggleAlertsCommand;
+use ethaniccc\Mockingbird\commands\ToggleDebugCommand;
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\listener\MockingbirdListener;
 use ethaniccc\Mockingbird\processing\Processor;
@@ -30,10 +32,19 @@ class Mockingbird extends PluginBase{
         new MockingbirdListener();
         $this->getAvailableProcessors();
         $this->getAvailableChecks();
+        $this->registerCommands();
     }
 
     public function getPrefix() : string{
         return $this->getConfig()->get("prefix") . TextFormat::RESET;
+    }
+
+    private function registerCommands() : void{
+        $commands = [
+            new ToggleAlertsCommand($this),
+            new ToggleDebugCommand($this),
+        ];
+        $this->getServer()->getCommandMap()->registerAll($this->getName(), $commands);
     }
 
     private function getAvailableChecks() : void{

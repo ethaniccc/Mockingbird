@@ -55,7 +55,7 @@ SpeedA:
   enabled: true
   punish: true
   punishment_type: kick
-  suppression: true
+  suppression: false
   max_violations: 25
   # check sensitivity settings
   max_breach: 0.00001
@@ -63,7 +63,7 @@ SpeedB:
   enabled: true
   punish: true
   punishment_type: kick
-  suppression: true
+  suppression: false
   max_violations: 25
   # check sensitivity settings
   max_speed_on_ground: 0.325
@@ -72,7 +72,7 @@ FlyA:
   enabled: true
   punish: true
   punishment_type: kick
-  suppression: true
+  suppression: false
   max_violations: 25
   # check sensitivity settings
   max_breach: 0.015
@@ -80,17 +80,16 @@ FlyB:
   enabled: true
   punish: true
   punishment_type: kick
-  suppression: true
+  suppression: false
   max_violations: 25
   # no check settings
 VelocityA:
   enabled: true
   punish: true
   punishment_type: kick
-  suppression: true
   max_violations: 25
   # check sensitivity settings
-  multiplier: 0.99
+  multiplier: 0.991
 NoFallA:
   enabled: true
   punish: true

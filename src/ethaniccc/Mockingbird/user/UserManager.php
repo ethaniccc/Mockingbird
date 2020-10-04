@@ -7,7 +7,7 @@ use pocketmine\Player;
 class UserManager{
 
     private static $instance;
-    public $users = [];
+    private $users = [];
 
     public static function init() : void{
         if(self::$instance !== null){

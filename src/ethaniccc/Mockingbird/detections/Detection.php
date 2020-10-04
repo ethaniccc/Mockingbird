@@ -74,10 +74,10 @@ abstract class Detection{
         if($debugData === null){
             return;
         }
-        $debugUsers = array_filter($staff, function(Player $p) : bool{
+        $debugUsers = array_filter(Server::getInstance()->getOnlinePlayers(), function(Player $p) : bool{
             return $p->hasPermission("mockingbird.debug") && UserManager::getInstance()->get($p)->debug;
         });
-        $debugMsg = $this->getPlugin()->getPrefix() . TextFormat::RED . "[DEBUG@{$this->name}] " . TextFormat::WHITE . $debugData;
+        $debugMsg = $this->getPlugin()->getPrefix() . TextFormat::RED . " [DEBUG@{$this->name}] " . TextFormat::WHITE . $debugData;
         Server::getInstance()->broadcastMessage($debugMsg, $debugUsers);
     }
 

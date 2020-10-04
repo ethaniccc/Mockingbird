@@ -3,6 +3,7 @@ build-by-default: true
 branches:
 - master
 - stable
+- v2
 projects:
   Mockingbird:
     path: ""
