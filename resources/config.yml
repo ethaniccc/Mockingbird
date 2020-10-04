@@ -102,7 +102,7 @@ NoFallA:
 #  |    /  |  /    |/_) |/  |    |     |/ \   |/  /    |/_) / \_
 #  |    \_/|_/\___/| \_/|__/|_/   \___/|   |_/|__/\___/| \_/ \/
 BadPacketA:
-  # this checks is the yaw the client gives is valid
+  # this checks is the pitch the client gives is valid
   enabled: true
   punish: true
   punishment_type: ban
