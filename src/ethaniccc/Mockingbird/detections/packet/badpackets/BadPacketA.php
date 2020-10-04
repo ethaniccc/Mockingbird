@@ -16,7 +16,7 @@ class BadPacketA extends Detection{
     public function process(DataPacket $packet, User $user): void{
         if($packet instanceof MovePlayerPacket){
             if(abs($packet->pitch) > 90 && $user->timeSinceJoin >= 10){
-                $this->fail($user, "y: {$packet->yaw}");
+                $this->fail($user, "{$user->player->getName()}: pitch: {$packet->pitch}");
             }
         }
     }
