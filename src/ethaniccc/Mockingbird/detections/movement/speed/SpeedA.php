@@ -16,7 +16,7 @@ class SpeedA extends Detection implements MovementDetection{
         parent::__construct($name, $settings);
     }
 
-    public function process(DataPacket $packet, User $user): void{
+    public function handle(DataPacket $packet, User $user): void{
         if($packet instanceof MovePlayerPacket){
             if($user->offGroundTicks > 1){
                 $lastMoveDelta = $user->lastMoveDelta;

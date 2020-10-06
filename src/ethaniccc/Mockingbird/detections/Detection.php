@@ -17,24 +17,25 @@ abstract class Detection{
 
     protected $settings;
     protected $preVL, $maxVL;
-    public $name, $subType, $enabled, $punishable, $punishType, $suppression;
+    public $name, $subType, $enabled, $punishable, $punishType, $suppression, $alerts;
 
     public function __construct(string $name, ?array $settings){
         $this->name = $name;
         $this->subType = substr($this->name, -1);
         $this->settings = $settings === null ? ["enabled" => true, "punishable" => false] : $settings;
-        $this->enabled = $this->settings["enabled"] ?? false;
+        $this->enabled = $this->settings["enabled"] ?? true;
         $this->punishable = $this->settings["punish"] ?? false;
         $this->punishType = $this->settings["punishment_type"] ?? "kick";
         $this->suppression = $this->settings["suppression"] ?? false;
         $this->maxVL = $this->settings["max_violations"] ?? 25;
+        $this->alerts = Mockingbird::getInstance()->getConfig()->get("alerts_enabled");
     }
 
     public function getSetting(string $setting){
         return $this->settings[$setting] ?? null;
     }
 
-    public abstract function process(DataPacket $packet, User $user) : void;
+    public abstract function handle(DataPacket $packet, User $user) : void;
 
     protected function fail(User $user, ?string $debugData = null) : void{
         if(!$user->loggedIn){
@@ -47,11 +48,13 @@ abstract class Detection{
         $name = $user->player->getName();
         $cheatName = $this->name;
         $violations = round($user->violations[$this->name], 0);
-        $message = $this->getPlugin()->getPrefix() . " " . str_replace(["{player}", "{check}", "{vl}"], [$name, substr_replace($cheatName, "({$this->subType})", -1), $violations], $this->getPlugin()->getConfig()->get("fail_message"));
         $staff = array_filter(Server::getInstance()->getOnlinePlayers(), function(Player $p) : bool{
-           return $p->hasPermission("mockingbird.alerts") && UserManager::getInstance()->get($p)->alerts;
+            return $p->hasPermission("mockingbird.alerts") && UserManager::getInstance()->get($p)->alerts;
         });
-        Server::getInstance()->broadcastMessage($message, $staff);
+        if($this->alerts){
+            $message = $this->getPlugin()->getPrefix() . " " . str_replace(["{player}", "{check}", "{vl}"], [$name, substr_replace($cheatName, "({$this->subType})", -1), $violations], $this->getPlugin()->getConfig()->get("fail_message"));
+            Server::getInstance()->broadcastMessage($message, $staff);
+        }
         if($this instanceof MovementDetection && $this->suppression){
             if(!$user->serverOnGround){
                 $user->player->teleport($user->lastOnGroundLocation);
@@ -59,21 +62,25 @@ abstract class Detection{
                 $user->player->teleport($user->lastLocation);
             }
         }
-        if($violations >= $this->maxVL){
+        if($violations >= $this->maxVL && $this->punishable){
             switch($this->punishType){
                 case "kick":
-                    $this->getPlugin()->getScheduler()->scheduleDelayedTask(new KickTask($user, $this->getPlugin()->getPrefix() . " " . $this->getPlugin()->getConfig()->get("punish_message_player")), 1);
+                    $this->getPlugin()->getScheduler()->scheduleDelayedTask(new KickTask($user, $this->getPlugin()->getPrefix() . " " . $this->getPlugin()->getConfig()->get("punish_message_player")), 0);
                     break;
                 case "ban":
-                    $this->getPlugin()->getScheduler()->scheduleDelayedTask(new BanTask($user, $this->getPlugin()->getPrefix() . " " . $this->getPlugin()->getConfig()->get("punish_message_player")), 1);
+                    $this->getPlugin()->getScheduler()->scheduleDelayedTask(new BanTask($user, $this->getPlugin()->getPrefix() . " " . $this->getPlugin()->getConfig()->get("punish_message_player")), 0);
                     break;
             }
             $message = $this->getPlugin()->getPrefix() . " " . str_replace("{player}", $name, $this->getPlugin()->getConfig()->get("punish_message_staff"));
             Server::getInstance()->broadcastMessage($message, $staff);
         }
-        if($debugData === null){
-            return;
+        if($debugData !== null){
+            $this->debug($debugData);
         }
+    }
+
+    protected function debug($debugData) : void{
+        $debugData = (string) $debugData;
         $debugUsers = array_filter(Server::getInstance()->getOnlinePlayers(), function(Player $p) : bool{
             return $p->hasPermission("mockingbird.debug") && UserManager::getInstance()->get($p)->debug;
         });

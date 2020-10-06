@@ -15,12 +15,22 @@ class LocationHistory{
         }
         $info = new \stdClass();
         $info->pos = $pos;
-        $info->time = microtime(true);
+        $info->time = microtime(true) * 1000;
         $this->locations[] = $info;
     }
 
     public function getLocations() : array{
         return $this->locations;
+    }
+
+    public function getLocationsRelativeToTime(float $time, float $search) : array{
+        $locations = [];
+        foreach($this->locations as $info){
+            if(abs($info->time - $time) <= $search){
+                $locations[] = $info->pos;
+            }
+        }
+        return $locations;
     }
 
 }

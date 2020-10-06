@@ -74,6 +74,20 @@ class Mockingbird extends PluginBase{
                 }
             }
         }
+        $customPath = $this->getDataFolder() . "custom_modules";
+        @mkdir($customPath);
+        foreach(scandir($customPath) as $file){
+            if(!is_dir("$customPath/$file") && strtolower(explode(".", $file)[1]) === "php"){
+                include_once "$customPath/$file";
+                $className = explode(".", $file)[0];
+                try{
+                    $classInfo = new \ReflectionClass($className);
+                    if(!$classInfo->isAbstract() && $classInfo->isSubclassOf(Detection::class)){
+                        $this->availableChecks[] = $classInfo;
+                    }
+                } catch(\ReflectionException $e){}
+            }
+        }
     }
 
     private function getAvailableProcessors() : void{
@@ -91,6 +105,20 @@ class Mockingbird extends PluginBase{
                         }
                     } catch(\ReflectionException $e){}
                 }
+            }
+        }
+        $customPath = $this->getDataFolder() . "custom_processors";
+        @mkdir($customPath);
+        foreach(scandir($customPath) as $file){
+            if(!is_dir("$customPath/$file") && strtolower(explode(".", $file)[1]) === "php"){
+                include_once "$customPath/$file";
+                $className = explode(".", $file)[0];
+                try{
+                    $classInfo = new \ReflectionClass($className);
+                    if(!$classInfo->isAbstract() && $classInfo->isSubclassOf(Processor::class)){
+                        $this->availableProcessors[] = $classInfo;
+                    }
+                } catch(\ReflectionException $e){}
             }
         }
     }

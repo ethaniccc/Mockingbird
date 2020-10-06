@@ -39,7 +39,7 @@ class MockingbirdListener implements Listener{
             }
             foreach($user->checks as $check){
                 if($check instanceof Detection){
-                    $check->process($packet, $user);
+                    $check->handle($packet, $user);
                 }
             }
         }
@@ -51,7 +51,7 @@ class MockingbirdListener implements Listener{
             throw new \UnexpectedValueException("{$event->getPlayer()->getName()} was not registered");
         } else {
             $user->loggedIn = true;
-            if($user->player->hasPermission("mockingbird.alerts")){
+            if($user->player->hasPermission("mockingbird.alerts") && Mockingbird::getInstance()->getConfig()->get("alerts_default")){
                 $user->alerts = true;
             }
         }
@@ -66,7 +66,7 @@ class MockingbirdListener implements Listener{
             $motionPK = new MotionPacket($event);
             foreach($user->checks as $check){
                 if($check instanceof Detection){
-                    $check->process($motionPK, $user);
+                    $check->handle($motionPK, $user);
                 }
             }
         }

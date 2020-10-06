@@ -17,7 +17,7 @@ class AutoClickerB extends Detection{
         parent::__construct($name, $settings);
     }
 
-    public function process(DataPacket $packet, User $user): void{
+    public function handle(DataPacket $packet, User $user): void{
         if(($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) || ($packet instanceof LevelSoundEventPacket && $packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE)){
             $timeDiff = $user->clickTime;
             if($timeDiff > 1){
@@ -26,8 +26,8 @@ class AutoClickerB extends Detection{
             }
             $cps = $user->cps;
             $allowed = $this->getSetting("max_cps");
-            if($this->compensationTime > 1 && microtime(true) - $this->startCompensationTime <= 0.5){
-                $allowed *= $this->compensationTime;
+            if($this->compensationTime > 1 && microtime(true) - $this->startCompensationTime <= 1){
+                $allowed += $allowed * $this->compensationTime;
             }
             if($cps > $allowed){
                 if(++$this->preVL >= 5){

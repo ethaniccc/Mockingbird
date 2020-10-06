@@ -23,12 +23,18 @@ punish_message_staff: "§l§4{player}§r§7 was punished for §4cheating"
 # the message the player will receive when punished
 punish_message_player: "§bUnfair Advantage Detected"
 
+# If you want staff members to get alerts at all. If this is enabled, no alerts will be given, only punishments on checks where enabled.
+alerts_enabled: true
+# This option will only be useful if alerts are enabled (in the option above). This option decides whether or not players with alert permissions
+# will have alerts enabled when they join. If this is false, then players with perms must use the /mbalerts command to enable alerts.
+alerts_default: true
+
 #    __
 #   /   _  _ |_  _ |_  |  \ _|_ _ _|_. _  _  _
 #   \__(_)||||_)(_||_  |__/(-|_(-(_|_|(_)| )_)
 AutoClickerA:
   enabled: true
-  punish: true
+  punish: false
   punishment_type: kick
   max_violations: 40
   # check sensitivity settings
@@ -37,23 +43,30 @@ AutoClickerA:
   required_cps: 8
 AutoClickerB:
   enabled: true
-  punish: true
+  punish: false
   punishment_type: kick
   max_violations: 40
   # check sensitivity settings
   max_cps: 25
 KillAuraA:
   enabled: true
-  punish: true
+  punish: false
   punishment_type: kick
   max_violations: 25
+ReachA:
+  enabled: true
+  punish: false
+  punishment_type: kick
+  max_violations: 50
+  # check sensitivity settings
+  max_reach: 3.11
 
 #                         __
 #  |\/| _    _ _  _ _ |_  |  \ _|_ _ _|_. _  _  _
 #  |  |(_)\/(-|||(-| )|_  |__/(-|_(-(_|_|(_)| )_)
 SpeedA:
   enabled: true
-  punish: true
+  punish: false
   punishment_type: kick
   suppression: false
   max_violations: 25
@@ -61,7 +74,7 @@ SpeedA:
   max_breach: 0.00001
 SpeedB:
   enabled: true
-  punish: true
+  punish: false
   punishment_type: kick
   suppression: false
   max_violations: 25
@@ -70,7 +83,7 @@ SpeedB:
   max_speed_off_ground: 0.78
 FlyA:
   enabled: true
-  punish: true
+  punish: false
   punishment_type: kick
   suppression: false
   max_violations: 25
@@ -78,21 +91,21 @@ FlyA:
   max_breach: 0.015
 FlyB:
   enabled: true
-  punish: true
+  punish: false
   punishment_type: kick
   suppression: false
   max_violations: 25
   # no check settings
 VelocityA:
   enabled: true
-  punish: true
+  punish: false
   punishment_type: kick
   max_violations: 25
   # check sensitivity settings
   multiplier: 0.991
-NoFallA:
+GroundSpoofA:
   enabled: true
-  punish: true
+  punish: false
   punishment_type: kick
   max_violations: 25
 

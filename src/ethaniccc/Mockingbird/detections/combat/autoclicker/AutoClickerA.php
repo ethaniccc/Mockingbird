@@ -18,7 +18,7 @@ class AutoClickerA extends Detection{
         parent::__construct($name, $settings);
     }
 
-    public function process(DataPacket $packet, User $user): void{
+    public function handle(DataPacket $packet, User $user): void{
         if(($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) || ($packet instanceof LevelSoundEventPacket && $packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE)){
             $clickTime = $user->clickTime;
             if($clickTime > 0.25){

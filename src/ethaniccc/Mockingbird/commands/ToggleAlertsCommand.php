@@ -28,6 +28,9 @@ class ToggleAlertsCommand extends Command implements PluginIdentifiableCommand{
             $sender->sendMessage("You must run this command as a player");
         } else {
             if($this->testPermission($sender)){
+                if(!Mockingbird::getInstance()->getConfig()->get("alerts_enabled")){
+                    $sender->sendMessage(Mockingbird::getInstance()->getPrefix() . TextFormat::RED . "Error: Alerts are disabled.");
+                }
                 $user = UserManager::getInstance()->get($sender);
                 $user->alerts = !$user->alerts;
                 $user->alerts ? $sender->sendMessage(Mockingbird::getInstance()->getPrefix() . TextFormat::GREEN . " Your alerts have been enabled") : $sender->sendMessage(Mockingbird::getInstance()->getPrefix() . TextFormat::RED . " Your alerts have been disabled");

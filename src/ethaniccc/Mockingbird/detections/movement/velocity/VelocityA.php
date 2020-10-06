@@ -17,10 +17,10 @@ class VelocityA extends Detection implements MovementDetection{
         parent::__construct($name, $settings);
     }
 
-    public function process(DataPacket $packet, User $user): void{
+    public function handle(DataPacket $packet, User $user): void{
         if($packet instanceof MotionPacket && $user->loggedIn){
-            if(count($this->queue) === 5){
-                array_shift($this->queue);
+            if(count($this->queue) > 5){
+                return;
             }
             $info = new \stdClass();
             $info->motion = $packet->motionY;
@@ -46,10 +46,10 @@ class VelocityA extends Detection implements MovementDetection{
                         if(abs($currentData->maxFailedMotion) < abs($user->moveDelta->y)){
                             $currentData->maxFailedMotion = $user->moveDelta->y;
                         }
-                    } else {
+                    }/* else {
                         $this->queue[0] = null;
                         array_shift($this->queue);
-                    }
+                    }*/
                 } else {
                     if($currentData->failedTime >= $currentData->maxTime){
                         if(++$this->preVL >= 10){
@@ -65,7 +65,7 @@ class VelocityA extends Detection implements MovementDetection{
                         // if the queue is not empty, make this process
                         // with the same move delta, but with the next motion in
                         // queue.
-                        $this->process($packet, $user);
+                        $this->handle($packet, $user);
                     }
                 }
             }

@@ -14,7 +14,7 @@ class FlyB extends Detection implements MovementDetection{
         parent::__construct($name, $settings);
     }
 
-    public function process(DataPacket $packet, User $user): void{
+    public function handle(DataPacket $packet, User $user): void{
         if($packet instanceof MovePlayerPacket){
             if($user->offGroundTicks > 1){
                 if($user->moveDelta === null || $user->lastMoveDelta === null){
@@ -22,7 +22,7 @@ class FlyB extends Detection implements MovementDetection{
                 }
                 $yDelta = $user->moveDelta->y;
                 $lastYDelta = $user->lastMoveDelta->y;
-                if(($equalness = abs($yDelta - $lastYDelta)) <= 1E-10 && $packet->mode === MovePlayerPacket::MODE_NORMAL && $user->timeSinceMotion >= 5){
+                if(($equalness = abs($yDelta - $lastYDelta)) <= 0.01 && $packet->mode === MovePlayerPacket::MODE_NORMAL && $user->timeSinceMotion >= 5){
                     if(++$this->preVL >= 3){
                         $this->fail($user, "{$user->player->getName()}: yD: $yDelta, lYD: $lastYDelta, eq: $equalness");
                     }
