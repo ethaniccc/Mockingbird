@@ -60,6 +60,11 @@ ReachA:
   max_violations: 50
   # check sensitivity settings
   max_reach: 3.11
+AimA:
+  enabled: true
+  punish: false
+  punishment_type: kick
+  max_violations: 100
 
 #                         __
 #  |\/| _    _ _  _ _ |_  |  \ _|_ _ _|_. _  _  _

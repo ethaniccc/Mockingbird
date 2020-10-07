@@ -13,4 +13,8 @@ class MathUtils{
         return sqrt($variance / count($nums));
     }
 
+    public static function getAverage(array $nums) : float{
+        return array_sum($nums) / count($nums);
+    }
+
 }

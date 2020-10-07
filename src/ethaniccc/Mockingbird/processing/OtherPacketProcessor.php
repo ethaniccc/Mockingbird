@@ -23,6 +23,7 @@ class OtherPacketProcessor extends Processor{
                 if($packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK){
                     $user->attackPos = $packet->trData->playerPos;
                     $user->targetEntity = $user->player->getLevel()->getEntity($packet->trData->entityRuntimeId);
+                    $user->timeSinceAttack = 0;
                 }
             }
         }

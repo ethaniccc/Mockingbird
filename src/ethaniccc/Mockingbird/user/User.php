@@ -26,6 +26,8 @@ class User{
     public $lastOnGroundLocation;
     public $blockAbove, $blockBelow;
     public $currentMotion;
+    public $yaw, $pitch, $lastYaw, $lastPitch;
+    public $yawDelta, $pitchDelta, $lastYawDelta, $lastPitchDelta;
 
     public $cps, $clickTime;
 

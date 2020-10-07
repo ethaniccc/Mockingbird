@@ -66,6 +66,14 @@ class MoveProcessor extends Processor{
                 $user->lastMoveDelta = $user->moveDelta;
                 $user->moveDelta = $user->location->subtract($user->lastLocation);
             }
+            $user->lastYaw = $user->yaw;
+            $user->lastPitch = $user->pitch;
+            $user->yaw = $packet->yaw;
+            $user->pitch = $packet->pitch;
+            $user->lastYawDelta = $user->yawDelta;
+            $user->lastPitchDelta = $user->pitchDelta;
+            $user->yawDelta = abs($user->yaw - $user->lastYaw);
+            $user->pitchDelta = abs($user->pitch - $user->lastPitch);
             if(in_array($packet->mode, [MovePlayerPacket::MODE_RESET, MovePlayerPacket::MODE_TELEPORT])){
                 $user->timeSinceTeleport = 0;
             } else {
