@@ -20,7 +20,7 @@ class AimA extends Detection{
         if($packet instanceof MovePlayerPacket && $user->isDesktop){
             if($user->timeSinceAttack <= 25 && $user->targetEntity !== null){
                 if($user->yawDelta !== null && $user->lastYawDelta !== null){
-                    if($user->yawDelta >= 20 || $user->lastYawDelta >= 20 || $user->yawDelta == 0 || $user->lastYawDelta == 0){
+                    if($user->yawDelta >= 20 || $user->lastYawDelta >= 20 || $user->yawDelta <= 1E-4 || $user->lastYawDelta <= 1E-4){
                         return;
                     }
                     $equalness = abs($user->yawDelta - $user->lastYawDelta);
@@ -32,9 +32,9 @@ class AimA extends Detection{
                     if(count($this->equalnessSamples) === 20){
                         $deviation = MathUtils::getDeviation($this->equalnessSamples);
                         $average = MathUtils::getAverage($this->equalnessSamples);
-                        if($equalness < 1 && $deviation < 0.85 && $average < 1){
+                        if($equalness < 0.75 && $deviation < 0.75 && $average < 0.65){
                             if(++$this->preVL >= 10){
-                                $this->fail($user, "eq: $equalness, avg: $average, dv: $deviation");
+                                $this->fail($user, "eq: $equalness, avg: $average, dv: $deviation, yD: {$user->yawDelta}, lyD: {$user->lastYawDelta}");
                                 --$this->preVL;
                             }
                         } else {

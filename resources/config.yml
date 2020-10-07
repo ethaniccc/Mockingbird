@@ -60,8 +60,9 @@ ReachA:
   max_violations: 50
   # check sensitivity settings
   max_reach: 3.11
+# this check is disabled by default since i haven't tested this on mass scale
 AimA:
-  enabled: true
+  enabled: false
   punish: false
   punishment_type: kick
   max_violations: 100

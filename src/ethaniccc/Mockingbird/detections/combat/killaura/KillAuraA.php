@@ -30,7 +30,7 @@ class KillAuraA extends Detection{
                         $this->fail($user, "{$user->player->getName()}: cE: $currentEntity, lE: $lastEntity");
                     }
                 } else {
-                    $this->preVL = 0;
+                    $this->preVL *= 0.5;
                     $this->reward($user, 0.95);
                 }
                 $this->hitInfo["entity"] = $currentEntity;
