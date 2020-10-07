@@ -96,7 +96,7 @@ class Mockingbird extends PluginBase{
         foreach($iterator as $fileInfo){
             if($fileInfo instanceof \SplFileInfo){
                 if(!$fileInfo->isDir() && $fileInfo->isReadable() && strtolower($fileInfo->getExtension()) === "php"){
-                    $className = str_replace(".php", "", $fileInfo->getFilename());
+                    $className = substr($fileInfo->getFilename(), 0, strlen($fileInfo->getFilename()) - 4);
                     $fullClassName = "\\ethaniccc\\Mockingbird\\processing\\$className";
                     try{
                         $classInfo = new \ReflectionClass($fullClassName);
