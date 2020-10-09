@@ -5,6 +5,7 @@ namespace ethaniccc\Mockingbird\detections;
 use ethaniccc\Mockingbird\detections\movement\MovementDetection;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\tasks\BanTask;
+use ethaniccc\Mockingbird\tasks\DebugLogWriteTask;
 use ethaniccc\Mockingbird\tasks\KickTask;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\user\UserManager;
@@ -86,6 +87,7 @@ abstract class Detection{
         });
         $debugMsg = $this->getPlugin()->getPrefix() . TextFormat::RED . " [DEBUG@{$this->name}] " . TextFormat::WHITE . $debugData;
         Server::getInstance()->broadcastMessage($debugMsg, $debugUsers);
+        Server::getInstance()->getAsyncPool()->submitTask(new DebugLogWriteTask($debugData, Mockingbird::getInstance()->getDataFolder() . "debug_log.txt"));
     }
 
     protected function reward(User $user, float $multiplier) : void{

@@ -6,6 +6,7 @@ use ethaniccc\Mockingbird\user\User;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
+use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\network\mcpe\protocol\types\DeviceOS;
 
 class OtherPacketProcessor extends Processor{
@@ -25,6 +26,15 @@ class OtherPacketProcessor extends Processor{
                     $user->targetEntity = $user->player->getLevel()->getEntity($packet->trData->entityRuntimeId);
                     $user->timeSinceAttack = 0;
                 }
+            }
+        } elseif($packet instanceof NetworkStackLatencyPacket){
+            if($packet->timestamp === 1000){
+                $user->transactionLatency = round((microtime(true) - $user->lastSentNetworkLatencyTime) * 1000, 0);
+                $pk = new NetworkStackLatencyPacket();
+                $pk->timestamp = 1000;
+                $pk->needResponse = true;
+                $user->player->dataPacket($pk);
+                $user->lastSentNetworkLatencyTime = microtime(true);
             }
         }
     }

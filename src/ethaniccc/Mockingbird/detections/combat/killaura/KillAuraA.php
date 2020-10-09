@@ -26,11 +26,8 @@ class KillAuraA extends Detection{
                 $currentTick = $user->player->getServer()->getTick();
                 if($lastEntity !== $currentEntity
                     && $lastTick === $currentTick){
-                    if(++$this->preVL >= 2){
-                        $this->fail($user, "{$user->player->getName()}: cE: $currentEntity, lE: $lastEntity");
-                    }
+                    $this->fail($user, "{$user->player->getName()}: cE: $currentEntity, lE: $lastEntity");
                 } else {
-                    $this->preVL *= 0.5;
                     $this->reward($user, 0.95);
                 }
                 $this->hitInfo["entity"] = $currentEntity;

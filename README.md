@@ -55,6 +55,8 @@ and false at sometimes, but the new reward system should compensate.
     - (A) -> MultiAura
 - Reach
     - (A) -> Basic Check w/ Location History
+- Aim
+    - (A) -> Checks data of multiple yaw differences
 ### Movement Checks
 - Fly
     - (A) -> Prediction Check

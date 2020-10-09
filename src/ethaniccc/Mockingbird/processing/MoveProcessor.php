@@ -7,10 +7,12 @@ use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use pocketmine\level\Location;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
+use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 
 class MoveProcessor extends Processor{
 
     private $isOnGround;
+    private $ticks = 0;
 
     public function __construct(User $user){
         parent::__construct($user);
@@ -99,6 +101,17 @@ class MoveProcessor extends Processor{
             $AABB->maxY -= 0.01;
             $AABB->minX -= 0.01;
             $user->blockBelow = $user->player->getLevelNonNull()->getCollisionBlocks($AABB, true)[0] ?? null;
+            if(microtime(true) - $user->lastSentNetworkLatencyTime >= 1){
+                if(++$this->ticks >= 20){
+                    $user->lastSentNetworkLatencyTime = microtime(true);
+                    $pk = new NetworkStackLatencyPacket();
+                    $pk->timestamp = 1000;
+                    $pk->needResponse = true;
+                    $user->player->dataPacket($pk);
+                }
+            } else {
+                $this->ticks = 0;
+            }
         }
     }
 

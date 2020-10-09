@@ -20,7 +20,8 @@ class ReachA extends Detection{
     public function handle(DataPacket $packet, User $user): void{
         if($packet instanceof InventoryTransactionPacket
         && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY
-        && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK){
+        && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK
+        && $user->isDesktop){
             // $startTime = microtime(true);
             $attackPos = $user->attackPos;
             if(!$attackPos instanceof Vector3){
@@ -28,7 +29,7 @@ class ReachA extends Detection{
             }
             $attackPos = $attackPos->subtract(0, 1.62, 0)->add(0, $user->player->getEyeHeight(), 0);
             // TODO: Ping is inaccurate since PocketMine only updates it every 5 seconds.
-            $estimatedTime = (microtime(true) * 1000) - $user->player->getPing();
+            $estimatedTime = (microtime(true) * 1000) - $user->transactionLatency;
             $entity = $user->targetEntity;
             if($entity instanceof Player){
                 $damagedUser = UserManager::getInstance()->get($entity);

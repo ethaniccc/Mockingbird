@@ -29,6 +29,9 @@ alerts_enabled: true
 # will have alerts enabled when they join. If this is false, then players with perms must use the /mbalerts command to enable alerts.
 alerts_default: true
 
+# When this option is enabled, every time Mockingbird is disabled, it will upload the debug log into a server so I can read for potential falses.
+upload_debug: true
+
 #    __
 #   /   _  _ |_  _ |_  |  \ _|_ _ _|_. _  _  _
 #   \__(_)||||_)(_||_  |__/(-|_(-(_|_|(_)| )_)
@@ -120,6 +123,7 @@ GroundSpoofA:
 #  |___/ __,   __  | |   _ _|_   |     | |     _   __  | |   ,
 #  |    /  |  /    |/_) |/  |    |     |/ \   |/  /    |/_) / \_
 #  |    \_/|_/\___/| \_/|__/|_/   \___/|   |_/|__/\___/| \_/ \/
+# BadPackets
 BadPacketA:
   # this checks is the pitch the client gives is valid
   enabled: true

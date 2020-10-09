@@ -4,6 +4,7 @@ namespace ethaniccc\Mockingbird\user;
 
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\utils\location\LocationHistory;
+use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\Player;
 
 class User{
@@ -40,6 +41,9 @@ class User{
     public $timeSinceMotion = 0;
     public $timeSinceDamage = 0;
     public $timeSinceAttack = 0;
+
+    public $lastSentNetworkLatencyTime = 0;
+    public $transactionLatency = 0;
 
     public function __construct(Player $player){
         $this->player = $player;

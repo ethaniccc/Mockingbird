@@ -13,6 +13,7 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\LoginPacket;
+use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\Player;
 use pocketmine\Server;
 
@@ -54,6 +55,11 @@ class MockingbirdListener implements Listener{
             if($user->player->hasPermission("mockingbird.alerts") && Mockingbird::getInstance()->getConfig()->get("alerts_default")){
                 $user->alerts = true;
             }
+            $pk = new NetworkStackLatencyPacket();
+            $pk->timestamp = 1000;
+            $pk->needResponse = true;
+            $user->player->dataPacket($pk);
+            $user->lastSentNetworkLatencyTime = microtime(true);
         }
     }
 
@@ -61,7 +67,7 @@ class MockingbirdListener implements Listener{
         $entity = $event->getEntity();
         if($entity instanceof Player){
             $user = UserManager::getInstance()->get($entity);
-            $user->timeSinceMotion = 0;
+            $user->timeSinceMotion -= $user->timeSinceMotion > 0 ? $user->timeSinceMotion : 3;
             $user->currentMotion = $event->getVector();
             $motionPK = new MotionPacket($event);
             foreach($user->checks as $check){

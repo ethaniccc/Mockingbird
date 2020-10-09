@@ -5,6 +5,9 @@ namespace ethaniccc\Mockingbird\utils;
 class MathUtils{
 
     public static function getDeviation(array $nums) : float{
+        if(count($nums) < 1){
+            return 0.0;
+        }
         $variance = 0;
         $average = array_sum($nums) / count($nums);
         foreach($nums as $num){

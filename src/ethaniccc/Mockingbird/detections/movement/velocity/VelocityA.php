@@ -24,7 +24,7 @@ class VelocityA extends Detection implements MovementDetection{
             }
             $info = new \stdClass();
             $info->motion = $packet->motionY;
-            $info->maxTime = (int) ($user->player->getPing() / 50) + 3;
+            $info->maxTime = (int) ($user->transactionLatency / 50) + 3;
             $info->time = 0;
             $info->failedTime = 0;
             $info->maxFailedMotion = 0;
