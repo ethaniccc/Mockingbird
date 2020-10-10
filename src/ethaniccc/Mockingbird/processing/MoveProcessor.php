@@ -96,11 +96,13 @@ class MoveProcessor extends Processor{
                 ++$user->offGroundTicks;
             }
             $AABB = AABB::from($user);
+            $AABB2 = clone $AABB;
+            $AABB->minY = $AABB->maxY;
             $AABB->maxY += 0.01;
             $user->blockAbove = $user->player->getLevelNonNull()->getCollisionBlocks($AABB, true)[0] ?? null;
-            $AABB->maxY -= 0.01;
-            $AABB->minX -= 0.01;
-            $user->blockBelow = $user->player->getLevelNonNull()->getCollisionBlocks($AABB, true)[0] ?? null;
+            $AABB2->maxY = $AABB2->minY;
+            $AABB2->minY -= 0.01;
+            $user->blockBelow = $user->player->getLevelNonNull()->getCollisionBlocks($AABB2, true)[0] ?? null;
             if(microtime(true) - $user->lastSentNetworkLatencyTime >= 1){
                 if(++$this->ticks >= 20){
                     $user->lastSentNetworkLatencyTime = microtime(true);

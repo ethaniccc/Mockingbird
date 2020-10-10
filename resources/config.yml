@@ -105,6 +105,13 @@ FlyB:
   suppression: false
   max_violations: 25
   # no check settings
+FlyC:
+  enabled: true
+  punish: false
+  punishment_type: kick
+  suppression: false
+  max_violations: 25
+  # no check settings
 VelocityA:
   enabled: true
   punish: false

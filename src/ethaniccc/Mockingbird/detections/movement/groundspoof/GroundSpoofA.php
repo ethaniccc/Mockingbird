@@ -17,12 +17,12 @@ class GroundSpoofA extends Detection{
         if($packet instanceof MovePlayerPacket){
             $clientOnGround = $packet->onGround;
             $serverOnGround = $user->serverOnGround;
-            if($clientOnGround && !$serverOnGround && $user->loggedIn){
+            if($clientOnGround && $user->offGroundTicks >= 5 && $user->loggedIn){
                 if(++$this->preVL >= 3){
                     $this->fail($user);
                 }
             } else {
-                $this->preVL *= 0.1;
+                $this->preVL *= 0.75;
             }
         }
     }

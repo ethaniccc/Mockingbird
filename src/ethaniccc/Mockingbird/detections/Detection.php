@@ -23,13 +23,13 @@ abstract class Detection{
     public function __construct(string $name, ?array $settings){
         $this->name = $name;
         $this->subType = substr($this->name, -1);
-        $this->settings = $settings === null ? ["enabled" => true, "punishable" => false] : $settings;
-        $this->enabled = $this->settings["enabled"] ?? true;
-        $this->punishable = $this->settings["punish"] ?? false;
+        $this->settings = $settings === null ? ["enabled" => true, "punish" => false] : $settings;
+        $this->enabled = $this->settings["enabled"];
+        $this->punishable = $this->settings["punish"];
         $this->punishType = $this->settings["punishment_type"] ?? "kick";
         $this->suppression = $this->settings["suppression"] ?? false;
         $this->maxVL = $this->settings["max_violations"] ?? 25;
-        $this->alerts = Mockingbird::getInstance()->getConfig()->get("alerts_enabled");
+        $this->alerts = Mockingbird::getInstance()->getConfig()->get("alerts_enabled") ?? true;
     }
 
     public function getSetting(string $setting){

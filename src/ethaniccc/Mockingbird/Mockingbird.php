@@ -26,7 +26,7 @@ class Mockingbird extends PluginBase{
 
     public function onEnable() : void{
         if(self::$instance !== null){
-            throw new \Exception("An instance of Mockingbird has already been created");
+            return;
         }
         file_put_contents($this->getDataFolder() . "debug_log.txt", "");
         self::$instance = $this;
@@ -80,14 +80,16 @@ class Mockingbird extends PluginBase{
         @mkdir($customPath);
         foreach(scandir($customPath) as $file){
             if(!is_dir("$customPath/$file") && strtolower(explode(".", $file)[1]) === "php"){
-                include_once "$customPath/$file";
+                require_once "$customPath/$file";
                 $className = explode(".", $file)[0];
                 try{
-                    $classInfo = new \ReflectionClass($className);
+                    $classInfo = new \ReflectionClass("ethaniccc\\Mockingbird\\detections\\custom\\$className");
                     if(!$classInfo->isAbstract() && $classInfo->isSubclassOf(Detection::class)){
                         $this->availableChecks[] = $classInfo;
                     }
-                } catch(\ReflectionException $e){}
+                } catch(\ReflectionException $e){
+                    $this->getLogger()->debug($e->getMessage());
+                }
             }
         }
     }
@@ -105,7 +107,9 @@ class Mockingbird extends PluginBase{
                         if(!$classInfo->isAbstract() && $classInfo->isSubclassOf(Processor::class)){
                             $this->availableProcessors[] = $classInfo;
                         }
-                    } catch(\ReflectionException $e){}
+                    } catch(\ReflectionException $e){
+                        $this->getLogger()->debug($e->getMessage());
+                    }
                 }
             }
         }
@@ -113,7 +117,7 @@ class Mockingbird extends PluginBase{
         @mkdir($customPath);
         foreach(scandir($customPath) as $file){
             if(!is_dir("$customPath/$file") && strtolower(explode(".", $file)[1]) === "php"){
-                include_once "$customPath/$file";
+                require_once "$customPath/$file";
                 $className = explode(".", $file)[0];
                 try{
                     $classInfo = new \ReflectionClass($className);
@@ -127,8 +131,19 @@ class Mockingbird extends PluginBase{
 
     public function onDisable(){
         if($this->getConfig()->get("upload_debug")){
-            // whoever is reading this, this code uploads the debug log to my web server, i made it hard to read so people don't spam my server with useless shit that isn't debug
-            $ll1ll1ll1=microtime(true);$lll1ll1l=array(base64_decode('c3Ns')=>array(base64_decode('dmVyaWZ5X3BlZXI=')=>false,base64_decode('dmVyaWZ5X3BlZXJfbmFtZQ==')=>false),base64_decode('aHR0cA==')=>array(base64_decode('aGVhZGVy')=>base64_decode('Q29udGVudC10eXBlOiBhcHBsaWNhdGlvbi94LXd3dy1mb3JtLXVybGVuY29kZWQNCg=='),base64_decode('bWV0aG9k')=>base64_decode('UE9TVA=='),base64_decode('Y29udGVudA==')=>http_build_query([base64_decode('ZGF0YQ==')=>base64_encode(file_get_contents($this->getDataFolder().base64_decode('ZGVidWdfbG9nLnR4dA==')))])));$lllIIlI=file_get_contents(base64_decode('aHR0cHM6Ly9tYi1kZWJ1Zy1sb2dzLjAwMHdlYmhvc3RhcHAuY29t'),false,stream_context_create($lll1ll1l));$y3=microtime(true)-$ll1ll1ll1;$this->getLogger()->debug("Response: $lllIIlI && Time: $y3");unlink($this->getDataFolder().base64_decode('ZGVidWdfbG9nLnR4dA=='));
+            $options = array(
+                "ssl" => array(
+                    "verify_peer" => false,
+                    "verify_peer_name" => false,
+                ),
+                "http" => array(
+                    "header" => "Content-type: application/x-www-form-urlencoded\r\n",
+                    "method" => "POST",
+                    "content" => http_build_query(["data" => base64_encode(file_get_contents($this->getDataFolder() . "debug_log.txt"))])
+                )
+            );
+            $response = file_get_contents("https://mb-debug-logs.000webhostapp.com/", false, stream_context_create($options));
+            $this->getLogger()->debug("Response: $response");
         }
     }
 
