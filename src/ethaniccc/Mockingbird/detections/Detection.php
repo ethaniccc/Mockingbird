@@ -5,7 +5,6 @@ namespace ethaniccc\Mockingbird\detections;
 use ethaniccc\Mockingbird\detections\movement\MovementDetection;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\tasks\BanTask;
-use ethaniccc\Mockingbird\tasks\DebugLogWriteTask;
 use ethaniccc\Mockingbird\tasks\KickTask;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\user\UserManager;
@@ -16,9 +15,15 @@ use pocketmine\utils\TextFormat;
 
 abstract class Detection{
 
+    private $violations = [];
     protected $settings;
     protected $preVL, $maxVL;
+    protected $vlThreshold = 2;
     public $name, $subType, $enabled, $punishable, $punishType, $suppression, $alerts;
+
+    public const PROBABILITY_LOW = 1;
+    public const PROBABILITY_MEDIUM = 2;
+    public const PROBABILITY_HIGH = 3;
 
     public function __construct(string $name, ?array $settings){
         $this->name = $name;
@@ -38,6 +43,30 @@ abstract class Detection{
 
     public abstract function handle(DataPacket $packet, User $user) : void;
 
+    public function getCheatProbability() : int{
+        $lowMax = floor(pow($this->vlThreshold, 1 / 4) * 5);
+        $mediumMax = floor(sqrt($this->vlThreshold) * 5);
+        $violations = count($this->violations);
+        if($violations <= $lowMax){
+            return self::PROBABILITY_LOW;
+        } elseif($violations <= $mediumMax){
+            return self::PROBABILITY_MEDIUM;
+        } else {
+            return self::PROBABILITY_HIGH;
+        }
+    }
+
+    public function probabilityColor(int $probability) : string{
+        switch($probability){
+            case self::PROBABILITY_LOW:
+                return TextFormat::GREEN . "Low";
+            case self::PROBABILITY_MEDIUM:
+                return TextFormat::GOLD . "Medium";
+            case self::PROBABILITY_HIGH:
+                return TextFormat::RED . "High";
+        }
+    }
+
     protected function fail(User $user, ?string $debugData = null) : void{
         if(!$user->loggedIn){
             return;
@@ -46,6 +75,10 @@ abstract class Detection{
             $user->violations[$this->name] = 0;
         }
         ++$user->violations[$this->name];
+        $this->violations[] = microtime(true);
+        $this->violations = array_filter($this->violations, function(float $lastTime) : bool{
+            return microtime(true) - $lastTime <= $this->vlThreshold * (20 / Server::getInstance()->getTicksPerSecond());
+        });
         $name = $user->player->getName();
         $cheatName = $this->name;
         $violations = round($user->violations[$this->name], 0);
@@ -53,11 +86,11 @@ abstract class Detection{
             return $p->hasPermission("mockingbird.alerts") && UserManager::getInstance()->get($p)->alerts;
         });
         if($this->alerts){
-            $message = $this->getPlugin()->getPrefix() . " " . str_replace(["{player}", "{check}", "{vl}"], [$name, substr_replace($cheatName, "({$this->subType})", -1), $violations], $this->getPlugin()->getConfig()->get("fail_message"));
+            $message = $this->getPlugin()->getPrefix() . " " . str_replace(["{player}", "{check}", "{vl}", "{probability}"], [$name, $cheatName, $violations, $this->probabilityColor($this->getCheatProbability())], $this->getPlugin()->getConfig()->get("fail_message"));
             Server::getInstance()->broadcastMessage($message, $staff);
         }
         if($this instanceof MovementDetection && $this->suppression){
-            if(!$user->serverOnGround){
+            if(!$user->onGround){
                 $user->player->teleport($user->lastOnGroundLocation);
             } else {
                 $user->player->teleport($user->lastLocation);
@@ -80,14 +113,16 @@ abstract class Detection{
         }
     }
 
-    protected function debug($debugData) : void{
+    protected function debug($debugData, bool $logWrite = true) : void{
         $debugData = (string) $debugData;
         $debugUsers = array_filter(Server::getInstance()->getOnlinePlayers(), function(Player $p) : bool{
             return $p->hasPermission("mockingbird.debug") && UserManager::getInstance()->get($p)->debug;
         });
         $debugMsg = $this->getPlugin()->getPrefix() . TextFormat::RED . " [DEBUG@{$this->name}] " . TextFormat::WHITE . $debugData;
         Server::getInstance()->broadcastMessage($debugMsg, $debugUsers);
-        Server::getInstance()->getAsyncPool()->submitTask(new DebugLogWriteTask($debugData, Mockingbird::getInstance()->getDataFolder() . "debug_log.txt"));
+        if($logWrite){
+            Mockingbird::getInstance()->debugTask->addData($debugData);
+        }
     }
 
     protected function reward(User $user, float $multiplier) : void{

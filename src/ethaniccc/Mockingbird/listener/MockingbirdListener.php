@@ -9,11 +9,15 @@ use ethaniccc\Mockingbird\processing\Processor;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\user\UserManager;
 use pocketmine\event\entity\EntityMotionEvent;
+use pocketmine\event\entity\EntityTeleportEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
+use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
+use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
+use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\Player;
 use pocketmine\Server;
 
@@ -43,6 +47,18 @@ class MockingbirdListener implements Listener{
                     $check->handle($packet, $user);
                 }
             }
+        }
+
+        if($packet instanceof PlayerAuthInputPacket){
+            // make debug *insert IdotHub :shut: emoji*
+            $event->setCancelled();
+        }
+    }
+
+    public function onPacketSend(DataPacketSendEvent $event) : void{
+        $packet = $event->getPacket();
+        if($packet instanceof StartGamePacket){
+            $packet->isMovementServerAuthoritative = true;
         }
     }
 
@@ -74,6 +90,16 @@ class MockingbirdListener implements Listener{
                 if($check instanceof Detection){
                     $check->handle($motionPK, $user);
                 }
+            }
+        }
+    }
+
+    public function onTeleport(EntityTeleportEvent $event) : void{
+        $entity = $event->getEntity();
+        if($entity instanceof Player){
+            $user = UserManager::getInstance()->get($entity);
+            if($user !== null){
+                $user->timeSinceTeleport = 0;
             }
         }
     }

@@ -7,7 +7,8 @@ use ethaniccc\Mockingbird\detections\movement\MovementDetection;
 use ethaniccc\Mockingbird\user\User;
 use pocketmine\item\ItemIds;
 use pocketmine\network\mcpe\protocol\DataPacket;
-use pocketmine\network\mcpe\protocol\MovePlayerPacket;
+use pocketmine\block\Block;
+use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
 class FlyA extends Detection implements MovementDetection{
 
@@ -16,11 +17,8 @@ class FlyA extends Detection implements MovementDetection{
     }
 
     public function handle(DataPacket $packet, User $user): void{
-        if($packet instanceof MovePlayerPacket){
-            if($packet->mode !== MovePlayerPacket::MODE_NORMAL){
-                return;
-            }
-            if($user->lastMoveDelta === null){
+        if($packet instanceof PlayerAuthInputPacket){
+            if(!$user->player->isAlive()){
                 return;
             }
             $yDelta = $user->moveDelta->y;
@@ -29,15 +27,13 @@ class FlyA extends Detection implements MovementDetection{
             $equalness = abs($yDelta - $expectedYDelta);
             if($equalness > $this->getSetting("max_breach")
             && abs($expectedYDelta) > 0.05
-            && $user->offGroundTicks >= 3
-            && $user->timeSinceDamage >= 5
+            && $user->offGroundTicks >= 10 && $user->timeSinceTeleport > 5
             && $user->timeSinceJoin >= 20
             && $user->timeSinceMotion >= 5
             && !$user->player->isFlying()
             && !$user->player->getAllowFlight()
             && !$user->player->isSpectator()
-            && $user->location->y > 0
-            && $user->blockAbove === null
+            && $user->location->y > 0 && $user->blockAbove === null
             && $user->player->getArmorInventory()->getChestplate()->getId() !== ItemIds::ELYTRA){
                 if(++$this->preVL >= 3){
                     $this->fail($user, "{$user->player->getName()}: yD: $yDelta, eD: $expectedYDelta, eq: $equalness");

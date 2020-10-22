@@ -8,6 +8,7 @@ use ethaniccc\Mockingbird\packets\MotionPacket;
 use ethaniccc\Mockingbird\user\User;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
+use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
 class VelocityA extends Detection implements MovementDetection{
 
@@ -15,6 +16,7 @@ class VelocityA extends Detection implements MovementDetection{
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
+        $this->suppression = false;
     }
 
     public function handle(DataPacket $packet, User $user): void{
@@ -29,11 +31,8 @@ class VelocityA extends Detection implements MovementDetection{
             $info->failedTime = 0;
             $info->maxFailedMotion = 0;
             $this->queue[] = $info;
-        } elseif($packet instanceof MovePlayerPacket){
-            if($user->moveDelta === null){
-                return;
-            }
-            if($packet->mode !== MovePlayerPacket::MODE_NORMAL){
+        } elseif($packet instanceof PlayerAuthInputPacket){
+            if($user->timeSinceTeleport < 2){
                 $this->queue = [];
                 return;
             }

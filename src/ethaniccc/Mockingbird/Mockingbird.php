@@ -9,9 +9,10 @@ use ethaniccc\Mockingbird\commands\ToggleDebugCommand;
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\listener\MockingbirdListener;
 use ethaniccc\Mockingbird\processing\Processor;
+use ethaniccc\Mockingbird\tasks\DebugLogWriteTask;
 use ethaniccc\Mockingbird\user\UserManager;
-use pocketmine\event\HandlerList;
 use pocketmine\plugin\PluginBase;
+use pocketmine\scheduler\ClosureTask;
 use pocketmine\utils\TextFormat;
 
 class Mockingbird extends PluginBase{
@@ -19,6 +20,7 @@ class Mockingbird extends PluginBase{
     private static $instance;
     public $availableChecks;
     public $availableProcessors;
+    public $debugTask;
 
     public static function getInstance() : Mockingbird{
         return self::$instance;
@@ -35,6 +37,11 @@ class Mockingbird extends PluginBase{
         $this->getAvailableProcessors();
         $this->getAvailableChecks();
         $this->registerCommands();
+        $this->debugTask = new DebugLogWriteTask($this->getDataFolder() . "debug_log.txt");
+        $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(function(int $currentTick) : void{
+            $this->getServer()->getAsyncPool()->submitTask($this->debugTask);
+            $this->debugTask = new DebugLogWriteTask($this->getDataFolder() . "debug_log.txt");
+        }), 400);
     }
 
     public function getPrefix() : string{

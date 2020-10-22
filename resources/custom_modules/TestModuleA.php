@@ -37,6 +37,9 @@ namespace ethaniccc\Mockingbird\detections\custom{
         public function handle(DataPacket $packet, User $user): void{
             if(($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) || ($packet instanceof LevelSoundEventPacket && $packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE)){
                 // to whoever is reviewing my plugin - this custom module is NOT included in production
+                /**
+                 * It's magic time, do whatever you want here.
+                 */
                 $this->debug("Cps: " . $user->cps);
             }
         }

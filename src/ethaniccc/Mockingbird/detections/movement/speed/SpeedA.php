@@ -7,6 +7,7 @@ use ethaniccc\Mockingbird\detections\movement\MovementDetection;
 use ethaniccc\Mockingbird\user\User;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
+use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 
@@ -17,8 +18,8 @@ class SpeedA extends Detection implements MovementDetection{
     }
 
     public function handle(DataPacket $packet, User $user): void{
-        if($packet instanceof MovePlayerPacket){
-            if($user->offGroundTicks > 1){
+        if($packet instanceof PlayerAuthInputPacket){
+            if($user->offGroundTicks > 3){
                 $lastMoveDelta = $user->lastMoveDelta;
                 $currentMoveDelta = $user->moveDelta;
                 if($lastMoveDelta === null){
@@ -30,15 +31,14 @@ class SpeedA extends Detection implements MovementDetection{
                 $equalness = $currentXZ - $expectedXZ;
                 if($equalness > $this->getSetting("max_breach")
                 && $user->timeSinceMotion >= 3
-                && !$user->player->isFlying()){
+                && !$user->player->isFlying()
+                && $user->timeSinceTeleport >= 5){
                     if(++$this->preVL >= 3){
                         $this->fail($user, "{$user->player->getName()}: e: $equalness, cXZ: $currentXZ, lXZ: $lastXZ");
                     }
                 } else {
-                    if(!$user->serverOnGround){
-                        $this->preVL = 0;
-                        $this->reward($user, 0.999);
-                    }
+                    $this->preVL = 0;
+                    $this->reward($user, 0.999);
                 }
             }
         }

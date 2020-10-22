@@ -3,21 +3,29 @@
 namespace ethaniccc\Mockingbird\tasks;
 
 use pocketmine\scheduler\AsyncTask;
+use pocketmine\Server;
 
 class DebugLogWriteTask extends AsyncTask{
 
-    private $debugMessage;
+    private $debugMessage = "";
     private $debugLogPath;
+    private $time;
 
-    public function __construct(string $debugMessage, string $debugLogPath){
-        $this->debugMessage = "$debugMessage\n";
+    public function __construct(string $debugLogPath){
         $this->debugLogPath = $debugLogPath;
+        $this->time = microtime(true);
+    }
+
+    public function addData(string $data) : void{
+        $this->debugMessage .= "$data\n";
     }
 
     public function onRun(){
-        $log = @fopen($this->debugLogPath, "a");
-        @fwrite($log, $this->debugMessage);
-        @fclose($log);
+        if($this->debugMessage !== ""){
+            $log = @fopen($this->debugLogPath, "a");
+            @fwrite($log, $this->debugMessage);
+            @fclose($log);
+        }
     }
 
 }

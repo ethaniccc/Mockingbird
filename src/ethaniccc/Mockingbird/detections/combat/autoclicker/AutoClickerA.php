@@ -16,6 +16,7 @@ class AutoClickerA extends Detection{
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
+        $this->vlThreshold = 10;
     }
 
     public function handle(DataPacket $packet, User $user): void{
@@ -30,15 +31,15 @@ class AutoClickerA extends Detection{
             $this->times[] = $clickTime;
             $deviation = MathUtils::getDeviation($this->times) * 1000;
             if($user->cps >= $this->getSetting("required_cps") && $deviation <= $this->getSetting("consistency")){
-                $this->passTicks *= 0.55;
+                $this->passTicks *= 0.65;
                 if(++$this->preVL >= 3){
-                    $this->fail($user, "d: $deviation, cps: {$user->cps} rCPS: {$this->getSetting("required_cps")}, rC: {$this->getSetting("consistency")}");
+                    $this->fail($user, "d=$deviation, cps={$user->cps} rCPS={$this->getSetting("required_cps")} rC={$this->getSetting("consistency")} probability={$this->getCheatProbability()}");
                 }
             } else {
                 $this->preVL *= 0.9;
                 ++$this->passTicks;
                 if($this->passTicks >= $this->getSetting("samples")){
-                    $this->reward($user, 0.99);
+                    $this->reward($user, 0.995);
                 }
             }
         }

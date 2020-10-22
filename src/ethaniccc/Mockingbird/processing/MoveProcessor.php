@@ -4,105 +4,64 @@ namespace ethaniccc\Mockingbird\processing;
 
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
+use ethaniccc\Mockingbird\utils\PacketUtils;
 use pocketmine\level\Location;
 use pocketmine\network\mcpe\protocol\DataPacket;
-use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
+use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
 class MoveProcessor extends Processor{
 
-    private $isOnGround;
     private $ticks = 0;
 
     public function __construct(User $user){
         parent::__construct($user);
-        $this->isOnGround = function(User $user){
-            // thank you @very nice name#6789, bounding boxes are yummy!
-            $position = $user->location;
-            if($position !== null){
-                $AABB = AABB::fromPosition($position);
-                $AABB->minY -= 0.01;
-                $minX = (int) floor($AABB->minX - 1);
-                $minY = (int) floor($AABB->minY - 1);
-                $minZ = (int) floor($AABB->minZ - 1);
-                $maxX = (int) floor($AABB->maxX + 1);
-                $maxY = (int) floor($AABB->maxY + 1);
-                $maxZ = (int) floor($AABB->maxZ + 1);
-                for($z = $minZ; $z <= $maxZ; $z++){
-                    for($x = $minX; $x <= $maxX; $x++){
-                        for($y = $minY; $y <= $maxY; $y++){
-                            $block = $user->player->getLevel()->getBlockAt($x, $y, $z);
-                            if($block->getId() !== 0){
-                                $collisionBoxes = $block->getCollisionBoxes();
-                                if(!empty($collisionBoxes)){
-                                    foreach($collisionBoxes as $bb2){
-                                        if($AABB->intersectsWith($bb2)){
-                                            return true;
-                                        }
-                                    }
-                                } else {
-                                    if(AABB::fromBlock($block)->intersectsWith($AABB)){
-                                        return true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return false;
-        };
     }
 
     public function process(DataPacket $packet): void{
-        if($packet instanceof MovePlayerPacket){
+        if($packet instanceof PlayerAuthInputPacket){
             $user = $this->user;
             if(!$user->loggedIn){
                 return;
             }
-            $location = Location::fromObject($packet->position->subtract(0, 1.62, 0), $user->player->getLevel(), $packet->yaw, $packet->pitch);
+            $location = Location::fromObject($packet->getPosition()->subtract(0, 1.62, 0), $user->player->getLevel(), $packet->getYaw(), $packet->getPitch());
             $user->locationHistory->addLocation($location);
             $user->lastLocation = $user->location;
             $user->location = $location;
-            if($user->lastLocation !== null && $packet->mode === MovePlayerPacket::MODE_NORMAL){
+            $user->lastYaw = fmod($user->yaw, 360);
+            $user->lastPitch = fmod($user->pitch, 360);
+            $user->yaw = $location->yaw;
+            $user->pitch = $location->pitch;
+            $movePacket = PacketUtils::playerAuthToMovePlayer($packet, $user);
+            if($user->timeSinceTeleport > 0){
                 $user->lastMoveDelta = $user->moveDelta;
                 $user->moveDelta = $user->location->subtract($user->lastLocation);
+                $user->lastYawDelta = $user->yawDelta;
+                $user->lastPitchDelta = $user->pitchDelta;
+                $user->yawDelta = abs($user->lastYaw - $user->yaw);
+                $user->pitchDelta = abs($user->lastPitch - $user->pitch);
             }
-            $user->lastYaw = $user->yaw;
-            $user->lastPitch = $user->pitch;
-            $user->yaw = $packet->yaw;
-            $user->pitch = $packet->pitch;
-            $user->lastYawDelta = $user->yawDelta;
-            $user->lastPitchDelta = $user->pitchDelta;
-            $user->yawDelta = abs($user->yaw - $user->lastYaw);
-            $user->pitchDelta = abs($user->pitch - $user->lastPitch);
-            if(in_array($packet->mode, [MovePlayerPacket::MODE_RESET, MovePlayerPacket::MODE_TELEPORT])){
-                $user->timeSinceTeleport = 0;
-            } else {
-                ++$user->timeSinceTeleport;
-            }
+            ++$user->timeSinceTeleport;
             ++$user->timeSinceDamage;
-            ++$user->timeSinceMotion;
-            ++$user->timeSinceJoin;
             ++$user->timeSinceAttack;
-            $user->serverOnGround = ($this->isOnGround)($user);
-            $user->clientOnGround = $packet->onGround;
-            if($user->serverOnGround){
-                $user->offGroundTicks = 0;
+            ++$user->timeSinceJoin;
+            ++$user->timeSinceMotion;
+            $user->onGround = $movePacket->onGround;
+            if($user->onGround){
                 ++$user->onGroundTicks;
-                $user->lastOnGroundLocation = $location;
+                $user->offGroundTicks = 0;
             } else {
-                $user->onGroundTicks = 0;
                 ++$user->offGroundTicks;
+                $user->onGroundTicks = 0;
             }
             $AABB = AABB::from($user);
             $AABB2 = clone $AABB;
-            $AABB->minY = $AABB->maxY;
-            $AABB->maxY += 0.01;
-            $user->blockAbove = $user->player->getLevelNonNull()->getCollisionBlocks($AABB, true)[0] ?? null;
-            $AABB2->maxY = $AABB2->minY;
-            $AABB2->minY -= 0.01;
-            $user->blockBelow = $user->player->getLevelNonNull()->getCollisionBlocks($AABB2, true)[0] ?? null;
+            $AABB->maxY = $AABB->minX;
+            $AABB->minY -= 0.01;
+            $user->blockBelow = $user->player->getLevel()->getCollisionBlocks($AABB, true)[0] ?? null;
+            $AABB2->minY = $AABB2->maxY;
+            $AABB2->maxY += 0.01;
+            $user->blockAbove = $user->player->getLevel()->getCollisionBlocks($AABB2, true)[0] ?? null;
             if(microtime(true) - $user->lastSentNetworkLatencyTime >= 1){
                 if(++$this->ticks >= 20){
                     $user->lastSentNetworkLatencyTime = microtime(true);
@@ -114,6 +73,8 @@ class MoveProcessor extends Processor{
             } else {
                 $this->ticks = 0;
             }
+            // now this is important - otherwise everything will break
+            $user->player->handleMovePlayer($movePacket);
         }
     }
 

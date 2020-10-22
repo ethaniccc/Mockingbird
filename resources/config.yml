@@ -17,11 +17,12 @@ prefix: "§l§7[§cMocking§4bird§7]"
 # {player} => the name of the player who failed the check
 # {check} => the name of the check the player failed
 # {vl} => the new amount of violations the player has for the failed check
-fail_message: "§4{player}§r§7 failed §b{check} §6[§eVL: §d{vl}§6]"
+# {probability} => The probability of cheating - this is already colored.
+fail_message: "§4{player}§r§7 failed §c{check} §4[§4VL: §c{vl}§4] §7Probability: {probability}"
 # {player} => the player punished
-punish_message_staff: "§l§4{player}§r§7 was punished for §4cheating"
+punish_message_staff: "§l§4{player}§r§7 was punished for§b cheating"
 # the message the player will receive when punished
-punish_message_player: "§bUnfair Advantage Detected"
+punish_message_player: "§cUnfair Advantage Detected"
 
 # If you want staff members to get alerts at all. If this is enabled, no alerts will be given, only punishments on checks where enabled.
 alerts_enabled: true
@@ -63,12 +64,6 @@ ReachA:
   max_violations: 50
   # check sensitivity settings
   max_reach: 3.11
-# this check is disabled by default since i haven't tested this on mass scale
-AimA:
-  enabled: false
-  punish: false
-  punishment_type: kick
-  max_violations: 100
 
 #                         __
 #  |\/| _    _ _  _ _ |_  |  \ _|_ _ _|_. _  _  _
@@ -88,7 +83,7 @@ SpeedB:
   suppression: false
   max_violations: 25
   # check sensitivity settings
-  max_speed_on_ground: 0.325
+  max_speed_on_ground: 0.31
   max_speed_off_ground: 0.78
 FlyA:
   enabled: true
@@ -105,13 +100,6 @@ FlyB:
   suppression: false
   max_violations: 25
   # no check settings
-FlyC:
-  enabled: true
-  punish: false
-  punishment_type: kick
-  suppression: false
-  max_violations: 25
-  # no check settings
 VelocityA:
   enabled: true
   punish: false
@@ -119,17 +107,13 @@ VelocityA:
   max_violations: 25
   # check sensitivity settings
   multiplier: 0.991
-GroundSpoofA:
-  enabled: true
-  punish: false
-  punishment_type: kick
-  max_violations: 25
 
 #  , __             _              ___  _               _
 #  /|/  \           | |            / (_)| |             | |
 #  |___/ __,   __  | |   _ _|_   |     | |     _   __  | |   ,
 #  |    /  |  /    |/_) |/  |    |     |/ \   |/  /    |/_) / \_
 #  |    \_/|_/\___/| \_/|__/|_/   \___/|   |_/|__/\___/| \_/ \/
+
 # BadPackets
 BadPacketA:
   # this checks is the pitch the client gives is valid
@@ -137,3 +121,20 @@ BadPacketA:
   punish: true
   punishment_type: ban
   max_violations: 1
+BadPacketB:
+  # this checks if the player consistency sends MovePlayerPackets,
+  # which is impossible because isMovementServerAuthoritative is set to true in the StartGamePacket
+  # reference: https://github.com/Sandertv/gophertunnel/blob/master/minecraft/protocol/packet/player_auth_input.go#L56-L59
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 20
+
+# Timer
+TimerA:
+  # this check sees if the player is sending too many PlayerAuthInput packets in a single instance
+  # this is MUCH more accurate than Mockingbird's old Timer check looking for MovePlayerPackets
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 20

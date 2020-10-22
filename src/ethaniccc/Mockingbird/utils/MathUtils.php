@@ -2,6 +2,8 @@
 
 namespace ethaniccc\Mockingbird\utils;
 
+use pocketmine\math\Vector3;
+
 class MathUtils{
 
     public static function getDeviation(array $nums) : float{
@@ -17,7 +19,18 @@ class MathUtils{
     }
 
     public static function getAverage(array $nums) : float{
+        if(count($nums) === 0){
+            return 0.0;
+        }
         return array_sum($nums) / count($nums);
+    }
+
+    public static function vectorXZDistance(Vector3 $a, Vector3 $b) : float{
+        $a = clone $a;
+        $b = clone $b;
+        $a->y = 0;
+        $b->y = 0;
+        return $a->distance($b);
     }
 
 }
