@@ -3,12 +3,13 @@
 namespace ethaniccc\Mockingbird\detections\movement\fly;
 
 use ethaniccc\Mockingbird\detections\Detection;
+use ethaniccc\Mockingbird\detections\movement\MovementDetection;
 use ethaniccc\Mockingbird\user\User;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerActionPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
-class FlyB extends Detection{
+class FlyB extends Detection implements MovementDetection{
 
     private $lastOnGround = true;
 

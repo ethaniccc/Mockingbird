@@ -41,8 +41,8 @@ class VelocityB extends Detection{
                         $f = 0.98 / $f;
                         $strafe *= $f;
                         $forward *= $f;
-                        $f2 = sin($packet->getYaw() * 3.141592653589793 / 180);
-                        $f3 = cos($packet->getYaw() * 3.141592653589793 / 180);
+                        $f2 = sin($user->yaw * 3.141592653589793 / 180);
+                        $f3 = cos($user->yaw * 3.141592653589793 / 180);
                         $x = $strafe * $f3 - $forward * $f2;
                         $z = $forward * $f3 - $strafe * $f2;
                         if($user->moveDelta->x + $x <= $motion->x * 0.99 || $user->moveDelta->z + $z <= $motion->x * 0.99){

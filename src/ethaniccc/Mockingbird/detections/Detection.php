@@ -96,12 +96,14 @@ abstract class Detection{
                 $user->player->teleport($user->lastLocation);
             }
         }
-        if($violations >= $this->maxVL && $this->punishable){
+        if($this->punishable && $violations >= $this->maxVL){
             switch($this->punishType){
                 case "kick":
+                    $user->loggedIn = false;
                     $this->getPlugin()->getScheduler()->scheduleDelayedTask(new KickTask($user, $this->getPlugin()->getPrefix() . " " . $this->getPlugin()->getConfig()->get("punish_message_player")), 0);
                     break;
                 case "ban":
+                    $user->loggedIn = false;
                     $this->getPlugin()->getScheduler()->scheduleDelayedTask(new BanTask($user, $this->getPlugin()->getPrefix() . " " . $this->getPlugin()->getConfig()->get("punish_message_player")), 0);
                     break;
             }
@@ -109,7 +111,7 @@ abstract class Detection{
             Server::getInstance()->broadcastMessage($message, $staff);
         }
         if($debugData !== null){
-            $this->debug($debugData);
+            $this->debug("{$user->player->getName()}: $debugData");
         }
     }
 

@@ -36,15 +36,17 @@ upload_debug: true
 #    __
 #   /   _  _ |_  _ |_  |  \ _|_ _ _|_. _  _  _
 #   \__(_)||||_)(_||_  |__/(-|_(-(_|_|(_)| )_)
+
+# AutoClicker
 AutoClickerA:
   enabled: true
   punish: false
   punishment_type: kick
   max_violations: 40
   # check sensitivity settings
-  samples: 35
-  consistency: 7.5
-  required_cps: 8
+  samples: 30
+  consistency: 0.85
+  required_cps: 10
 AutoClickerB:
   enabled: true
   punish: false
@@ -52,11 +54,20 @@ AutoClickerB:
   max_violations: 40
   # check sensitivity settings
   max_cps: 25
+
+# KillAura
 KillAuraA:
   enabled: true
   punish: false
   punishment_type: kick
   max_violations: 25
+KillAuraB:
+  enabled: true
+  punish: false
+  punishment_type: kick
+  max_violations: 25
+
+# Reach
 ReachA:
   enabled: true
   punish: false
@@ -68,6 +79,8 @@ ReachA:
 #                         __
 #  |\/| _    _ _  _ _ |_  |  \ _|_ _ _|_. _  _  _
 #  |  |(_)\/(-|||(-| )|_  |__/(-|_(-(_|_|(_)| )_)
+
+# Speed
 SpeedA:
   enabled: true
   punish: false
@@ -85,6 +98,8 @@ SpeedB:
   # check sensitivity settings
   max_speed_on_ground: 0.31
   max_speed_off_ground: 0.78
+
+# Fly
 FlyA:
   enabled: true
   punish: false
@@ -100,6 +115,14 @@ FlyB:
   suppression: false
   max_violations: 25
   # no check settings
+FlyC:
+  enabled: true
+  punish: false
+  punishment_type: kick
+  suppression: false
+  max_violations: 25
+
+# Velocity
 VelocityA:
   enabled: true
   punish: false
@@ -107,6 +130,7 @@ VelocityA:
   max_violations: 25
   # check sensitivity settings
   multiplier: 0.991
+# NOTE: VelocityB is not included because it is not finished.
 
 #  , __             _              ___  _               _
 #  /|/  \           | |            / (_)| |             | |
@@ -122,7 +146,7 @@ BadPacketA:
   punishment_type: ban
   max_violations: 1
 BadPacketB:
-  # this checks if the player consistency sends MovePlayerPackets,
+  # this checks if the player consistently sends MovePlayerPackets,
   # which is impossible because isMovementServerAuthoritative is set to true in the StartGamePacket
   # reference: https://github.com/Sandertv/gophertunnel/blob/master/minecraft/protocol/packet/player_auth_input.go#L56-L59
   enabled: true
@@ -134,7 +158,8 @@ BadPacketB:
 TimerA:
   # this check sees if the player is sending too many PlayerAuthInput packets in a single instance
   # this is MUCH more accurate than Mockingbird's old Timer check looking for MovePlayerPackets
+  # however, this check falses when *server lag* occurs.
   enabled: true
-  punish: true
+  punish: false
   punishment_type: kick
   max_violations: 20

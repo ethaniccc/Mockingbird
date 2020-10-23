@@ -18,7 +18,6 @@ class KickTask extends Task{
     public function onRun(int $currentTick){
         $player = $this->user->player;
         $player->kick($this->message, false);
-        $this->user->loggedIn = false;
     }
 
 }

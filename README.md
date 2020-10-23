@@ -53,20 +53,19 @@ and false at sometimes, but the new reward system should compensate.
     - (B) -> Speed
 - KillAura
     - (A) -> MultiAura
+    - (B) -> NoSwing
 - Reach
     - (A) -> Basic Check w/ Location History
-- Aim
-    - (A) -> Checks data of multiple yaw differences
 ### Movement Checks
 - Fly
     - (A) -> Prediction Check
-    - (B) -> Acceleration Check
+    - (B) -> AirJump Check
 - Speed
     - (A) -> Friction Check (flags while using bhop)
     - (B) -> Speed Limit Check
 - Velocity
     - (A) -> Vertical Check
-- GroundSpoof
+    - (B) -> Horizontal Check (**incomplete**)
 
 Mockingbird also has packet checks.
 

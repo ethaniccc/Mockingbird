@@ -12,6 +12,7 @@ class BadPacketB extends Detection{
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
+        $this->vlThreshold = 0.1;
     }
 
     public function handle(DataPacket $packet, User $user): void{

@@ -20,7 +20,6 @@ class BanTask extends Task{
         $player = $this->user->player;
         Server::getInstance()->getNameBans()->addBan($player->getName(), $this->message, null, "Mockingbird Anti-Cheat");
         $player->kick($this->message, false);
-        $this->user->loggedIn = false;
     }
 
 }
