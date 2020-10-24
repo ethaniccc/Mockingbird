@@ -34,7 +34,8 @@ class FlyA extends Detection implements MovementDetection{
             && !$user->player->getAllowFlight()
             && !$user->player->isSpectator()
             && $user->location->y > 0 && $user->blockAbove === null
-            && $user->player->getArmorInventory()->getChestplate()->getId() !== ItemIds::ELYTRA){
+            && $user->player->getArmorInventory()->getChestplate()->getId() !== ItemIds::ELYTRA
+            && !$user->player->isImmobile()){
                 if(++$this->preVL >= 3){
                     $this->fail($user, "yD=$yDelta, eD=$expectedYDelta, eq=$equalness");
                 }

@@ -22,7 +22,7 @@ class FlyB extends Detection implements MovementDetection{
             // let ground spoof handle any bypasses for this
             $this->lastOnGround = $user->onGround;
         } elseif($packet instanceof PlayerActionPacket && $packet->action === PlayerActionPacket::ACTION_JUMP){
-            if(!$this->lastOnGround && !$user->onGround){
+            if(!$this->lastOnGround && !$user->onGround && !$user->player->isImmobile()){
                 if(++$this->preVL >= 2){
                     $this->fail($user);
                 }
