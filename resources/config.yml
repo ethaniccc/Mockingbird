@@ -19,6 +19,7 @@ prefix: "§l§7[§cMocking§4bird§7]"
 # {vl} => the new amount of violations the player has for the failed check
 # {probability} => The probability of cheating - this is already colored.
 fail_message: "§4{player}§r§7 failed §c{check} §4[§4VL: §c{vl}§4] §7Probability: {probability}"
+
 # Determines if the option below (punish_message_staff) should be sent to everyone online on the server.
 punish_message_global: false
 # {player} => the player punished
@@ -43,28 +44,28 @@ AutoClickerA:
   enabled: true
   punish: false
   punishment_type: kick
-  max_violations: 40
+  max_violations: 20
   # check sensitivity settings
   samples: 30
   consistency: 0.85
   required_cps: 10
 AutoClickerB:
   enabled: true
-  punish: false
+  punish: true
   punishment_type: kick
-  max_violations: 40
+  max_violations: 20
   # check sensitivity settings
   max_cps: 25
 
 # KillAura
 KillAuraA:
   enabled: true
-  punish: false
+  punish: true
   punishment_type: kick
   max_violations: 25
 KillAuraB:
   enabled: true
-  punish: false
+  punish: true
   punishment_type: kick
   max_violations: 25
 
@@ -73,11 +74,19 @@ ReachA:
   # this will only detect blatant reach. if you want to detect lower values,
   # I recommend setting max_reach to 3.15
   enabled: true
-  punish: false
+  punish: true
   punishment_type: kick
   max_violations: 50
   # check sensitivity settings
   max_reach: 3.5
+
+# Aim
+AimA:
+  enabled: true
+  punish: false
+  punishment_type: kick
+  max_violations: 20
+
 
 #                         __
 #  |\/| _    _ _  _ _ |_  |  \ _|_ _ _|_. _  _  _
