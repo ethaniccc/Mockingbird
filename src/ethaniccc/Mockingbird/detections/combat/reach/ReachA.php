@@ -15,6 +15,7 @@ class ReachA extends Detection{
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
+        $this->vlThreshold = 20;
     }
 
     public function handle(DataPacket $packet, User $user): void{
@@ -26,7 +27,6 @@ class ReachA extends Detection{
             if(!$attackPos instanceof Vector3){
                 return;
             }
-            $attackPos = $attackPos->subtract(0, 1.62, 0);
             $estimatedTime = (microtime(true) * 1000) - ($user->transactionLatency);
             $entity = $user->targetEntity;
             if($entity instanceof Player){
@@ -35,19 +35,19 @@ class ReachA extends Detection{
                 $possibleLocations = $damagedUser->locationHistory->getLocationsRelativeToTime($estimatedTime, 100);
                 $distances = [];
                 foreach($possibleLocations as $location){
-                    $distances[] = MathUtils::vectorXZDistance($attackPos, $location) - 0.3;
+                    $distances[] = MathUtils::vectorXZDistance($location, $attackPos) - 0.3;
                 }
                 if(!empty($distances)){
                     $distance = min($distances);
-                    $this->debug("Distance: $distance", false);
-                    if($distance >= $this->getSetting("max_reach")){
+                    if($distance > $this->getSetting("max_reach")){
                         if(++$this->preVL >= 10){
-                            $this->fail($user, "{$user->player->getName()}: d: $distance, pVL: {$this->preVL}");
+                            $this->fail($user, "distance=$distance");
                         }
-                        $this->preVL = min(20, $this->preVL);
                     } else {
-                        $this->preVL -= $this->preVL > 0 ? 1 : 0;
-                        $this->reward($user, 0.999);
+                        if($distance != -1){
+                            $this->preVL -= $this->preVL > 0 ? 1 : 0;
+                            $this->reward($user, 0.999);
+                        }
                     }
                 }
             }

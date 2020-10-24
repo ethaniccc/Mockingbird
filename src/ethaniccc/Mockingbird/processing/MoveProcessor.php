@@ -30,8 +30,8 @@ class MoveProcessor extends Processor{
             $user->location = $location;
             $user->lastYaw = $user->yaw;
             $user->lastPitch = $user->pitch;
-            $user->yaw = $location->yaw;
-            $user->pitch = $location->pitch;
+            $user->yaw = fmod($location->yaw, 360);
+            $user->pitch = fmod($location->pitch, 360);
             $movePacket = PacketUtils::playerAuthToMovePlayer($packet, $user);
             if($user->timeSinceTeleport > 0){
                 $user->lastMoveDelta = $user->moveDelta;

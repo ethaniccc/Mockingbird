@@ -95,4 +95,24 @@ class AABB extends AxisAlignedBB{
         ];
     }
 
+    // thanks shura62 again :p
+    public function collidesRay(Ray $ray, float $tmin, float $tmax) : float{
+        for($i = 0; $i < 3; ++$i) {
+            $d = 1 / ($ray->direction($i) ?: 0.01);
+            $t0 = ($this->min($i) - $ray->origin($i)) * $d;
+            $t1 = ($this->max($i) - $ray->origin($i)) * $d;
+            if($d < 0) {
+                $t = $t0;
+                $t0 = $t1;
+                $t1 = $t;
+            }
+            $tmin = $t0 > $tmin ? $t0 : $tmin;
+            $tmax = $t1 < $tmax ? $t1 : $tmax;
+            if($tmax <= $tmin){
+                return -1;
+            }
+        }
+        return $tmin;
+    }
+
 }

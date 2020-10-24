@@ -15,11 +15,16 @@ class TimerA extends Detection{
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
+        $this->vlThreshold = 40;
     }
 
     public function handle(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
-            $currentTime = Server::getInstance()->getTick() * 50;
+            if(!$user->loggedIn){
+                $this->balance = 0;
+                return;
+            }
+            $currentTime = (Server::getInstance()->getTick() * (20 / Server::getInstance()->getTicksPerSecond())) * 50;
             if($this->lastTime === null){
                 $this->lastTime = $currentTime;
                 return;
@@ -27,7 +32,7 @@ class TimerA extends Detection{
             $timeDiff = $currentTime - $this->lastTime;
             $this->balance -= 50;
             $this->balance += $timeDiff;
-            if($this->balance <= -250){
+            if($this->balance <= -200){
                 $this->fail($user);
                 $this->balance = 0;
             }

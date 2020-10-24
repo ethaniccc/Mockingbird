@@ -26,11 +26,16 @@ class MathUtils{
     }
 
     public static function vectorXZDistance(Vector3 $a, Vector3 $b) : float{
-        $a = clone $a;
-        $b = clone $b;
-        $a->y = 0;
-        $b->y = 0;
-        return $a->distance($b);
+        return hypot($a->x - $b->x, $a->z - $b->z);
+    }
+
+    public static function directionVectorFromValues(float $yaw, float $pitch) : Vector3{
+        $vector = new Vector3(0, 0, 0);
+        $y = -sin(deg2rad($pitch));
+        $xz = cos(deg2rad($pitch));
+        $x = -$xz * sin(deg2rad($yaw));
+        $z = $xz * cos(deg2rad($yaw));
+        return $vector->setComponents($x, $y, $z)->normalize();
     }
 
 }

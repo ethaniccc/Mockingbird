@@ -36,7 +36,7 @@ class FlyA extends Detection implements MovementDetection{
             && $user->location->y > 0 && $user->blockAbove === null
             && $user->player->getArmorInventory()->getChestplate()->getId() !== ItemIds::ELYTRA){
                 if(++$this->preVL >= 3){
-                    $this->fail($user, "{$user->player->getName()}: yD: $yDelta, eD: $expectedYDelta, eq: $equalness");
+                    $this->fail($user, "yD=$yDelta, eD=$expectedYDelta, eq=$equalness");
                 }
             } else {
                 if($user->offGroundTicks >= 3){

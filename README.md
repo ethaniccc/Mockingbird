@@ -2,6 +2,12 @@
 Mockingbird is an anti-cheat in development made for fun by an ethic idot - version v2 has
 many changes compared to the v1 variants of Mockingbird.
 
+Here's something I want to relay before moving forward:
+1) If you have an issue with Mockingbird (constant falsing, too much cpu usage, etc.) **please** make an issue
+on the GitHub repository with details, so I can fix it. You can leave a bad review but **please** make an issue :)
+2) Find a bypass (for movement detections only)? Make an issue on the GitHub repository with a video.
+3) Got a feature suggestion? Don't put it in reviews - make an issue on the GitHub repository.
+
 Mockingbird has a test server where you can test your big haxerman hacks on:
 ```
 IP: 104.194.10.127
@@ -19,6 +25,13 @@ Special Thanks To:
 **Mockingbird's base inspiration comes from [Neptune](https://github.com/shura62/Neptune/) made by shura62**
 
 TLDR (if you don't care about all the dev stuff): **__Same checks, and new base__**.
+TLDR List:
+- New Base
+- Same and new checks
+- More accurate
+- Cheat probability
+- Reward system (for when players pass checks to prevent falses)
+- Less CPU Usage
 
 Well, first things first - detection modules are no longer event listeners, instead, Detections
 extend a Detection class which has a function called "process" which runs every time a packet gets received from the player.
@@ -40,6 +53,9 @@ Instead, every time a user passes a check, they will be "rewarded". In rewarding
 for the check gets multiplied by a very small amount (multiplier varies based off the check). This will help with players which
 might false positive some checks at certain points, and is more effective than resetting all the player's violations. 
 
+Detections now have "cheat probability". What this will do is estimate the chance of cheating.
+This is determined by how many times a player flags a certain check a certain amount of times within a period.
+
 Custom modules are still here, and now you can also add custom processors. Since I'm too lazy to make
 an example, uh, idk just figure it out or wait I guess.
 
@@ -55,22 +71,26 @@ and false at sometimes, but the new reward system should compensate.
     - (A) -> MultiAura
     - (B) -> NoSwing
 - Reach
-    - (A) -> Basic Check w/ Location History
+    - (A) -> XZ Distance Check w/ Location History
 ### Movement Checks
 - Fly
     - (A) -> Prediction Check
     - (B) -> AirJump Check
+    - (C) -> Acceleration Check
 - Speed
-    - (A) -> Friction Check (flags while using bhop)
+    - (A) -> Friction Check (flags while using bhop and some other hacks)
     - (B) -> Speed Limit Check
 - Velocity
-    - (A) -> Vertical Check
-    - (B) -> Horizontal Check (**incomplete**)
+    - (A) -> Vertical Check (**98% by default**)
+    - (B) -> Horizontal Check (**90% by default (pogchamp)**)
 
 Mockingbird also has packet checks.
+- BadPackets (checks for validity of packets sent)
+    * (A) -> Pitch validity check
+    * (B) -> **don't worry about it - will flag for more hacks than you think**
 
 ## Custom Stuff
 ### Custom Processors Docs
-**TODO**
+**TODO: If someone wants to pull request for this please do so by all means!**
 ### Custom Modules Docs
-**TODO**
+**TODO: If someone wants to pull request for this please do so by all means!**

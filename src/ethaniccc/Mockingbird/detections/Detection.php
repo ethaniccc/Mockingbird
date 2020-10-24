@@ -108,7 +108,7 @@ abstract class Detection{
                     break;
             }
             $message = $this->getPlugin()->getPrefix() . " " . str_replace("{player}", $name, $this->getPlugin()->getConfig()->get("punish_message_staff"));
-            Server::getInstance()->broadcastMessage($message, $staff);
+            Server::getInstance()->broadcastMessage($message, Mockingbird::getInstance()->getConfig()->get("punish_message_global") ? Server::getInstance()->getOnlinePlayers() : $staff);
         }
         if($debugData !== null){
             $this->debug("{$user->player->getName()}: $debugData");

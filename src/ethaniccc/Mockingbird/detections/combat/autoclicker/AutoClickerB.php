@@ -12,6 +12,7 @@ class AutoClickerB extends Detection{
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
+        $this->vlThreshold = 10;
     }
 
     public function handle(DataPacket $packet, User $user): void{
@@ -20,11 +21,11 @@ class AutoClickerB extends Detection{
             $allowed = $this->getSetting("max_cps");
             if($cps > $allowed){
                 if(++$this->preVL >= 5){
-                    $this->fail($user, "{$user->player->getName()}: cps: $cps, allowed: $allowed");
+                    $this->fail($user, "cps=$cps, allowed=$allowed");
                 }
             } else {
                 $this->preVL *= 0.65;
-                $this->reward($user, 0.95);
+                $this->reward($user, 0.99);
             }
         }
     }

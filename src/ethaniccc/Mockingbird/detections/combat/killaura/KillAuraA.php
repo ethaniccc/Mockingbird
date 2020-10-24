@@ -23,7 +23,7 @@ class KillAuraA extends Detection{
         if($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK){
             if($packet->trData->entityRuntimeId !== $this->lastEntity){
                 ++$this->entities;
-                if($this->entities > 1 && ++$this->preVL >= 2){
+                if($this->entities > 1){
                     $this->fail($user, "entities={$this->entities}");
                 }
             }

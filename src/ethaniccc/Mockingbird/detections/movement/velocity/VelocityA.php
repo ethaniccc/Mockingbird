@@ -6,8 +6,8 @@ use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\detections\movement\MovementDetection;
 use ethaniccc\Mockingbird\packets\MotionPacket;
 use ethaniccc\Mockingbird\user\User;
+use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use pocketmine\network\mcpe\protocol\DataPacket;
-use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
 class VelocityA extends Detection implements MovementDetection{
@@ -17,6 +17,7 @@ class VelocityA extends Detection implements MovementDetection{
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
         $this->suppression = false;
+        $this->vlThreshold = 20;
     }
 
     public function handle(DataPacket $packet, User $user): void{
@@ -39,23 +40,24 @@ class VelocityA extends Detection implements MovementDetection{
             if(!empty($this->queue)){
                 $currentData = $this->queue[0];
                 if(++$currentData->time <= $currentData->maxTime){
+                    $notSolidBlocksAround = count($user->player->getBlocksAround());
+                    $AABB = AABB::from($user);
+                    $AABB->maxY += 0.1;
+                    $solidBlocksAround = count($user->player->getLevel()->getCollisionBlocks($AABB));
                     if($user->moveDelta->y < $currentData->motion * $this->getSetting("multiplier")
-                    && $user->blockAbove === null){
+                    && $user->blockAbove === null && $notSolidBlocksAround === 0 && $solidBlocksAround === 0){
                         ++$currentData->failedTime;
                         if(abs($currentData->maxFailedMotion) < abs($user->moveDelta->y)){
                             $currentData->maxFailedMotion = $user->moveDelta->y;
                         }
-                    }/* else {
-                        $this->queue[0] = null;
-                        array_shift($this->queue);
-                    }*/
+                    }
                 } else {
                     if($currentData->failedTime >= $currentData->maxTime){
                         if(++$this->preVL >= 10){
                             $this->fail($user, "{$user->player->getName()}: eD: {$currentData->motion}, mYD: {$currentData->maxFailedMotion}, mT: {$currentData->maxTime}");
                         }
                     } else {
-                        $this->preVL = 0;
+                        $this->preVL -= $this->preVL > 0 ? 1 : 0;
                         $this->reward($user, 0.95);
                     }
                     $this->queue[0] = null;
