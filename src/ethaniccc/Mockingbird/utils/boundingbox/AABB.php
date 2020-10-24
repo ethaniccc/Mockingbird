@@ -25,9 +25,6 @@ class AABB extends AxisAlignedBB{
 
     public static function from(User $user) : AABB{
         $pos = $user->location;
-        if($pos === null){
-            $pos = $user->player->asLocation();
-        }
         return new AABB($pos->x - 0.3, $pos->y, $pos->z - 0.3, $pos->x + 0.3, $pos->y + 1.8, $pos->z + 0.3);
     }
 

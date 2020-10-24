@@ -36,7 +36,7 @@ class AutoClickerA extends Detection{
                             }
                         } elseif($deviation <= 9 && $user->cps >= 10) {
                             // impossible consistency - most likely a 10cps autoclicker
-                            $this->fail($user);
+                            $this->fail($user, "deviation=$deviation cps={$user->cps}");
                         } else {
                             $this->preVL -= $this->preVL > 0 ? 1 : 0;
                             $this->reward($user, 0.995);

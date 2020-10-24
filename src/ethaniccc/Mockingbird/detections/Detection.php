@@ -65,6 +65,7 @@ abstract class Detection{
             case self::PROBABILITY_HIGH:
                 return TextFormat::RED . "High";
         }
+        return "";
     }
 
     protected function fail(User $user, ?string $debugData = null) : void{

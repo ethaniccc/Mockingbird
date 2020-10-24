@@ -26,7 +26,7 @@ class User{
 
     /** @var LocationHistory */
     public $locationHistory;
-    /** @var Location */
+    /** @var Location|Vector3 */
     public $location, $lastLocation;
     /** @var Vector3 */
     public $moveDelta, $lastMoveDelta;
