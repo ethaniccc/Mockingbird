@@ -83,7 +83,7 @@ ReachA:
 # Aim
 AimA:
   enabled: true
-  punish: false
+  punish: true
   punishment_type: kick
   max_violations: 20
 
@@ -95,7 +95,7 @@ AimA:
 # Speed
 SpeedA:
   enabled: true
-  punish: false
+  punish: true
   punishment_type: kick
   suppression: false
   max_violations: 25
@@ -103,7 +103,7 @@ SpeedA:
   max_breach: 0.00001
 SpeedB:
   enabled: true
-  punish: false
+  punish: true
   punishment_type: kick
   suppression: false
   max_violations: 25
@@ -114,7 +114,7 @@ SpeedB:
 # Fly
 FlyA:
   enabled: true
-  punish: false
+  punish: true
   punishment_type: kick
   suppression: false
   max_violations: 25
@@ -122,14 +122,14 @@ FlyA:
   max_breach: 0.015
 FlyB:
   enabled: true
-  punish: false
+  punish: true
   punishment_type: kick
   suppression: false
   max_violations: 25
   # no check settings
 FlyC:
   enabled: true
-  punish: false
+  punish: true
   punishment_type: kick
   suppression: false
   max_violations: 25
@@ -171,6 +171,12 @@ BadPacketB:
   punish: true
   punishment_type: kick
   max_violations: 20
+BadPacketC:
+  # checks if the player is attacking themselves (not projectile) - completely invalid
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 2
 
 # Timer
 TimerA:
