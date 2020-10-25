@@ -12,7 +12,7 @@ use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 class ClickProcessor extends Processor{
 
     private $clicks = [];
-    private $ticks;
+    private $ticks = 0;
     private $lastTime;
 
     public function __construct(User $user){
