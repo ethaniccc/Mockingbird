@@ -18,7 +18,7 @@ class BadPacketC extends Detection{
             // what the fuck
             $targetEntity = $packet->trData->entityRuntimeId;
             if($user->player->getId() === $targetEntity){
-                $this->fail($user);
+                $this->fail($user, "id={$user->player->getId()} attackedId=$targetEntity");
             } else {
                 // entity just died in the world?
                 $this->reward($user, 0.9);

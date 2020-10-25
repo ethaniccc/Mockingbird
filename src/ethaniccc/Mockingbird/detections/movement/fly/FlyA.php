@@ -18,7 +18,7 @@ class FlyA extends Detection implements MovementDetection{
 
     public function handle(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
-            if(!$user->player->isAlive()){
+            if(!$user->player->isAlive() || !$user->loggedIn){
                 return;
             }
             $yDelta = $user->moveDelta->y;

@@ -21,7 +21,7 @@ class FlyC extends Detection implements MovementDetection{
                 $lastYDelta = $user->lastMoveDelta->y;
                 $equalness = abs($yDelta - $lastYDelta);
                 // are PlayerAuthInputPacket y values fucked?
-                if($yDelta > -3.0 && $equalness <= 0.01 && !$user->player->isFlying() && $user->player->isAlive() && $user->timeSinceMotion > 5 && !$user->player->isImmobile()){
+                if($yDelta > -3.0 && $equalness <= 0.01 && !$user->player->isFlying() && $user->player->isAlive() && $user->timeSinceMotion > 5 && !$user->player->isImmobile() && $user->loggedIn){
                     if(++$this->preVL >= 3){
                         $this->fail($user, "yD=$yDelta, eq=$equalness");
                     }
