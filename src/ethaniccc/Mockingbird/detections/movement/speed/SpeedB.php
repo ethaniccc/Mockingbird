@@ -41,9 +41,9 @@ class SpeedB extends Detection implements MovementDetection{
                     $amplifier = $user->player->getEffect(1)->getAmplifier() + 1;
                     $maxSpeed += 0.2 * $amplifier;
                 }
-                if($horizontalSpeed > $maxSpeed && $user->timeSinceTeleport >= 5){
+                if($horizontalSpeed > $maxSpeed && $user->timeSinceTeleport >= 10){
                     if(++$this->preVL >= 3){
-                        $this->fail($user, "speed=$horizontalSpeed");
+                        $this->fail($user, "speed=$horizontalSpeed tpTime={$user->timeSinceTeleport}");
                     }
                 }
             }

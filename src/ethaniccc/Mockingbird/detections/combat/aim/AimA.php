@@ -18,9 +18,8 @@ class AimA extends Detection{
             $yawDelta = $user->yawDelta;
             $pitchDelta = $user->pitchDelta;
             if($user->timeSinceAttack <= 10){
-                $this->debug($pitchDelta, false);
                 // impossible for pitch delta to be so low in this case
-                if($yawDelta > 3 && $pitchDelta <= 2E-5 && abs($user->pitch) < 90){
+                if($yawDelta > 2 && $pitchDelta <= 2E-5 && abs($user->pitch) < 90){
                     if(++$this->preVL >= 3){
                         $this->fail($user, "yawDelta=$yawDelta pitchDelta=$pitchDelta");
                     }

@@ -2,6 +2,8 @@
 
 namespace ethaniccc\Mockingbird\processing;
 
+use ethaniccc\Mockingbird\Mockingbird;
+use ethaniccc\Mockingbird\tasks\KickTask;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\PacketUtils;
@@ -69,6 +71,9 @@ class MoveProcessor extends Processor{
                     $pk->timestamp = 1000;
                     $pk->needResponse = true;
                     $user->player->dataPacket($pk);
+                    if($this->ticks >= 1000){
+                        Mockingbird::getInstance()->getScheduler()->scheduleDelayedTask(new KickTask($user, "NetworkStackLatency Timeout (bad connection?) - Rejoin server"), 0);
+                    }
                 }
             } else {
                 $this->ticks = 0;
