@@ -1,329 +1,157 @@
 <?php
 
-/*
-$$\      $$\                     $$\       $$\                     $$\       $$\                 $$\ 
-$$$\    $$$ |                    $$ |      \__|                    $$ |      \__|                $$ |
-$$$$\  $$$$ | $$$$$$\   $$$$$$$\ $$ |  $$\ $$\ $$$$$$$\   $$$$$$\  $$$$$$$\  $$\  $$$$$$\   $$$$$$$ |
-$$\$$\$$ $$ |$$  __$$\ $$  _____|$$ | $$  |$$ |$$  __$$\ $$  __$$\ $$  __$$\ $$ |$$  __$$\ $$  __$$ |
-$$ \$$$  $$ |$$ /  $$ |$$ /      $$$$$$  / $$ |$$ |  $$ |$$ /  $$ |$$ |  $$ |$$ |$$ |  \__|$$ /  $$ |
-$$ |\$  /$$ |$$ |  $$ |$$ |      $$  _$$<  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |$$ |      $$ |  $$ |
-$$ | \_/ $$ |\$$$$$$  |\$$$$$$$\ $$ | \$$\ $$ |$$ |  $$ |\$$$$$$$ |$$$$$$$  |$$ |$$ |      \$$$$$$$ |
-\__|     \__| \______/  \_______|\__|  \__|\__|\__|  \__| \____$$ |\_______/ \__|\__|       \_______|
-                                                         $$\   $$ |                                  
-                                                         \$$$$$$  |                                  
-                                                          \______/      
-~ Made by @ethaniccc idot </3
-Github: https://www.github.com/ethaniccc                             
-*/    
-
 declare(strict_types=1);
 
 namespace ethaniccc\Mockingbird;
 
-use ethaniccc\Mockingbird\cheat\Cheat;
-use ethaniccc\Mockingbird\cheat\ViolationHandler;
-use ethaniccc\Mockingbird\command\AlertsCommand;
-use ethaniccc\Mockingbird\command\DebugCommand;
-use ethaniccc\Mockingbird\command\DisableModuleCommand;
-use ethaniccc\Mockingbird\command\EnableModuleCommand;
-use ethaniccc\Mockingbird\command\LogCommand;
-use ethaniccc\Mockingbird\command\ReloadModuleCommand;
-use ethaniccc\Mockingbird\command\ScreenshareCommand;
+use ethaniccc\Mockingbird\commands\ToggleAlertsCommand;
+use ethaniccc\Mockingbird\commands\ToggleDebugCommand;
+use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\listener\MockingbirdListener;
-use ethaniccc\Mockingbird\utils\staff\Staff;
-use ethaniccc\Mockingbird\utils\user\UserManager;
-use pocketmine\event\HandlerList;
-use pocketmine\permission\Permission;
-use pocketmine\permission\PermissionManager;
-use pocketmine\Player;
+use ethaniccc\Mockingbird\processing\Processor;
+use ethaniccc\Mockingbird\tasks\DebugLogWriteTask;
+use ethaniccc\Mockingbird\user\UserManager;
 use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\utils\TextFormat;
 
 class Mockingbird extends PluginBase{
 
-    private $developerMode = false;
-    private $enabledModules = [];
-    private $disabledModules = [];
-    private $staff = [];
-    private $userManager;
-    private static $reloaded;
+    private static $instance;
+    public $availableChecks;
+    public $availableProcessors;
+    public $debugTask;
 
-    public function onEnable(){
-        // yes, hardcoded version
-        if($this->getConfig()->get("version") !== "1.4-beta"){
-            throw new \Exception("Config version is out of date (or is wrong - expected version to be 1.4-beta), please delete your current config to prevent any issues.");
-        }
-        if(self::$reloaded !== null){
-            $this->getLogger()->alert("Reloading Mockingbird with /reload may result in your server crashing, to prevent this, Mockingbird will disable itself.");
-            $this->getServer()->getPluginManager()->disablePlugin($this);
-            return;
-        }
-        self::$reloaded = true;
-        if(!file_exists($this->getDataFolder() . "config.yml")){
-            $this->saveDefaultConfig();
-        }
-        $this->developerMode = is_bool($this->getConfig()->get("dev_mode")) ? $this->getConfig()->get("dev_mode") : false;
-        if($this->getConfig()->get("version") !== $this->getDescription()->getVersion()){
-            $this->saveDefaultConfig();
-        }
-        @unlink($this->getDataFolder() . "debug_log.txt");
-        @mkdir($this->getDataFolder() . "custom_modules", 0777);
-        $this->getLogger()->debug(TextFormat::AQUA . "Mockingbird has been enabled.");
-        $this->loadModules();
-        $this->loadModules(true);
-        $this->loadAllCommands();
-        $this->registerPermissions();
-        if($this->isDeveloperMode()){
-            $this->getScheduler()->scheduleDelayedRepeatingTask(new ClosureTask(function(int $currentTick) : void{
-                $level = $this->getServer()->getLevelByName("world");
-                if($level !== null){
-                    $level->setTime(6000);
-                }
-            }), 100, 200);
-        }
-        if($this->getConfig()->get("reset_violations")){
-            $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(function() : void{
-                ViolationHandler::resetAllViolations();
-                foreach($this->getServer()->getOnlinePlayers() as $player){
-                    $staff = $this->getStaff($player->getName());
-                    if($staff !== null){
-                        $staff->notify($this->getPrefix() . TextFormat::RESET . TextFormat::RED . "All current violations have been reset.");
-                    }
-                }
-            }), ((int) $this->getConfig()->get("reset_time")) * 20);
-        }
-        $this->registerListener();
-        $this->userManager = new UserManager();
+    public static function getInstance() : Mockingbird{
+        return self::$instance;
     }
 
-    public function getUserManager() : UserManager{
-        return $this->userManager;
+    public function onEnable() : void{
+        if(self::$instance !== null){
+            return;
+        }
+        file_put_contents($this->getDataFolder() . "debug_log.txt", "");
+        self::$instance = $this;
+        UserManager::init();
+        new MockingbirdListener();
+        $this->getAvailableProcessors();
+        $this->getAvailableChecks();
+        $this->registerCommands();
+        $this->debugTask = new DebugLogWriteTask($this->getDataFolder() . "debug_log.txt");
+        $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(function(int $currentTick) : void{
+            $this->getServer()->getAsyncPool()->submitTask($this->debugTask);
+            $this->debugTask = new DebugLogWriteTask($this->getDataFolder() . "debug_log.txt");
+        }), 400);
     }
 
     public function getPrefix() : string{
-        return !is_string($this->getConfig()->get("prefix")) ? TextFormat::BOLD . TextFormat::RED . "Mockingbird> " . TextFormat::RESET : $this->getConfig()->get("prefix") . " ";
+        return $this->getConfig()->get("prefix") . TextFormat::RESET;
     }
 
-    public function kickPlayerTask(Player $player) : void{
-        $name = $player->getName();
-        $this->getScheduler()->scheduleDelayedTask(new ClosureTask(function(int $currentTick) use ($player, $name) : void{
-            $player->kick($this->getConfig()->get("punish_prefix") . TextFormat::RESET . "\n" . TextFormat::YELLOW . "You were kicked from this server for unfair advantage.", false);
-            ViolationHandler::setViolations($name, 0);
-            $cheats = ViolationHandler::getCheatsViolatedFor($name);
-            foreach($this->getServer()->getOnlinePlayers() as $staff){
-                if($staff->hasPermission($this->getConfig()->get("alert_permission"))) $staff->sendMessage($this->getPrefix() . TextFormat::RESET . TextFormat::RED . "$name has been kicked for using unfair advantage on other players. They were detected for: " . implode(", ", $cheats));
-            }
-            ViolationHandler::addTimesPunished($name);
-            if($this->getConfig()->get("max_kicks") != -1 && ViolationHandler::getTimesPunished($name) >= $this->getConfig()->get("max_kicks")){
-                $timesKicked = ViolationHandler::getTimesPunished($name);
-                foreach($this->getServer()->getOnlinePlayers() as $staff){
-                    if($staff->hasPermission($this->getConfig()->get("alert_permission"))) $staff->sendMessage($this->getPrefix() . TextFormat::RESET . TextFormat::RED . "$name has been kicked $timesKicked and therefore has been banned from the server.");
-                }
-                $this->getServer()->getNameBans()->addBan($name, "Unfair advantage", null, "Mockingbird");
-            }
-        }), 1);
+    private function registerCommands() : void{
+        $commands = [
+            new ToggleAlertsCommand($this),
+            new ToggleDebugCommand($this),
+        ];
+        $this->getServer()->getCommandMap()->registerAll($this->getName(), $commands);
     }
 
-    public function banPlayerTask(Player $player) : void{
-        $name = $player->getName();
-        $this->getScheduler()->scheduleDelayedTask(new ClosureTask(function(int $currentTick) use ($player, $name) : void{
-            if($this->getConfig()->get("punishment_type") === "ip-ban"){
-                $this->getServer()->getIPBans()->addBan($player->getAddress(), "Unfair advantage / Hacking", null, "Mockingbird");
-                foreach($this->getServer()->getOnlinePlayers() as $person){
-                    if($person->getAddress() === $player->getAddress()){
-                        if($person->getName() === $player->getName()){
-                            $person->kick($this->getConfig()->get("punish_prefix") . TextFormat::RESET . "\n" . TextFormat::YELLOW . "You were IP-banned from this server for unfair advantage.", false);
-                        } else {
-                            $person->kick($this->getConfig()->get("punish_prefix") . TextFormat::RESET . "\n" . TextFormat::YELLOW . "Someone on your internet was hacking, and your IP was banned.", false);
+    private function getAvailableChecks() : void{
+        $path = $this->getFile() . "src/ethaniccc/Mockingbird/detections";
+        foreach(scandir($path) as $file){
+            if(is_dir("$path/$file") && !in_array($file, [".", ".."])){
+                $type = $file;
+                foreach(scandir("$path/$file") as $otherFile){
+                    if(is_dir("$path/$file/$otherFile") && !in_array($file, [".", ".."])){
+                        $subType = $otherFile;
+                        foreach(scandir("$path/$file/$otherFile") as $check){
+                            if(!is_dir("$path/$file/$otherFile/$check")){
+                                $extension = explode(".", $check)[1];
+                                if(strtolower($extension) === "php"){
+                                    $checkName = explode(".", $check)[0];
+                                    $fullCheckName = "ethaniccc\\Mockingbird\\detections\\$type\\$subType\\$checkName";
+                                    try{
+                                        $classInfo = new \ReflectionClass($fullCheckName);
+                                        if(!$classInfo->isAbstract() && $classInfo->isSubclassOf(Detection::class)){
+                                            $this->availableChecks[] = $classInfo;
+                                        }
+                                    } catch(\ReflectionException $e){}
+                                }
+                            }
                         }
                     }
                 }
             }
-            $this->getServer()->getNameBans()->addBan($name, "Unfair advantage / Hacking", null, "Mockingbird");
-            ViolationHandler::setViolations($name, 0);
-            $cheats = ViolationHandler::getCheatsViolatedFor($name);
-            foreach($this->getServer()->getOnlinePlayers() as $staff){
-                if($staff->hasPermission($this->getConfig()->get("alert_permission"))) $staff->sendMessage($this->getPrefix() . TextFormat::RESET . TextFormat::RED . "$name has been banned for using unfair advantage on other players. They were detected for: " . implode(", ", $cheats));
+        }
+        $customPath = $this->getDataFolder() . "custom_modules";
+        @mkdir($customPath);
+        foreach(scandir($customPath) as $file){
+            if(!is_dir("$customPath/$file") && strtolower(explode(".", $file)[1]) === "php"){
+                require_once "$customPath/$file";
+                $className = explode(".", $file)[0];
+                try{
+                    $classInfo = new \ReflectionClass("ethaniccc\\Mockingbird\\detections\\custom\\$className");
+                    if(!$classInfo->isAbstract() && $classInfo->isSubclassOf(Detection::class)){
+                        $this->availableChecks[] = $classInfo;
+                    }
+                } catch(\ReflectionException $e){
+                    $this->getLogger()->debug($e->getMessage());
+                }
             }
-            ViolationHandler::addTimesPunished($name);
-        }), 1);
+        }
     }
 
-    public function isDeveloperMode() : bool{
-        return $this->developerMode;
+    private function getAvailableProcessors() : void{
+        $path = $this->getFile() . "src/ethaniccc/Mockingbird/processing";
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path));
+        foreach($iterator as $fileInfo){
+            if($fileInfo instanceof \SplFileInfo){
+                if(!$fileInfo->isDir() && $fileInfo->isReadable() && strtolower($fileInfo->getExtension()) === "php"){
+                    $className = str_replace(".php", "", $fileInfo->getFilename());
+                    $fullClassName = "\\ethaniccc\\Mockingbird\\processing\\$className";
+                    try{
+                        $classInfo = new \ReflectionClass($fullClassName);
+                        if(!$classInfo->isAbstract() && $classInfo->isSubclassOf(Processor::class)){
+                            $this->availableProcessors[] = $classInfo;
+                        }
+                    } catch(\ReflectionException $e){
+                        $this->getLogger()->debug($e->getMessage());
+                    }
+                }
+            }
+        }
+        $customPath = $this->getDataFolder() . "custom_processors";
+        @mkdir($customPath);
+        foreach(scandir($customPath) as $file){
+            if(!is_dir("$customPath/$file") && strtolower(explode(".", $file)[1]) === "php"){
+                require_once "$customPath/$file";
+                $className = explode(".", $file)[0];
+                try{
+                    $classInfo = new \ReflectionClass($className);
+                    if(!$classInfo->isAbstract() && $classInfo->isSubclassOf(Processor::class)){
+                        $this->availableProcessors[] = $classInfo;
+                    }
+                } catch(\ReflectionException $e){}
+            }
+        }
     }
 
     public function onDisable(){
-        if($this->getConfig()->get("save_previous_violations")){
-            $this->getLogger()->debug("Saving log information...");
-            if(empty(ViolationHandler::getSaveData())){
-                $this->getLogger()->debug("No information to save.");
-                return;
-            }
-            @mkdir($this->getDataFolder() . 'previous_data');
-            $count = count(scandir($this->getDataFolder() . "previous_data")) - 2 + 1;
-            $dataSave = fopen($this->getDataFolder() . "previous_data/SaveData{$count}.txt", "a");
-            fwrite($dataSave, "Player || CurrentVL || TotalVL || Cheats Detected\n\n");
-            foreach(ViolationHandler::getSaveData() as $name => $data){
-                $currentViolations = $data["CurrentVL"];
-                $totalViolations = $data["TotalVL"];
-                $averageTPS = $data["AverageTPS"];
-                $cheats = $data["Cheats"];
-                fwrite($dataSave, "$name || CurrentVL: $currentViolations || TotalVL: $totalViolations || Average TPS: $averageTPS || Cheats: " . implode(", ", $cheats) . "\n");
-            }
-            fclose($dataSave);
+        if($this->getConfig()->get("upload_debug")){
+            $options = array(
+                "ssl" => array(
+                    "verify_peer" => false,
+                    "verify_peer_name" => false,
+                ),
+                "http" => array(
+                    "header" => "Content-type: application/x-www-form-urlencoded\r\n",
+                    "method" => "POST",
+                    "content" => http_build_query(["data" => base64_encode(file_get_contents($this->getDataFolder() . "debug_log.txt"))])
+                )
+            );
+            $response = file_get_contents("https://mb-debug-logs.000webhostapp.com/", false, stream_context_create($options));
+            $this->getLogger()->debug("Response: $response");
         }
-    }
-
-    public function getEnabledModules() : array{
-        return $this->enabledModules;
-    }
-
-    public function getDisabledModules() : array{
-        return $this->disabledModules;
-    }
-
-    public function getModuleByName(string $module) : ?Cheat{
-        foreach($this->enabledModules as $mod){
-            if(strtolower($mod->getName()) === strtolower($module)){
-                return $mod;
-            }
-        }
-        foreach($this->disabledModules as $disMod){
-            if(strtolower($disMod->getName()) === strtolower($module)){
-                return $disMod;
-            }
-        }
-        return null;
-    }
-
-    public function enableModule($module) : void{
-        $this->getServer()->getPluginManager()->registerEvents($module, $this);
-        $module->setEnabled();
-    }
-
-    public function disableModule($module) : void{
-        HandlerList::unregisterAll($module);
-        $module->setEnabled(false);
-    }
-
-    public function registerStaff(string $name) : void{
-        $this->staff[$name] = new Staff($name);
-    }
-
-    public function getStaff(string $name) : ?Staff{
-        return isset($this->staff[$name]) ? $this->staff[$name] : null;
-    }
-
-    public function loadModule(Cheat $module) : void{
-        $this->getServer()->getPluginManager()->registerEvents($module, $this);
-    }
-
-    private function loadModules(bool $custom = false, bool $debug = true) : void{
-        $loadedModules = 0;
-        if(!$custom){
-            foreach(scandir($this->getFile() . '/src/ethaniccc/Mockingbird/cheat') as $type){
-                if(is_dir($this->getFile() . "/src/ethaniccc/Mockingbird/cheat/$type") && !in_array($type, ['.', '..'])){
-                    foreach(scandir($this->getFile() . "/src/ethaniccc/Mockingbird/cheat/$type") as $module){
-                        $currentPath = "ethaniccc\\Mockingbird\\cheat\\$type\\";
-                        if(is_dir($this->getFile() . "/src/ethaniccc/Mockingbird/cheat/$type/$module") && !in_array($module, ['.', '..'])){
-                            foreach(scandir($this->getFile() . "/src/ethaniccc/Mockingbird/cheat/$type/$module") as $subModule){
-                                if(!is_dir($this->getFile() . "/src/ethaniccc/Mockingbird/cheat/$type/$module/$subModule")){
-                                    $className = explode(".php", $subModule)[0];
-                                    $settings = $this->getConfig()->getNested($className);
-                                    $class = $currentPath . "$module\\$className";
-                                    if($this->isDeveloperMode()){
-                                        $settings["enabled"] = true;
-                                    }
-                                    $newDetection = new $class($this, $className, $type, $settings);
-                                    if($newDetection->isEnabled()){
-                                        $this->loadModule($newDetection);
-                                        $this->enabledModules[] = $newDetection;
-                                        $loadedModules++;
-                                    } else {
-                                        $this->disabledModules[] = $newDetection;
-                                    }
-                                }
-                            }
-                        } elseif(!is_dir($module)){
-                            $className = explode(".php", $module)[0];
-                            $settings = $this->getConfig()->getNested($className);
-                            $class = $currentPath . $className;
-                            if($type === "packet"){
-                                $settings = ["enabled" => $this->getConfig()->getNested("PacketChecks")["enabled"]];
-                            }
-                            $newDetection = new $class($this, $className, $type, $settings);
-                            if($newDetection->isEnabled()){
-                                $this->loadModule($newDetection);
-                                $loadedModules++;
-                                $this->enabledModules[] = $newDetection;
-                            } else {
-                                $this->disabledModules[] = $newDetection;
-                            }
-                        }
-                    }
-                }
-            }
-            $debug ? $this->getLogger()->debug("$loadedModules general modules have been loaded.") : $this->getLogger()->info(TextFormat::GREEN . "$loadedModules general modules have been loaded.");
-        } else {
-            foreach(scandir($this->getDataFolder() . "custom_modules") as $customModule){
-                if(is_dir($customModule)){
-                    break;
-                }
-                $path = $this->getDataFolder() . "custom_modules/$customModule";
-                require_once $path;
-                $class = explode(".php", $customModule)[0];
-                // hardcoded type and settings parameters
-                $this->loadModule(new $class($this, $class, "Custom", ["enabled" => true]));
-                $loadedModules++;
-            }
-            $debug ? $this->getLogger()->debug("$loadedModules custom modules have been loaded.") : $this->getLogger()->info(TextFormat::GREEN . "$loadedModules custom modules have been loaded.");
-        }
-    }
-
-    public function reloadModules() : void{
-        // This is mostly just going to reload the **custom modules** only lol...
-        // NOTE: This will not load the source of the custom module **sad noises**
-        foreach($this->enabledModules as $module){
-            HandlerList::unregisterAll($module);
-            // destruct the object as it is not going to be used anymore when we reload modules.
-            $module = null;
-        }
-        unset($this->enabledModules);
-        $this->enabledModules = [];
-        unset($this->disabledModules);
-        $this->enabledModules = [];
-        $this->loadModules(false, false);
-        $this->loadModules(true, false);
-    }
-
-    private function loadAllCommands() : void{
-        $commandMap = $this->getServer()->getCommandMap();
-        $this->getConfig()->get("LogCommand") ? $commandMap->register($this->getName(), new LogCommand("mblogs", $this)) : $this->getLogger()->debug("Log command disabled");
-        $this->getConfig()->get("ScreenshareCommand") ? $commandMap->register($this->getName(), new ScreenshareCommand("mbscreenshare", $this)) :  $this->getLogger()->debug("Screenshare command disabled");
-        $commandMap->register($this->getName(), new ReloadModuleCommand("mbreload", $this));
-        $commandMap->register($this->getName(), new EnableModuleCommand("mbenable", $this));
-        $commandMap->register($this->getName(), new DisableModuleCommand("mbdisable", $this));
-        $commandMap->register($this->getName(), new AlertsCommand("mbalerts", $this));
-        $commandMap->register($this->getName(), new DebugCommand("mbdebug", $this));
-    }
-
-    private function registerPermissions() : void{
-        $permissions = [
-            new Permission($this->getConfig()->get("alert_permission"), "Get alerts from the Mockingbird Anti-Cheat."),
-            new Permission($this->getConfig()->get("log_permission"), "Check logs of players from the Mockingbird Anti-Cheat."),
-            new Permission($this->getConfig()->get("module_permission"), "Manage Mockingbird modules."),
-            new Permission($this->getConfig()->get("bypass_permission"), "Exempt yourself from getting flagged by the Mockingbird AntiCheat."),
-            new Permission($this->getConfig()->get("screenshare_permission"), "'Screenshare' a selected player.")
-        ];
-        foreach($permissions as $permission){
-            PermissionManager::getInstance()->addPermission($permission);
-        }
-    }
-
-    private function registerListener() : void{
-        $this->getServer()->getPluginManager()->registerEvents(new MockingbirdListener($this), $this);
     }
 
 }

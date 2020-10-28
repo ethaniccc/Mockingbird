@@ -1,165 +1,99 @@
 # Mockingbird
-Mockingbird is an AntiCheat made for PocketMine servers to prevent the use of unfair
-advantage on other players.
+Mockingbird is an anti-cheat in development made for fun by an ethic idot - version v2 has
+many changes compared to the v1 variants of Mockingbird.
 
-**Warning:** In the state Mockingbird is currently in, this may false-positive, especially on production servers with some lag.
-This may also false-positive on players who are laggy (e.g: high ping).
+Here's something I want to relay before moving forward:
+1) If you have an issue with Mockingbird (constant falsing, too much cpu usage, etc.) **please** make an issue
+on the GitHub repository with details, so I can fix it. You can leave a bad review but **please** make an issue :)
+2) Find a bypass (for movement detections only)? Make an issue on the GitHub repository with a video.
+3) Got a feature suggestion? Don't put it in reviews - make an issue on the GitHub repository.
 
-#### Special Thanks
-* Bavfalcon9
-    - Inspo for this project. Also for the structure of this plugin lol. You can check out
-    Mavoric (dev) by clicking [here](https://github.com/Bavfalcon9/Mavoric/tree/v2.0.0/) (**back (W)**)
-* shura62
-    - Helped on Discord with Mockingbird!
-* Blackjack200
-    - Contributed :p
-* Jonhan
-    - Gave **some** checks for Bukkit that I was able to port over to PocketMine.
-    You can click [here](https://www.youtube.com/channel/UCZ_Pg7e-1JMlHtqnWw6KIcw) to check out his channel!
-
-### Test Server
-Mockingbird has a test server - here are the details if you want to join:
+Mockingbird has a test server where you can test your big haxerman hacks on:
 ```
 IP: 104.194.10.127
 Port: 25640
 ```
-You can also click [here](https://discord.gg/v77FESn) to join my discord.
-## Commands
-* Log Command
-    
-    If enabled in the config, the `log` command has two options: a normal
-    `/mblogs <player>` or a UI with `/mblogs` without arguments.
-    
-    The `/mblogs` command will tell you how many violations a player currently has, 
-    how many violations they have in total (when a player gets punished their current violation count resets to 0),
-    and the average TPS the server had when the player got violated.
-    
-* Enable Module Command
-    
-    With the `/mbenable` command, you can enable certain modules in-game. For example,
-    if I forgot to turn on `InventoryMove` in the config, I could use `/mbenable inventorymove` to 
-    enable it. If the module is enabled already, the plugin you tell you so. If you want to add and enable
-    a new custom module, you must use `/mbreload`.
-    
-* Disable Module Command
 
-    With the `/mbdisable` command, you can disable certain modules in-game. For example, if
-    `AutoClickerA` checks are falsing too much, you can disable it with `/mbdisable autoclickera`. If the specified
-    module is disabled already, the plugin will tell you so. 
-    
-* Reload Module Command
+Special Thanks To:
+- shura62
+- Blackjack200
+- Jonhan
+- (discord) @very nice name#6789
+- Bavfalcon9
 
-    **NOTE:** This command intended use is for Custom Modules.
-    
-    With this command, and the permission `reload_permission` in the config, you can reload custom modules.
-    
-    If I added a custom module to the `custom_modules` folder, I can use this command to reload and it will register my custom module (yes has been tested).
-    Same goes for deleting a custom module.
-    
-    **Warning:** You cannot reload custom module code with this command.
-* "Screenshare" command
+## V2 Changes
+**Mockingbird's base inspiration comes from [Neptune](https://github.com/shura62/Neptune/) made by shura62**
 
-    Alias: `mbss`
+TLDR (if you don't care about all the dev stuff): **__Same checks, and new base__**.
+TLDR List:
+- New Base
+- Same and new checks
+- More accurate
+- Cheat probability
+- Reward system (for when players pass checks to prevent falses)
+- Less CPU Usage
 
-    **NOTE:** This is to give you the player's view, not to actually be able
-    to view the player's screen.
-    
-    With the permission set in the config, you can use the Mockingbird screenshare
-    command, `/mbscreenshare <player>` to screenshare a player. Nobody will be able to 
-    see you while you are "screensharing" somebody.
-    
-    To end a screenshare session, you may do `/mbscreenshare end`
-* Alerts Command
+Well, first things first - detection modules are no longer event listeners, instead, Detections
+extend a Detection class which has a function called "process" which runs every time a packet gets received from the player.
 
-    With this command, you can toggle alerts. Just do `/mbalerts`, and if you have alerts enabled, it will disable alerts, same vice-versa.
+Before Detections process data though, "processors" process data before the check. These processors
+handle data and save them into the player's "User" class so all checks can use them. For instance, the FlyA
+check gets the User's move delta (vector3) and does math from there.
 
-    When you join you will automatically have alerts enabled.
-* Debug Command
+Every time a player joins, it will register a "User" class for them. All available checks will
+have a new instance made from a reflection from Mockingbird's main class made when the plugin enables
+and put in a "checks" property in the User. Processors have the same process done.
 
-    With this command, you can enable debug information about checks - you will need the alert permission to use this command though.
+Why? So I don't have to hardcode checks into a property in the User class.
 
-    When you join, you will automatically have debug information off, to toggle debug information, you can use `/mbdebug` and it will enable debug
-    if you have it off, and disable if you currently have it on.
+Mockingbird no longer calls custom events.
+
+There will not be a resetting violation feature unless Mockingbird is still false-punishing users.
+Instead, every time a user passes a check, they will be "rewarded". In rewarding, the player's violations
+for the check gets multiplied by a very small amount (multiplier varies based off the check). This will help with players which
+might false positive some checks at certain points, and is more effective than resetting all the player's violations. 
+
+Detections now have "cheat probability". What this will do is estimate the chance of cheating.
+This is determined by how many times a player flags a certain check a certain amount of times within a period.
+
+Custom modules are still here, and now you can also add custom processors. Since I'm too lazy to make
+an example, uh, idk just figure it out or wait I guess.
+
 ## Detections
-Detections are not 100% accurate and may false positive sometimes. When reporting a false positive, please give the relevant part of ther debug log for me to look at, along with reproduction steps.
-### Combat
-* AutoClicker
-    * Consistency Detection
-    * Speed Detection
-* Reach
-* MultiAura
-### Movement
-* AirJump
-* Fly
-    * FlyA: General prediction check.
-    * FlyB: Horizontal and vertical check (extra)
-* FastLadder
-* NoSlowdown
-* NoFall
-* Speed
-    * SpeedA: Basic speed check
-    * SpeedB: Friction check
-* Velocity
-    * VelocityA: Vertical check
-    * VelocityB: **NOT COMPLETE**
-### Other Detections
-* Packet Checks
-* Timer (might be inaccurate sometimes)
-* EditionFaker
-## Custom Modules
-A feature that Mockingbird has is Custom Modules, which you can use to
-make new checks that don't currently exist, or to override a check with a 
-better check. You can even modify [Mavoric](https://github.com/Bavfalcon9/Mavoric/tree/v2.0.0) checks
-to work with Mockingbird (click [here](https://github.com/ethaniccc/Mockingbird/blob/master/resources/custom_modules/MavoricSpeedA.php) for an example)!
+This is a list of all the detections Mockingbird has, these detections may not be 100% accurate
+and false at sometimes, but the new reward system should compensate.
 
-To make a custom module, make a new PHP file with the name of the file correlating
-to the class name of the file:
+### Combat Detections
+- AutoClicker
+    - (A) -> Consistency
+    - (B) -> Speed
+- KillAura
+    - (A) -> MultiAura
+    - (B) -> NoSwing
+- Reach
+    - (A) -> Check w/ Location History
+### Movement Checks
+- Fly
+    - (A) -> Prediction Check
+    - (B) -> AirJump Check
+    - (C) -> Acceleration Check
+- Speed
+    - (A) -> Friction Check (flags while using bhop and some other hacks)
+    - (B) -> Speed Limit Check
+- Velocity
+    - (A) -> Vertical Check (**98% by default**)
+    - (B) -> Horizontal Check (**97% by default**)
 
-E.G: In **NewSpeed.php**:
-```php
-<?php
+Mockingbird also has packet checks.
+- BadPackets (checks for validity of packets sent)
+    * (A) -> Pitch validity check
+    * (B) -> **don't worry about it - will flag for more hacks than you think**
+    * (C) -> Checks if player hits themselves (can be used to bypass some checks?)
+- Timer (checks if player is sending too many packets in an instance)
+    - (A) -> Balance Check (bad with server lag)
 
-namespace ethaniccc\Mockingbird\cheat\custom{
-
-    use ethaniccc\Mockingbird\Mockingbird;
-    use ethaniccc\Mockingbird\cheat\Cheat;
-    use pocketmine\event\player\PlayerMoveEvent;
-
-    class NewSpeed extends Cheat{
-    
-        public function __construct(Mockingbird $plugin,string $cheatName,string $cheatType, ?array $settings){
-            parent::__construct($plugin,$cheatName,$cheatType,$settings);
-        }
-
-    }
-
-}
-```
-
-Then from there, since the `Cheat` class implements `Listener`, you can make your own detections!
-```php
-<?php
-
-namespace ethaniccc\Mockingbird\cheat\custom{
-
-    use ethaniccc\Mockingbird\Mockingbird;
-    use ethaniccc\Mockingbird\cheat\Cheat;
-    use pocketmine\event\player\PlayerMoveEvent;
-
-    class NewSpeed extends Cheat{
-    
-        public function __construct(Mockingbird $plugin,string $cheatName,string $cheatType, ?array $settings){
-            parent::__construct($plugin,$cheatName,$cheatType,$settings);
-        }
-        
-        // personal recommendation to NOT use PlayerMoveEvent and use Mockingbird's custom MoveEvent instead
-        // this is because PlayerMoveEvent is synchronous to the server ticks
-        public function onMove(PlayerMoveEvent $event) : void{
-            // Do your thing here ;p
-        }
-
-    }
-
-}
-```
-You can check the `Cheat` class for all class methods such as `Cheat::fail()`.
+## Custom Stuff
+### Custom Processors Docs
+**TODO: If someone wants to pull request for this please do so by all means!**
+### Custom Modules Docs
+**TODO: If someone wants to pull request for this please do so by all means!**

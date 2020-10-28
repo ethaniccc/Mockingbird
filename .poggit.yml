@@ -3,11 +3,8 @@ build-by-default: true
 branches:
 - master
 - stable
+- v2
 projects:
   Mockingbird:
     path: ""
-    libs:
-      - src: jojoe77777/FormAPI/libFormAPI
-        version: ^1.3.0
-        branch: master
 ...

@@ -1,34 +1,13 @@
 <?php
 
-/*
-$$\      $$\                     $$\       $$\                     $$\       $$\                 $$\
-$$$\    $$$ |                    $$ |      \__|                    $$ |      \__|                $$ |
-$$$$\  $$$$ | $$$$$$\   $$$$$$$\ $$ |  $$\ $$\ $$$$$$$\   $$$$$$\  $$$$$$$\  $$\  $$$$$$\   $$$$$$$ |
-$$\$$\$$ $$ |$$  __$$\ $$  _____|$$ | $$  |$$ |$$  __$$\ $$  __$$\ $$  __$$\ $$ |$$  __$$\ $$  __$$ |
-$$ \$$$  $$ |$$ /  $$ |$$ /      $$$$$$  / $$ |$$ |  $$ |$$ /  $$ |$$ |  $$ |$$ |$$ |  \__|$$ /  $$ |
-$$ |\$  /$$ |$$ |  $$ |$$ |      $$  _$$<  $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |$$ |      $$ |  $$ |
-$$ | \_/ $$ |\$$$$$$  |\$$$$$$$\ $$ | \$$\ $$ |$$ |  $$ |\$$$$$$$ |$$$$$$$  |$$ |$$ |      \$$$$$$$ |
-\__|     \__| \______/  \_______|\__|  \__|\__|\__|  \__| \____$$ |\_______/ \__|\__|       \_______|
-                                                         $$\   $$ |
-                                                         \$$$$$$  |
-                                                          \______/
-~ Made by @ethaniccc idot </3
-Github: https://www.github.com/ethaniccc
-*/
-
 namespace ethaniccc\Mockingbird\utils\boundingbox;
 
+use ethaniccc\Mockingbird\user\User;
 use pocketmine\block\Block;
 use pocketmine\entity\Entity;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Vector3;
-use pocketmine\Player;
 
-/**
- * Class AABB
- * @package ethaniccc\Mockingbird\utils\boundingbox
- * @author shura62 (tysm <3)
- */
 class AABB extends AxisAlignedBB{
 
     public $minX, $minY, $minZ;
@@ -44,8 +23,8 @@ class AABB extends AxisAlignedBB{
         $this->maxZ = $maxZ;
     }
 
-    public static function from(Entity $user) : AABB{
-        $pos = $user->getPosition();
+    public static function from(User $user) : AABB{
+        $pos = $user->location;
         return new AABB($pos->x - 0.3, $pos->y, $pos->z - 0.3, $pos->x + 0.3, $pos->y + 1.8, $pos->z + 0.3);
     }
 
@@ -98,6 +77,22 @@ class AABB extends AxisAlignedBB{
         return [$this->maxX, $this->maxY, $this->maxZ][$i] ?? 0;
     }
 
+    public function getCornerVectors() : array{
+        return [
+            // top vectors
+            new Vector3($this->maxX, $this->maxY, $this->maxZ),
+            new Vector3($this->minX, $this->maxY, $this->maxZ),
+            new Vector3($this->minX, $this->maxY, $this->minZ),
+            new Vector3($this->maxX, $this->maxY, $this->minZ),
+            // bottom vectors
+            new Vector3($this->maxX, $this->minY, $this->maxZ),
+            new Vector3($this->minX, $this->minY, $this->maxZ),
+            new Vector3($this->minX, $this->minY, $this->minZ),
+            new Vector3($this->maxX, $this->minY, $this->minZ)
+        ];
+    }
+
+    // thanks shura62 again :p
     public function collidesRay(Ray $ray, float $tmin, float $tmax) : float{
         for($i = 0; $i < 3; ++$i) {
             $d = 1 / ($ray->direction($i) ?: 0.01);
@@ -117,19 +112,49 @@ class AABB extends AxisAlignedBB{
         return $tmin;
     }
 
-    public function getCornerVectors() : array{
-        return [
-            // top vectors
-            new Vector3($this->maxX, $this->maxY, $this->maxZ),
-            new Vector3($this->minX, $this->maxY, $this->maxZ),
-            new Vector3($this->minX, $this->maxY, $this->minZ),
-            new Vector3($this->maxX, $this->maxY, $this->minZ),
-            // bottom vectors
-            new Vector3($this->maxX, $this->minY, $this->maxZ),
-            new Vector3($this->minX, $this->minY, $this->maxZ),
-            new Vector3($this->minX, $this->minY, $this->minZ),
-            new Vector3($this->maxX, $this->minY, $this->minZ)
-        ];
+    public function calculateInterceptedDistance(Vector3 $pos1, Vector3 $pos2) : ?float{
+        $v1 = $pos1->getIntermediateWithXValue($pos2, $this->minX);
+        $v2 = $pos1->getIntermediateWithXValue($pos2, $this->maxX);
+        $v3 = $pos1->getIntermediateWithYValue($pos2, $this->minY);
+        $v4 = $pos1->getIntermediateWithYValue($pos2, $this->maxY);
+        $v5 = $pos1->getIntermediateWithZValue($pos2, $this->minZ);
+        $v6 = $pos1->getIntermediateWithZValue($pos2, $this->maxZ);
+
+        if($v1 !== null and !$this->isVectorInYZ($v1)){
+            $v1 = null;
+        }
+
+        if($v2 !== null and !$this->isVectorInYZ($v2)){
+            $v2 = null;
+        }
+
+        if($v3 !== null and !$this->isVectorInXZ($v3)){
+            $v3 = null;
+        }
+
+        if($v4 !== null and !$this->isVectorInXZ($v4)){
+            $v4 = null;
+        }
+
+        if($v5 !== null and !$this->isVectorInXY($v5)){
+            $v5 = null;
+        }
+
+        if($v6 !== null and !$this->isVectorInXY($v6)){
+            $v6 = null;
+        }
+
+        $vector = null;
+        $distance = PHP_INT_MAX;
+
+        foreach([$v1, $v2, $v3, $v4, $v5, $v6] as $v){
+            if($v !== null and ($d = $pos1->distanceSquared($v)) < $distance){
+                $vector = $v;
+                $distance = $d;
+            }
+        }
+
+        return $vector !== null ? sqrt($distance) : null;
     }
 
 }
