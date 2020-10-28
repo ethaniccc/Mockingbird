@@ -24,7 +24,7 @@ class ReachA extends Detection{
         if($packet instanceof InventoryTransactionPacket
         && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY
         && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK
-        && $user->isDesktop){
+        && $user->isDesktop && !$user->player->isCreative()){
             $attackPos = $user->attackPos;
             if(!$attackPos instanceof Vector3){
                 return;
