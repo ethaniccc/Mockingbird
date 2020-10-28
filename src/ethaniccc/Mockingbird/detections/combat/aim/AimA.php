@@ -17,7 +17,7 @@ class AimA extends Detection{
         if($packet instanceof PlayerAuthInputPacket){
             $yawDelta = $user->yawDelta;
             $pitchDelta = $user->pitchDelta;
-            if($user->timeSinceAttack <= 10){
+            if($user->timeSinceAttack <= 10 && $user->rotated){
                 // impossible for pitch delta to be so low in this case
                 if($yawDelta > 2 && $pitchDelta <= 2E-5 && abs($user->pitch) < 90){
                     if(++$this->preVL >= 3){

@@ -42,6 +42,7 @@ class MoveProcessor extends Processor{
                 $user->lastPitchDelta = $user->pitchDelta;
                 $user->yawDelta = abs($user->lastYaw - $user->yaw);
                 $user->pitchDelta = abs($user->lastPitch - $user->pitch);
+                $user->rotated = $user->yawDelta > 1E-4 || $user->pitchDelta > 0;
             }
             ++$user->timeSinceTeleport;
             ++$user->timeSinceDamage;
@@ -64,6 +65,17 @@ class MoveProcessor extends Processor{
             $AABB2->minY = $AABB2->maxY;
             $AABB2->maxY += 0.01;
             $user->blockAbove = $user->player->getLevel()->getCollisionBlocks($AABB2, true)[0] ?? null;
+            $user->pressedKeys = [];
+            if($packet->getMoveVecZ() > 0){
+                $user->pressedKeys[] = "W";
+            } elseif($packet->getMoveVecZ() < 0){
+                $user->pressedKeys[] = "S";
+            }
+            if($packet->getMoveVecX() > 0){
+                $user->pressedKeys[] = "A";
+            } elseif($packet->getMoveVecX() < 0){
+                $user->pressedKeys[] = "D";
+            }
             if(microtime(true) - $user->lastSentNetworkLatencyTime >= 1){
                 if(++$this->ticks >= 20){
                     $user->lastSentNetworkLatencyTime = microtime(true);

@@ -45,7 +45,7 @@ class VelocityA extends Detection implements MovementDetection{
                     $AABB->maxY += 0.1;
                     $solidBlocksAround = count($user->player->getLevel()->getCollisionBlocks($AABB));
                     if($user->moveDelta->y < $currentData->motion * $this->getSetting("multiplier")
-                    && $user->blockAbove === null && $notSolidBlocksAround === 0 && $solidBlocksAround === 0){
+                    && $user->blockAbove === null && $notSolidBlocksAround === 0 && $solidBlocksAround === 0 && $currentData->motion >= 0.3){
                         ++$currentData->failedTime;
                         if(abs($currentData->maxFailedMotion) < abs($user->moveDelta->y)){
                             $currentData->maxFailedMotion = $user->moveDelta->y;
@@ -54,10 +54,10 @@ class VelocityA extends Detection implements MovementDetection{
                 } else {
                     if($currentData->failedTime >= $currentData->maxTime){
                         if(++$this->preVL >= 10){
-                            $this->fail($user, "{$user->player->getName()}: eD: {$currentData->motion}, mYD: {$currentData->maxFailedMotion}, mT: {$currentData->maxTime}");
+                            $this->fail($user, "eD={$currentData->motion}, mYD={$currentData->maxFailedMotion}, mT={$currentData->maxTime}");
                         }
                     } else {
-                        $this->preVL -= $this->preVL > 0 ? 1 : 0;
+                        $this->preVL -= $this->preVL;
                         $this->reward($user, 0.95);
                     }
                     $this->queue[0] = null;

@@ -43,8 +43,13 @@ class User{
     /** @var float */
     public $yaw = 0, $pitch = 0, $lastYaw = 0, $lastPitch = 0;
     public $yawDelta = 0, $pitchDelta = 0, $lastYawDelta = 0, $lastPitchDelta = 0;
+    /** @var bool */
+    public $rotated = false;
 
     public $cps, $clickTime;
+
+    /** @var string[] - The WASD combo the player is using */
+    public $pressedKeys = [];
 
     // attack pos is the position of the damager when attacking the targetEntity given in the InventoryTransactionPacket
     public $attackPos;

@@ -71,7 +71,7 @@ and false at sometimes, but the new reward system should compensate.
     - (A) -> MultiAura
     - (B) -> NoSwing
 - Reach
-    - (A) -> XZ Distance Check w/ Location History
+    - (A) -> Check w/ Location History
 ### Movement Checks
 - Fly
     - (A) -> Prediction Check
@@ -82,12 +82,15 @@ and false at sometimes, but the new reward system should compensate.
     - (B) -> Speed Limit Check
 - Velocity
     - (A) -> Vertical Check (**98% by default**)
-    - (B) -> Horizontal Check (**90% by default (pogchamp)**)
+    - (B) -> Horizontal Check (**97% by default**)
 
 Mockingbird also has packet checks.
 - BadPackets (checks for validity of packets sent)
     * (A) -> Pitch validity check
     * (B) -> **don't worry about it - will flag for more hacks than you think**
+    * (C) -> Checks if player hits themselves (can be used to bypass some checks?)
+- Timer (checks if player is sending too many packets in an instance)
+    - (A) -> Balance Check (bad with server lag)
 
 ## Custom Stuff
 ### Custom Processors Docs

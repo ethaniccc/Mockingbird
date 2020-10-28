@@ -112,4 +112,49 @@ class AABB extends AxisAlignedBB{
         return $tmin;
     }
 
+    public function calculateInterceptedDistance(Vector3 $pos1, Vector3 $pos2) : ?float{
+        $v1 = $pos1->getIntermediateWithXValue($pos2, $this->minX);
+        $v2 = $pos1->getIntermediateWithXValue($pos2, $this->maxX);
+        $v3 = $pos1->getIntermediateWithYValue($pos2, $this->minY);
+        $v4 = $pos1->getIntermediateWithYValue($pos2, $this->maxY);
+        $v5 = $pos1->getIntermediateWithZValue($pos2, $this->minZ);
+        $v6 = $pos1->getIntermediateWithZValue($pos2, $this->maxZ);
+
+        if($v1 !== null and !$this->isVectorInYZ($v1)){
+            $v1 = null;
+        }
+
+        if($v2 !== null and !$this->isVectorInYZ($v2)){
+            $v2 = null;
+        }
+
+        if($v3 !== null and !$this->isVectorInXZ($v3)){
+            $v3 = null;
+        }
+
+        if($v4 !== null and !$this->isVectorInXZ($v4)){
+            $v4 = null;
+        }
+
+        if($v5 !== null and !$this->isVectorInXY($v5)){
+            $v5 = null;
+        }
+
+        if($v6 !== null and !$this->isVectorInXY($v6)){
+            $v6 = null;
+        }
+
+        $vector = null;
+        $distance = PHP_INT_MAX;
+
+        foreach([$v1, $v2, $v3, $v4, $v5, $v6] as $v){
+            if($v !== null and ($d = $pos1->distanceSquared($v)) < $distance){
+                $vector = $v;
+                $distance = $d;
+            }
+        }
+
+        return $vector !== null ? sqrt($distance) : null;
+    }
+
 }

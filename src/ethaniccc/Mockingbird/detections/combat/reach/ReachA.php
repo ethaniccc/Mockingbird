@@ -5,7 +5,9 @@ namespace ethaniccc\Mockingbird\detections\combat\reach;
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\user\UserManager;
+use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\MathUtils;
+use pocketmine\level\particle\FlameParticle;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
@@ -27,7 +29,7 @@ class ReachA extends Detection{
             if(!$attackPos instanceof Vector3){
                 return;
             }
-            $estimatedTime = (microtime(true) * 1000) - ($user->transactionLatency);
+            $estimatedTime = (microtime(true) * 1000) - $user->transactionLatency;
             $entity = $user->targetEntity;
             if($entity instanceof Player){
                 $damagedUser = UserManager::getInstance()->get($entity);
@@ -35,19 +37,23 @@ class ReachA extends Detection{
                 $possibleLocations = $damagedUser->locationHistory->getLocationsRelativeToTime($estimatedTime, 100);
                 $distances = [];
                 foreach($possibleLocations as $location){
-                    $distances[] = MathUtils::vectorXZDistance($location, $attackPos) - 0.3;
+                    $AABB = AABB::fromPosition($location)->expand(0.1, 0, 0.1);
+                    $AABB->maxY = $AABB->minY + 1.9;
+                    // 7 is the maximum reach in minecraft
+                    if(($distance = $AABB->calculateInterceptedDistance($attackPos, $attackPos->add(MathUtils::directionVectorFromValues($user->yaw, $user->pitch)->multiply(7))))){
+                        $distances[] = $distance;
+                    }
                 }
                 if(!empty($distances)){
                     $distance = min($distances);
-                    if($distance > $this->getSetting("max_reach")){
+                    if($distance > 3.1){
                         if(++$this->preVL >= 10){
-                            $this->fail($user, "distance=$distance");
+                            $this->fail($user, "distance=$distance probability={$this->getCheatProbability()}");
+                            // this is to prevent the preVL raising too high
+                            $this->preVL = min($this->preVL, 15);
                         }
                     } else {
-                        if($distance != -1){
-                            $this->preVL -= $this->preVL > 0 ? 1 : 0;
-                            $this->reward($user, 0.999);
-                        }
+                        $this->preVL -= $this->preVL > 0 ? 1 : 0;
                     }
                 }
             }
