@@ -46,7 +46,7 @@ class ReachA extends Detection{
                 }
                 if(!empty($distances)){
                     $distance = min($distances);
-                    if($distance > 3.1){
+                    if($distance > (float) $this->getSetting("max_reach")){
                         if(++$this->preVL >= 10){
                             $this->fail($user, "distance=$distance probability={$this->getCheatProbability()}");
                             // this is to prevent the preVL raising too high
