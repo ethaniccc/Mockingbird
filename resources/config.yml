@@ -44,7 +44,7 @@ upload_debug: true
 # AutoClicker
 AutoClickerA:
   enabled: true
-  punish: false
+  punish: true
   punishment_type: kick
   max_violations: 20
   # check sensitivity settings
@@ -58,6 +58,15 @@ AutoClickerB:
   max_violations: 20
   # check sensitivity settings
   max_cps: 25
+AutoClickerC:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 25
+  # check sensitivity settings - best to not change
+  samples: 30
+  skewness: 0
+  kurtosis: 0.02
 
 # KillAura
 KillAuraA:
