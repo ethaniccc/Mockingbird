@@ -40,7 +40,7 @@ namespace ethaniccc\Mockingbird\detections\custom{
                 /**
                  * It's magic time, do whatever you want here.
                  */
-                $this->debug("Cps: " . $user->cps);
+                $this->debug("Cps: " . $user->cps, false);
             }
         }
 

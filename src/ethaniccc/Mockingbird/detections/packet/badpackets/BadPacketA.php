@@ -3,13 +3,13 @@
 namespace ethaniccc\Mockingbird\detections\packet\badpackets;
 
 use ethaniccc\Mockingbird\detections\Detection;
-use ethaniccc\Mockingbird\detections\movement\MovementDetection;
+use ethaniccc\Mockingbird\detections\movement\CancellableMovement;
 use ethaniccc\Mockingbird\user\User;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
-class BadPacketA extends Detection implements MovementDetection{
+class BadPacketA extends Detection implements CancellableMovement{
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);

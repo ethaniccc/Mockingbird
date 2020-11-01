@@ -53,6 +53,7 @@ class MoveProcessor extends Processor{
             if($user->onGround){
                 ++$user->onGroundTicks;
                 $user->offGroundTicks = 0;
+                $user->lastOnGroundLocation = $location;
             } else {
                 ++$user->offGroundTicks;
                 $user->onGroundTicks = 0;

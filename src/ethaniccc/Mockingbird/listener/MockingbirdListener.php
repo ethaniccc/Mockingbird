@@ -4,10 +4,12 @@ namespace ethaniccc\Mockingbird\listener;
 
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\Mockingbird;
+use ethaniccc\Mockingbird\packets\BlockPlacePacket;
 use ethaniccc\Mockingbird\packets\MotionPacket;
 use ethaniccc\Mockingbird\processing\Processor;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\user\UserManager;
+use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\entity\EntityMotionEvent;
 use pocketmine\event\entity\EntityTeleportEvent;
 use pocketmine\event\Listener;
@@ -100,6 +102,23 @@ class MockingbirdListener implements Listener{
             $user = UserManager::getInstance()->get($entity);
             if($user !== null){
                 $user->timeSinceTeleport = 0;
+            }
+        }
+    }
+
+    public function onPlacedBlock(BlockPlaceEvent $event) : void{
+        $user = UserManager::getInstance()->get($event->getPlayer());
+        if($user !== null){
+            $pk = new BlockPlacePacket($event);
+            foreach($user->processors as $processor){
+                if($processor instanceof Processor){
+                    $processor->process($pk);
+                }
+            }
+            foreach($user->checks as $check){
+                if($check instanceof Detection){
+                    $check->handle($pk, $user);
+                }
             }
         }
     }

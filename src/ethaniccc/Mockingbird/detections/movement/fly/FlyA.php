@@ -3,14 +3,14 @@
 namespace ethaniccc\Mockingbird\detections\movement\fly;
 
 use ethaniccc\Mockingbird\detections\Detection;
-use ethaniccc\Mockingbird\detections\movement\MovementDetection;
+use ethaniccc\Mockingbird\detections\movement\CancellableMovement;
 use ethaniccc\Mockingbird\user\User;
 use pocketmine\item\ItemIds;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\block\Block;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
-class FlyA extends Detection implements MovementDetection{
+class FlyA extends Detection implements CancellableMovement{
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);

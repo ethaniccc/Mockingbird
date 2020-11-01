@@ -3,7 +3,7 @@
 namespace ethaniccc\Mockingbird\detections\movement\speed;
 
 use ethaniccc\Mockingbird\detections\Detection;
-use ethaniccc\Mockingbird\detections\movement\MovementDetection;
+use ethaniccc\Mockingbird\detections\movement\CancellableMovement;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\MathUtils;
 use pocketmine\block\Ice;
@@ -13,7 +13,7 @@ use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\utils\TextFormat;
 
-class SpeedB extends Detection implements MovementDetection{
+class SpeedB extends Detection implements CancellableMovement{
 
     private $speeds = [];
     private $onGroundTicks = 0;

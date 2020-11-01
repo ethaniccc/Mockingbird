@@ -5,7 +5,6 @@ namespace ethaniccc\Mockingbird\detections\combat\autoclicker;
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\MathUtils;
-use pocketmine\network\mcpe\protocol\ActorEventPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
@@ -19,6 +18,8 @@ class AutoClickerA extends Detection{
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
         $this->vlThreshold = 20;
+        $this->lowMax = 2;
+        $this->mediumMax = 4;
     }
 
     public function handle(DataPacket $packet, User $user): void{

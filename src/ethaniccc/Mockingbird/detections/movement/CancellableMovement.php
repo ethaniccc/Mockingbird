@@ -2,5 +2,5 @@
 
 namespace ethaniccc\Mockingbird\detections\movement;
 
-interface MovementDetection{
+interface CancellableMovement{
 }

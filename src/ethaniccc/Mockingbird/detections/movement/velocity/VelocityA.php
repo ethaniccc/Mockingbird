@@ -3,14 +3,14 @@
 namespace ethaniccc\Mockingbird\detections\movement\velocity;
 
 use ethaniccc\Mockingbird\detections\Detection;
-use ethaniccc\Mockingbird\detections\movement\MovementDetection;
+use ethaniccc\Mockingbird\detections\movement\CancellableMovement;
 use ethaniccc\Mockingbird\packets\MotionPacket;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
-class VelocityA extends Detection implements MovementDetection{
+class VelocityA extends Detection implements CancellableMovement{
 
     private $queue = [];
 

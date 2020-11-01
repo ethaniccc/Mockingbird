@@ -2,7 +2,7 @@
 
 namespace ethaniccc\Mockingbird\detections;
 
-use ethaniccc\Mockingbird\detections\movement\MovementDetection;
+use ethaniccc\Mockingbird\detections\movement\CancellableMovement;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\tasks\BanTask;
 use ethaniccc\Mockingbird\tasks\KickTask;
@@ -19,6 +19,7 @@ abstract class Detection{
     protected $settings;
     protected $preVL, $maxVL;
     protected $vlThreshold = 2;
+    protected $lowMax, $mediumMax;
     public $name, $subType, $enabled, $punishable, $punishType, $suppression, $alerts;
 
     public const PROBABILITY_LOW = 1;
@@ -35,6 +36,8 @@ abstract class Detection{
         $this->suppression = $this->settings["suppression"] ?? false;
         $this->maxVL = $this->settings["max_violations"] ?? 25;
         $this->alerts = Mockingbird::getInstance()->getConfig()->get("alerts_enabled") ?? true;
+        $this->lowMax = floor(pow($this->vlThreshold, 1 / 4) * 5);
+        $this->mediumMax = floor(sqrt($this->vlThreshold) * 5);
     }
 
     public function getSetting(string $setting){
@@ -44,12 +47,10 @@ abstract class Detection{
     public abstract function handle(DataPacket $packet, User $user) : void;
 
     public function getCheatProbability() : int{
-        $lowMax = floor(pow($this->vlThreshold, 1 / 4) * 5);
-        $mediumMax = floor(sqrt($this->vlThreshold) * 5);
         $violations = count($this->violations);
-        if($violations <= $lowMax){
+        if($violations <= $this->lowMax){
             return self::PROBABILITY_LOW;
-        } elseif($violations <= $mediumMax){
+        } elseif($violations <= $this->mediumMax){
             return self::PROBABILITY_MEDIUM;
         } else {
             return self::PROBABILITY_HIGH;
@@ -90,7 +91,7 @@ abstract class Detection{
             $message = $this->getPlugin()->getPrefix() . " " . str_replace(["{player}", "{check}", "{vl}", "{probability}"], [$name, $cheatName, $violations, $this->probabilityColor($this->getCheatProbability())], $this->getPlugin()->getConfig()->get("fail_message"));
             Server::getInstance()->broadcastMessage($message, $staff);
         }
-        if($this instanceof MovementDetection && $this->suppression){
+        if($this instanceof CancellableMovement && $this->suppression){
             if(!$user->onGround){
                 $user->player->teleport($user->lastOnGroundLocation);
             } else {

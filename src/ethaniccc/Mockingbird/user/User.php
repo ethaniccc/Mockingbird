@@ -67,6 +67,7 @@ class User{
     public function __construct(Player $player){
         $this->player = $player;
         $this->locationHistory = new LocationHistory();
+        $this->lastOnGroundLocation = $player->asLocation();
         $zeroVector = new Vector3(0, 0, 0);
         $this->moveDelta = $zeroVector;
         $this->lastMoveDelta = $zeroVector;

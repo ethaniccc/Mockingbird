@@ -3,7 +3,7 @@
 namespace ethaniccc\Mockingbird\detections\movement\speed;
 
 use ethaniccc\Mockingbird\detections\Detection;
-use ethaniccc\Mockingbird\detections\movement\MovementDetection;
+use ethaniccc\Mockingbird\detections\movement\CancellableMovement;
 use ethaniccc\Mockingbird\user\User;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
@@ -11,7 +11,7 @@ use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 
-class SpeedA extends Detection implements MovementDetection{
+class SpeedA extends Detection implements CancellableMovement{
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
@@ -34,7 +34,7 @@ class SpeedA extends Detection implements MovementDetection{
                 && !$user->player->isFlying()
                 && $user->timeSinceTeleport >= 5){
                     if(++$this->preVL >= 3){
-                        $this->fail($user, "{$user->player->getName()}: e: $equalness, cXZ: $currentXZ, lXZ: $lastXZ");
+                        $this->fail($user, "e=$equalness cXZ=$currentXZ lXZ=$lastXZ");
                     }
                 } else {
                     $this->preVL = 0;
