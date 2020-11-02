@@ -33,6 +33,8 @@ class AutoClickerC extends Detection{
                     $outliers = count($outlierPair->x) + count($outlierPair->y);
                     if($skewness <= $this->getSetting("skewness") && $kurtosis <= $this->getSetting("kurtosis") && $outliers <= $this->getSetting("outliers")){
                         $this->fail($user, "skewness=$skewness kurtosis=$kurtosis outliers=$outliers probability={$this->getCheatProbability()}");
+                    } else {
+                        $this->reward($user, 0.995);
                     }
                     $this->delaySamples = [];
                 }
