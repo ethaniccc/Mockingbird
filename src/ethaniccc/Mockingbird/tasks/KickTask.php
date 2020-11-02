@@ -3,6 +3,7 @@
 namespace ethaniccc\Mockingbird\tasks;
 
 use ethaniccc\Mockingbird\user\User;
+use ethaniccc\Mockingbird\user\UserManager;
 use pocketmine\scheduler\Task;
 
 class KickTask extends Task{
@@ -18,6 +19,7 @@ class KickTask extends Task{
     public function onRun(int $currentTick){
         $player = $this->user->player;
         $player->kick($this->message, false);
+        UserManager::getInstance()->unregister($player);
     }
 
 }

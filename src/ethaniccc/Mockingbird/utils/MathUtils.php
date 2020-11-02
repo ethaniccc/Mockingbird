@@ -29,6 +29,11 @@ class MathUtils{
         return hypot($a->x - $b->x, $a->z - $b->z);
     }
 
+    public static function vectorAngle(Vector3 $a, Vector3 $b) : float{
+        $dot = $a->dot($b) / ($a->length() * $b->length());
+        return acos($dot);
+    }
+
     public static function directionVectorFromValues(float $yaw, float $pitch) : Vector3{
         $vector = new Vector3(0, 0, 0);
         $y = -sin(deg2rad($pitch));

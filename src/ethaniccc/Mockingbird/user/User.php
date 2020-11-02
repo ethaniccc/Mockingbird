@@ -5,6 +5,7 @@ namespace ethaniccc\Mockingbird\user;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\utils\location\LocationHistory;
 use pocketmine\block\Block;
+use pocketmine\entity\Entity;
 use pocketmine\level\Location;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
@@ -53,6 +54,7 @@ class User{
 
     // attack pos is the position of the damager when attacking the targetEntity given in the InventoryTransactionPacket
     public $attackPos;
+    /** @var Entity */
     public $targetEntity;
 
     public $timeSinceTeleport = 0;

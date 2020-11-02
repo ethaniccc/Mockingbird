@@ -62,11 +62,12 @@ AutoClickerC:
   enabled: true
   punish: true
   punishment_type: kick
-  max_violations: 25
+  max_violations: 20
   # check sensitivity settings - best to not change
   samples: 30
-  skewness: 0
+  skewness: 0.035
   kurtosis: 0.02
+  outliers: 2
 
 # KillAura
 KillAuraA:
@@ -82,8 +83,6 @@ KillAuraB:
 
 # Reach
 ReachA:
-  # this will only detect blatant reach. if you want to detect lower values,
-  # I recommend setting max_reach to 3.15
   enabled: true
   punish: true
   punishment_type: kick

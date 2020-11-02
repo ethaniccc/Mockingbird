@@ -32,4 +32,8 @@ class UserManager{
         return $this->users[spl_object_hash($player)] ?? null;
     }
 
+    public function unregister(Player $player){
+        unset($this->users[spl_object_hash($player)]);
+    }
+
 }
