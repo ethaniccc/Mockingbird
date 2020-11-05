@@ -3,17 +3,16 @@
 namespace ethaniccc\Mockingbird\detections\combat\autoclicker;
 
 use ethaniccc\Mockingbird\detections\Detection;
+use ethaniccc\Mockingbird\processing\ClickProcessor;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\MathUtils;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
-use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
 class AutoClickerC extends Detection{
 
-    private $movements = 0;
-    private $delaySamples = [];
+    private $clicks = 0;
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
@@ -24,24 +23,20 @@ class AutoClickerC extends Detection{
 
     public function handle(DataPacket $packet, User $user): void{
         if(($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) || ($packet instanceof LevelSoundEventPacket && $packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE)){
-            if($this->movements <= 4){
-                $this->delaySamples[] = $this->movements;
-                if(count($this->delaySamples) === $this->getSetting("samples")){
-                    $skewness = MathUtils::getSkewness($this->delaySamples);
-                    $kurtosis = MathUtils::getKurtosis($this->delaySamples);
-                    $outlierPair = MathUtils::getOutliers($this->delaySamples);
+            if(++$this->clicks === $this->getSetting("samples")){
+                $processor = $user->processors["ClickProcessor"];
+                if($processor instanceof ClickProcessor){
+                    $samples = $processor->getTickSamples($this->getSetting("samples"));
+                    $kurtosis = MathUtils::getKurtosis($samples);
+                    $skewness = MathUtils::getSkewness($samples);
+                    $outlierPair = MathUtils::getOutliers($samples);
                     $outliers = count($outlierPair->x) + count($outlierPair->y);
-                    if($skewness <= $this->getSetting("skewness") && $kurtosis <= $this->getSetting("kurtosis") && $outliers <= $this->getSetting("outliers")){
-                        $this->fail($user, "skewness=$skewness kurtosis=$kurtosis outliers=$outliers probability={$this->getCheatProbability()}");
-                    } else {
-                        $this->reward($user, 0.995);
+                    if($kurtosis <= $this->getSetting("kurtosis") && $skewness <= $this->getSetting("skewness") && $outliers <= $this->getSetting("outliers")){
+                        $this->fail($user, "kurtosis=$kurtosis skewness=$skewness outliers=$outliers cps={$processor->cps}");
                     }
-                    $this->delaySamples = [];
                 }
+                $this->clicks = 0;
             }
-            $this->movements = 0;
-        } elseif($packet instanceof PlayerAuthInputPacket){
-            ++$this->movements;
         }
     }
 

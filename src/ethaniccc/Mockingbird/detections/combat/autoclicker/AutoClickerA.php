@@ -3,17 +3,17 @@
 namespace ethaniccc\Mockingbird\detections\combat\autoclicker;
 
 use ethaniccc\Mockingbird\detections\Detection;
+use ethaniccc\Mockingbird\processing\ClickProcessor;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\MathUtils;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
-use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
 class AutoClickerA extends Detection{
 
-    private $ticks = 0, $lastDeviation;
-    private $speeds = [];
+    private $clicks = 0;
+    private $lastDeviation = 0;
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
@@ -24,32 +24,26 @@ class AutoClickerA extends Detection{
 
     public function handle(DataPacket $packet, User $user): void{
         if(($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) || ($packet instanceof LevelSoundEventPacket && $packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE) && $user->isDesktop){
-            if($this->ticks < 5 && $user->isDesktop){
-                $speed = $this->ticks * 50;
-                $this->speeds[] = $speed;
-                if(count($this->speeds) === $this->getSetting("samples")){
-                    $deviation = MathUtils::getDeviation($this->speeds);
-                    if($this->lastDeviation !== null){
-                        $deviationDiff = abs($this->lastDeviation - $deviation);
-                        if($deviationDiff <= 0.85 && $deviation < 27.5 && $user->cps >= $this->getSetting("required_cps")){
-                            if(++$this->preVL >= 3){
-                                $this->fail($user, "deviation=$deviation, equalness=$deviationDiff cps={$user->cps} probability={$this->getCheatProbability()}");
-                            }
-                        } elseif($deviation <= 9 && $user->cps >= 10) {
-                            // impossible consistency - most likely a 10cps autoclicker
-                            $this->fail($user, "deviation=$deviation cps={$user->cps}");
-                        } else {
-                            $this->preVL -= $this->preVL > 0 ? 1 : 0;
-                            $this->reward($user, 0.995);
-                        }
+            if(++$this->clicks === $this->getSetting("samples")){
+                $processor = $user->processors["ClickProcessor"];
+                if($processor instanceof ClickProcessor){
+                    $samples = $processor->getTickSamples($this->getSetting("samples"));
+                    foreach($samples as $key => $value){
+                        $samples[$key] = $value * 50;
                     }
-                    $this->speeds = [];
+                    $deviation = MathUtils::getDeviation($samples);
+                    $deviationDiff = abs($deviation - $this->lastDeviation);
+                    if($deviation < 28 && $deviationDiff <= $this->getSetting("consistency") && $processor->cps >= $this->getSetting("required_cps")){
+                        if(++$this->preVL >= 3){
+                            $this->fail($user, "deviation=$deviation, diff=$deviationDiff");
+                        }
+                    } else {
+                        $this->preVL = 0;
+                    }
                     $this->lastDeviation = $deviation;
                 }
+                $this->clicks = 0;
             }
-            $this->ticks = 0;
-        } elseif($packet instanceof PlayerAuthInputPacket){
-            ++$this->ticks;
         }
     }
 

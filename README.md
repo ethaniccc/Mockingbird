@@ -64,9 +64,12 @@ This is a list of all the detections Mockingbird has, these detections may not b
 and false at sometimes, but the new reward system should compensate.
 
 ### Combat Detections
+- Aim
+    - (A) -> Yaw delta to pitch delta check
 - AutoClicker
     - (A) -> Consistency
     - (B) -> Speed
+    - (C) -> Checks if click samples have low skewness, kurtosis, and outliers
 - KillAura
     - (A) -> MultiAura
     - (B) -> NoSwing

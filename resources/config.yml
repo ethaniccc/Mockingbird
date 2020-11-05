@@ -120,7 +120,7 @@ SpeedB:
   suppression: false
   max_violations: 25
   # check sensitivity settings
-  max_speed_on_ground: 0.31
+  max_speed_on_ground: 0.29
   max_speed_off_ground: 0.78
 
 # Fly

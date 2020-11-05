@@ -24,7 +24,7 @@ class SpeedB extends Detection implements CancellableMovement{
 
     public function handle(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
-            $theoreticalOnGround = fmod(($posY = round($user->location->y - 1.62, 4)), 1 / 64) === 0.0;
+            $theoreticalOnGround = fmod(($posY = round($user->location->y, 4)), 1 / 64) === 0.0;
             if($theoreticalOnGround){
                 ++$this->onGroundTicks;
             } else {
@@ -33,7 +33,7 @@ class SpeedB extends Detection implements CancellableMovement{
             $horizontalSpeed = hypot($user->moveDelta->x, $user->moveDelta->z);
             if(!$user->player->isFlying()
             && $user->blockAbove === null){
-                $maxSpeed = $this->onGroundTicks >= 5 ? $this->getSetting("max_speed_on_ground") : $this->getSetting("max_speed_off_ground");
+                $maxSpeed = $this->onGroundTicks >= 10 ? $this->getSetting("max_speed_on_ground") : $this->getSetting("max_speed_off_ground");
                 if($user->blockBelow instanceof Ice){
                     $maxSpeed *= 5/3;
                 }
@@ -42,9 +42,12 @@ class SpeedB extends Detection implements CancellableMovement{
                     $maxSpeed += 0.2 * $amplifier;
                 }
                 if($horizontalSpeed > $maxSpeed && $user->timeSinceTeleport >= 10){
-                    if(++$this->preVL >= 3){
+                    if(++$this->preVL >= 2){
                         $this->fail($user, "speed=$horizontalSpeed tpTime={$user->timeSinceTeleport}");
                     }
+                } else {
+                    $this->preVL = 0;
+                    $this->reward($user, 0.999);
                 }
             }
         }

@@ -47,8 +47,6 @@ class User{
     /** @var bool */
     public $rotated = false;
 
-    public $cps, $clickTime;
-
     /** @var string[] - The WASD combo the player is using */
     public $pressedKeys = [];
 
@@ -77,12 +75,12 @@ class User{
         $this->lastLocation = $this->location;
         foreach(Mockingbird::getInstance()->availableProcessors as $processorInfo){
             if($processorInfo instanceof ReflectionClass){
-                $this->processors[] = $processorInfo->newInstanceArgs([$this]);
+                $this->processors[$processorInfo->getShortName()] = $processorInfo->newInstanceArgs([$this]);
             }
         }
         foreach(Mockingbird::getInstance()->availableChecks as $checkInfo){
             if($checkInfo instanceof ReflectionClass){
-                $this->checks[] = $checkInfo->newInstanceArgs([$checkInfo->getShortName(), Mockingbird::getInstance()->getConfig()->getNested($checkInfo->getShortName())]);
+                $this->checks[$checkInfo->getShortName()] = $checkInfo->newInstanceArgs([$checkInfo->getShortName(), Mockingbird::getInstance()->getConfig()->getNested($checkInfo->getShortName())]);
             }
         }
     }

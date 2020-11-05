@@ -24,7 +24,9 @@ class NukerA extends Detection{
             if($this->blocks >= (int) $this->getSetting("max_blocks")){
                 $this->fail($user, "blocks={$this->blocks}");
             } else {
-                $this->reward($user, 0.99);
+                if($this->blocks > 0){
+                    $this->reward($user, 0.99);
+                }
             }
             $this->blocks = 0;
         }
