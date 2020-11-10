@@ -19,14 +19,6 @@ class OtherPacketProcessor extends Processor{
         $user = $this->user;
         if($packet instanceof LoginPacket){
             $user->isDesktop = !in_array($packet->clientData["DeviceOS"], [DeviceOS::AMAZON, DeviceOS::ANDROID, DeviceOS::IOS]);
-        } elseif($packet instanceof InventoryTransactionPacket){
-            if($packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY){
-                if($packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK){
-                    $user->attackPos = $packet->trData->playerPos;
-                    $user->targetEntity = $user->player->getLevel()->getEntity($packet->trData->entityRuntimeId);
-                    $user->timeSinceAttack = 0;
-                }
-            }
         } elseif($packet instanceof NetworkStackLatencyPacket){
             if($packet->timestamp === 1000){
                 $user->transactionLatency = round((microtime(true) - $user->lastSentNetworkLatencyTime) * 1000, 0);

@@ -22,7 +22,6 @@ class UserManager{
 
     public function register(User $user) : void{
         if(isset($this->users[spl_object_hash($user->player)])){
-            // destruct object, useless
             $this->users[spl_object_hash($user->player)] = null;
         }
         $this->users[spl_object_hash($user->player)] = $user;

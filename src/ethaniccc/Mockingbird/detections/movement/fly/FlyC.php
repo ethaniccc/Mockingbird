@@ -16,9 +16,9 @@ class FlyC extends Detection implements CancellableMovement{
 
     public function handle(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
-            if($user->offGroundTicks >= 10){
-                $yDelta = $user->moveDelta->y;
-                $lastYDelta = $user->lastMoveDelta->y;
+            if($user->moveData->offGroundTicks >= 10){
+                $yDelta = $user->moveData->moveDelta->y;
+                $lastYDelta = $user->moveData->lastMoveDelta->y;
                 $equalness = abs($yDelta - $lastYDelta);
                 // are PlayerAuthInputPacket y values fucked?
                 if($yDelta > -3.0 && $equalness <= 0.01 && !$user->player->isFlying() && $user->player->isAlive() && $user->timeSinceMotion > 5 && !$user->player->isImmobile() && $user->loggedIn){
@@ -26,6 +26,7 @@ class FlyC extends Detection implements CancellableMovement{
                         $this->fail($user, "yD=$yDelta, eq=$equalness");
                     }
                 } else {
+                    $this->reward($user, 0.999);
                     $this->preVL *= 0.75;
                 }
             }

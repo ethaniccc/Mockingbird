@@ -24,7 +24,7 @@ class AABB extends AxisAlignedBB{
     }
 
     public static function from(User $user) : AABB{
-        $pos = $user->location;
+        $pos = $user->moveData->location;
         return new AABB($pos->x - 0.3, $pos->y, $pos->z - 0.3, $pos->x + 0.3, $pos->y + 1.8, $pos->z + 0.3);
     }
 
@@ -92,61 +92,35 @@ class AABB extends AxisAlignedBB{
         ];
     }
 
-    // thanks shura62 again :p
-    public function collidesRay(Ray $ray, float $tmin, float $tmax) : float{
-        for($i = 0; $i < 3; ++$i) {
-            $d = 1 / ($ray->direction($i) ?: 0.01);
-            $t0 = ($this->min($i) - $ray->origin($i)) * $d;
-            $t1 = ($this->max($i) - $ray->origin($i)) * $d;
-            if($d < 0) {
-                $t = $t0;
-                $t0 = $t1;
-                $t1 = $t;
-            }
-            $tmin = $t0 > $tmin ? $t0 : $tmin;
-            $tmax = $t1 < $tmax ? $t1 : $tmax;
-            if($tmax <= $tmin){
-                return -1;
-            }
-        }
-        return $tmin;
-    }
-
-    public function calculateInterceptedDistance(Vector3 $pos1, Vector3 $pos2) : ?float{
+    public function collidesRay(Ray $ray, float $maxDist) : float{
+        $pos1 = $ray->getOrigin();
+        $pos2 = $pos1->add($ray->getDirection()->multiply($maxDist));
         $v1 = $pos1->getIntermediateWithXValue($pos2, $this->minX);
         $v2 = $pos1->getIntermediateWithXValue($pos2, $this->maxX);
         $v3 = $pos1->getIntermediateWithYValue($pos2, $this->minY);
         $v4 = $pos1->getIntermediateWithYValue($pos2, $this->maxY);
         $v5 = $pos1->getIntermediateWithZValue($pos2, $this->minZ);
         $v6 = $pos1->getIntermediateWithZValue($pos2, $this->maxZ);
-
         if($v1 !== null and !$this->isVectorInYZ($v1)){
             $v1 = null;
         }
-
         if($v2 !== null and !$this->isVectorInYZ($v2)){
             $v2 = null;
         }
-
         if($v3 !== null and !$this->isVectorInXZ($v3)){
             $v3 = null;
         }
-
         if($v4 !== null and !$this->isVectorInXZ($v4)){
             $v4 = null;
         }
-
         if($v5 !== null and !$this->isVectorInXY($v5)){
             $v5 = null;
         }
-
         if($v6 !== null and !$this->isVectorInXY($v6)){
             $v6 = null;
         }
-
         $vector = null;
         $distance = PHP_INT_MAX;
-
         foreach([$v1, $v2, $v3, $v4, $v5, $v6] as $v){
             if($v !== null and ($d = $pos1->distanceSquared($v)) < $distance){
                 $vector = $v;
@@ -154,7 +128,7 @@ class AABB extends AxisAlignedBB{
             }
         }
 
-        return $vector !== null ? sqrt($distance) : null;
+        return $vector !== null ? sqrt($distance) : -69.0;
     }
 
 }

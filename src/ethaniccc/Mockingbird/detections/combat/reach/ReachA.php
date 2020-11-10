@@ -4,14 +4,8 @@ namespace ethaniccc\Mockingbird\detections\combat\reach;
 
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\user\User;
-use ethaniccc\Mockingbird\user\UserManager;
-use ethaniccc\Mockingbird\utils\boundingbox\AABB;
-use ethaniccc\Mockingbird\utils\MathUtils;
-use pocketmine\level\particle\FlameParticle;
-use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
-use pocketmine\Player;
 
 class ReachA extends Detection{
 
@@ -25,36 +19,16 @@ class ReachA extends Detection{
         && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY
         && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK
         && $user->isDesktop && !$user->player->isCreative()){
-            $attackPos = $user->attackPos;
-            if(!$attackPos instanceof Vector3){
-                return;
-            }
-            $estimatedTime = (microtime(true) * 1000) - $user->transactionLatency;
-            $entity = $user->targetEntity;
-            if($entity instanceof Player){
-                $damagedUser = UserManager::getInstance()->get($entity);
-                // get all the locations that are 100ms away from the estimated times to hopefully get one accurate location
-                $possibleLocations = $damagedUser->locationHistory->getLocationsRelativeToTime($estimatedTime, 100);
-                $distances = [];
-                foreach($possibleLocations as $location){
-                    $AABB = AABB::fromPosition($location)->expand(0.1, 0, 0.1);
-                    $AABB->maxY = $AABB->minY + 1.9;
-                    // 7 is the maximum reach in minecraft
-                    if(($distance = $AABB->calculateInterceptedDistance($attackPos, $attackPos->add(MathUtils::directionVectorFromValues($user->yaw, $user->pitch)->multiply(7))))){
-                        $distances[] = $distance;
+            $distance = $user->hitData->rayDistance;
+            if($distance !== -69.0){
+                if($distance > $this->getSetting("max_reach")){
+                    if(++$this->preVL >= 10){
+                        $this->fail($user, "dist=$distance");
+                        $this->preVL = min($this->preVL, 15);
                     }
-                }
-                if(!empty($distances)){
-                    $distance = min($distances);
-                    if($distance > (float) $this->getSetting("max_reach")){
-                        if(++$this->preVL >= 10){
-                            $this->fail($user, "distance=$distance probability={$this->getCheatProbability()}");
-                            // this is to prevent the preVL raising too high
-                            $this->preVL = min($this->preVL, 15);
-                        }
-                    } else {
-                        $this->preVL -= $this->preVL > 0 ? 1 : 0;
-                    }
+                } else {
+                    $this->reward($user, 0.995);
+                    $this->preVL -= $this->preVL > 0 ? 1 : 0;
                 }
             }
         }

@@ -12,6 +12,7 @@ use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 class FlyB extends Detection implements CancellableMovement{
 
     private $lastOnGround = true;
+    private $modulo = 0;
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
@@ -22,10 +23,11 @@ class FlyB extends Detection implements CancellableMovement{
 
     public function handle(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
-            $this->lastOnGround = fmod(round($user->location->y, 4), 1 / 64) === 0.0;
+            $this->modulo = fmod(round($user->moveData->location->y, 4), 1 / 64);
+            $this->lastOnGround = $this->modulo === 0.0;
         } elseif($packet instanceof PlayerActionPacket && $packet->action === PlayerActionPacket::ACTION_JUMP){
-            if(!$this->lastOnGround && !$user->player->isImmobile()){
-                $this->fail($user);
+            if(!$this->lastOnGround && $user->moveData->offGroundTicks >= 10 && !$user->player->isImmobile()){
+                $this->fail($user, "modulo={$this->modulo} offGround={$user->moveData->offGroundTicks}");
             } else {
                 $this->reward($user, 0.995);
             }

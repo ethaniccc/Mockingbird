@@ -16,7 +16,7 @@ class BadPacketB extends Detection{
     }
 
     public function handle(DataPacket $packet, User $user): void{
-        if($packet instanceof MovePlayerPacket && ++$this->preVL >= 2){
+        if($packet instanceof MovePlayerPacket && ++$this->preVL >= 1.5){
             $this->fail($user);
         } elseif($packet instanceof PlayerAuthInputPacket){
             $this->reward($user, 0.999);

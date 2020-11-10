@@ -24,7 +24,10 @@ class TimerA extends Detection{
                 $this->balance = 0;
                 return;
             }
-            $currentTime = (Server::getInstance()->getTick() * floor(20 / Server::getInstance()->getTicksPerSecond())) * 50;
+            if(Server::getInstance()->getTicksPerSecond() < 20){
+                return;
+            }
+            $currentTime = Server::getInstance()->getTick() * 50;
             if($this->lastTime === null){
                 $this->lastTime = $currentTime;
                 return;
@@ -32,8 +35,9 @@ class TimerA extends Detection{
             $timeDiff = $currentTime - $this->lastTime;
             $this->balance -= 50;
             $this->balance += $timeDiff;
-            if($this->balance <= -200){
-                $this->fail($user);
+            if($this->balance <= -500){
+                $tps = Server::getInstance()->getTicksPerSecond();
+                $this->fail($user, "tps=$tps");
                 $this->balance = 0;
             }
             $this->lastTime = $currentTime;

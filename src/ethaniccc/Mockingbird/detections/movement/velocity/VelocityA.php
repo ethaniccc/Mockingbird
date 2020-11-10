@@ -44,17 +44,18 @@ class VelocityA extends Detection implements CancellableMovement{
                     $AABB = AABB::from($user);
                     $AABB->maxY += 0.1;
                     $solidBlocksAround = count($user->player->getLevel()->getCollisionBlocks($AABB));
-                    if($user->moveDelta->y < $currentData->motion * $this->getSetting("multiplier")
-                    && $user->blockAbove === null && $notSolidBlocksAround === 0 && $solidBlocksAround === 0 && $currentData->motion >= 0.3){
+                    if($user->moveData->moveDelta->y < $currentData->motion * $this->getSetting("multiplier")
+                    && $user->moveData->blockAbove === null && $notSolidBlocksAround === 0 && $solidBlocksAround === 0 && $currentData->motion >= 0.3){
                         ++$currentData->failedTime;
-                        if(abs($currentData->maxFailedMotion) < abs($user->moveDelta->y)){
-                            $currentData->maxFailedMotion = $user->moveDelta->y;
+                        if(abs($currentData->maxFailedMotion) < abs($user->moveData->moveDelta->y)){
+                            $currentData->maxFailedMotion = $user->moveData->moveDelta->y;
                         }
                     }
                 } else {
                     if($currentData->failedTime >= $currentData->maxTime){
-                        if(++$this->preVL >= 10){
-                            $this->fail($user, "eD={$currentData->motion}, mYD={$currentData->maxFailedMotion}, mT={$currentData->maxTime}");
+                        if(++$this->preVL >= 5){
+                            $percentage = ($currentData->maxFailedMotion / $currentData->motion) * 100;
+                            $this->fail($user, "vertical percentage=$percentage");
                         }
                     } else {
                         $this->preVL -= $this->preVL;

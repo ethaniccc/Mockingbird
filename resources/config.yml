@@ -68,6 +68,14 @@ AutoClickerC:
   skewness: 0.035
   kurtosis: 0.02
   outliers: 2
+AutoClickerD:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 20
+  # check sensitivity settings
+  duplicate_max: 3
+  samples: 10
 
 # KillAura
 KillAuraA:
@@ -178,6 +186,13 @@ NukerA:
   max_violations: 10
   # check sensitivity settings
   max_blocks: 6
+ChestStealerA:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 10
+  # check sensitivity settings
+  max_transactions: 4
 
 #  ______          _        _
 # | ___ \        | |      | |

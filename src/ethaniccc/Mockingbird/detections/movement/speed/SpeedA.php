@@ -19,9 +19,9 @@ class SpeedA extends Detection implements CancellableMovement{
 
     public function handle(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
-            if($user->offGroundTicks > 3){
-                $lastMoveDelta = $user->lastMoveDelta;
-                $currentMoveDelta = $user->moveDelta;
+            if($user->moveData->offGroundTicks > 3){
+                $lastMoveDelta = $user->moveData->lastMoveDelta;
+                $currentMoveDelta = $user->moveData->moveDelta;
                 if($lastMoveDelta === null){
                     return;
                 }

@@ -24,16 +24,14 @@ class AutoClickerC extends Detection{
     public function handle(DataPacket $packet, User $user): void{
         if(($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) || ($packet instanceof LevelSoundEventPacket && $packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE)){
             if(++$this->clicks === $this->getSetting("samples")){
-                $processor = $user->processors["ClickProcessor"];
-                if($processor instanceof ClickProcessor){
-                    $samples = $processor->getTickSamples($this->getSetting("samples"));
-                    $kurtosis = MathUtils::getKurtosis($samples);
-                    $skewness = MathUtils::getSkewness($samples);
-                    $outlierPair = MathUtils::getOutliers($samples);
-                    $outliers = count($outlierPair->x) + count($outlierPair->y);
-                    if($kurtosis <= $this->getSetting("kurtosis") && $skewness <= $this->getSetting("skewness") && $outliers <= $this->getSetting("outliers")){
-                        $this->fail($user, "kurtosis=$kurtosis skewness=$skewness outliers=$outliers cps={$processor->cps}");
-                    }
+                $data = $user->clickData;
+                $samples = $data->getTickSamples($this->getSetting("samples"));
+                $kurtosis = MathUtils::getKurtosis($samples);
+                $skewness = MathUtils::getSkewness($samples);
+                $outlierPair = MathUtils::getOutliers($samples);
+                $outliers = count($outlierPair->x) + count($outlierPair->y);
+                if($kurtosis <= $this->getSetting("kurtosis") && $skewness <= $this->getSetting("skewness") && $outliers <= $this->getSetting("outliers")){
+                    $this->fail($user, "kurtosis=$kurtosis skewness=$skewness outliers=$outliers cps={$data->cps}");
                 }
                 $this->clicks = 0;
             }

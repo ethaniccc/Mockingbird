@@ -15,7 +15,6 @@ use pocketmine\utils\TextFormat;
 
 class SpeedB extends Detection implements CancellableMovement{
 
-    private $speeds = [];
     private $onGroundTicks = 0;
 
     public function __construct(string $name, ?array $settings){
@@ -24,17 +23,17 @@ class SpeedB extends Detection implements CancellableMovement{
 
     public function handle(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
-            $theoreticalOnGround = fmod(($posY = round($user->location->y, 4)), 1 / 64) === 0.0;
+            $theoreticalOnGround = fmod(($posY = round($user->moveData->location->y, 4)), 1 / 64) === 0.0;
             if($theoreticalOnGround){
                 ++$this->onGroundTicks;
             } else {
                 $this->onGroundTicks = 0;
             }
-            $horizontalSpeed = hypot($user->moveDelta->x, $user->moveDelta->z);
+            $horizontalSpeed = hypot($user->moveData->moveDelta->x, $user->moveData->moveDelta->z);
             if(!$user->player->isFlying()
-            && $user->blockAbove === null){
+            && $user->moveData->blockAbove === null){
                 $maxSpeed = $this->onGroundTicks >= 10 ? $this->getSetting("max_speed_on_ground") : $this->getSetting("max_speed_off_ground");
-                if($user->blockBelow instanceof Ice){
+                if($user->moveData->blockBelow instanceof Ice){
                     $maxSpeed *= 5/3;
                 }
                 if($user->player->getEffect(1) !== null){

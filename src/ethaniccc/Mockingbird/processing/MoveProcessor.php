@@ -6,6 +6,7 @@ use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\tasks\KickTask;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
+use ethaniccc\Mockingbird\utils\MathUtils;
 use ethaniccc\Mockingbird\utils\PacketUtils;
 use pocketmine\level\Location;
 use pocketmine\network\mcpe\protocol\DataPacket;
@@ -28,55 +29,56 @@ class MoveProcessor extends Processor{
             }
             $location = Location::fromObject($packet->getPosition()->subtract(0, 1.62, 0), $user->player->getLevel(), $packet->getYaw(), $packet->getPitch());
             $user->locationHistory->addLocation($location);
-            $user->lastLocation = $user->location;
-            $user->location = $location;
-            $user->lastYaw = $user->yaw;
-            $user->lastPitch = $user->pitch;
-            $user->yaw = fmod($location->yaw, 360);
-            $user->pitch = fmod($location->pitch, 360);
+            $user->moveData->lastLocation = $user->moveData->location;
+            $user->moveData->location = $location;
+            $user->moveData->lastYaw = $user->moveData->yaw;
+            $user->moveData->lastPitch = $user->moveData->pitch;
+            $user->moveData->yaw = fmod($location->yaw, 360);
+            $user->moveData->pitch = fmod($location->pitch, 360);
             $movePacket = PacketUtils::playerAuthToMovePlayer($packet, $user);
             if($user->timeSinceTeleport > 0){
-                $user->lastMoveDelta = $user->moveDelta;
-                $user->moveDelta = $user->location->subtract($user->lastLocation)->asVector3();
-                $user->lastYawDelta = $user->yawDelta;
-                $user->lastPitchDelta = $user->pitchDelta;
-                $user->yawDelta = abs($user->lastYaw - $user->yaw);
-                $user->pitchDelta = abs($user->lastPitch - $user->pitch);
-                $user->rotated = $user->yawDelta > 1E-4 || $user->pitchDelta > 0;
+                $user->moveData->lastMoveDelta = $user->moveData->moveDelta;
+                $user->moveData->moveDelta = $user->moveData->location->subtract($user->moveData->lastLocation)->asVector3();
+                $user->moveData->lastYawDelta = $user->moveData->yawDelta;
+                $user->moveData->lastPitchDelta = $user->moveData->pitchDelta;
+                $user->moveData->yawDelta = abs($user->moveData->lastYaw - $user->moveData->yaw);
+                $user->moveData->pitchDelta = abs($user->moveData->lastPitch - $user->moveData->pitch);
+                $user->moveData->rotated = $user->moveData->yawDelta > 1E-4 || $user->moveData->pitchDelta > 0;
             }
             ++$user->timeSinceTeleport;
             ++$user->timeSinceDamage;
             ++$user->timeSinceAttack;
             ++$user->timeSinceJoin;
             ++$user->timeSinceMotion;
-            $user->onGround = $movePacket->onGround;
-            if($user->onGround){
-                ++$user->onGroundTicks;
-                $user->offGroundTicks = 0;
-                $user->lastOnGroundLocation = $location;
+            $user->moveData->onGround = $movePacket->onGround;
+            if($user->moveData->onGround){
+                ++$user->moveData->onGroundTicks;
+                $user->moveData->offGroundTicks = 0;
+                $user->moveData->lastOnGroundLocation = $location;
             } else {
-                ++$user->offGroundTicks;
-                $user->onGroundTicks = 0;
+                ++$user->moveData->offGroundTicks;
+                $user->moveData->onGroundTicks = 0;
             }
             $AABB = AABB::from($user);
             $AABB2 = clone $AABB;
             $AABB->maxY = $AABB->minX;
             $AABB->minY -= 0.01;
-            $user->blockBelow = $user->player->getLevel()->getCollisionBlocks($AABB, true)[0] ?? null;
+            $user->moveData->blockBelow = $user->player->getLevel()->getCollisionBlocks($AABB, true)[0] ?? null;
             $AABB2->minY = $AABB2->maxY;
             $AABB2->maxY += 0.01;
-            $user->blockAbove = $user->player->getLevel()->getCollisionBlocks($AABB2, true)[0] ?? null;
-            $user->pressedKeys = [];
+            $user->moveData->blockAbove = $user->player->getLevel()->getCollisionBlocks($AABB2, true)[0] ?? null;
+            $user->moveData->pressedKeys = [];
             if($packet->getMoveVecZ() > 0){
-                $user->pressedKeys[] = "W";
+                $user->moveData->pressedKeys[] = "W";
             } elseif($packet->getMoveVecZ() < 0){
-                $user->pressedKeys[] = "S";
+                $user->moveData->pressedKeys[] = "S";
             }
             if($packet->getMoveVecX() > 0){
-                $user->pressedKeys[] = "A";
+                $user->moveData->pressedKeys[] = "A";
             } elseif($packet->getMoveVecX() < 0){
-                $user->pressedKeys[] = "D";
+                $user->moveData->pressedKeys[] = "D";
             }
+            $user->moveData->directionVector = MathUtils::directionVectorFromValues($user->moveData->yaw, $user->moveData->pitch);
             if(microtime(true) - $user->lastSentNetworkLatencyTime >= 1){
                 if(++$this->ticks >= 20){
                     $user->lastSentNetworkLatencyTime = microtime(true);
@@ -85,6 +87,7 @@ class MoveProcessor extends Processor{
                     $pk->needResponse = true;
                     $user->player->dataPacket($pk);
                     if($this->ticks >= 1000){
+                        // yeah no, you're not making a disabler out of this
                         Mockingbird::getInstance()->getScheduler()->scheduleDelayedTask(new KickTask($user, "NetworkStackLatency Timeout (bad connection?) - Rejoin server"), 0);
                     }
                 }
@@ -92,7 +95,10 @@ class MoveProcessor extends Processor{
                 $this->ticks = 0;
             }
             // now this is important - otherwise everything will break
-            $user->player->handleMovePlayer($movePacket);
+            if(!$user->moveData->moveDelta->equals($user->zeroVector) || $user->moveData->yawDelta > 0 || $user->moveData->pitch > 0){
+                // only handle if the move delta is greater than 0 so PlayerMoveEvent isn't spammed
+                $user->player->handleMovePlayer($movePacket);
+            }
         }
     }
 

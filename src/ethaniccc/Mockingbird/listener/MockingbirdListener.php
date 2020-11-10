@@ -3,6 +3,7 @@
 namespace ethaniccc\Mockingbird\listener;
 
 use ethaniccc\Mockingbird\detections\Detection;
+use ethaniccc\Mockingbird\detections\player\cheststeal\ChestStealerA;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\packets\BlockPlacePacket;
 use ethaniccc\Mockingbird\packets\MotionPacket;
@@ -12,10 +13,12 @@ use ethaniccc\Mockingbird\user\UserManager;
 use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\entity\EntityMotionEvent;
 use pocketmine\event\entity\EntityTeleportEvent;
+use pocketmine\event\inventory\InventoryTransactionEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
+use pocketmine\inventory\ChestInventory;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
@@ -44,7 +47,7 @@ class MockingbirdListener implements Listener{
                     $processor->process($packet);
                 }
             }
-            foreach($user->checks as $check){
+            foreach($user->detections as $check){
                 if($check instanceof Detection){
                     $check->handle($packet, $user);
                 }
@@ -86,9 +89,9 @@ class MockingbirdListener implements Listener{
         if($entity instanceof Player){
             $user = UserManager::getInstance()->get($entity);
             $user->timeSinceMotion -= $user->timeSinceMotion > 0 ? $user->timeSinceMotion : 3;
-            $user->currentMotion = $event->getVector();
+            $user->moveData->lastMotion = $event->getVector();
             $motionPK = new MotionPacket($event);
-            foreach($user->checks as $check){
+            foreach($user->detections as $check){
                 if($check instanceof Detection){
                     $check->handle($motionPK, $user);
                 }
@@ -115,10 +118,26 @@ class MockingbirdListener implements Listener{
                     $processor->process($pk);
                 }
             }
-            foreach($user->checks as $check){
+            foreach($user->detections as $check){
                 if($check instanceof Detection){
                     $check->handle($pk, $user);
                 }
+            }
+        }
+    }
+
+    // I hate it here
+    public function onTransaction(InventoryTransactionEvent $event) : void{
+        $user = UserManager::getInstance()->get($event->getTransaction()->getSource());
+        $check = $user->detections["ChestStealerA"] ?? null;
+        if($check instanceof ChestStealerA){
+            foreach($event->getTransaction()->getInventories() as $inventory){
+                if($inventory instanceof ChestInventory){
+                    $continue = true;
+                }
+            }
+            if(isset($continue)){
+                ++$check->transactions;
             }
         }
     }

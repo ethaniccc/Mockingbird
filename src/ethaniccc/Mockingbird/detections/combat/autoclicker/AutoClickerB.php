@@ -17,10 +17,10 @@ class AutoClickerB extends Detection{
 
     public function handle(DataPacket $packet, User $user): void{
         if(($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) || ($packet instanceof LevelSoundEventPacket && $packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE)){
-            $cps = $user->processors["ClickProcessor"]->cps;
+            $cps = $user->clickData->cps;
             $allowed = $this->getSetting("max_cps");
             if($cps > $allowed){
-                if(++$this->preVL >= 5){
+                if(++$this->preVL >= 2){
                     $this->fail($user, "cps=$cps, allowed=$allowed");
                 }
             } else {
