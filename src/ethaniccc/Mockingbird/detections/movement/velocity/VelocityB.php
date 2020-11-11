@@ -10,7 +10,7 @@ use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
 class VelocityB extends Detection{
 
-    private $lastKeys = [];
+    private $blockCollidesTicks = 0;
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
@@ -54,9 +54,13 @@ class VelocityB extends Detection{
                 if($user->timeSinceAttack <= 2){
                     $maxPercentage *= 0.98;
                 }
-                if($percentage < $maxPercentage){
-                    if(++$this->preVL > ($user->transactionLatency > 150 ? 40 : 30) && count($user->player->getBlocksAround()) === 0
-                    && count($user->player->getLevel()->getCollisionBlocks(AABB::from($user)->expand(0.2, 0, 0.2))) === 0){
+                if(count($user->player->getBlocksAround()) > 0 || count($user->player->getLevel()->getCollisionBlocks(AABB::from($user)->expand(0.2, 0, 0.2))) > 0){
+                    $this->blockCollidesTicks = 0;
+                } else {
+                    ++$this->blockCollidesTicks;
+                }
+                if($percentage < $maxPercentage && $this->blockCollidesTicks >= 5){
+                    if(++$this->preVL > ($user->transactionLatency > 150 ? 40 : 30)){
                         $keyList = count($user->moveData->pressedKeys) > 0 ? implode(", ", $user->moveData->pressedKeys) : "none";
                         $this->fail($user, "percentage=$scaledPercentage keys=$keyList");
                     }
@@ -64,7 +68,6 @@ class VelocityB extends Detection{
                     $this->preVL = 0;
                     $this->reward($user, 0.995);
                 }
-                $this->lastKeys = $user->moveData->pressedKeys;
             }
         }
     }

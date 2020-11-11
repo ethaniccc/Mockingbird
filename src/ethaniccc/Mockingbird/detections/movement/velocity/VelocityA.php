@@ -13,6 +13,7 @@ use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 class VelocityA extends Detection implements CancellableMovement{
 
     private $queue = [];
+    private $blockCollidesTicks = 0;
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
@@ -43,9 +44,13 @@ class VelocityA extends Detection implements CancellableMovement{
                     $notSolidBlocksAround = count($user->player->getBlocksAround());
                     $AABB = AABB::from($user);
                     $AABB->maxY += 0.1;
-                    $solidBlocksAround = count($user->player->getLevel()->getCollisionBlocks($AABB));
+                    if($notSolidBlocksAround > 0 || $user->moveData->blockAbove !== null){
+                        $this->blockCollidesTicks = 0;
+                    } else {
+                        ++$this->blockCollidesTicks;
+                    }
                     if($user->moveData->moveDelta->y < $currentData->motion * $this->getSetting("multiplier")
-                    && $user->moveData->blockAbove === null && $notSolidBlocksAround === 0 && $solidBlocksAround === 0 && $currentData->motion >= 0.3){
+                    && $this->blockCollidesTicks >= 5 && $currentData->motion >= 0.3){
                         ++$currentData->failedTime;
                         if(abs($currentData->maxFailedMotion) < abs($user->moveData->moveDelta->y)){
                             $currentData->maxFailedMotion = $user->moveData->moveDelta->y;
