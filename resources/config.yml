@@ -175,7 +175,7 @@ VelocityB:
   punishment_type: kick
   max_violations: 30
   # check sensitivity settings
-  multiplier: 0.99
+  multiplier: 0.975
 
 #  ______ _
 #  | ___ \ |

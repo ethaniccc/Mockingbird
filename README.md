@@ -2,17 +2,15 @@
 Mockingbird is an anti-cheat in development made for fun by an ethic idot - version v2 has
 many changes compared to the v1 variants of Mockingbird.
 
+Note: **You want a decent server to handle everything Mockingbird is going to do with the least amount of false positives (such as WitherHosting's $1.25 plan).**
+
 Here's something I want to relay before moving forward:
 1) If you have an issue with Mockingbird (constant falsing, too much cpu usage, etc.) **please** make an issue
 on the GitHub repository with details, so I can fix it. You can leave a bad review but **please** make an issue :)
 2) Find a bypass (for movement detections only)? Make an issue on the GitHub repository with a video.
 3) Got a feature suggestion? Don't put it in reviews - make an issue on the GitHub repository.
 
-Mockingbird has a test server where you can test your big haxerman hacks on:
-```
-IP: 104.194.10.127
-Port: 25640
-```
+Mockingbird no longer has a test server to test because I am poor.
 
 Special Thanks To:
 - shura62
@@ -69,12 +67,15 @@ and false at sometimes, but the new reward system should compensate.
 - AutoClicker
     - (A) -> Consistency
     - (B) -> Speed
-    - (C) -> Checks if click samples have low skewness, kurtosis, and outliers
+    - (C) -> Statistics
+    - (D) -> Duplicated Statistics
 - KillAura
     - (A) -> MultiAura
     - (B) -> NoSwing
 - Reach
     - (A) -> Check w/ Location History
+- Hitbox
+    - (A) -> Colliding Ray Check
 ### Movement Checks
 - Fly
     - (A) -> Prediction Check
@@ -84,13 +85,13 @@ and false at sometimes, but the new reward system should compensate.
     - (A) -> Friction Check (flags while using bhop and some other hacks)
     - (B) -> Speed Limit Check
 - Velocity
-    - (A) -> Vertical Check (**98% by default**)
-    - (B) -> Horizontal Check (**97% by default**)
+    - (A) -> Vertical Check (**99% by default**)
+    - (B) -> Horizontal Check (**95% by default**)
 
 Mockingbird also has packet checks.
 - BadPackets (checks for validity of packets sent)
     * (A) -> Pitch validity check
-    * (B) -> **don't worry about it - will flag for more hacks than you think**
+    * (B) -> MovePlayerPacket consistency check
     * (C) -> Checks if player hits themselves (can be used to bypass some checks?)
 - Timer (checks if player is sending too many packets in an instance)
     - (A) -> Balance Check (bad with server lag)
