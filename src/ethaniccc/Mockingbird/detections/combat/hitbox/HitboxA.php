@@ -11,6 +11,9 @@ class HitboxA extends Detection{
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
+        $this->vlThreshold = 10;
+        $this->lowMax = 2;
+        $this->mediumMax = 3;
     }
 
     public function handle(DataPacket $packet, User $user): void{
