@@ -105,6 +105,13 @@ AimA:
   punishment_type: kick
   max_violations: 20
 
+# Hitbox
+HitboxA:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 35
+
 # ___  ___                                    _
 # |  \/  |                                   | |
 # | .  . | _____   _____ _ __ ___   ___ _ __ | |_

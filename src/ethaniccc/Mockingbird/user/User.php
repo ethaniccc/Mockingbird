@@ -57,7 +57,7 @@ class User{
     public $moveData;
     /** @var ClickData - The class that stores the click data of the user, the ClickProcessor will handle data to be put in here. */
     public $clickData;
-    /** @var HitData - The class that stores the hit data of the user. */
+    /** @var HitData - The class that stores the hit data of the user, the HitProcessor will handle data to be put in here. */
     public $hitData;
 
     public function __construct(Player $player){
