@@ -29,7 +29,7 @@ class AutoClickerD extends Detection{
                 $skewness = MathUtils::getSkewness($samples);
                 $outlierPair = MathUtils::getOutliers($samples);
                 $outliers = count($outlierPair->x) + count($outlierPair->y);
-                $this->samples[] = new StatisticsData($kurtosis, $skewness, $outliers);
+                $this->samples[] = "kurtosis=$kurtosis skewness=$skewness outliers=$outliers";
                 if(count($this->samples) === $this->getSetting("samples") + 1){
                     $this->samples[0] = null;
                     array_shift($this->samples);
@@ -46,22 +46,6 @@ class AutoClickerD extends Detection{
                 $this->clicks = 0;
             }
         }
-    }
-
-}
-
-class StatisticsData{
-
-    public $kurtosis, $skewness, $outliers;
-
-    public function __construct(float $kurtosis, float $skewness, float $outliers){
-        $this->kurtosis = $kurtosis;
-        $this->skewness = $skewness;
-        $this->outliers = $outliers;
-    }
-
-    public function __toString(){
-        return "kurtosis={$this->kurtosis} skewness={$this->skewness} outliers={$this->outliers}";
     }
 
 }
