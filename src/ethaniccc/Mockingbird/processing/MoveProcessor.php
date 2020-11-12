@@ -78,6 +78,7 @@ class MoveProcessor extends Processor{
             } elseif($packet->getMoveVecX() < 0){
                 $user->moveData->pressedKeys[] = "D";
             }
+            $user->moveData->chunkInsideLoaded = ($chunk = $user->player->getLevel()->getChunkAtPosition($location->asVector3())) !== null ? $chunk->isGenerated() : false;
             $user->moveData->directionVector = MathUtils::directionVectorFromValues($user->moveData->yaw, $user->moveData->pitch);
             if(microtime(true) - $user->lastSentNetworkLatencyTime >= 1){
                 if(++$this->ticks >= 20){

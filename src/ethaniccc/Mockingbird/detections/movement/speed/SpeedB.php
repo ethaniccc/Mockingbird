@@ -11,6 +11,7 @@ use pocketmine\item\enchantment\Enchantment;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
+use pocketmine\network\mcpe\protocol\TextPacket;
 use pocketmine\utils\TextFormat;
 
 class SpeedB extends Detection implements CancellableMovement{
@@ -40,7 +41,7 @@ class SpeedB extends Detection implements CancellableMovement{
                     $amplifier = $user->player->getEffect(1)->getAmplifier() + 1;
                     $maxSpeed += 0.2 * $amplifier;
                 }
-                if($horizontalSpeed > $maxSpeed && $user->timeSinceTeleport >= 10){
+                if($horizontalSpeed > $maxSpeed && $user->timeSinceTeleport >= 10 && $user->timeSinceMotion >= 20){
                     if(++$this->preVL >= 2){
                         $this->fail($user, "speed=$horizontalSpeed tpTime={$user->timeSinceTeleport}");
                     }

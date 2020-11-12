@@ -32,5 +32,7 @@ class MoveData{
     public $directionVector;
     /** @var string[] - The WASD combo the player is using */
     public $pressedKeys = [];
+    /** @var bool - The boolean value of whether or not the chunk the player is in is loaded. */
+    public $chunkInsideLoaded = true;
 
 }

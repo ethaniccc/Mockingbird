@@ -50,7 +50,7 @@ class VelocityA extends Detection implements CancellableMovement{
                         ++$this->blockCollidesTicks;
                     }
                     if($user->moveData->moveDelta->y < $currentData->motion * $this->getSetting("multiplier")
-                    && $this->blockCollidesTicks >= 5 && $currentData->motion >= 0.3){
+                    && $this->blockCollidesTicks >= 5 && $currentData->motion >= 0.3 && $user->moveData->chunkInsideLoaded){
                         ++$currentData->failedTime;
                         if(abs($currentData->maxFailedMotion) < abs($user->moveData->moveDelta->y)){
                             $currentData->maxFailedMotion = $user->moveData->moveDelta->y;

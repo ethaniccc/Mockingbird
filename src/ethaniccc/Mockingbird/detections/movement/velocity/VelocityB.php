@@ -59,7 +59,7 @@ class VelocityB extends Detection{
                 } else {
                     ++$this->blockCollidesTicks;
                 }
-                if($percentage < $maxPercentage && $this->blockCollidesTicks >= 5){
+                if($percentage < $maxPercentage && $this->blockCollidesTicks >= 5 && $user->moveData->chunkInsideLoaded){
                     if(++$this->preVL > ($user->transactionLatency > 150 ? 40 : 30)){
                         $keyList = count($user->moveData->pressedKeys) > 0 ? implode(", ", $user->moveData->pressedKeys) : "none";
                         $this->fail($user, "percentage=$scaledPercentage keys=$keyList");
