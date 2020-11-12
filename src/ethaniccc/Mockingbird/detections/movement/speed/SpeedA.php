@@ -32,7 +32,8 @@ class SpeedA extends Detection implements MovementDetection{
                 if($equalness > $this->getSetting("max_breach")
                 && $user->timeSinceMotion >= 3
                 && !$user->player->isFlying()
-                && $user->timeSinceTeleport >= 5){
+                && $user->timeSinceTeleport >= 5
+                && $user->timeSinceMotion >= 1.5){
                     if(++$this->preVL >= 3){
                         $this->fail($user, "{$user->player->getName()}: e: $equalness, cXZ: $currentXZ, lXZ: $lastXZ");
                     }

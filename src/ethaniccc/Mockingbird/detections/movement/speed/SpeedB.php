@@ -32,7 +32,8 @@ class SpeedB extends Detection implements MovementDetection{
             }
             $horizontalSpeed = hypot($user->moveDelta->x, $user->moveDelta->z);
             if(!$user->player->isFlying()
-            && $user->blockAbove === null){
+            && $user->blockAbove === null
+            && $user->timeSinceMotion >= 1.5){
                 $maxSpeed = $this->onGroundTicks >= 5 ? $this->getSetting("max_speed_on_ground") : $this->getSetting("max_speed_off_ground");
                 if($user->blockBelow instanceof Ice){
                     $maxSpeed *= 5/3;
