@@ -6,7 +6,6 @@ use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\user\UserManager;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\boundingbox\Ray;
-use pocketmine\level\particle\FlameParticle;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\Player;
@@ -32,10 +31,11 @@ class HitProcessor extends Processor{
                 $damagedUser = UserManager::getInstance()->get($entity);
                 $estimatedTime = (microtime(true) * 1000) - $user->transactionLatency;
                 $distances = [];
+                $ray = new Ray($user->hitData->attackPos, $user->moveData->directionVector);
                 foreach($damagedUser->locationHistory->getLocationsRelativeToTime($estimatedTime, 100) as $location){
                     $AABB = AABB::fromPosition($location)->expand(0.1, 0, 0.1);
                     $AABB->maxY = $AABB->minY + 1.9;
-                    $distance = $AABB->collidesRay(new Ray($user->hitData->attackPos, $user->moveData->directionVector), 7);
+                    $distance = $AABB->collidesRay($ray, 7);
                     if($distance !== -69.0){
                         $distances[] = $distance;
                     }
