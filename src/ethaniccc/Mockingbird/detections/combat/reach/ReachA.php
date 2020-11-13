@@ -27,7 +27,7 @@ class ReachA extends Detection{
                         $this->preVL = min($this->preVL, 15);
                     }
                 } else {
-                    $this->reward($user, 0.995);
+                    $this->reward($user, 0.999);
                     $this->preVL -= $this->preVL > 0 ? 1 : 0;
                 }
             }

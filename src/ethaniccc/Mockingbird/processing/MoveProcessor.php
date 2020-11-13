@@ -75,11 +75,7 @@ class MoveProcessor extends Processor{
             $user->moveData->directionVector = MathUtils::directionVectorFromValues($user->moveData->yaw, $user->moveData->pitch);
             if(microtime(true) - $user->lastSentNetworkLatencyTime >= 1){
                 if(++$this->ticks >= 20){
-                    $user->lastSentNetworkLatencyTime = microtime(true);
-                    $pk = new NetworkStackLatencyPacket();
-                    $pk->timestamp = 1000;
-                    $pk->needResponse = true;
-                    $user->player->dataPacket($pk);
+                    $user->player->dataPacket($user->networkStackLatencyPacket);
                     if($this->ticks >= 1000){
                         // yeah no, you're not making a disabler out of this
                         Mockingbird::getInstance()->getScheduler()->scheduleDelayedTask(new KickTask($user, "NetworkStackLatency Timeout (bad connection?) - Rejoin server"), 0);

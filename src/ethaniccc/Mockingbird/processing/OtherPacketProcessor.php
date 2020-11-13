@@ -20,12 +20,10 @@ class OtherPacketProcessor extends Processor{
         if($packet instanceof LoginPacket){
             $user->isDesktop = !in_array($packet->clientData["DeviceOS"], [DeviceOS::AMAZON, DeviceOS::ANDROID, DeviceOS::IOS]);
         } elseif($packet instanceof NetworkStackLatencyPacket){
-            if($packet->timestamp === 1000){
+            if($packet->timestamp === $user->networkStackLatencyPacket->timestamp){
                 $user->transactionLatency = round((microtime(true) - $user->lastSentNetworkLatencyTime) * 1000, 0);
-                $pk = new NetworkStackLatencyPacket();
-                $pk->timestamp = 1000;
-                $pk->needResponse = true;
-                $user->player->dataPacket($pk);
+                $user->sendMessage('transaction latency=' . $user->transactionLatency . 'ms');
+                $user->player->dataPacket($user->networkStackLatencyPacket);
                 $user->lastSentNetworkLatencyTime = microtime(true);
             }
         }

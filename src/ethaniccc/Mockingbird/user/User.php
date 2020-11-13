@@ -11,6 +11,7 @@ use ethaniccc\Mockingbird\user\data\MoveData;
 use ethaniccc\Mockingbird\utils\location\LocationHistory;
 use pocketmine\block\Air;
 use pocketmine\math\Vector3;
+use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
 use ReflectionClass;
@@ -54,6 +55,8 @@ class User{
 
     /** @var Vector3 - Just a Vector3 with it's x, y, and z values at 0 - don't mind me! */
     public $zeroVector;
+    /** @var NetworkStackLatencyPacket - So I don't have to create multiple of these. */
+    public $networkStackLatencyPacket;
 
     /** @var MoveData - The class that stores the movement data of the user, the MoveProcessor will handle data to be put in here. */
     public $moveData;
@@ -89,6 +92,9 @@ class User{
                 $this->detections[$checkInfo->getShortName()] = $checkInfo->newInstanceArgs([$checkInfo->getShortName(), Mockingbird::getInstance()->getConfig()->getNested($checkInfo->getShortName())]);
             }
         }
+        $this->networkStackLatencyPacket = new NetworkStackLatencyPacket();
+        $this->networkStackLatencyPacket->needResponse = true;
+        $this->networkStackLatencyPacket->timestamp = mt_rand(1, 100) * 1000;
     }
 
     public function sendMessage(string $message) : void{

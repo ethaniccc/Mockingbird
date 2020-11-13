@@ -19,10 +19,8 @@ use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\inventory\ChestInventory;
-use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
-use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\Player;
@@ -88,10 +86,7 @@ class MockingbirdListener implements Listener{
             if($user->player->hasPermission("mockingbird.alerts") && Mockingbird::getInstance()->getConfig()->get("alerts_default")){
                 $user->alerts = true;
             }
-            $pk = new NetworkStackLatencyPacket();
-            $pk->timestamp = 1000;
-            $pk->needResponse = true;
-            $user->player->dataPacket($pk);
+            $user->player->dataPacket($user->networkStackLatencyPacket);
             $user->lastSentNetworkLatencyTime = microtime(true);
         }
     }
