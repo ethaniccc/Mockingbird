@@ -22,7 +22,6 @@ class OtherPacketProcessor extends Processor{
         } elseif($packet instanceof NetworkStackLatencyPacket){
             if($packet->timestamp === $user->networkStackLatencyPacket->timestamp){
                 $user->transactionLatency = round((microtime(true) - $user->lastSentNetworkLatencyTime) * 1000, 0);
-                $user->sendMessage('transaction latency=' . $user->transactionLatency . 'ms');
                 $user->player->dataPacket($user->networkStackLatencyPacket);
                 $user->lastSentNetworkLatencyTime = microtime(true);
             }
