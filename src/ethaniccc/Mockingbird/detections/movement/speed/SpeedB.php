@@ -5,14 +5,9 @@ namespace ethaniccc\Mockingbird\detections\movement\speed;
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\detections\movement\CancellableMovement;
 use ethaniccc\Mockingbird\user\User;
-use ethaniccc\Mockingbird\utils\MathUtils;
 use pocketmine\block\Ice;
-use pocketmine\item\enchantment\Enchantment;
 use pocketmine\network\mcpe\protocol\DataPacket;
-use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
-use pocketmine\network\mcpe\protocol\TextPacket;
-use pocketmine\utils\TextFormat;
 
 class SpeedB extends Detection implements CancellableMovement{
 
@@ -31,7 +26,7 @@ class SpeedB extends Detection implements CancellableMovement{
                 $this->onGroundTicks = 0;
             }
             $horizontalSpeed = hypot($user->moveData->moveDelta->x, $user->moveData->moveDelta->z);
-            if(!$user->player->isFlying()
+            if($user->timeSinceStoppedFlight >= 20
             && $user->moveData->blockAbove->getId() === 0){
                 $maxSpeed = $this->onGroundTicks >= 10 ? $this->getSetting("max_speed_on_ground") : $this->getSetting("max_speed_off_ground");
                 if($user->moveData->blockBelow instanceof Ice){

@@ -6,10 +6,7 @@ use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\detections\movement\CancellableMovement;
 use ethaniccc\Mockingbird\user\User;
 use pocketmine\network\mcpe\protocol\DataPacket;
-use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
-use pocketmine\Server;
-use pocketmine\utils\TextFormat;
 
 class SpeedA extends Detection implements CancellableMovement{
 
@@ -30,8 +27,7 @@ class SpeedA extends Detection implements CancellableMovement{
                 $expectedXZ = $lastXZ * 0.91 + 0.026;
                 $equalness = $currentXZ - $expectedXZ;
                 if($equalness > $this->getSetting("max_breach")
-                && $user->timeSinceMotion >= 3
-                && !$user->player->isFlying()
+                && $user->timeSinceStoppedFlight >= 20
                 && $user->timeSinceTeleport >= 5
                 && $user->timeSinceMotion >= 10){
                     if(++$this->preVL >= 3){

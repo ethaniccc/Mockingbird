@@ -9,8 +9,6 @@ use ethaniccc\Mockingbird\utils\MathUtils;
 use ethaniccc\Mockingbird\utils\PacketUtils;
 use pocketmine\level\Location;
 use pocketmine\network\mcpe\protocol\DataPacket;
-use pocketmine\network\mcpe\protocol\MovePlayerPacket;
-use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
 class MoveProcessor extends Processor{
@@ -50,6 +48,11 @@ class MoveProcessor extends Processor{
             ++$user->timeSinceAttack;
             ++$user->timeSinceJoin;
             ++$user->timeSinceMotion;
+            if(!$user->player->isFlying()){
+                ++$user->timeSinceStoppedFlight;
+            } else {
+                $user->timeSinceStoppedFlight = 0;
+            }
             $user->moveData->onGround = $movePacket->onGround;
             if($user->moveData->onGround){
                 ++$user->moveData->onGroundTicks;
@@ -74,9 +77,9 @@ class MoveProcessor extends Processor{
             }
             $user->moveData->directionVector = MathUtils::directionVectorFromValues($user->moveData->yaw, $user->moveData->pitch);
             if(microtime(true) - $user->lastSentNetworkLatencyTime >= 1){
-                if(++$this->ticks >= 20){
+                if(++$this->ticks % 20 === 0){
                     $user->player->dataPacket($user->networkStackLatencyPacket);
-                    if($this->ticks >= 1000){
+                    if($this->ticks >= 500){
                         // yeah no, you're not making a disabler out of this
                         Mockingbird::getInstance()->getScheduler()->scheduleDelayedTask(new KickTask($user, "NetworkStackLatency Timeout (bad connection?) - Rejoin server"), 0);
                     }

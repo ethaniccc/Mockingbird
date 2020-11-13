@@ -9,6 +9,7 @@ use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
+use stdClass;
 
 class VelocityA extends Detection implements CancellableMovement{
 
@@ -26,7 +27,7 @@ class VelocityA extends Detection implements CancellableMovement{
             if(count($this->queue) > 5){
                 return;
             }
-            $info = new \stdClass();
+            $info = new stdClass();
             $info->motion = $packet->motionY;
             $info->maxTime = (int) ($user->transactionLatency / 50) + 3;
             $info->time = 0;
@@ -50,7 +51,7 @@ class VelocityA extends Detection implements CancellableMovement{
                         ++$this->blockCollidesTicks;
                     }
                     if($user->moveData->moveDelta->y < $currentData->motion * $this->getSetting("multiplier")
-                    && $this->blockCollidesTicks >= 5 && $currentData->motion >= 0.3){
+                    && $this->blockCollidesTicks >= 5 && $currentData->motion >= 0.3 && $user->timeSinceStoppedFlight >= 20){
                         ++$currentData->failedTime;
                         if(abs($currentData->maxFailedMotion) < abs($user->moveData->moveDelta->y)){
                             $currentData->maxFailedMotion = $user->moveData->moveDelta->y;

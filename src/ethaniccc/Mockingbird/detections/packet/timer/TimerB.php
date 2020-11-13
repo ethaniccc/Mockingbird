@@ -25,10 +25,12 @@ class TimerB extends Detection{
             $this->samples[] = $speed;
             if(count($this->samples) === 40){
                 $deviation = floor(MathUtils::getDeviation($this->samples));
-                if($deviation > 11){
+                if($deviation > 12){
                     if(++$this->preVL >= 3){
                         $this->fail($user, "deviation=$deviation");
                     }
+                } else {
+                    $this->preVL = 0;
                 }
                 $this->samples = [];
             }

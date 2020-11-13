@@ -240,7 +240,7 @@ TimerA:
   punishment_type: kick
   max_violations: 20
 TimerB:
-  enabled: true
+  enabled: false
   punish: false
   punishment_type: kick
   max_violations: 20

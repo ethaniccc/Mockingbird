@@ -44,6 +44,7 @@ class User{
     public $timeSinceMotion = 0;
     public $timeSinceDamage = 0;
     public $timeSinceAttack = 0;
+    public $timeSinceStoppedFlight = 0;
 
     /** @var int|float - The time the last NetworkStackLatencyPacket has been sent. */
     public $lastSentNetworkLatencyTime = 0;

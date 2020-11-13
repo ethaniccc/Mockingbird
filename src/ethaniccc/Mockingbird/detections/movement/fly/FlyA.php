@@ -7,7 +7,6 @@ use ethaniccc\Mockingbird\detections\movement\CancellableMovement;
 use ethaniccc\Mockingbird\user\User;
 use pocketmine\item\ItemIds;
 use pocketmine\network\mcpe\protocol\DataPacket;
-use pocketmine\block\Block;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
 class FlyA extends Detection implements CancellableMovement{
@@ -35,7 +34,8 @@ class FlyA extends Detection implements CancellableMovement{
             && !$user->player->isSpectator()
             && $user->moveData->location->y > 0 && $user->moveData->blockAbove->getId() === 0
             && $user->player->getArmorInventory()->getChestplate()->getId() !== ItemIds::ELYTRA
-            && !$user->player->isImmobile()){
+            && !$user->player->isImmobile()
+            && $user->timeSinceStoppedFlight >= 10){
                 if(++$this->preVL >= 3){
                     $this->fail($user, "yD=$yDelta, eD=$expectedYDelta, eq=$equalness");
                 }
