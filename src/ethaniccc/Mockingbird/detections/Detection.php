@@ -92,10 +92,10 @@ abstract class Detection{
             Server::getInstance()->broadcastMessage($message, $staff);
         }
         if($this instanceof CancellableMovement && $this->suppression){
-            if(!$user->onGround){
-                $user->player->teleport($user->lastOnGroundLocation);
+            if(!$user->moveData->onGround){
+                $user->player->teleport($user->moveData->lastOnGroundLocation);
             } else {
-                $user->player->teleport($user->lastLocation);
+                $user->player->teleport($user->moveData->lastLocation);
             }
         }
         if($this->punishable && $violations >= $this->maxVL){

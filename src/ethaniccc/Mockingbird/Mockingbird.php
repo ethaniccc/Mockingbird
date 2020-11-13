@@ -20,6 +20,7 @@ class Mockingbird extends PluginBase{
     private static $instance;
     public $availableChecks;
     public $availableProcessors;
+    /** @var DebugLogWriteTask */
     public $debugTask;
 
     public static function getInstance() : Mockingbird{

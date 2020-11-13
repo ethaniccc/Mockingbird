@@ -5,11 +5,11 @@ namespace ethaniccc\Mockingbird\processing;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\tasks\KickTask;
 use ethaniccc\Mockingbird\user\User;
-use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\MathUtils;
 use ethaniccc\Mockingbird\utils\PacketUtils;
 use pocketmine\level\Location;
 use pocketmine\network\mcpe\protocol\DataPacket;
+use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
@@ -43,7 +43,7 @@ class MoveProcessor extends Processor{
                 $user->moveData->lastPitchDelta = $user->moveData->pitchDelta;
                 $user->moveData->yawDelta = abs($user->moveData->lastYaw - $user->moveData->yaw);
                 $user->moveData->pitchDelta = abs($user->moveData->lastPitch - $user->moveData->pitch);
-                $user->moveData->rotated = $user->moveData->yawDelta > 1E-4 || $user->moveData->pitchDelta > 0;
+                $user->moveData->rotated = $user->moveData->yawDelta > 0 || $user->moveData->pitchDelta > 0;
             }
             ++$user->timeSinceTeleport;
             ++$user->timeSinceDamage;
@@ -59,14 +59,8 @@ class MoveProcessor extends Processor{
                 ++$user->moveData->offGroundTicks;
                 $user->moveData->onGroundTicks = 0;
             }
-            $AABB = AABB::from($user);
-            $AABB2 = clone $AABB;
-            $AABB->maxY = $AABB->minX;
-            $AABB->minY -= 0.01;
-            $user->moveData->blockBelow = $user->player->getLevel()->getCollisionBlocks($AABB, true)[0] ?? null;
-            $AABB2->minY = $AABB2->maxY;
-            $AABB2->maxY += 0.01;
-            $user->moveData->blockAbove = $user->player->getLevel()->getCollisionBlocks($AABB2, true)[0] ?? null;
+            $user->moveData->blockBelow = $user->player->getLevel()->getBlock($location->subtract(0, (1/64), 0));
+            $user->moveData->blockAbove = $user->player->getLevel()->getBlock($location->add(0, 2 + (1/64), 0));
             $user->moveData->pressedKeys = [];
             if($packet->getMoveVecZ() > 0){
                 $user->moveData->pressedKeys[] = "W";
@@ -78,7 +72,6 @@ class MoveProcessor extends Processor{
             } elseif($packet->getMoveVecX() < 0){
                 $user->moveData->pressedKeys[] = "D";
             }
-            $user->moveData->chunkInsideLoaded = ($chunk = $user->player->getLevel()->getChunkAtPosition($location->asVector3())) !== null ? $chunk->isGenerated() : false;
             $user->moveData->directionVector = MathUtils::directionVectorFromValues($user->moveData->yaw, $user->moveData->pitch);
             if(microtime(true) - $user->lastSentNetworkLatencyTime >= 1){
                 if(++$this->ticks >= 20){

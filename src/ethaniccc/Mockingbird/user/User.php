@@ -9,8 +9,10 @@ use ethaniccc\Mockingbird\user\data\ClickData;
 use ethaniccc\Mockingbird\user\data\HitData;
 use ethaniccc\Mockingbird\user\data\MoveData;
 use ethaniccc\Mockingbird\utils\location\LocationHistory;
+use pocketmine\block\Air;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
+use pocketmine\utils\TextFormat;
 use ReflectionClass;
 
 class User{
@@ -21,7 +23,7 @@ class User{
     public $processors = [];
     /** @var Detection[] - The detections available that will run. */
     public $detections = [];
-    /** @var string[] - The key is the detection name, and the value is the violations (float). - TODO: Make this a class? */
+    /** @var string<int|float> - The key is the detection name, and the value is the violations (float). - TODO: Make this a class? */
     public $violations = [];
     /** @var bool - The boolean value for if the user is logged into the server. */
     public $loggedIn = false;
@@ -63,6 +65,8 @@ class User{
     public function __construct(Player $player){
         $this->player = $player;
         $this->moveData = new MoveData();
+        $this->moveData->blockBelow = new Air();
+        $this->moveData->blockAbove = new Air();
         $this->clickData = new ClickData();
         $this->hitData = new HitData();
         $this->locationHistory = new LocationHistory();
@@ -85,6 +89,10 @@ class User{
                 $this->detections[$checkInfo->getShortName()] = $checkInfo->newInstanceArgs([$checkInfo->getShortName(), Mockingbird::getInstance()->getConfig()->getNested($checkInfo->getShortName())]);
             }
         }
+    }
+
+    public function sendMessage(string $message) : void{
+        $this->player->sendMessage(TextFormat::BOLD . TextFormat::DARK_GRAY . "[" . TextFormat::RED . "DEBUG" . TextFormat::DARK_GRAY . "]" . TextFormat::RESET . " $message");
     }
 
 }

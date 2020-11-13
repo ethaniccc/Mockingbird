@@ -19,8 +19,10 @@ use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\inventory\ChestInventory;
+use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
+use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\Player;
@@ -44,12 +46,22 @@ class MockingbirdListener implements Listener{
         if($user !== null){
             foreach($user->processors as $processor){
                 if($processor instanceof Processor){
+                    $start = microtime(true);
                     $processor->process($packet);
+                    $time = microtime(true) - $start;
+                    if($time > 0.01){
+                        Mockingbird::getInstance()->debugTask->addData(get_class($processor) . " took too long to process: $time");
+                    }
                 }
             }
             foreach($user->detections as $check){
                 if($check instanceof Detection){
+                    $start = microtime(true);
                     $check->handle($packet, $user);
+                    $time = microtime(true) - $start;
+                    if($time > 0.01){
+                        Mockingbird::getInstance()->debugTask->addData(get_class($check) . " took too long to process: $time");
+                    }
                 }
             }
         }

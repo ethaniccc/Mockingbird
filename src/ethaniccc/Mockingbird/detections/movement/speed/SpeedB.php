@@ -32,7 +32,7 @@ class SpeedB extends Detection implements CancellableMovement{
             }
             $horizontalSpeed = hypot($user->moveData->moveDelta->x, $user->moveData->moveDelta->z);
             if(!$user->player->isFlying()
-            && $user->moveData->blockAbove === null){
+            && $user->moveData->blockAbove->getId() === 0){
                 $maxSpeed = $this->onGroundTicks >= 10 ? $this->getSetting("max_speed_on_ground") : $this->getSetting("max_speed_off_ground");
                 if($user->moveData->blockBelow instanceof Ice){
                     $maxSpeed *= 5/3;

@@ -18,7 +18,7 @@ class MoveData{
     public $onGroundTicks = 0, $offGroundTicks = 0;
     /** @var Location - The last onGround location of the User */
     public $lastOnGroundLocation;
-    /** @var null|Block - THe blocks above and below the user from the move location - will be null if the block is passable.*/
+    /** @var null|Block - THe blocks above and below the user from the move location.*/
     public $blockAbove, $blockBelow;
     /** @var Vector3 - The last motion the user has took. */
     public $lastMotion;
@@ -32,7 +32,5 @@ class MoveData{
     public $directionVector;
     /** @var string[] - The WASD combo the player is using */
     public $pressedKeys = [];
-    /** @var bool - The boolean value of whether or not the chunk the player is in is loaded. */
-    public $chunkInsideLoaded = true;
 
 }

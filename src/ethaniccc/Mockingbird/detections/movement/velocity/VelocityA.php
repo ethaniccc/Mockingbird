@@ -44,13 +44,13 @@ class VelocityA extends Detection implements CancellableMovement{
                     $notSolidBlocksAround = count($user->player->getBlocksAround());
                     $AABB = AABB::from($user);
                     $AABB->maxY += 0.1;
-                    if($notSolidBlocksAround > 0 || $user->moveData->blockAbove !== null){
+                    if($notSolidBlocksAround > 0 || $user->moveData->blockAbove->getId() === 0){
                         $this->blockCollidesTicks = 0;
                     } else {
                         ++$this->blockCollidesTicks;
                     }
                     if($user->moveData->moveDelta->y < $currentData->motion * $this->getSetting("multiplier")
-                    && $this->blockCollidesTicks >= 5 && $currentData->motion >= 0.3 && $user->moveData->chunkInsideLoaded){
+                    && $this->blockCollidesTicks >= 5 && $currentData->motion >= 0.3){
                         ++$currentData->failedTime;
                         if(abs($currentData->maxFailedMotion) < abs($user->moveData->moveDelta->y)){
                             $currentData->maxFailedMotion = $user->moveData->moveDelta->y;

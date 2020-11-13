@@ -17,7 +17,7 @@ class HitboxA extends Detection{
     }
 
     public function handle(DataPacket $packet, User $user): void{
-        if($user->isDesktop && $packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK && $user->isDesktop && !$user->player->isCreative()){
+        if($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK && $user->isDesktop && !$user->player->isCreative()){
             if(!$user->hitData->rayCollides){
                 if(++$this->preVL >= 8){
                     $this->fail($user);
