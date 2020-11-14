@@ -53,7 +53,7 @@ class MockingbirdListener implements Listener{
                 }
             }
             foreach($user->detections as $check){
-                if($check instanceof Detection){
+                if($check instanceof Detection && $check->enabled){
                     $start = microtime(true);
                     $check->handle($packet, $user);
                     $time = microtime(true) - $start;

@@ -31,7 +31,6 @@ class AutoClickerD extends Detection{
                 $outliers = count($outlierPair->x) + count($outlierPair->y);
                 $this->samples[] = "kurtosis=$kurtosis skewness=$skewness outliers=$outliers";
                 if(count($this->samples) === $this->getSetting("samples") + 1){
-                    $this->samples[0] = null;
                     array_shift($this->samples);
                 }
                 $duplicates = count($this->samples) - count(array_unique($this->samples));
