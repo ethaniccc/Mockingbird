@@ -4,7 +4,6 @@ namespace ethaniccc\Mockingbird\utils;
 
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
-use pocketmine\block\BlockIds;
 
 class LevelUtils{
 

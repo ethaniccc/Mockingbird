@@ -3,7 +3,6 @@
 namespace ethaniccc\Mockingbird\detections\combat\autoclicker;
 
 use ethaniccc\Mockingbird\detections\Detection;
-use ethaniccc\Mockingbird\processing\ClickProcessor;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\MathUtils;
 use pocketmine\network\mcpe\protocol\DataPacket;

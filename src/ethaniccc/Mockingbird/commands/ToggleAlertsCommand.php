@@ -6,7 +6,6 @@ use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\user\UserManager;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\ConsoleCommandSender;
 use pocketmine\command\PluginIdentifiableCommand;
 use pocketmine\Player;
 use pocketmine\plugin\Plugin;

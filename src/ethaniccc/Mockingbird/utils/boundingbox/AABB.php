@@ -4,7 +4,6 @@ namespace ethaniccc\Mockingbird\utils\boundingbox;
 
 use ethaniccc\Mockingbird\user\User;
 use pocketmine\block\Block;
-use pocketmine\entity\Entity;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Vector3;
 

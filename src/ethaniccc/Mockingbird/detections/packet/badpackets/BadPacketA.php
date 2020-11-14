@@ -6,7 +6,6 @@ use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\detections\movement\CancellableMovement;
 use ethaniccc\Mockingbird\user\User;
 use pocketmine\network\mcpe\protocol\DataPacket;
-use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
 class BadPacketA extends Detection implements CancellableMovement{

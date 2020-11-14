@@ -3,7 +3,6 @@
 namespace ethaniccc\Mockingbird\tasks;
 
 use pocketmine\scheduler\AsyncTask;
-use pocketmine\Server;
 
 class DebugLogWriteTask extends AsyncTask{
 
