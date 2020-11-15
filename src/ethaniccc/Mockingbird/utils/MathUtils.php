@@ -44,30 +44,34 @@ class MathUtils{
     }
 
     public static function getKurtosis(array $data) : float{
-        $sum = array_sum($data);
-        $count = count($data);
+        try{
+            $sum = array_sum($data);
+            $count = count($data);
 
-        if($count < 3){
-            return 0;
+            if($count < 3){
+                return 0;
+            }
+
+            $efficiencyFirst = $count * ($count + 1) / (($count - 1) * ($count - 2) * ($count - 3));
+            $efficiencySecond = 3 * pow($count - 1, 2) / (($count - 2) * ($count - 3));
+            $average = $sum / $count;
+
+            $variance = 0.0;
+            $varianceSquared = 0.0;
+
+            foreach($data as $number){
+                $variance += pow($average - $number, 2);
+                $varianceSquared += pow($average - $number, 4);
+            }
+
+            if($variance === 0.0){
+                return 0.0;
+            }
+
+            return $efficiencyFirst * ($varianceSquared / pow($variance / $sum, 2)) - $efficiencySecond;
+        } catch(\ErrorException $e){
+            return 0.0;
         }
-
-        $efficiencyFirst = $count * ($count + 1) / (($count - 1) * ($count - 2) * ($count - 3));
-        $efficiencySecond = 3 * pow($count - 1, 2) / (($count - 2) * ($count - 3));
-        $average = $sum / $count;
-
-        $variance = 0.0;
-        $varianceSquared = 0.0;
-
-        foreach($data as $number){
-            $variance += pow($average - $number, 2);
-            $varianceSquared += pow($average - $number, 4);
-        }
-
-        if ($variance === 0.0){
-            return 0;
-        }
-
-        return $efficiencyFirst * ($varianceSquared / pow($variance / $sum, 2)) - $efficiencySecond;
     }
 
     public static function getSkewness(array $data) : float{

@@ -25,6 +25,10 @@ class AutoClickerC extends Detection{
             if(++$this->clicks === $this->getSetting("samples")){
                 $data = $user->clickData;
                 $samples = $data->getTickSamples($this->getSetting("samples"));
+                if(count($samples) < $this->getSetting("samples")){
+                    // not enough information
+                    return;
+                }
                 $kurtosis = MathUtils::getKurtosis($samples);
                 $skewness = MathUtils::getSkewness($samples);
                 $outlierPair = MathUtils::getOutliers($samples);

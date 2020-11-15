@@ -4,6 +4,7 @@ namespace ethaniccc\Mockingbird\utils;
 
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
+use pocketmine\level\particle\FlameParticle;
 
 class LevelUtils{
 
@@ -31,11 +32,21 @@ class LevelUtils{
                                 }
                             }
                         } else {
-                            if(AABB::fromBlock($block)->intersectsWith($AABB)){
+                            $blockBB = AABB::fromBlock($block);
+                            if($AABB->intersectsWith($blockBB)){
                                 return true;
                             }
+                            unset($blockBB);
                         }
                     }
+                }
+            }
+        }
+        $expand = 0.3;
+        for($x = -$expand; $x <= $expand; $x += $expand){
+            for($z = -$expand; $z <= $expand; $z += $expand){
+                if($user->player->getLevel()->getBlock($user->moveData->location->add($x, -0.5001, $z))->getId() !== 0){
+                    return true;
                 }
             }
         }
