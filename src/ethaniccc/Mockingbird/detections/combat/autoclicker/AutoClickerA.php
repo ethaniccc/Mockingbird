@@ -23,23 +23,25 @@ class AutoClickerA extends Detection{
 
     public function handle(DataPacket $packet, User $user): void{
         if(($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) || ($packet instanceof LevelSoundEventPacket && $packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE) && $user->isDesktop){
-            if(++$this->clicks === $this->getSetting("samples")){
-                $data = $user->clickData;
-                $samples = $data->getTickSamples($this->getSetting("samples"));
-                foreach($samples as $key => $value){
-                    $samples[$key] = $value * 50;
-                }
-                $deviation = MathUtils::getDeviation($samples);
-                $deviationDiff = abs($deviation - $this->lastDeviation);
-                if($deviation < 28 && $deviationDiff <= $this->getSetting("consistency") && $data->cps >= $this->getSetting("required_cps")){
-                    if(++$this->preVL >= 3){
-                        $this->fail($user, "deviation=$deviation, diff=$deviationDiff");
+            if($user->clickData->tickSpeed <= 4){
+                if(++$this->clicks === $this->getSetting("samples")){
+                    $data = $user->clickData;
+                    $samples = $data->getTickSamples($this->getSetting("samples"));
+                    foreach($samples as $key => $value){
+                        $samples[$key] = $value * 50;
                     }
-                } else {
-                    $this->preVL = 0;
+                    $deviation = MathUtils::getDeviation($samples);
+                    $deviationDiff = abs($deviation - $this->lastDeviation);
+                    if($deviation < 28 && $deviationDiff <= $this->getSetting("consistency") && $data->cps >= $this->getSetting("required_cps")){
+                        if(++$this->preVL >= 3){
+                            $this->fail($user, "deviation=$deviation, diff=$deviationDiff");
+                        }
+                    } else {
+                        $this->preVL = 0;
+                    }
+                    $this->lastDeviation = $deviation;
+                    $this->clicks = 0;
                 }
-                $this->lastDeviation = $deviation;
-                $this->clicks = 0;
             }
         }
     }
