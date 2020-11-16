@@ -19,7 +19,7 @@ class AimB extends Detection{
     }
 
     public function handle(DataPacket $packet, User $user): void{
-        if($packet instanceof PlayerAuthInputPacket && $user->moveData->pitchDelta > 0.05 && abs(round($user->moveData->pitch, 0)) < 85 && abs(round($user->moveData->lastPitch, 0)) < 85){
+        if($user->isDesktop && $packet instanceof PlayerAuthInputPacket && $user->moveData->pitchDelta > 0.05 && abs(round($user->moveData->pitch, 0)) < 85 && abs(round($user->moveData->lastPitch, 0)) < 85){
             // this is the expander Elevated uses in his GCD checks
             $expander = pow(2, 24);
             $gcd = $this->getGCD($user->moveData->pitchDelta * $expander, $user->moveData->lastPitchDelta * $expander);
