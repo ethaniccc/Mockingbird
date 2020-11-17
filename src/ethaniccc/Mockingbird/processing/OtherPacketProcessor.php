@@ -2,6 +2,7 @@
 
 namespace ethaniccc\Mockingbird\processing;
 
+use ethaniccc\Mockingbird\packets\BlockPlacePacket;
 use ethaniccc\Mockingbird\user\User;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
@@ -24,6 +25,8 @@ class OtherPacketProcessor extends Processor{
                 $user->player->dataPacket($user->networkStackLatencyPacket);
                 $user->lastSentNetworkLatencyTime = microtime(true);
             }
+        } elseif($packet instanceof BlockPlacePacket){
+            $user->timeSinceLastBlockPlace = 0;
         }
     }
 

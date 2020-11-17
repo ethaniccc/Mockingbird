@@ -35,7 +35,7 @@ class FlyA extends Detection implements CancellableMovement{
             && $user->moveData->location->y > 0 && $user->moveData->blockAbove->getId() === 0 && $user->moveData->blockBelow->getId() === 0
             && $user->player->getArmorInventory()->getChestplate()->getId() !== ItemIds::ELYTRA
             && !$user->player->isImmobile()
-            && $user->timeSinceStoppedFlight >= 10){
+            && $user->timeSinceStoppedFlight >= 10 && $user->timeSinceLastBlockPlace >= 10){
                 if(++$this->preVL >= 3){
                     $this->fail($user, "yD=$yDelta, eD=$expectedYDelta, eq=$equalness");
                 }

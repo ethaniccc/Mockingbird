@@ -53,6 +53,7 @@ class MoveProcessor extends Processor{
             } else {
                 $user->timeSinceStoppedFlight = 0;
             }
+            ++$user->timeSinceLastBlockPlace;
             $user->moveData->onGround = $movePacket->onGround;
             if($user->moveData->onGround){
                 ++$user->moveData->onGroundTicks;
