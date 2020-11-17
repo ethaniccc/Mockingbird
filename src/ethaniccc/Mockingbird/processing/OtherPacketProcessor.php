@@ -2,8 +2,12 @@
 
 namespace ethaniccc\Mockingbird\processing;
 
-use ethaniccc\Mockingbird\packets\BlockPlacePacket;
+use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\user\User;
+use pocketmine\event\block\BlockPlaceEvent;
+use pocketmine\event\entity\EntityMotionEvent;
+use pocketmine\event\Event;
+use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
@@ -25,8 +29,20 @@ class OtherPacketProcessor extends Processor{
                 $user->player->dataPacket($user->networkStackLatencyPacket);
                 $user->lastSentNetworkLatencyTime = microtime(true);
             }
-        } elseif($packet instanceof BlockPlacePacket){
+        }
+    }
+
+    public function processEvent(Event $event): void{
+        $user = $this->user;
+        if($event instanceof PlayerJoinEvent){
+            $user->loggedIn = true;
+            if($user->player->hasPermission("mockingbird.alerts") && Mockingbird::getInstance()->getConfig()->get("alerts_default")){
+                $user->alerts = true;
+            }
+        } elseif($event instanceof BlockPlaceEvent){
             $user->timeSinceLastBlockPlace = 0;
+        } elseif($event instanceof EntityMotionEvent){
+            $user->timeSinceMotion -= $user->timeSinceMotion > 0 ? $user->timeSinceMotion : 3;
         }
     }
 

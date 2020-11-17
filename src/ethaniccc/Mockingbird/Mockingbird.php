@@ -138,7 +138,7 @@ class Mockingbird extends PluginBase{
                 $className = explode(".", $file)[0];
                 try{
                     $classInfo = new \ReflectionClass($className);
-                    if(!$classInfo->isAbstract() && $classInfo->isSubclassOf(Processor::class)){
+                    if(!$classInfo->isAbstract() && !$classInfo->isInterface() && $classInfo->isSubclassOf(Processor::class)){
                         $this->availableProcessors[] = $classInfo;
                     }
                 } catch(\ReflectionException $e){}

@@ -3,6 +3,7 @@
 namespace ethaniccc\Mockingbird\processing;
 
 use ethaniccc\Mockingbird\user\User;
+use pocketmine\event\Event;
 use pocketmine\network\mcpe\protocol\DataPacket;
 
 abstract class Processor{
@@ -14,5 +15,8 @@ abstract class Processor{
     }
 
     public abstract function process(DataPacket $packet) : void;
+
+    public function processEvent(Event $event) : void{
+    }
 
 }

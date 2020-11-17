@@ -4,9 +4,10 @@ namespace ethaniccc\Mockingbird\detections\movement\velocity;
 
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\detections\movement\CancellableMovement;
-use ethaniccc\Mockingbird\packets\MotionPacket;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
+use pocketmine\event\entity\EntityMotionEvent;
+use pocketmine\event\Event;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use stdClass;
@@ -23,19 +24,8 @@ class VelocityA extends Detection implements CancellableMovement{
     }
 
     public function handle(DataPacket $packet, User $user): void{
-        if($packet instanceof MotionPacket && $user->loggedIn){
-            if(count($this->queue) > 5){
-                return;
-            }
-            $info = new stdClass();
-            $info->motion = $packet->motionY;
-            $info->maxTime = (int) ($user->transactionLatency / 50) + 3;
-            $info->time = 0;
-            $info->failedTime = 0;
-            $info->maxFailedMotion = 0;
-            $this->queue[] = $info;
-        } elseif($packet instanceof PlayerAuthInputPacket){
-            if($user->timeSinceTeleport < 2){
+        if($packet instanceof PlayerAuthInputPacket){
+            if($user->timeSinceTeleport <= 6){
                 $this->queue = [];
                 return;
             }
@@ -77,6 +67,21 @@ class VelocityA extends Detection implements CancellableMovement{
                     }
                 }
             }
+        }
+    }
+
+    public function handleEvent(Event $event, User $user): void{
+        if($event instanceof EntityMotionEvent && $user->loggedIn){
+            if(count($this->queue) > 5){
+                return;
+            }
+            $info = new stdClass();
+            $info->motion = $event->getVector()->y;
+            $info->maxTime = (int) ($user->transactionLatency / 50) + 3;
+            $info->time = 0;
+            $info->failedTime = 0;
+            $info->maxFailedMotion = 0;
+            $this->queue[] = $info;
         }
     }
 

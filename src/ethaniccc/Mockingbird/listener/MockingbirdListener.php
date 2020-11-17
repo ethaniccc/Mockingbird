@@ -3,10 +3,7 @@
 namespace ethaniccc\Mockingbird\listener;
 
 use ethaniccc\Mockingbird\detections\Detection;
-use ethaniccc\Mockingbird\detections\player\cheststeal\ChestStealerA;
 use ethaniccc\Mockingbird\Mockingbird;
-use ethaniccc\Mockingbird\packets\BlockPlacePacket;
-use ethaniccc\Mockingbird\packets\MotionPacket;
 use ethaniccc\Mockingbird\processing\Processor;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\user\UserManager;
@@ -18,7 +15,6 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
-use pocketmine\inventory\ChestInventory;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
@@ -85,6 +81,9 @@ class MockingbirdListener implements Listener{
             if($user->player->hasPermission("mockingbird.alerts") && Mockingbird::getInstance()->getConfig()->get("alerts_default")){
                 $user->alerts = true;
             }
+            foreach($user->processors as $processor){
+                $processor->processEvent($event);
+            }
             $user->player->dataPacket($user->networkStackLatencyPacket);
             $user->lastSentNetworkLatencyTime = microtime(true);
         }
@@ -94,13 +93,11 @@ class MockingbirdListener implements Listener{
         $entity = $event->getEntity();
         if($entity instanceof Player){
             $user = UserManager::getInstance()->get($entity);
-            $user->timeSinceMotion -= $user->timeSinceMotion > 0 ? $user->timeSinceMotion : 3;
-            $user->moveData->lastMotion = $event->getVector();
-            $motionPK = new MotionPacket($event);
-            foreach($user->detections as $check){
-                if($check instanceof Detection){
-                    $check->handle($motionPK, $user);
-                }
+            foreach($user->processors as $processor){
+                $processor->processEvent($event);
+            }
+            foreach($user->detections as $detection){
+                $detection->handleEvent($event, $user);
             }
         }
     }
@@ -118,15 +115,14 @@ class MockingbirdListener implements Listener{
     public function onPlacedBlock(BlockPlaceEvent $event) : void{
         $user = UserManager::getInstance()->get($event->getPlayer());
         if($user !== null){
-            $pk = new BlockPlacePacket($event);
             foreach($user->processors as $processor){
                 if($processor instanceof Processor){
-                    $processor->process($pk);
+                    $processor->processEvent($event);
                 }
             }
             foreach($user->detections as $check){
                 if($check instanceof Detection){
-                    $check->handle($pk, $user);
+                    $check->handleEvent($event, $user);
                 }
             }
         }
@@ -135,16 +131,11 @@ class MockingbirdListener implements Listener{
     // I hate it here
     public function onTransaction(InventoryTransactionEvent $event) : void{
         $user = UserManager::getInstance()->get($event->getTransaction()->getSource());
-        $check = $user->detections["ChestStealerA"] ?? null;
-        if($check instanceof ChestStealerA){
-            foreach($event->getTransaction()->getInventories() as $inventory){
-                if($inventory instanceof ChestInventory){
-                    $continue = true;
-                }
-            }
-            if(isset($continue)){
-                ++$check->transactions;
-            }
+        foreach($user->processors as $processor){
+            $processor->processEvent($event);
+        }
+        foreach($user->detections as $detection){
+            $detection->handleEvent($event, $user);
         }
     }
 

@@ -8,6 +8,7 @@ use ethaniccc\Mockingbird\tasks\BanTask;
 use ethaniccc\Mockingbird\tasks\KickTask;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\user\UserManager;
+use pocketmine\event\Event;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -45,6 +46,9 @@ abstract class Detection{
     }
 
     public abstract function handle(DataPacket $packet, User $user) : void;
+
+    public function handleEvent(Event $event, User $user) : void{
+    }
 
     public function getCheatProbability() : int{
         $violations = count($this->violations);
