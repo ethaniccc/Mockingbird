@@ -12,6 +12,7 @@ use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 class SpeedB extends Detection implements CancellableMovement{
 
     private $onGroundTicks = 0;
+    private $ticksSinceSpeed = 0;
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
@@ -35,8 +36,15 @@ class SpeedB extends Detection implements CancellableMovement{
                 if($user->player->getEffect(1) !== null){
                     $amplifier = $user->player->getEffect(1)->getAmplifier() + 1;
                     $maxSpeed += 0.2 * $amplifier;
+                    $this->ticksSinceSpeed = 0;
+                } else {
+                    ++$this->ticksSinceSpeed;
                 }
                 if($horizontalSpeed > $maxSpeed && $user->timeSinceTeleport >= 10 && $user->timeSinceMotion >= 20){
+                    // player just lost their speed effect
+                    if($user->player->getEffect(1) === null && $this->ticksSinceSpeed <= 20){
+                        return;
+                    }
                     if(++$this->preVL >= 2){
                         $this->fail($user, "speed=$horizontalSpeed tpTime={$user->timeSinceTeleport}");
                     }
