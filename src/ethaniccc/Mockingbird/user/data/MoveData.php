@@ -32,5 +32,8 @@ class MoveData{
     public $directionVector;
     /** @var string[] - The WASD combo the player is using */
     public $pressedKeys = [];
-
+    /** @var int - The amount of client ticks that have passed since colliding with cobweb. */
+    public $cobwebTicks = 0;
+    /** @var int - The amount of client ticks that have passed since colliding with cobweb */
+    public $liquidTicks = 0;
 }

@@ -7,6 +7,8 @@ use ethaniccc\Mockingbird\tasks\KickTask;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\MathUtils;
 use ethaniccc\Mockingbird\utils\PacketUtils;
+use pocketmine\block\Cobweb;
+use pocketmine\block\Liquid;
 use pocketmine\level\Location;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
@@ -54,6 +56,25 @@ class MoveProcessor extends Processor{
                 $user->timeSinceStoppedFlight = 0;
             }
             ++$user->timeSinceLastBlockPlace;
+            $liquids = 0;
+            $cobweb = 0;
+            foreach($user->player->getBlocksAround() as $block){
+                if($block instanceof Liquid){
+                    $liquids++;
+                } elseif($block instanceof Cobweb){
+                    $cobweb++;
+                }
+            }
+            if($liquids > 0){
+                $user->moveData->liquidTicks = 0;
+            } else {
+                ++$user->moveData->liquidTicks;
+            }
+            if($cobweb > 0){
+                $user->moveData->cobwebTicks = 0;
+            } else {
+                ++$user->moveData->cobwebTicks;
+            }
             $user->moveData->onGround = $movePacket->onGround;
             if($user->moveData->onGround){
                 ++$user->moveData->onGroundTicks;

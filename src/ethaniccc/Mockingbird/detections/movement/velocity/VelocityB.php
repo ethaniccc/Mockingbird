@@ -10,8 +10,6 @@ use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
 class VelocityB extends Detection{
 
-    private $blockCollidesTicks = 0;
-
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
         $this->vlThreshold = 15;
@@ -31,7 +29,7 @@ class VelocityB extends Detection{
                         $f = 1;
                     }
                     $onGround = fmod(round($user->moveData->location->y, 4), 1/64) === 0.0;
-                    $friction = $onGround ? 0.16277136 / pow(($user->moveData->blockBelow !== null ? $user->moveData->blockBelow->getFrictionFactor() : 0.6), 3) : 0.02;
+                    $friction = $onGround ? 0.16277136 / pow($user->moveData->blockBelow->getFrictionFactor(), 3) : 0.02;
                     $f = $friction / $f;
                     $strafe *= $f;
                     $forward *= $f;
@@ -49,17 +47,13 @@ class VelocityB extends Detection{
                 }
                 $horizontalMove = hypot($user->moveData->moveDelta->x, $user->moveData->moveDelta->z);
                 $percentage = $horizontalMove / $expectedHorizontal;
-                $scaledPercentage = $percentage * 100;
                 $maxPercentage = $this->getSetting("multiplier");
-                if($user->timeSinceAttack <= 2){
+                if($user->timeSinceAttack <= 2) {
                     $maxPercentage *= 0.98;
                 }
-                if(count($user->player->getBlocksAround()) > 0 || count($user->player->getLevel()->getCollisionBlocks(AABB::from($user)->expand(0.2, 0, 0.2))) > 0){
-                    $this->blockCollidesTicks = 0;
-                } else {
-                    ++$this->blockCollidesTicks;
-                }
-                if($percentage < $maxPercentage && $this->blockCollidesTicks >= 5 && $user->timeSinceStoppedFlight >= 20){
+                $scaledPercentage = ($horizontalMove / ($expectedHorizontal * $maxPercentage)) * 100;
+                $user->sendMessage("percentage=$scaledPercentage preVL={$this->preVL}");
+                if($percentage < $maxPercentage && $user->moveData->cobwebTicks >= 6 && $user->moveData->liquidTicks >= 6 && $user->timeSinceStoppedFlight >= 20){
                     if(++$this->preVL > ($user->transactionLatency > 150 ? 40 : 30)){
                         $keyList = count($user->moveData->pressedKeys) > 0 ? implode(", ", $user->moveData->pressedKeys) : "none";
                         $this->fail($user, "percentage=$scaledPercentage keys=$keyList");

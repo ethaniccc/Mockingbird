@@ -43,6 +43,7 @@ class OtherPacketProcessor extends Processor{
             $user->timeSinceLastBlockPlace = 0;
         } elseif($event instanceof EntityMotionEvent){
             $user->timeSinceMotion -= $user->timeSinceMotion > 0 ? $user->timeSinceMotion : 3;
+            $user->moveData->lastMotion = $event->getVector();
         }
     }
 

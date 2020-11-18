@@ -15,12 +15,13 @@ use stdClass;
 class VelocityA extends Detection implements CancellableMovement{
 
     private $queue = [];
-    private $blockCollidesTicks = 0;
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
         $this->suppression = false;
         $this->vlThreshold = 20;
+        $this->lowMax = 4;
+        $this->mediumMax = 8;
     }
 
     public function handle(DataPacket $packet, User $user): void{
@@ -29,19 +30,11 @@ class VelocityA extends Detection implements CancellableMovement{
                 $this->queue = [];
                 return;
             }
-            if(!empty($this->queue)){
+            if(count($this->queue) !== 0){
                 $currentData = $this->queue[0];
                 if(++$currentData->time <= $currentData->maxTime){
-                    $notSolidBlocksAround = count($user->player->getBlocksAround());
-                    $AABB = AABB::from($user);
-                    $AABB->maxY += 0.1;
-                    if($notSolidBlocksAround > 0 || $user->moveData->blockAbove->getId() === 0){
-                        $this->blockCollidesTicks = 0;
-                    } else {
-                        ++$this->blockCollidesTicks;
-                    }
                     if($user->moveData->moveDelta->y < $currentData->motion * $this->getSetting("multiplier")
-                    && $this->blockCollidesTicks >= 5 && $currentData->motion >= 0.3 && $user->timeSinceStoppedFlight >= 20){
+                    && $user->moveData->cobwebTicks >= 6 && $user->moveData->liquidTicks >= 6 && $currentData->motion >= 0.3 && $user->timeSinceStoppedFlight >= 20){
                         ++$currentData->failedTime;
                         if(abs($currentData->maxFailedMotion) < abs($user->moveData->moveDelta->y)){
                             $currentData->maxFailedMotion = $user->moveData->moveDelta->y;
