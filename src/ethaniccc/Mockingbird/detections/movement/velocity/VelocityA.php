@@ -5,7 +5,6 @@ namespace ethaniccc\Mockingbird\detections\movement\velocity;
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\detections\movement\CancellableMovement;
 use ethaniccc\Mockingbird\user\User;
-use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use pocketmine\event\entity\EntityMotionEvent;
 use pocketmine\event\Event;
 use pocketmine\network\mcpe\protocol\DataPacket;

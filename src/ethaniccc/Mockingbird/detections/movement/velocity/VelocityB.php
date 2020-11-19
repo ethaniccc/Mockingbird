@@ -4,7 +4,6 @@ namespace ethaniccc\Mockingbird\detections\movement\velocity;
 
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\user\User;
-use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
@@ -18,6 +17,10 @@ class VelocityB extends Detection{
     public function handle(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
             if($user->timeSinceMotion <= ($user->transactionLatency / 50) + 4 && $user->moveData->lastMotion !== null && $user->player->isAlive()){
+                if($user->timeSinceTeleport <= 6){
+                    $this->preVL = 0;
+                    return;
+                }
                 $forward = $packet->getMoveVecZ();
                 $strafe = $packet->getMoveVecX();
                 $motion = clone $user->moveData->lastMotion;
