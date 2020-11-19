@@ -5,6 +5,7 @@ namespace ethaniccc\Mockingbird\processing;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\tasks\KickTask;
 use ethaniccc\Mockingbird\user\User;
+use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\MathUtils;
 use ethaniccc\Mockingbird\utils\PacketUtils;
 use pocketmine\block\Cobweb;
@@ -58,6 +59,8 @@ class MoveProcessor extends Processor{
             ++$user->timeSinceLastBlockPlace;
             $liquids = 0;
             $cobweb = 0;
+            unset($user->moveData->AABB);
+            $user->moveData->AABB = AABB::from($user);
             foreach($user->player->getBlocksAround() as $block){
                 if($block instanceof Liquid){
                     $liquids++;

@@ -8,6 +8,7 @@ use ethaniccc\Mockingbird\processing\Processor;
 use ethaniccc\Mockingbird\user\data\ClickData;
 use ethaniccc\Mockingbird\user\data\HitData;
 use ethaniccc\Mockingbird\user\data\MoveData;
+use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\location\LocationHistory;
 use pocketmine\block\Air;
 use pocketmine\math\Vector3;
@@ -77,6 +78,7 @@ class User{
         $this->locationHistory = new LocationHistory();
         $this->moveData->lastOnGroundLocation = $player->asLocation();
         $zeroVector = new Vector3(0, 0, 0);
+        $this->moveData->AABB = AABB::fromPosition($zeroVector);
         $this->zeroVector = $zeroVector;
         $this->moveData->moveDelta = $zeroVector;
         $this->moveData->lastMoveDelta = $zeroVector;

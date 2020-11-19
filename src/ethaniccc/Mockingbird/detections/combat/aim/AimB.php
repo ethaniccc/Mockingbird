@@ -4,6 +4,7 @@ namespace ethaniccc\Mockingbird\detections\combat\aim;
 
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\user\User;
+use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
@@ -14,8 +15,9 @@ class AimB extends Detection{
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
         $this->vlThreshold = 10;
-        $this->lowMax = 10;
-        $this->mediumMax = 15;
+        // just in case this still sometimes falses
+        $this->lowMax = 15;
+        $this->mediumMax = 20;
     }
 
     public function handle(DataPacket $packet, User $user): void{
@@ -24,8 +26,8 @@ class AimB extends Detection{
             $expander = pow(2, 24);
             $gcd = $this->getGCD($user->moveData->pitchDelta * $expander, $user->moveData->lastPitchDelta * $expander);
             $diff = abs($gcd - $this->lastGCD);
-            // check if the GCD difference is within a range
-            if($diff >= 1000 && $diff < 100000){
+            // check if the GCD difference is within a range ----------------- why does this cause falses when player is near blocks
+            if($diff >= 1000 && $diff < 100000 && count($user->player->getLevel()->getCollisionBlocks($user->moveData->AABB->expand(0.2, 0, 0.2))) === 0){
                 // legit players can at some point false this, which is why the preVL
                 // is so high - doesn't matter since this flags so much
                 if(++$this->preVL >= 15){

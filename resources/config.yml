@@ -208,6 +208,11 @@ ChestStealerA:
   max_violations: 10
   # check sensitivity settings
   max_transactions: 4
+EditionFakerA:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 1
 
 #  ______          _        _
 # | ___ \        | |      | |
