@@ -13,6 +13,7 @@ use pocketmine\event\entity\EntityTeleportEvent;
 use pocketmine\event\inventory\InventoryTransactionEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
+use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\network\mcpe\protocol\LoginPacket;
@@ -136,6 +137,11 @@ class MockingbirdListener implements Listener{
         foreach($user->detections as $detection){
             $detection->handleEvent($event, $user);
         }
+    }
+
+    public function onLeave(PlayerQuitEvent $event) : void{
+        $player = $event->getPlayer();
+        UserManager::getInstance()->unregister($player);
     }
 
 }

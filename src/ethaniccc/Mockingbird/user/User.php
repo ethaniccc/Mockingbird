@@ -25,11 +25,11 @@ class User{
     public $processors = [];
     /** @var Detection[] - The detections available that will run. */
     public $detections = [];
-    /** @var string<float> - The key is the detection name, and the value is the violations (float). - TODO: Make this a class? */
+    /** @var array - The key is the detection name, and the value is the violations (float). - TODO: Make this a class? */
     public $violations = [];
     /** @var bool - The boolean value for if the user is logged into the server. */
     public $loggedIn = false;
-    /** @var bool - TODO: Make sure this information is correct for this since EditionFaker can be a disabler for some combat checks, */
+    /** @var bool */
     public $isDesktop = false;
 
     public $alerts = false;

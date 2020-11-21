@@ -2,6 +2,7 @@
 
 namespace ethaniccc\Mockingbird\user;
 
+use pocketmine\entity\Entity;
 use pocketmine\Player;
 
 class UserManager{
@@ -21,10 +22,11 @@ class UserManager{
     }
 
     public function register(User $user) : void{
-        if(isset($this->users[spl_object_hash($user->player)])){
-            $this->users[spl_object_hash($user->player)] = null;
+        $key = spl_object_hash($user->player);
+        if(isset($this->users[$key])){
+            $this->users[$key] = null;
         }
-        $this->users[spl_object_hash($user->player)] = $user;
+        $this->users[$key] = $user;
     }
 
     public function get(Player $player) : ?User{

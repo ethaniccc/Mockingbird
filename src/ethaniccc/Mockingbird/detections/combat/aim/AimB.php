@@ -4,7 +4,6 @@ namespace ethaniccc\Mockingbird\detections\combat\aim;
 
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\user\User;
-use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 

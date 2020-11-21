@@ -55,7 +55,7 @@ class VelocityB extends Detection{
                     $maxPercentage *= 0.98;
                 }
                 $scaledPercentage = ($horizontalMove / ($expectedHorizontal * $maxPercentage)) * 100;
-                $user->sendMessage("percentage=$scaledPercentage preVL={$this->preVL}");
+                // $user->sendMessage("percentage=$scaledPercentage preVL={$this->preVL}");
                 if($percentage < $maxPercentage && $user->moveData->cobwebTicks >= 6 && $user->moveData->liquidTicks >= 6 && $user->timeSinceStoppedFlight >= 20){
                     if(++$this->preVL > ($user->transactionLatency > 150 ? 40 : 30)){
                         $keyList = count($user->moveData->pressedKeys) > 0 ? implode(", ", $user->moveData->pressedKeys) : "none";
