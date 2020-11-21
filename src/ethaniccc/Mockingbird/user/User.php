@@ -53,7 +53,7 @@ class User{
     /** @var int|float - The time it took for the client to respond with a NetworkStackLatencyPacket. */
     public $transactionLatency = 0;
 
-    /** @var LocationHistory */
+    /** @var LocationHistory - The location history of the player. */
     public $locationHistory;
 
     /** @var Vector3 - Just a Vector3 with it's x, y, and z values at 0 - don't mind me! */

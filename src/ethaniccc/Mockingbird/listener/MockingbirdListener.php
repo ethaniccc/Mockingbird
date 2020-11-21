@@ -18,6 +18,7 @@ use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
+use pocketmine\network\mcpe\protocol\types\PlayerMovementType;
 use pocketmine\Player;
 use pocketmine\Server;
 
@@ -27,12 +28,15 @@ class MockingbirdListener implements Listener{
         Server::getInstance()->getPluginManager()->registerEvents($this, Mockingbird::getInstance());
     }
 
+    /** @priority HIGHEST */
     public function onPacket(DataPacketReceiveEvent $event) : void{
         $packet = $event->getPacket();
         $player = $event->getPlayer();
         if($packet instanceof LoginPacket){
             $user = new User($player);
             UserManager::getInstance()->register($user);
+        } elseif($packet instanceof PlayerAuthInputPacket){
+            $event->setCancelled();
         }
 
         $user = UserManager::getInstance()->get($player);
@@ -58,17 +62,12 @@ class MockingbirdListener implements Listener{
                 }
             }
         }
-
-        if($packet instanceof PlayerAuthInputPacket){
-            // make debug *insert IdotHub :shut: emoji*
-            $event->setCancelled();
-        }
     }
 
     public function onPacketSend(DataPacketSendEvent $event) : void{
         $packet = $event->getPacket();
         if($packet instanceof StartGamePacket){
-            $packet->isMovementServerAuthoritative = true;
+            $packet->playerMovementType = PlayerMovementType::SERVER_AUTHORITATIVE_V2_REWIND;
         }
     }
 

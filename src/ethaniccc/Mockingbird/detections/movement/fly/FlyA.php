@@ -27,7 +27,7 @@ class FlyA extends Detection implements CancellableMovement{
             if($equalness > $this->getSetting("max_breach")
             && abs($expectedYDelta) > 0.05
             && $user->moveData->offGroundTicks >= 10 && $user->timeSinceTeleport > 5
-            && $user->timeSinceJoin >= 20
+            && $user->timeSinceJoin >= 200
             && $user->timeSinceMotion >= 5
             && !$user->player->isFlying()
             && !$user->player->getAllowFlight()
