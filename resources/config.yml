@@ -120,55 +120,6 @@ HitboxA:
   punishment_type: kick
   max_violations: 35
 
-# ___  ___                                    _
-# |  \/  |                                   | |
-# | .  . | _____   _____ _ __ ___   ___ _ __ | |_
-# | |\/| |/ _ \ \ / / _ \ '_ ` _ \ / _ \ '_ \| __|
-# | |  | | (_) \ V /  __/ | | | | |  __/ | | | |_
-# \_|  |_/\___/ \_/ \___|_| |_| |_|\___|_| |_|\__|
-
-# Speed
-SpeedA:
-  enabled: true
-  punish: true
-  punishment_type: kick
-  suppression: false
-  max_violations: 25
-  # check sensitivity settings
-  max_breach: 0.00001
-SpeedB:
-  enabled: true
-  punish: true
-  punishment_type: kick
-  suppression: false
-  max_violations: 25
-  # check sensitivity settings
-  max_speed_on_ground: 0.29
-  max_speed_off_ground: 0.78
-
-# Fly
-FlyA:
-  enabled: true
-  punish: true
-  punishment_type: kick
-  suppression: false
-  max_violations: 25
-  # check sensitivity settings
-  max_breach: 0.015
-FlyB:
-  enabled: true
-  punish: true
-  punishment_type: kick
-  suppression: false
-  max_violations: 25
-  # no check settings
-FlyC:
-  enabled: true
-  punish: true
-  punishment_type: kick
-  suppression: false
-  max_violations: 25
-
 # Velocity
 VelocityA:
   enabled: true
@@ -193,21 +144,6 @@ VelocityB:
 #  \_|   |_|\__,_|\__, |\___|_|
 #                 __/ |
 #                |___/
-
-NukerA:
-  enabled: true
-  punish: true
-  punishment_type: kick
-  max_violations: 10
-  # check sensitivity settings
-  max_blocks: 6
-ChestStealerA:
-  enabled: true
-  punish: true
-  punishment_type: kick
-  max_violations: 10
-  # check sensitivity settings
-  max_transactions: 4
 EditionFakerA:
   enabled: true
   punish: true
