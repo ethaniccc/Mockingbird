@@ -32,8 +32,11 @@ class VelocityA extends Detection implements CancellableMovement{
             if(count($this->queue) !== 0){
                 $currentData = $this->queue[0];
                 if(++$currentData->time <= $currentData->maxTime){
+                    $AABB = clone $user->moveData->AABB;
+                    $AABB->maxY += 0.1;
+                    $blocksCollide = count($user->player->getLevel()->getCollisionBlocks($AABB, true)) > 0;
                     if($user->moveData->moveDelta->y < $currentData->motion * $this->getSetting("multiplier")
-                    && $user->moveData->cobwebTicks >= 6 && $user->moveData->liquidTicks >= 6 && $currentData->motion >= 0.3 && $user->timeSinceStoppedFlight >= 20){
+                    && $user->moveData->cobwebTicks >= 6 && $user->moveData->liquidTicks >= 6 && $currentData->motion >= 0.3 && $user->timeSinceStoppedFlight >= 20 && !$blocksCollide){
                         ++$currentData->failedTime;
                         if(abs($currentData->maxFailedMotion) < abs($user->moveData->moveDelta->y)){
                             $currentData->maxFailedMotion = $user->moveData->moveDelta->y;

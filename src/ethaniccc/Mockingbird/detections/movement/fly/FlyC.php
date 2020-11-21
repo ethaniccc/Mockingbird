@@ -21,7 +21,7 @@ class FlyC extends Detection implements CancellableMovement{
                 $lastYDelta = $user->moveData->lastMoveDelta->y;
                 $equalness = abs($yDelta - $lastYDelta);
                 // are PlayerAuthInputPacket y values fucked?
-                if($user->timeSinceJoin >= 200 && $yDelta > -3.0 && $equalness <= 0.01 && !$user->player->isFlying() && $user->player->isAlive() && $user->timeSinceMotion > 5 && !$user->player->isImmobile() && $user->loggedIn && $user->timeSinceStoppedFlight >= 10 && $user->moveData->blockBelow->getId() === 0 && $user->moveData->location->y > 0){
+                if($user->timeSinceJoin >= 200 && $yDelta > -3.0 && $equalness <= 0.01 && !$user->player->isFlying() && !$user->player->isSpectator() && $user->player->isAlive() && $user->timeSinceMotion > 5 && !$user->player->isImmobile() && $user->loggedIn && $user->timeSinceStoppedFlight >= 10 && $user->moveData->blockBelow->getId() === 0 && $user->moveData->location->y > 0){
                     if(++$this->preVL >= 3){
                         $this->fail($user, "yD=$yDelta, eq=$equalness");
                     }

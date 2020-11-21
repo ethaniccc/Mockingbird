@@ -29,7 +29,8 @@ class SpeedA extends Detection implements CancellableMovement{
                 if($equalness > $this->getSetting("max_breach")
                 && $user->timeSinceStoppedFlight >= 20
                 && $user->timeSinceTeleport >= 5
-                && $user->timeSinceMotion >= 10){
+                && $user->timeSinceMotion >= 10
+                && !$user->player->isFlying() && !$user->player->isSpectator()){
                     if(++$this->preVL >= 3){
                         $this->fail($user, "e=$equalness cXZ=$currentXZ lXZ=$lastXZ");
                     }
