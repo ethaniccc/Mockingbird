@@ -4,6 +4,8 @@ many changes compared to the v1 variants of Mockingbird.
 
 Note: **You want a decent server to handle everything Mockingbird is going to do with the least amount of false positives (such as WitherHosting's $1.25 plan).**
 
+Note: **Waterdog may bring up issues while using Mockingbird, if you use Waterdog along with Mockingbird, know that things may go wrong.**
+
 Here's something I want to relay before moving forward:
 1) If you have an issue with Mockingbird (constant falsing, too much cpu usage, etc.) **please** make an issue
 on the GitHub repository with details, so I can fix it. You can leave a bad review but **please** make an issue :)
@@ -64,6 +66,7 @@ and false at sometimes, but the new reward system should compensate.
 ### Combat Detections
 - Aim
     - (A) -> Yaw delta to pitch delta check
+    - (B) -> GCD Diff Check
 - AutoClicker
     - (A) -> Consistency
     - (B) -> Speed
@@ -87,6 +90,11 @@ and false at sometimes, but the new reward system should compensate.
 - Velocity
     - (A) -> Vertical Check (**99% by default**)
     - (B) -> Horizontal Check (**95% by default**)
+### Player Checks
+- Nuker (yep lag compensated in less than 40 lines)
+- ChestStealer (yep also lag compensated in less than 40 lines)
+- EditionFaker (**pog**)
+
 
 Mockingbird also has packet checks.
 - BadPackets (checks for validity of packets sent)
