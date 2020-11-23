@@ -37,4 +37,11 @@ class UserManager{
         unset($this->users[spl_object_hash($player)]);
     }
 
+    /**
+     * @return User[]
+     */
+    public function getUsers() : array{
+        return $this->users;
+    }
+
 }

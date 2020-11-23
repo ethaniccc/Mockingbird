@@ -48,10 +48,16 @@ class Mockingbird extends PluginBase{
         $this->getAvailableProcessors();
         $this->getAvailableChecks();
         $this->registerCommands();
+        // yes, closure tasks
         $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(function(int $currentTick) : void{
             $this->getServer()->getAsyncPool()->submitTask($this->debugTask);
             $this->debugTask = new DebugLogWriteTask($this->getDataFolder() . "debug_log.txt");
         }), 400);
+        $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(function(int $currentTick) : void{
+            foreach(UserManager::getInstance()->getUsers() as $user){
+                $user->locationHistory->addLocation($user->moveData->location);
+            }
+        }), 1);
     }
 
     public function getPrefix() : string{

@@ -23,7 +23,7 @@ class AimB extends Detection{
 
     public function handle(DataPacket $packet, User $user): void{
         // make sure user is on desktop, player's pitchDelta is not too low, and player is not spamming their aim.
-        if($user->isDesktop && $packet instanceof PlayerAuthInputPacket && $user->moveData->pitchDelta > 0.05 && $user->moveData->pitchDelta < 7.5 && abs(round($user->moveData->pitch, 0)) < 85 && abs(round($user->moveData->lastPitch, 0)) < 85){
+        if($user->win10 && $packet instanceof PlayerAuthInputPacket && $user->moveData->pitchDelta > 0.05 && $user->moveData->pitchDelta < 7.5 && abs(round($user->moveData->pitch, 0)) < 85 && abs(round($user->moveData->lastPitch, 0)) < 85){
             // this is the expander Elevated uses in his GCD checks
             $expander = $this->expander;
             $gcd = $this->getGCD($user->moveData->pitchDelta * $expander, $user->moveData->lastPitchDelta * $expander);

@@ -23,6 +23,14 @@ class OtherPacketProcessor extends Processor{
         $user = $this->user;
         if($packet instanceof LoginPacket){
             $user->isDesktop = !in_array($packet->clientData["DeviceOS"], [DeviceOS::AMAZON, DeviceOS::ANDROID, DeviceOS::IOS]);
+            try{
+                $data = $packet->chainData;
+                $parts = explode(".", $data['chain'][2]);
+                $jwt = json_decode(base64_decode($parts[1]), true);
+                $id = $jwt['extraData']['titleId'];
+                $user->win10 = ($id === "896928775");
+            } catch(\Exception $e){
+            }
         } elseif($packet instanceof NetworkStackLatencyPacket){
             if($packet->timestamp === $user->networkStackLatencyPacket->timestamp){
                 $user->transactionLatency = round((microtime(true) - $user->lastSentNetworkLatencyTime) * 1000, 0);

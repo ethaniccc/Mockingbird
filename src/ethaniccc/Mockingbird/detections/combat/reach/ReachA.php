@@ -18,18 +18,14 @@ class ReachA extends Detection{
         if($packet instanceof InventoryTransactionPacket
         && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY
         && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK
-        && $user->isDesktop && !$user->player->isCreative()){
-            $distance = $user->hitData->rayDistance;
-            if($distance !== -69.0){
-                if($distance > $this->getSetting("max_reach")){
-                    if(++$this->preVL >= 10){
-                        $this->fail($user, "dist=$distance");
-                        $this->preVL = min($this->preVL, 15);
-                    }
-                } else {
-                    $this->reward($user, 0.999);
-                    $this->preVL -= $this->preVL > 0 ? 1 : 0;
+        && $user->isDesktop && !$user->player->isCreative() && $user->hitData->rayCollides){
+            if($user->hitData->rayDistance > $this->getSetting("max_reach")){
+                if(++$this->preVL >= 10){
+                    $this->fail($user, "distance={$user->hitData->rayDistance} buffer={$this->preVL}");
+                    $this->preVL = min($this->preVL, 15);
                 }
+            } else {
+                $this->preVL -= $this->preVL > 0 ? 1 : 0;
             }
         }
     }

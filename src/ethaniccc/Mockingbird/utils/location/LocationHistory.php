@@ -23,6 +23,11 @@ class LocationHistory{
         return $this->locations;
     }
 
+    /**
+     * @param float $time
+     * @param float $search
+     * @return Vector3[]
+     */
     public function getLocationsRelativeToTime(float $time, float $search) : array{
         $locations = [];
         foreach($this->locations as $info){

@@ -11,6 +11,7 @@ class AABB extends AxisAlignedBB{
 
     public $minX, $minY, $minZ;
     public $maxX, $maxY, $maxZ;
+    public $minVector, $maxVector;
 
     public function __construct(float $minX, float $minY, float $minZ, float $maxX, float $maxY, float $maxZ) {
         parent::__construct($minX, $minY, $minZ, $maxX, $maxX, $maxZ);
@@ -20,6 +21,8 @@ class AABB extends AxisAlignedBB{
         $this->maxX = $maxX;
         $this->maxY = $maxY;
         $this->maxZ = $maxZ;
+        $this->minVector = new Vector3($this->minX, $this->minY, $this->minZ);
+        $this->maxVector = new Vector3($this->maxX, $this->maxY, $this->maxZ);
     }
 
     public static function from(User $user) : AABB{
@@ -93,6 +96,9 @@ class AABB extends AxisAlignedBB{
 
     public function collidesRay(Ray $ray, float $maxDist) : float{
         $pos1 = $ray->getOrigin();
+        if($this->isVectorInside($pos1)){
+            return 0.0;
+        }
         $pos2 = $pos1->add($ray->getDirection()->multiply($maxDist));
         $v1 = $pos1->getIntermediateWithXValue($pos2, $this->minX);
         $v2 = $pos1->getIntermediateWithXValue($pos2, $this->maxX);

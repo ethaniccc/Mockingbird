@@ -31,6 +31,8 @@ class User{
     public $loggedIn = false;
     /** @var bool */
     public $isDesktop = false;
+    /** @var bool - Boolean value for if the user is on Windows 10 */
+    public $win10 = false;
 
     public $alerts = false;
     public $debug = false;

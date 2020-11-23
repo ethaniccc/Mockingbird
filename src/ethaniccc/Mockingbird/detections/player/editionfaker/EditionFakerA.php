@@ -20,18 +20,8 @@ class EditionFakerA extends Detection{
 
     public function handle(DataPacket $packet, User $user): void{
         if($packet instanceof LoginPacket){
-            try{
-                $data = $packet->chainData;
-                $parts = explode(".", $data['chain'][2]);
-
-                $jwt = json_decode(base64_decode($parts[1]), true);
-                $id = $jwt['extraData']['titleId'];
-            } catch(\Exception $e){
-                $this->debug("EditionFaker encountered exception: {$e->getMessage()}");
-                return;
-            }
             // finally the reign of using Horion's EditionFaker to fucking bypass some combat checks is finally over
-            if($id === "896928775" && !$user->isDesktop){
+            if($user->win10 && !$user->isDesktop){
                 $this->faking = true;
             }
             $this->givenOS = $packet->clientData["DeviceOS"];

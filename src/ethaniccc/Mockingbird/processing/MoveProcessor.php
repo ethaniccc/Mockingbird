@@ -29,7 +29,7 @@ class MoveProcessor extends Processor{
                 return;
             }
             $location = Location::fromObject($packet->getPosition()->subtract(0, 1.62, 0), $user->player->getLevel(), $packet->getYaw(), $packet->getPitch());
-            $user->locationHistory->addLocation($location);
+            // $user->locationHistory->addLocation($location);
             $user->moveData->lastLocation = $user->moveData->location;
             $user->moveData->location = $location;
             $user->moveData->lastYaw = $user->moveData->yaw;
