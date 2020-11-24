@@ -5,3 +5,4 @@ upload.cmd
 compile.cmd
 upload/*
 .vscode/*
+out/*

@@ -32,6 +32,8 @@ class MoveProcessor extends Processor{
             // $user->locationHistory->addLocation($location);
             $user->moveData->lastLocation = $user->moveData->location;
             $user->moveData->location = $location;
+            unset($user->moveData->AABB);
+            $user->moveData->AABB = AABB::from($user);
             $user->moveData->lastYaw = $user->moveData->yaw;
             $user->moveData->lastPitch = $user->moveData->pitch;
             $user->moveData->yaw = fmod($location->yaw, 360);
@@ -59,8 +61,6 @@ class MoveProcessor extends Processor{
             ++$user->timeSinceLastBlockPlace;
             $liquids = 0;
             $cobweb = 0;
-            unset($user->moveData->AABB);
-            $user->moveData->AABB = AABB::from($user);
             foreach($user->player->getBlocksAround() as $block){
                 if($block instanceof Liquid){
                     $liquids++;

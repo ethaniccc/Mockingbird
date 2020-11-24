@@ -28,10 +28,10 @@ class AimB extends Detection{
             $expander = $this->expander;
             $gcd = $this->getGCD($user->moveData->pitchDelta * $expander, $user->moveData->lastPitchDelta * $expander);
             $diff = abs($gcd - $this->lastGCD);
-            // check if the GCD difference is within a range ----------------- why does this cause falses when player is near blocks
-            if($diff >= 1000 && $diff < 100000 && count($user->player->getLevel()->getCollisionBlocks($user->moveData->AABB->expand(0.2, 0, 0.2), true)) === 0){
+            // check if the GCD difference is within a range
+            if($diff >= 1000 && $diff < 100000){
                 // legit players can at some point false this, which is why the preVL
-                // is so high - doesn't matter since this flags so much
+                // is so high - doesn't matter since this flags so much if using some sort of Aimbot / AimAssist
                 if(++$this->preVL >= 15){
                     $this->preVL = min($this->preVL, 20);
                     $this->fail($user, "pitchDelta={$user->moveData->pitchDelta} gcdDiff=$diff preVL={$this->preVL}");
