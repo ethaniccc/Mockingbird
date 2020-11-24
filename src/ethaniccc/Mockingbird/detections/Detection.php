@@ -106,10 +106,12 @@ abstract class Detection{
             switch($this->punishType){
                 case "kick":
                     $user->loggedIn = false;
+                    $this->debug("{$user->player->getName()} was punished for {$this->name}");
                     $this->getPlugin()->getScheduler()->scheduleDelayedTask(new KickTask($user, $this->getPlugin()->getPrefix() . " " . $this->getPlugin()->getConfig()->get("punish_message_player")), 0);
                     break;
                 case "ban":
                     $user->loggedIn = false;
+                    $this->debug("{$user->player->getName()} was punished for {$this->name}");
                     $this->getPlugin()->getScheduler()->scheduleDelayedTask(new BanTask($user, $this->getPlugin()->getPrefix() . " " . $this->getPlugin()->getConfig()->get("punish_message_player")), 0);
                     break;
             }

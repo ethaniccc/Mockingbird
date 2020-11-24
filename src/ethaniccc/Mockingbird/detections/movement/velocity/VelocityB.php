@@ -12,6 +12,8 @@ class VelocityB extends Detection{
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
         $this->vlThreshold = 15;
+        $this->lowMax = 10;
+        $this->mediumMax = 15;
     }
 
     public function handle(DataPacket $packet, User $user): void{

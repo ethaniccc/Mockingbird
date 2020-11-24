@@ -166,9 +166,12 @@ class Mockingbird extends PluginBase{
                 @unlink($this->getConfig()->getPath());
                 $this->reloadConfig();
                 return false;
+            } elseif((is_array($value) && !is_array($this->getConfig()->getAll()[$key])) || (!is_array($value) && is_array($this->getConfig()->getAll()[$key]))){ // there has tp be a better way to check if 2 things are the same / different types?
+                $this->getConfig()->set($key, $this->getConfig()->get($key));
+            } else {
+                // set the current config setting value to the old config setting value
+                $this->getConfig()->set($key, $value);
             }
-            // set the current config setting value to the old config setting value
-            $this->getConfig()->set($key, $value);
         }
         // save the config - (why are comments being deleted here?)
         // TODO: Make some sort of hack to bring back the config notes :C
