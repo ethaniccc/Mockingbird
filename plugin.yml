@@ -3,7 +3,7 @@ name: Mockingbird
 version: 2.3.0
 main: ethaniccc\Mockingbird\Mockingbird
 api: 3.15.0
-mcpe-protocol: 419
+mcpe-protocol: [408, 419]
 
 permissions:
   mockingbird:

@@ -9,42 +9,47 @@ use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
 class AimB extends Detection{
 
-    private $lastGCD = 0;
-    private $expander;
+    // 2 ^ 24
+    private $expander = 16777216;
+    private $lastDelta;
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
-        $this->vlThreshold = 10;
-        // just in case this still sometimes falses
-        $this->lowMax = 15;
-        $this->mediumMax = 20;
-        $this->expander = pow(2, 24);
+        $this->vlThreshold = 5;
+        $this->lowMax = 3;
+        $this->mediumMax = 5;
     }
 
     public function handle(DataPacket $packet, User $user): void{
-        // make sure user is on windows 10, player's pitchDelta is not too low, and player is not spamming their aim.
-        if($user->win10 && $packet instanceof PlayerAuthInputPacket && $user->moveData->pitchDelta > 0.05 && $user->moveData->pitchDelta < 7.5 && abs(round($user->moveData->pitch, 0)) < 85 && abs(round($user->moveData->lastPitch, 0)) < 85){
-            // this is the expander Elevated uses in his GCD checks
-            $expander = $this->expander;
-            $gcd = $this->getGCD($user->moveData->pitchDelta * $expander, $user->moveData->lastPitchDelta * $expander);
-            $diff = abs($gcd - $this->lastGCD);
-            // check if the GCD difference is within a range
-            if($diff >= 1000 && $diff < 100000){
-                // legit players can at some point false this, which is why the preVL
-                // is so high - doesn't matter since this flags so much if using some sort of Aimbot / AimAssist
-                if(++$this->preVL >= 15){
-                    $this->preVL = min($this->preVL, 20);
-                    $this->fail($user, "pitchDelta={$user->moveData->pitchDelta} gcdDiff=$diff preVL={$this->preVL}");
+        if($user->win10 && $packet instanceof PlayerAuthInputPacket){
+            if($user->moveData->yawDelta < 15 && $user->moveData->pitchDelta < 5.5 && abs($user->moveData->pitchDelta) <= 85){
+                $threshold = 26640;
+                $yawGCD = $this->getGCD($user->moveData->yawDelta * $this->expander, $user->moveData->lastYawDelta * $this->expander);
+                $pitchGCD = $this->getGCD($user->moveData->pitchDelta * $this->expander, $user->moveData->lastPitchDelta * $this->expander);
+                if($yawGCD > 0 && $pitchGCD > 0){
+                    $delta = abs($yawGCD - $pitchGCD);
+                    if($yawGCD < $threshold || $pitchGCD < $threshold){
+                        if($this->lastDelta !== null){
+                            $deltaDiff = abs($delta - $this->lastDelta);
+                            if($deltaDiff > 512 && $deltaDiff < 100000){
+                                if(++$this->preVL >= 3){
+                                    $this->preVL = min($this->preVL, 6);
+                                    $this->fail($user, "deltaDiff=$deltaDiff");
+                                }
+                            } else {
+                                $this->preVL -= $this->preVL > 0 ? 1 : 0;
+                            }
+                        }
+                    } else {
+                        $this->reward($user, 0.999);
+                        $this->preVL -= $this->preVL > 0 ? 1 : 0;
+                    }
+                    $this->lastDelta = $delta;
                 }
-            } else {
-                $this->reward($user, 0.999);
-                $this->preVL -= $this->preVL > 0 ? ($this->preVL >= 2 ? 2 : 1) : 0;
             }
-            $this->lastGCD = $gcd;
         }
     }
 
-    // Elevated's GCD method
     private function getGCD(float $a, float $b) : float{
         return $b <= 16384 ? $a : $this->getGCD($b, fmod($a, $b));
     }

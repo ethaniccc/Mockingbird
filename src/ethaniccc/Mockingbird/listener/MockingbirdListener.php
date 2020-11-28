@@ -18,6 +18,7 @@ use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\network\mcpe\protocol\types\PlayerMovementType;
 use pocketmine\Player;
@@ -68,7 +69,11 @@ class MockingbirdListener implements Listener{
     public function onPacketSend(DataPacketSendEvent $event) : void{
         $packet = $event->getPacket();
         if($packet instanceof StartGamePacket){
-            $packet->playerMovementType = PlayerMovementType::SERVER_AUTHORITATIVE_V2_REWIND;
+            if(ProtocolInfo::CURRENT_PROTOCOL === 419){
+                $packet->playerMovementType = PlayerMovementType::SERVER_AUTHORITATIVE_V2_REWIND;
+            } elseif(ProtocolInfo::CURRENT_PROTOCOL <= 408) {
+                $packet->isMovementServerAuthoritative = true;
+            }
         }
     }
 
