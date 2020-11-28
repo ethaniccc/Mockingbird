@@ -26,22 +26,24 @@ class AutoClickerD extends Detection{
             if($user->clickData->tickSpeed <= 4){
                 if(++$this->clicks === 30){
                     $samples = $user->clickData->getTickSamples(30);
-                    $kurtosis = MathUtils::getKurtosis($samples);
-                    $skewness = MathUtils::getSkewness($samples);
-                    $outlierPair = MathUtils::getOutliers($samples);
-                    $outliers = count($outlierPair->x) + count($outlierPair->y);
-                    $this->samples[] = "kurtosis=$kurtosis skewness=$skewness outliers=$outliers";
-                    if(count($this->samples) === $this->getSetting("samples") + 1){
-                        array_shift($this->samples);
-                    }
-                    $duplicates = count($this->samples) - count(array_unique($this->samples));
-                    if($duplicates >= $this->getSetting("duplicate_max")){
-                        // having the same kurtosis, skewness, and outliers is highly unlikely
-                        if(++$this->preVL >= 2){
-                            $this->fail($user, "duplicates=$duplicates");
+                    if(count($samples) === 30){
+                        $kurtosis = MathUtils::getKurtosis($samples);
+                        $skewness = MathUtils::getSkewness($samples);
+                        $outlierPair = MathUtils::getOutliers($samples);
+                        $outliers = count($outlierPair->x) + count($outlierPair->y);
+                        $this->samples[] = "kurtosis=$kurtosis skewness=$skewness outliers=$outliers";
+                        if(count($this->samples) === $this->getSetting("samples") + 1){
+                            array_shift($this->samples);
                         }
-                    } else {
-                        $this->preVL = 0;
+                        $duplicates = count($this->samples) - count(array_unique($this->samples));
+                        if($duplicates >= $this->getSetting("duplicate_max")){
+                            // having the same kurtosis, skewness, and outliers is highly unlikely
+                            if(++$this->preVL >= 2){
+                                $this->fail($user, "duplicates=$duplicates");
+                            }
+                        } else {
+                            $this->preVL = 0;
+                        }
                     }
                     $this->clicks = 0;
                 }

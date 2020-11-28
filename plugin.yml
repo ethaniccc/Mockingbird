@@ -14,4 +14,7 @@ permissions:
       mockingbird.debug:
         description: Get Mockingbird debug messages in-game
         default: op
+      mockingbird.lgos:
+        description: Get the anti-cheat logs of a player
+        default: op
 ...

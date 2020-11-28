@@ -23,15 +23,13 @@ class AutoClickerC extends Detection{
     public function handle(DataPacket $packet, User $user): void{
         if(($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) || ($packet instanceof LevelSoundEventPacket && $packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE)){
             if($user->clickData->tickSpeed <= 4){
-                if(++$this->clicks === $this->getSetting("samples")){
-                    $data = $user->clickData;
-                    $samples = $data->getTickSamples($this->getSetting("samples"));
+                if(++$this->clicks === $this->getSetting("samples") && count(($samples = $user->clickData->getTickSamples($this->getSetting("samples")))) === $this->getSetting("samples")){
                     $kurtosis = MathUtils::getKurtosis($samples);
                     $skewness = MathUtils::getSkewness($samples);
                     $outlierPair = MathUtils::getOutliers($samples);
                     $outliers = count($outlierPair->x) + count($outlierPair->y);
                     if($kurtosis <= $this->getSetting("kurtosis") && $skewness <= $this->getSetting("skewness") && $outliers <= $this->getSetting("outliers")){
-                        $this->fail($user, "kurtosis=$kurtosis skewness=$skewness outliers=$outliers cps={$data->cps}");
+                        $this->fail($user, "kurtosis=$kurtosis skewness=$skewness outliers=$outliers cps={$user->clickData->cps}");
                     }
                     $this->clicks = 0;
                 }

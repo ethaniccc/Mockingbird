@@ -44,4 +44,23 @@ class UserManager{
         return $this->users;
     }
 
+    public function getUserByName(string $name) : ?User{
+        $found = null;
+        $name = strtolower($name);
+        $delta = PHP_INT_MAX;
+        foreach($this->getUsers() as $user){
+            if(stripos($user->player->getName(), $name) === 0){
+                $curDelta = strlen($user->player->getName()) - strlen($name);
+                if($curDelta < $delta){
+                    $found = $user;
+                    $delta = $curDelta;
+                }
+                if($curDelta === 0){
+                    break;
+                }
+            }
+        }
+        return $found;
+    }
+
 }

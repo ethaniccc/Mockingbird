@@ -75,17 +75,21 @@ class MathUtils{
     }
 
     public static function getSkewness(array $data) : float{
-        $sum = array_sum($data);
-        $count = count($data);
+        try{
+            $sum = array_sum($data);
+            $count = count($data);
 
-        $numbers = $data;
-        sort($numbers);
+            $numbers = $data;
+            sort($numbers);
 
-        $mean = $sum / $count;
-        $median = ($count % 2 !== 0) ? $numbers[$count / 2] : ($numbers[($count - 1) / 2] + $numbers[$count / 2]) / 2;
-        $variance = self::getVariance($data);
+            $mean = $sum / $count;
+            $median = ($count % 2 !== 0) ? $numbers[$count / 2] : ($numbers[($count - 1) / 2] + $numbers[$count / 2]) / 2;
+            $variance = self::getVariance($data);
 
-        return $variance > 0 ? 3 * ($mean - $median) / $variance : 0;
+            return $variance > 0 ? 3 * ($mean - $median) / $variance : 0;
+        } catch(\ErrorException $e){
+            return 0.0;
+        }
     }
 
     public static function getVariance(array $data) : float{
