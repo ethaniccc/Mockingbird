@@ -2,9 +2,9 @@
 Mockingbird is an anti-cheat in development made for fun by an ethic idot - version v2 has
 many changes compared to the v1 variants of Mockingbird.
 
-Note: **You want a decent server to handle everything Mockingbird is going to do with the least amount of false positives (such as WitherHosting's $1.25 plan).**
-
-Note: **Waterdog may bring up issues while using Mockingbird, if you use Waterdog along with Mockingbird, know that things may go wrong.**
+Important Notes:
+- **You want a decent server to handle everything Mockingbird is going to do with the least amount of false positives (such as WitherHosting's $1.25 plan).**
+- **Waterdog may bring up issues while using Mockingbird, if you use Waterdog along with Mockingbird, know that things may go wrong.**
 
 Here's something I want to relay before moving forward:
 1) If you have an issue with Mockingbird (constant falsing, too much cpu usage, etc.) **please** make an issue
@@ -66,7 +66,7 @@ and false at sometimes, but the new reward system should compensate.
 ### Combat Detections
 - Aim
     - (A) -> Yaw delta to pitch delta check
-    - (B) -> GCD Diff Check
+    - (B) -> GCD and delta comparison check
 - AutoClicker
     - (A) -> Consistency
     - (B) -> Speed
@@ -76,7 +76,7 @@ and false at sometimes, but the new reward system should compensate.
     - (A) -> MultiAura
     - (B) -> NoSwing
 - Reach
-    - (A) -> Check w/ Location History
+    - (A) -> Colliding Ray Check w/ Location History
 - Hitbox
     - (A) -> Colliding Ray Check
 ### Movement Checks
