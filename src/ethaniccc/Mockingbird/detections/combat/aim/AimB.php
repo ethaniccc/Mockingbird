@@ -15,7 +15,7 @@ class AimB extends Detection{
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
-        $this->vlThreshold = 5;
+        $this->vlThreshold = 10;
         $this->lowMax = 3;
         $this->mediumMax = 5;
     }
@@ -31,10 +31,10 @@ class AimB extends Detection{
                     if($yawGCD < $threshold || $pitchGCD < $threshold){
                         if($this->lastDelta !== null){
                             $deltaDiff = abs($delta - $this->lastDelta);
-                            if($deltaDiff > 512 && $deltaDiff < 100000){
+                            // some pattern Horion's aimbot seems to have, along with the GCD being lower than the threshold, this pattern also occurs
+                            if($deltaDiff > 10000 && $deltaDiff < 100000){
                                 if(++$this->preVL >= 3){
-                                    $this->preVL = min($this->preVL, 6);
-                                    $this->fail($user, "deltaDiff=$deltaDiff");
+                                    $this->fail($user, "deltaDiff=$deltaDiff delta=$delta lastDelta={$this->lastDelta}");
                                 }
                             } else {
                                 $this->preVL -= $this->preVL > 0 ? 1 : 0;
