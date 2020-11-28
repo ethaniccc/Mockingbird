@@ -98,11 +98,13 @@ class MockingbirdListener implements Listener{
         $entity = $event->getEntity();
         if($entity instanceof Player){
             $user = UserManager::getInstance()->get($entity);
-            foreach($user->processors as $processor){
-                $processor->processEvent($event);
-            }
-            foreach($user->detections as $detection){
-                $detection->handleEvent($event, $user);
+            if($user !== null){
+                foreach($user->processors as $processor){
+                    $processor->processEvent($event);
+                }
+                foreach($user->detections as $detection){
+                    $detection->handleEvent($event, $user);
+                }
             }
         }
     }
@@ -136,11 +138,13 @@ class MockingbirdListener implements Listener{
     // I hate it here
     public function onTransaction(InventoryTransactionEvent $event) : void{
         $user = UserManager::getInstance()->get($event->getTransaction()->getSource());
-        foreach($user->processors as $processor){
-            $processor->processEvent($event);
-        }
-        foreach($user->detections as $detection){
-            $detection->handleEvent($event, $user);
+        if($user !== null){
+            foreach($user->processors as $processor){
+                $processor->processEvent($event);
+            }
+            foreach($user->detections as $detection){
+                $detection->handleEvent($event, $user);
+            }
         }
     }
 
