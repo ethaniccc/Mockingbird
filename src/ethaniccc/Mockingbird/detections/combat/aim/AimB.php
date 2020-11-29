@@ -11,7 +11,7 @@ class AimB extends Detection{
 
     // 2 ^ 24
     private $expander = 16777216;
-    private $lastDelta;
+    private $lastYawGCD, $lastPitchGCD;
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
@@ -21,31 +21,29 @@ class AimB extends Detection{
     }
 
     public function handle(DataPacket $packet, User $user): void{
+        // this check falses on mobile with very low sensitivity
         if($user->win10 && $packet instanceof PlayerAuthInputPacket){
             if($user->moveData->yawDelta < 15 && $user->moveData->pitchDelta < 5.5 && abs($user->moveData->pitchDelta) <= 85){
-                $threshold = 26640;
                 $yawGCD = $this->getGCD($user->moveData->yawDelta * $this->expander, $user->moveData->lastYawDelta * $this->expander);
                 $pitchGCD = $this->getGCD($user->moveData->pitchDelta * $this->expander, $user->moveData->lastPitchDelta * $this->expander);
-                if($yawGCD > 0 && $pitchGCD > 0){
-                    $delta = abs($yawGCD - $pitchGCD);
-                    if($yawGCD < $threshold || $pitchGCD < $threshold){
-                        if($this->lastDelta !== null){
-                            $deltaDiff = abs($delta - $this->lastDelta);
-                            // some pattern Horion's aimbot seems to have, along with the GCD being lower than the threshold, this pattern also occurs
-                            if($deltaDiff > 10000 && $deltaDiff < 100000){
-                                if(++$this->preVL >= 3){
-                                    $this->fail($user, "deltaDiff=$deltaDiff delta=$delta lastDelta={$this->lastDelta}");
-                                }
-                            } else {
-                                $this->preVL -= $this->preVL > 0 ? 1 : 0;
+                if($this->lastYawGCD !== null && $this->lastPitchGCD !== null){
+                    if($yawGCD > 0 && $pitchGCD > 0){
+                        $yawDiff = abs($yawGCD - $this->lastYawGCD);
+                        $pitchDiff = abs($pitchGCD - $this->lastPitchGCD);
+                        if($yawDiff > 1000 && $pitchDiff > 1000 && $yawDiff < 100000 && $pitchDiff < 100000){
+                            if(++$this->preVL >= 10){
+                                $this->preVL = min($this->preVL, 15);
+                                $this->fail($user, "yawDiff=$yawDiff pitchDiff=$pitchDiff");
                             }
+                        } else {
+                            $this->reward($user, 0.999);
+                            $this->preVL -= $this->preVL > 0 ? 1 : 0;
                         }
-                    } else {
-                        $this->reward($user, 0.999);
-                        $this->preVL -= $this->preVL > 0 ? 1 : 0;
+                        $this->debug("yawDiff=$yawDiff pitchDiff=$pitchDiff", false);
                     }
-                    $this->lastDelta = $delta;
                 }
+                $this->lastYawGCD = $yawGCD;
+                $this->lastPitchGCD = $pitchGCD;
             }
         }
     }

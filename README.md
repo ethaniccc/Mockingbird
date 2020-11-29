@@ -72,6 +72,7 @@ and false at sometimes, but the new reward system should compensate.
     - (B) -> Speed
     - (C) -> Statistics
     - (D) -> Duplicated Statistics
+    - (E) -> No Sound Check (Horion's autoclicker flags this)
 - KillAura
     - (A) -> MultiAura
     - (B) -> NoSwing

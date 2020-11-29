@@ -78,7 +78,7 @@ AutoClickerD:
   max_violations: 20
   # check sensitivity settings
   duplicate_max: 3
-  samples: 10
+  samples: 6
 
 # KillAura
 KillAuraA:

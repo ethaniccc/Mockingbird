@@ -34,7 +34,7 @@ class UserLogsCommand extends Command implements PluginIdentifiableCommand{
                         if($violationCount >= 1){
                             $has++;
                             $c = $user->detections[$check];
-                            $message .= $c->punishable ? TextFormat::RED . $check . TextFormat::GRAY . " => " . TextFormat::GOLD . "($violationCount / {$c->maxVL}) [" . $c->probabilityColor($c->getCheatProbability()) . TextFormat::GOLD . "]" . TextFormat::RESET . "\n" : TextFormat::RED . $check . TextFormat::GRAY . " => " . TextFormat::GOLD . "($violationCount) [" . $c->probabilityColor($c->getCheatProbability()) . TextFormat::GOLD . "]" . TextFormat::RESET . "\n";
+                            $message .= $c->punishable ? TextFormat::RED . $check . TextFormat::GRAY . " => " . TextFormat::GOLD . "($violationCount / {$c->maxVL}) " . TextFormat::GRAY . '@ ' . $c->probabilityColor($c->getCheatProbability()) . TextFormat::RESET . "\n" : TextFormat::RED . $check . TextFormat::GRAY . " => " . TextFormat::GOLD . "($violationCount) " . TextFormat::GRAY . '@ ' . $c->probabilityColor($c->getCheatProbability()) . TextFormat::RESET . "\n";
                         }
                     }
                     if($has === 0){
