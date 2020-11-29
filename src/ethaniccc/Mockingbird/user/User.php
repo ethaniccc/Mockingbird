@@ -4,6 +4,10 @@ namespace ethaniccc\Mockingbird\user;
 
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\Mockingbird;
+use ethaniccc\Mockingbird\processing\ClickProcessor;
+use ethaniccc\Mockingbird\processing\HitProcessor;
+use ethaniccc\Mockingbird\processing\MoveProcessor;
+use ethaniccc\Mockingbird\processing\OtherPacketProcessor;
 use ethaniccc\Mockingbird\processing\Processor;
 use ethaniccc\Mockingbird\user\data\ClickData;
 use ethaniccc\Mockingbird\user\data\HitData;
@@ -27,6 +31,8 @@ class User{
     public $detections = [];
     /** @var array - The key is the detection name, and the value is the violations (float). - TODO: Make this a class? */
     public $violations = [];
+    /** @var string[] - The key is the detection name and the value is a mini-debug log string. */
+    public $debugCache = [];
     /** @var bool - The boolean value for if the user is logged into the server. */
     public $loggedIn = false;
     /** @var bool */
@@ -88,15 +94,14 @@ class User{
         $this->moveData->lastLocation = $this->moveData->location;
         $this->moveData->lastMotion = $zeroVector;
         $this->moveData->directionVector = $zeroVector;
-        foreach(Mockingbird::getInstance()->availableProcessors as $processorInfo){
-            if($processorInfo instanceof ReflectionClass){
-                $this->processors[$processorInfo->getShortName()] = $processorInfo->newInstanceArgs([$this]);
-            }
-        }
-        foreach(Mockingbird::getInstance()->availableChecks as $checkInfo){
-            if($checkInfo instanceof ReflectionClass){
-                $this->detections[$checkInfo->getShortName()] = $checkInfo->newInstanceArgs([$checkInfo->getShortName(), Mockingbird::getInstance()->getConfig()->getNested($checkInfo->getShortName())]);
-            }
+        $this->processors = [
+            new ClickProcessor($this),
+            new HitProcessor($this),
+            new MoveProcessor($this),
+            new OtherPacketProcessor($this),
+        ];
+        foreach(Mockingbird::getInstance()->availableChecks as $check){
+            $this->detections[$check->name] = clone $check;
         }
         $this->networkStackLatencyPacket = new NetworkStackLatencyPacket();
         $this->networkStackLatencyPacket->needResponse = true;

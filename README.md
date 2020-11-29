@@ -66,13 +66,12 @@ and false at sometimes, but the new reward system should compensate.
 ### Combat Detections
 - Aim
     - (A) -> Yaw delta to pitch delta check
-    - (B) -> GCD and delta comparison check
+    - (B) -> GCD diff check
 - AutoClicker
     - (A) -> Consistency
     - (B) -> Speed
     - (C) -> Statistics
     - (D) -> Duplicated Statistics
-    - (E) -> No Sound Check (Horion's autoclicker flags this)
 - KillAura
     - (A) -> MultiAura
     - (B) -> NoSwing
@@ -89,7 +88,7 @@ and false at sometimes, but the new reward system should compensate.
     - (A) -> Friction Check (flags while using bhop and some other hacks)
     - (B) -> Speed Limit Check
 - Velocity
-    - (A) -> Vertical Check (**99% by default**)
+    - (A) -> Vertical Check (**98% by default**)
     - (B) -> Horizontal Check (**95% by default**)
 ### Player Checks
 - Nuker (yep lag compensated in less than 40 lines)
@@ -105,8 +104,5 @@ Mockingbird also has packet checks.
 - Timer (checks if player is sending too many packets in an instance)
     - (A) -> Balance Check (bad with server lag)
 
-## Custom Stuff
-### Custom Processors Docs
-**TODO: If someone wants to pull request for this please do so by all means!**
-### Custom Modules Docs
-**TODO: If someone wants to pull request for this please do so by all means!**
+## Custom Detections
+TODO: If you want to make a pull request please do so because I'm a lazy potato :p

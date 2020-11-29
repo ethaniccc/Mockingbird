@@ -119,6 +119,10 @@ abstract class Detection{
             Server::getInstance()->broadcastMessage($message, Mockingbird::getInstance()->getConfig()->get("punish_message_global") ? Server::getInstance()->getOnlinePlayers() : $staff);
         }
         if($debugData !== null){
+            if(!isset($user->debugCache[strtolower($this->name)])){
+                $user->debugCache[strtolower($this->name)] = '';
+            }
+            $user->debugCache[strtolower($this->name)] .= $debugData . PHP_EOL;
             $this->debug("{$user->player->getName()}: $debugData");
         }
     }

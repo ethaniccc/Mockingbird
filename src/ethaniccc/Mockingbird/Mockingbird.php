@@ -6,22 +6,22 @@ namespace ethaniccc\Mockingbird;
 
 use ethaniccc\Mockingbird\commands\ToggleAlertsCommand;
 use ethaniccc\Mockingbird\commands\ToggleDebugCommand;
+use ethaniccc\Mockingbird\commands\UserDebugLogsCommand;
 use ethaniccc\Mockingbird\commands\UserLogsCommand;
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\listener\MockingbirdListener;
-use ethaniccc\Mockingbird\processing\Processor;
 use ethaniccc\Mockingbird\tasks\DebugLogWriteTask;
 use ethaniccc\Mockingbird\user\UserManager;
 use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\ClosureTask;
-use pocketmine\utils\Config;
 use pocketmine\utils\TextFormat;
 
 class Mockingbird extends PluginBase{
 
+    /** @var Mockingbird */
     private static $instance;
+    /** @var Detection[] */
     public $availableChecks;
-    public $availableProcessors;
     /** @var DebugLogWriteTask */
     public $debugTask;
 
@@ -46,7 +46,6 @@ class Mockingbird extends PluginBase{
         }
         UserManager::init();
         new MockingbirdListener();
-        $this->getAvailableProcessors();
         $this->getAvailableChecks();
         $this->registerCommands();
         // yes, closure tasks
@@ -70,6 +69,7 @@ class Mockingbird extends PluginBase{
             new ToggleAlertsCommand($this),
             new ToggleDebugCommand($this),
             new UserLogsCommand($this),
+            new UserDebugLogsCommand($this),
         ];
         $this->getServer()->getCommandMap()->registerAll($this->getName(), $commands);
     }
@@ -91,7 +91,7 @@ class Mockingbird extends PluginBase{
                                     try{
                                         $classInfo = new \ReflectionClass($fullCheckName);
                                         if(!$classInfo->isAbstract() && $classInfo->isSubclassOf(Detection::class)){
-                                            $this->availableChecks[] = $classInfo;
+                                            $this->availableChecks[] = new $fullCheckName($classInfo->getShortName(), $this->getConfig()->get($classInfo->getShortName()));
                                         }
                                     } catch(\ReflectionException $e){}
                                 }
@@ -108,48 +108,14 @@ class Mockingbird extends PluginBase{
                 require_once "$customPath/$file";
                 $className = explode(".", $file)[0];
                 try{
-                    $classInfo = new \ReflectionClass("ethaniccc\\Mockingbird\\detections\\custom\\$className");
+                    $fullCheckName = "ethaniccc\\Mockingbird\\detections\\custom\\$className";
+                    $classInfo = new \ReflectionClass($fullCheckName);
                     if(!$classInfo->isAbstract() && $classInfo->isSubclassOf(Detection::class)){
-                        $this->availableChecks[] = $classInfo;
+                        $this->availableChecks[] = new $fullCheckName($classInfo->getShortName(), null);
                     }
                 } catch(\ReflectionException $e){
                     $this->getLogger()->debug($e->getMessage());
                 }
-            }
-        }
-    }
-
-    private function getAvailableProcessors() : void{
-        $path = $this->getFile() . "src/ethaniccc/Mockingbird/processing";
-        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path));
-        foreach($iterator as $fileInfo){
-            if($fileInfo instanceof \SplFileInfo){
-                if(!$fileInfo->isDir() && $fileInfo->isReadable() && strtolower($fileInfo->getExtension()) === "php"){
-                    $className = str_replace(".php", "", $fileInfo->getFilename());
-                    $fullClassName = "\\ethaniccc\\Mockingbird\\processing\\$className";
-                    try{
-                        $classInfo = new \ReflectionClass($fullClassName);
-                        if(!$classInfo->isAbstract() && $classInfo->isSubclassOf(Processor::class)){
-                            $this->availableProcessors[] = $classInfo;
-                        }
-                    } catch(\ReflectionException $e){
-                        $this->getLogger()->debug($e->getMessage());
-                    }
-                }
-            }
-        }
-        $customPath = $this->getDataFolder() . "custom_processors";
-        @mkdir($customPath);
-        foreach(scandir($customPath) as $file){
-            if(!is_dir("$customPath/$file") && strtolower(explode(".", $file)[1]) === "php"){
-                require_once "$customPath/$file";
-                $className = explode(".", $file)[0];
-                try{
-                    $classInfo = new \ReflectionClass($className);
-                    if(!$classInfo->isAbstract() && !$classInfo->isInterface() && $classInfo->isSubclassOf(Processor::class)){
-                        $this->availableProcessors[] = $classInfo;
-                    }
-                } catch(\ReflectionException $e){}
             }
         }
     }
