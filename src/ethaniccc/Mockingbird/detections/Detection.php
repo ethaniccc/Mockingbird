@@ -18,9 +18,9 @@ abstract class Detection{
 
     private $violations = [];
     protected $settings;
-    protected $preVL, $maxVL;
     protected $vlThreshold = 2;
     protected $lowMax, $mediumMax;
+    public $preVL, $maxVL;
     public $name, $subType, $enabled, $punishable, $punishType, $suppression, $alerts;
 
     public const PROBABILITY_LOW = 1;
