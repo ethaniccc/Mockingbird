@@ -40,11 +40,8 @@ Before Detections process data though, "processors" process data before the chec
 handle data and save them into the player's "User" class so all checks can use them. For instance, the FlyA
 check gets the User's move delta (vector3) and does math from there.
 
-Every time a player joins, it will register a "User" class for them. All available checks will
-have a new instance made from a reflection from Mockingbird's main class made when the plugin enables
-and put in a "checks" property in the User. Processors have the same process done.
-
-Why? So I don't have to hardcode checks into a property in the User class.
+Every time a player joins, it will register a "User" class for them. All available check instances will
+be cloned from Mockingbird's main class made when the plugin enables and put in a "checks" property in the User. Processors however, are hardcoded.
 
 Mockingbird no longer calls custom events.
 
@@ -56,8 +53,7 @@ might false positive some checks at certain points, and is more effective than r
 Detections now have "cheat probability". What this will do is estimate the chance of cheating.
 This is determined by how many times a player flags a certain check a certain amount of times within a period.
 
-Custom modules are still here, and now you can also add custom processors. Since I'm too lazy to make
-an example, uh, idk just figure it out or wait I guess.
+Custom modules are still here. Since I'm too lazy to make an example, uh, idk just figure it out or wait I guess.
 
 ## Detections
 This is a list of all the detections Mockingbird has, these detections may not be 100% accurate
@@ -95,7 +91,6 @@ and false at sometimes, but the new reward system should compensate.
 - ChestStealer (yep also lag compensated in less than 40 lines)
 - EditionFaker (**pog**)
 
-
 Mockingbird also has packet checks.
 - BadPackets (checks for validity of packets sent)
     * (A) -> Pitch validity check
@@ -104,5 +99,23 @@ Mockingbird also has packet checks.
 - Timer (checks if player is sending too many packets in an instance)
     - (A) -> Balance Check (bad with server lag)
 
+## Commands
+### Toggling Alerts
+To toggle alerts on/off, all you need to do is run `/mbalerts`. There are no arguments needed for this command,
+and the command will turn on/off your alerts, depending on if your alerts are enabled or disabled.
+### Getting User Logs
+To get the current logs of a player, all you need to do is run `/mblogs <player>`. If the player is found, the command will relay a message with their logs.
+If the detection has punishments disabled it will not show the max violations.
+
+Format with punishments enabled: `Detection Name => (currentViolations / maxViolations) @ Cheating Probability`
+
+Format with punishments disabled: `Detection Name => (currentViolations) @ Cheating Probability`
+
+![LogsCommandExample](images/logsExample.png)
+### Getting User Debug Log Data
+This command is useful for getting debug information in-game, which can help if you are having an issue.
+To get a user's debug information for a certain detection, you can run `/mbdebug <player> <detection_name>`.
+
+![DebugCommandExample](images/debugExample.png)
 ## Custom Detections
 TODO: If you want to make a pull request please do so because I'm a lazy potato :p

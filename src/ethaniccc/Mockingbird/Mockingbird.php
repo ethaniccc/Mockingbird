@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace ethaniccc\Mockingbird;
 
 use ethaniccc\Mockingbird\commands\ToggleAlertsCommand;
-use ethaniccc\Mockingbird\commands\ToggleDebugCommand;
 use ethaniccc\Mockingbird\commands\UserDebugLogsCommand;
 use ethaniccc\Mockingbird\commands\UserLogsCommand;
 use ethaniccc\Mockingbird\detections\Detection;
@@ -67,7 +66,6 @@ class Mockingbird extends PluginBase{
     private function registerCommands() : void{
         $commands = [
             new ToggleAlertsCommand($this),
-            new ToggleDebugCommand($this),
             new UserLogsCommand($this),
             new UserDebugLogsCommand($this),
         ];

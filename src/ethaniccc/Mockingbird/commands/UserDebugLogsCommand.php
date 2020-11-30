@@ -17,8 +17,8 @@ class UserDebugLogsCommand extends Command implements PluginIdentifiableCommand{
 
     public function __construct(Mockingbird $plugin){
         $this->plugin = $plugin;
-        parent::__construct("mbdlogs", "Get the anti-cheat debug logs of a user and a specified detection.", '/mbdlogs <player> <cheat_name>', []);
-        $this->setPermission("mockingbird.logs");
+        parent::__construct("mbdebug", "Get the anti-cheat debug logs of a user and a specified detection.", '/mbdebug <player> <detection_name>', []);
+        $this->setPermission("mockingbird.debug");
     }
 
     public function execute(CommandSender $sender, string $commandLabel, array $args){
