@@ -19,9 +19,6 @@ class SpeedA extends Detection implements CancellableMovement{
             if($user->moveData->offGroundTicks > 3){
                 $lastMoveDelta = $user->moveData->lastMoveDelta;
                 $currentMoveDelta = $user->moveData->moveDelta;
-                if($lastMoveDelta === null){
-                    return;
-                }
                 $lastXZ = hypot($lastMoveDelta->x, $lastMoveDelta->z);
                 $currentXZ = hypot($currentMoveDelta->x, $currentMoveDelta->z);
                 $expectedXZ = $lastXZ * 0.91 + 0.026;

@@ -71,7 +71,7 @@ class MockingbirdListener implements Listener{
         if($packet instanceof StartGamePacket){
             if(ProtocolInfo::CURRENT_PROTOCOL === 419){
                 $packet->playerMovementType = PlayerMovementType::SERVER_AUTHORITATIVE_V2_REWIND;
-            } elseif(ProtocolInfo::CURRENT_PROTOCOL <= 408) {
+            } elseif(ProtocolInfo::CURRENT_PROTOCOL <= 408){
                 $packet->isMovementServerAuthoritative = true;
             }
         }
