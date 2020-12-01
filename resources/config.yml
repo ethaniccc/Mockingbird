@@ -102,16 +102,21 @@ ReachA:
   max_reach: 3.1
 
 # Aim
-AimA:
+AimAssistA:
   enabled: true
   punish: true
   punishment_type: kick
   max_violations: 20
-AimB:
+AimAssistB:
   enabled: true
   punish: true
   punishment_type: kick
   max_violations: 45
+AimAssistC:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 100
 
 # Hitbox
 HitboxA:

@@ -1,13 +1,13 @@
 <?php
 
-namespace ethaniccc\Mockingbird\detections\combat\aim;
+namespace ethaniccc\Mockingbird\detections\combat\aimassist;
 
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\user\User;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
-class AimA extends Detection{
+class AimAssistA extends Detection{
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);

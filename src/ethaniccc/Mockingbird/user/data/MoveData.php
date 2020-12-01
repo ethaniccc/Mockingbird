@@ -5,6 +5,7 @@ namespace ethaniccc\Mockingbird\user\data;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use pocketmine\block\Block;
 use pocketmine\level\Location;
+use pocketmine\level\Position;
 use pocketmine\math\Vector3;
 
 class MoveData{
@@ -33,6 +34,10 @@ class MoveData{
     public $directionVector;
     /** @var string[] - The WASD combo the player is using */
     public $pressedKeys = [];
+    /** @var bool - Boolean value for if the user has not responded to the teleport. */
+    public $appendingTeleport = false;
+    /** @var Position|null - The position the user is supposed to teleport to. */
+    public $teleportPos;
     /** @var int - The amount of client ticks that have passed since colliding with cobweb. */
     public $cobwebTicks = 0;
     /** @var int - The amount of client ticks that have passed since colliding with cobweb */

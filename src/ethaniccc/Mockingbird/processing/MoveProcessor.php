@@ -28,6 +28,7 @@ class MoveProcessor extends Processor{
             if(!$user->loggedIn){
                 return;
             }
+            $shouldHandle = true;
             $location = Location::fromObject($packet->getPosition()->subtract(0, 1.62, 0), $user->player->getLevel(), $packet->getYaw(), $packet->getPitch());
             // $user->locationHistory->addLocation($location);
             $user->moveData->lastLocation = $user->moveData->location;
@@ -39,6 +40,15 @@ class MoveProcessor extends Processor{
             $user->moveData->yaw = fmod($location->yaw, 360);
             $user->moveData->pitch = fmod($location->pitch, 360);
             $movePacket = PacketUtils::playerAuthToMovePlayer($packet, $user);
+            if($user->moveData->appendingTeleport){
+                if($packet->getPosition()->subtract($user->moveData->teleportPos)->length() <= 2){
+                    // The user has received the teleport
+                    $user->moveData->appendingTeleport = false;
+                } else {
+                    $shouldHandle = false;
+                }
+            }
+            $user->moveData->appendingTeleport ? $user->timeSinceTeleport = 0 : ++$user->timeSinceTeleport;
             if($user->timeSinceTeleport > 0){
                 $user->moveData->lastMoveDelta = $user->moveData->moveDelta;
                 $user->moveData->moveDelta = $user->moveData->location->subtract($user->moveData->lastLocation)->asVector3();
@@ -48,7 +58,6 @@ class MoveProcessor extends Processor{
                 $user->moveData->pitchDelta = abs($user->moveData->lastPitch - $user->moveData->pitch);
                 $user->moveData->rotated = $user->moveData->yawDelta > 0 || $user->moveData->pitchDelta > 0;
             }
-            ++$user->timeSinceTeleport;
             ++$user->timeSinceDamage;
             ++$user->timeSinceAttack;
             ++$user->timeSinceJoin;
@@ -112,10 +121,13 @@ class MoveProcessor extends Processor{
             } else {
                 $this->ticks = 0;
             }
-            // now this is important - otherwise everything will break
-            if(!$user->moveData->moveDelta->equals($user->zeroVector) || $user->moveData->yawDelta > 0 || $user->moveData->pitch > 0){
-                // only handle if the move delta is greater than 0 so PlayerMoveEvent isn't spammed
-                $user->player->handleMovePlayer($movePacket);
+            // shouldHandle will be false if the player isn't near the teleport position
+            if($shouldHandle){
+                // now this is important - otherwise everything will break
+                if(!$user->moveData->moveDelta->equals($user->zeroVector) || $user->moveData->yawDelta > 0 || $user->moveData->pitch > 0){
+                    // only handle if the move delta is greater than 0 so PlayerMoveEvent isn't spammed
+                    $user->player->handleMovePlayer($movePacket);
+                }
             }
         }
     }

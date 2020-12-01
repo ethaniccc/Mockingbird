@@ -1,13 +1,13 @@
 <?php
 
-namespace ethaniccc\Mockingbird\detections\combat\aim;
+namespace ethaniccc\Mockingbird\detections\combat\aimassist;
 
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\user\User;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
-class AimB extends Detection{
+class AimAssistB extends Detection{
 
     // 2 ^ 24
     private $expander = 16777216;

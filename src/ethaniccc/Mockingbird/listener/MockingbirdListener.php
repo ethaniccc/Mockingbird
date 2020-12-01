@@ -69,9 +69,9 @@ class MockingbirdListener implements Listener{
     public function onPacketSend(DataPacketSendEvent $event) : void{
         $packet = $event->getPacket();
         if($packet instanceof StartGamePacket){
-            if(ProtocolInfo::CURRENT_PROTOCOL === 419){
+            if(ProtocolInfo::CURRENT_PROTOCOL >= 419){
                 $packet->playerMovementType = PlayerMovementType::SERVER_AUTHORITATIVE_V2_REWIND;
-            } elseif(ProtocolInfo::CURRENT_PROTOCOL <= 408){
+            } else {
                 $packet->isMovementServerAuthoritative = true;
             }
         }
@@ -115,6 +115,8 @@ class MockingbirdListener implements Listener{
             $user = UserManager::getInstance()->get($entity);
             if($user !== null){
                 $user->timeSinceTeleport = 0;
+                $user->moveData->appendingTeleport = true;
+                $user->moveData->teleportPos = $event->getTo();
             }
         }
     }
