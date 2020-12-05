@@ -7,10 +7,11 @@ use ethaniccc\Mockingbird\user\UserManager;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginIdentifiableCommand;
+use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\utils\TextFormat;
 
-class UserDebugLogsCommand extends Command implements PluginIdentifiableCommand{
+class UserDebugCommand extends Command implements PluginIdentifiableCommand{
 
     /** @var Mockingbird */
     private $plugin;
@@ -29,6 +30,12 @@ class UserDebugLogsCommand extends Command implements PluginIdentifiableCommand{
                 $sender->sendMessage($this->getUsage());
             } else {
                 $user = UserManager::getInstance()->getUserByName($selectedUser);
+                if($selectedUser === "--toggle-debug" && $sender instanceof Player){
+                    $user = UserManager::getInstance()->get($sender);
+                    $user->debugChannel = $selectedCheat === "off" ? null : strtolower($selectedCheat);
+                    $selectedCheat === "off" ? $sender->sendMessage("Debug information has been disabled.") : $sender->sendMessage("Debug information for $selectedCheat has been enabled.");;
+                    return;
+                }
                 if($user === null){
                     $sender->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RED . " Could not find the user $selectedUser");
                 } else {

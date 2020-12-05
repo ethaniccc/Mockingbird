@@ -9,9 +9,11 @@ use ethaniccc\Mockingbird\processing\HitProcessor;
 use ethaniccc\Mockingbird\processing\MoveProcessor;
 use ethaniccc\Mockingbird\processing\OtherPacketProcessor;
 use ethaniccc\Mockingbird\processing\Processor;
+use ethaniccc\Mockingbird\processing\TickProcessor;
 use ethaniccc\Mockingbird\user\data\ClickData;
 use ethaniccc\Mockingbird\user\data\HitData;
 use ethaniccc\Mockingbird\user\data\MoveData;
+use ethaniccc\Mockingbird\user\data\TickData;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\location\LocationHistory;
 use pocketmine\block\Air;
@@ -40,8 +42,10 @@ class User{
     /** @var bool - Boolean value for if the user is on Windows 10 */
     public $win10 = false;
 
+    /** @var bool - The boolean value for if the user has alerts enabled. */
     public $alerts = false;
-    public $debug = false;
+    /** @var string|null - The detection that the user should get debug information from. */
+    public $debugChannel = null;
 
     /**
      * @var int - The client ticks that have passed since the specified "thing". For
@@ -60,9 +64,8 @@ class User{
     public $lastSentNetworkLatencyTime = 0;
     /** @var int|float - The time it took for the client to respond with a NetworkStackLatencyPacket. */
     public $transactionLatency = 0;
-
-    /** @var LocationHistory - The location history of the player. */
-    public $locationHistory;
+    /** @var bool - Boolean value for if the user responded with a NetworkStackLatencyPacket. */
+    public $responded = false;
 
     /** @var Vector3 - Just a Vector3 with it's x, y, and z values at 0 - don't mind me! */
     public $zeroVector;
@@ -75,6 +78,8 @@ class User{
     public $clickData;
     /** @var HitData - The class that stores the hit data of the user, the HitProcessor will handle data to be put in here. */
     public $hitData;
+    /** @var TickData - The class that stores data updated every server tick. This data includes entity location history. */
+    public $tickData;
 
     public function __construct(Player $player){
         $this->player = $player;
@@ -83,7 +88,7 @@ class User{
         $this->moveData->blockAbove = new Air();
         $this->clickData = new ClickData();
         $this->hitData = new HitData();
-        $this->locationHistory = new LocationHistory();
+        $this->tickData = new TickData();
         $this->moveData->lastOnGroundLocation = $player->asLocation();
         $zeroVector = new Vector3(0, 0, 0);
         $this->moveData->AABB = AABB::fromPosition($zeroVector);
@@ -95,10 +100,11 @@ class User{
         $this->moveData->lastMotion = $zeroVector;
         $this->moveData->directionVector = $zeroVector;
         $this->processors = [
-            new ClickProcessor($this),
-            new HitProcessor($this),
-            new MoveProcessor($this),
-            new OtherPacketProcessor($this),
+            "ClickProcessor" => new ClickProcessor($this),
+            "HitProcessor" => new HitProcessor($this),
+            "MoveProcessor" => new MoveProcessor($this),
+            "TickProcessor" => new TickProcessor($this),
+            "OtherPacketProcessor" => new OtherPacketProcessor($this),
         ];
         foreach(Mockingbird::getInstance()->availableChecks as $check){
             $this->detections[$check->name] = clone $check;

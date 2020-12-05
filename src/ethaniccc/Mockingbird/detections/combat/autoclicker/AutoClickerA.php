@@ -39,6 +39,9 @@ class AutoClickerA extends Detection{
                     } else {
                         $this->preVL = 0;
                     }
+                    if($this->isDebug($user)){
+                        $user->sendMessage("diff=$deviationDiff");
+                    }
                     $this->lastDeviation = $deviation;
                     $this->clicks = 0;
                 }

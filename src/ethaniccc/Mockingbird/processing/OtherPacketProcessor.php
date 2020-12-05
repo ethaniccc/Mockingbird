@@ -33,9 +33,8 @@ class OtherPacketProcessor extends Processor{
             }
         } elseif($packet instanceof NetworkStackLatencyPacket){
             if($packet->timestamp === $user->networkStackLatencyPacket->timestamp){
+                $user->responded = true;
                 $user->transactionLatency = round((microtime(true) - $user->lastSentNetworkLatencyTime) * 1000, 0);
-                $user->player->dataPacket($user->networkStackLatencyPacket);
-                $user->lastSentNetworkLatencyTime = microtime(true);
             }
         }
     }
@@ -47,6 +46,9 @@ class OtherPacketProcessor extends Processor{
             if($user->player->hasPermission("mockingbird.alerts") && Mockingbird::getInstance()->getConfig()->get("alerts_default")){
                 $user->alerts = true;
             }
+            $user->player->dataPacket($user->networkStackLatencyPacket);
+            $user->lastSentNetworkLatencyTime = microtime(true);
+            $user->responded = false;
         } elseif($event instanceof BlockPlaceEvent){
             $user->timeSinceLastBlockPlace = 0;
         } elseif($event instanceof EntityMotionEvent){

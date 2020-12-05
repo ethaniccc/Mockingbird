@@ -26,6 +26,9 @@ class KillAuraA extends Detection{
                 }
             }
             $this->lastEntity = $packet->trData->entityRuntimeId;
+            if($this->isDebug($user)){
+                $user->sendMessage("entities={$this->entities}");
+            }
         } elseif($packet instanceof PlayerAuthInputPacket){
             $this->entities = 0;
         }

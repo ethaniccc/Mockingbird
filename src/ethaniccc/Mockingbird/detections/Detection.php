@@ -128,15 +128,13 @@ abstract class Detection{
     }
 
     protected function debug($debugData, bool $logWrite = true) : void{
-        $debugData = (string) $debugData;
-        $debugUsers = array_filter(Server::getInstance()->getOnlinePlayers(), function(Player $p) : bool{
-            return $p->hasPermission("mockingbird.debug") && UserManager::getInstance()->get($p)->debug;
-        });
-        $debugMsg = $this->getPlugin()->getPrefix() . TextFormat::RED . " [DEBUG@{$this->name}] " . TextFormat::WHITE . $debugData;
-        Server::getInstance()->broadcastMessage($debugMsg, $debugUsers);
         if($logWrite){
             Mockingbird::getInstance()->debugTask->addData($debugData);
         }
+    }
+
+    protected function isDebug(User $user) : bool{
+        return strtolower($user->debugChannel) === strtolower($this->name);
     }
 
     protected function reward(User $user, float $multiplier) : void{

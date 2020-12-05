@@ -27,6 +27,9 @@ class AutoClickerB extends Detection{
                 $this->preVL *= 0.65;
                 $this->reward($user, 0.99);
             }
+            if($this->isDebug($user)){
+                $user->sendMessage("cps=$cps");
+            }
         }
     }
 

@@ -56,17 +56,21 @@ class VelocityB extends Detection{
                 if($user->timeSinceAttack <= 2) {
                     $maxPercentage *= 0.98;
                 }
+                // check if any blocks collide with the user's expanded AABB to prevent falses.
                 $blocksCollide = count($user->player->getLevel()->getCollisionBlocks($user->moveData->AABB->expand(0.2, 0, 0.2), true)) > 0;
                 $scaledPercentage = ($horizontalMove / ($expectedHorizontal * $maxPercentage)) * 100;
-                // $user->sendMessage("percentage=$scaledPercentage preVL={$this->preVL}");
                 if($percentage < $maxPercentage && $user->moveData->cobwebTicks >= 6 && $user->moveData->liquidTicks >= 6 && $user->timeSinceStoppedFlight >= 20 && !$blocksCollide){
                     if(++$this->preVL > ($user->transactionLatency > 150 ? 40 : 30)){
                         $keyList = count($user->moveData->pressedKeys) > 0 ? implode(", ", $user->moveData->pressedKeys) : "none";
-                        $this->fail($user, "percentage=$scaledPercentage keys=$keyList");
+                        $this->fail($user, "percentage(horizontal)=$scaledPercentage keys=$keyList");
                     }
                 } else {
-                    $this->preVL = 0;
+                    $this->preVL = max($this->preVL - 17.5, 0);
                     $this->reward($user, 0.995);
+                }
+                if($this->isDebug($user)){
+                    $keyList = count($user->moveData->pressedKeys) > 0 ? implode(", ", $user->moveData->pressedKeys) : "none";
+                    $user->sendMessage("percentage=$scaledPercentage% keys=$keyList buffer={$this->preVL}");
                 }
             }
         }

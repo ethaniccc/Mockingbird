@@ -52,6 +52,9 @@ class SpeedB extends Detection implements CancellableMovement{
                     $this->preVL = 0;
                     $this->reward($user, 0.999);
                 }
+                if($this->isDebug($user)){
+                    $user->sendMessage("speed=$horizontalSpeed max=$maxSpeed");
+                }
             }
         }
     }

@@ -30,6 +30,9 @@ class FlyC extends Detection implements CancellableMovement{
                     $this->reward($user, 0.999);
                     $this->preVL *= 0.75;
                 }
+                if($this->isDebug($user)){
+                    $user->sendMessage("yDiff=$equalness");
+                }
             }
         }
     }

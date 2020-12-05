@@ -100,6 +100,9 @@ ReachA:
   max_violations: 50
   # check sensitivity settings
   max_reach: 3.1
+  # this option will choose if you want to have the reach check lightweight or not. lightweight may be less accurate and detect less
+  # but will save more server resources in return.
+  lightweight: true
 
 # Aim
 AimAssistA:
@@ -112,11 +115,6 @@ AimAssistB:
   punish: true
   punishment_type: kick
   max_violations: 45
-AimAssistC:
-  enabled: true
-  punish: true
-  punishment_type: kick
-  max_violations: 100
 
 # Hitbox
 HitboxA:

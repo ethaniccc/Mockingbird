@@ -2,37 +2,39 @@
 
 namespace ethaniccc\Mockingbird\utils\location;
 
+use ethaniccc\Mockingbird\utils\SizedList;
 use pocketmine\math\Vector3;
 
 class LocationHistory{
 
-    public $locations = [];
+    /** @var SizedList */
+    public $locations;
 
-    public function addLocation(Vector3 $pos) : void{
-        if(count($this->locations) === 40){
-            $this->locations[0] = null;
-            array_shift($this->locations);
-        }
-        $info = new \stdClass();
-        $info->pos = $pos;
-        $info->time = microtime(true) * 1000;
-        $this->locations[] = $info;
+    public function __construct(){
+        $this->locations = new SizedList(40);
     }
 
-    public function getLocations() : array{
+    public function addLocation(Vector3 $pos, int $tick) : void{
+        $info = new \stdClass();
+        $info->pos = $pos;
+        $info->tick = $tick;
+        $this->locations->add($info);
+    }
+
+    public function getLocations() : SizedList{
         return $this->locations;
     }
 
     /**
-     * @param float $time
-     * @param float $search
+     * @param int $tick
+     * @param int $diff
      * @return Vector3[]
      */
-    public function getLocationsRelativeToTime(float $time, float $search) : array{
+    public function getLocationsRelativeToTime(int $tick, int $diff = 1) : array{
         $locations = [];
-        foreach($this->locations as $info){
-            if(abs($info->time - $time) <= $search){
-                $locations[] = $info->pos;
+        foreach($this->getLocations()->get() as $data){
+            if($tick - $data->tick <= $diff){
+                $locations[] = $data->pos;
             }
         }
         return $locations;

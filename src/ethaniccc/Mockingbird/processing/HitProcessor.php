@@ -26,34 +26,12 @@ class HitProcessor extends Processor{
         if($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK){
             $user->hitData->attackPos = $packet->trData->playerPos;
             $user->hitData->targetEntity = $user->player->getLevel()->getEntity($packet->trData->entityRuntimeId);
-            $entity = $user->hitData->targetEntity;
-            if($entity instanceof Player){
-                // only do this if the entity is a player
-                $damagedUser = UserManager::getInstance()->get($entity);
-                $estimatedTime = (microtime(true) * 1000) - $user->transactionLatency;
-                $ray = new Ray($user->hitData->attackPos, $user->moveData->directionVector);
-                $distances = [];
-                foreach($damagedUser->locationHistory->getLocationsRelativeToTime($estimatedTime, 100) as $location){
-                    $AABB = AABB::fromPosition($location)->expand(0.1, 0, 0.1);
-                    $AABB->maxY = $AABB->minY + 1.9;
-                    $distance = $AABB->collidesRay($ray, 7);
-                    if($distance !== -69.0){
-                        $distances[] = $distance;
-                    }
-                }
-                if(count($distances) === 0){
-                    $user->hitData->rayCollides = false;
-                    $user->hitData->rayDistance = -69.0;
-                } else {
-                    $user->hitData->rayCollides = true;
-                    $user->hitData->rayDistance = min($distances);
-                }
-            }
             $user->hitData->inCooldown = Server::getInstance()->getTick() - $this->lastTick < 10;
             if(!$user->hitData->inCooldown){
+                $user->timeSinceAttack = 0;
                 $this->lastTick = Server::getInstance()->getTick();
+                $user->hitData->lastTick = $this->lastTick;
             }
-            $user->timeSinceAttack = 0;
         }
     }
 

@@ -89,8 +89,6 @@ class MockingbirdListener implements Listener{
             foreach($user->processors as $processor){
                 $processor->processEvent($event);
             }
-            $user->player->dataPacket($user->networkStackLatencyPacket);
-            $user->lastSentNetworkLatencyTime = microtime(true);
         }
     }
 

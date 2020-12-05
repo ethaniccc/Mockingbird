@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace ethaniccc\Mockingbird;
 
 use ethaniccc\Mockingbird\commands\ToggleAlertsCommand;
-use ethaniccc\Mockingbird\commands\UserDebugLogsCommand;
+use ethaniccc\Mockingbird\commands\UserDebugCommand;
 use ethaniccc\Mockingbird\commands\UserLogsCommand;
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\listener\MockingbirdListener;
@@ -54,7 +54,7 @@ class Mockingbird extends PluginBase{
         }), 400);
         $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(function(int $currentTick) : void{
             foreach(UserManager::getInstance()->getUsers() as $user){
-                $user->locationHistory->addLocation($user->moveData->location);
+                $user->processors["TickProcessor"]->run();
             }
         }), 1);
     }
@@ -67,7 +67,7 @@ class Mockingbird extends PluginBase{
         $commands = [
             new ToggleAlertsCommand($this),
             new UserLogsCommand($this),
-            new UserDebugLogsCommand($this),
+            new UserDebugCommand($this),
         ];
         $this->getServer()->getCommandMap()->registerAll($this->getName(), $commands);
     }
@@ -129,10 +129,20 @@ class Mockingbird extends PluginBase{
             // if the setting found in the old config is not in the current config,
             // the old config is (probably) too old.
             if(!isset($this->getConfig()->getAll()[$key])){
+                $this->getLogger()->debug("Unknown key=$key");
                 @unlink($this->getConfig()->getPath());
                 $this->reloadConfig();
                 return false;
             } else {
+                // replace possible missing options in array
+                if(is_array($value)){
+                    $keys = array_keys($value);
+                    foreach($this->getConfig()->get($key) as $offset => $var){
+                        if(!in_array($offset, $keys)){
+                            $value[$offset] = $var;
+                        }
+                    }
+                }
                 // set the current config setting value to the old config setting value
                 $this->getConfig()->set($key, $value);
             }

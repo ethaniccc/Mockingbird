@@ -44,6 +44,9 @@ class AutoClickerD extends Detection{
                         } else {
                             $this->preVL = 0;
                         }
+                        if($this->isDebug($user)){
+                            $user->sendMessage("duplicates=$duplicates kurtosis=$kurtosis skewness=$skewness outliers=$outliers");
+                        }
                     }
                     $this->clicks = 0;
                 }

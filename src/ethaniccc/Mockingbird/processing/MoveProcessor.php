@@ -2,8 +2,6 @@
 
 namespace ethaniccc\Mockingbird\processing;
 
-use ethaniccc\Mockingbird\Mockingbird;
-use ethaniccc\Mockingbird\tasks\KickTask;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\MathUtils;
@@ -15,8 +13,6 @@ use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
 class MoveProcessor extends Processor{
-
-    private $ticks = 0;
 
     public function __construct(User $user){
         parent::__construct($user);
@@ -110,17 +106,6 @@ class MoveProcessor extends Processor{
                 $user->moveData->pressedKeys[] = "D";
             }
             $user->moveData->directionVector = MathUtils::directionVectorFromValues($user->moveData->yaw, $user->moveData->pitch);
-            if(microtime(true) - $user->lastSentNetworkLatencyTime >= 1){
-                if(++$this->ticks % 20 === 0){
-                    $user->player->dataPacket($user->networkStackLatencyPacket);
-                    if($this->ticks >= 500){
-                        // yeah no, you're not making a disabler out of this
-                        Mockingbird::getInstance()->getScheduler()->scheduleDelayedTask(new KickTask($user, "NetworkStackLatency Timeout (bad connection?) - Rejoin server"), 0);
-                    }
-                }
-            } else {
-                $this->ticks = 0;
-            }
             // shouldHandle will be false if the player isn't near the teleport position
             if($shouldHandle){
                 // now this is important - otherwise everything will break

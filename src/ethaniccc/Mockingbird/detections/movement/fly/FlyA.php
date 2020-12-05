@@ -46,6 +46,9 @@ class FlyA extends Detection implements CancellableMovement{
                     $this->reward($user, 0.995);
                 }
             }
+            if($this->isDebug($user)){
+                $user->sendMessage("yDelta=$yDelta predicted=$expectedYDelta diff=$equalness");
+            }
         }
     }
 
