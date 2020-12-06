@@ -26,8 +26,24 @@ class SizedList{
         return count($this->array);
     }
 
-    public function get() : array{
+    public function get($key){
+        return $this->array[$key] ?? null;
+    }
+
+    public function getAll() : array{
         return $this->array;
+    }
+
+    public function clear() : void{
+        $this->array = [];
+    }
+
+    public function minOrElse($fallback = null){
+        return count($this->array) > 0 ? min($this->array) : $fallback;
+    }
+
+    public function maxOrElse($fallback = null){
+        return count($this->array) > 0 ? max($this->array) : $fallback;
     }
 
 }

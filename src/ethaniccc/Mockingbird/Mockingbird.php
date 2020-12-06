@@ -89,7 +89,7 @@ class Mockingbird extends PluginBase{
                                     try{
                                         $classInfo = new \ReflectionClass($fullCheckName);
                                         if(!$classInfo->isAbstract() && $classInfo->isSubclassOf(Detection::class)){
-                                            $this->availableChecks[] = new $fullCheckName($classInfo->getShortName(), $this->getConfig()->get($classInfo->getShortName()));
+                                            $this->availableChecks[] = new $fullCheckName($classInfo->getShortName(), $this->getConfig()->get($classInfo->getShortName()) === false ? null : $this->getConfig()->get($classInfo->getShortName()));
                                         }
                                     } catch(\ReflectionException $e){}
                                 }

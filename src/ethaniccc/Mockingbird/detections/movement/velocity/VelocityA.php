@@ -40,7 +40,7 @@ class VelocityA extends Detection implements CancellableMovement{
                         $this->fail($user, "percentage(vertical)=$scaledPercentage% buffer={$this->preVL}");
                     }
                 } else {
-                    $this->preVL = max($this->preVL - 17.5, 0);
+                    $this->preVL = max($this->preVL - 10, 0);
                 }
                 if($this->isDebug($user)){
                     $user->sendMessage("percentage=$scaledPercentage% buffer={$this->preVL}");

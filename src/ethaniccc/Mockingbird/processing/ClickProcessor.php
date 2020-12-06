@@ -34,20 +34,12 @@ class ClickProcessor extends Processor{
             $clickTime = microtime(true) - $this->lastTime;
             $user->clickData->timeSpeed = $clickTime;
             $this->lastTime = microtime(true);
-
             $user->clickData->tickSpeed = $this->tickSpeed;
-
             if($user->clickData->tickSpeed <= 4){
-                if(count($user->clickData->tickSamples) === self::MAX_SAMPLE_SIZE){
-                    array_shift($user->clickData->tickSamples);
-                }
-                $user->clickData->tickSamples[] = $user->clickData->tickSpeed;
+                $user->clickData->tickSamples->add($user->clickData->tickSpeed);
             }
             if($clickTime < 0.2){
-                if(count($user->clickData->timeSamples) === self::MAX_SAMPLE_SIZE){
-                    array_shift($user->clickData->timeSamples);
-                }
-                $user->clickData->timeSamples[] = $clickTime;
+                $user->clickData->timeSamples->add($clickTime);
             }
             $this->tickSpeed = 0;
         } elseif($packet instanceof PlayerAuthInputPacket){
