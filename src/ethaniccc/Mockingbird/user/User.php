@@ -118,4 +118,8 @@ class User{
         $this->player->sendMessage(TextFormat::BOLD . TextFormat::DARK_GRAY . "[" . TextFormat::RED . "DEBUG" . TextFormat::DARK_GRAY . "]" . TextFormat::RESET . " $message");
     }
 
+    public function isGliding() : bool{
+        return $this->player->getGenericFlag(Player::DATA_FLAG_GLIDING);
+    }
+
 }
