@@ -19,8 +19,8 @@ class AimAssistA extends Detection{
             $pitchDelta = $user->moveData->pitchDelta;
             if($user->timeSinceAttack <= 10 && $user->moveData->rotated){
                 // (almost) impossible for pitch delta to be so low in this case
-                if($yawDelta > 1 && $pitchDelta === 0.0 && abs($user->moveData->pitch) < 90){
-                    if(++$this->preVL >= 4){
+                if($yawDelta > 1 && $yawDelta < 5 && $pitchDelta === 0.0 && abs($user->moveData->pitch) < 85){
+                    if(++$this->preVL >= 5){
                         $this->fail($user, "yawDelta=$yawDelta pitchDelta=$pitchDelta");
                     }
                 } else {

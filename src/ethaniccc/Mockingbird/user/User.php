@@ -9,6 +9,7 @@ use ethaniccc\Mockingbird\processing\HitProcessor;
 use ethaniccc\Mockingbird\processing\MoveProcessor;
 use ethaniccc\Mockingbird\processing\OtherPacketProcessor;
 use ethaniccc\Mockingbird\processing\Processor;
+use ethaniccc\Mockingbird\processing\RotationProcessor;
 use ethaniccc\Mockingbird\processing\TickProcessor;
 use ethaniccc\Mockingbird\user\data\ClickData;
 use ethaniccc\Mockingbird\user\data\HitData;
@@ -59,6 +60,7 @@ class User{
     public $timeSinceAttack = 0;
     public $timeSinceStoppedFlight = 0;
     public $timeSinceLastBlockPlace = 0;
+    public $timeSinceStoppedGlide = 0;
 
     /** @var int|float - The time the last NetworkStackLatencyPacket has been sent. */
     public $lastSentNetworkLatencyTime = 0;
@@ -104,6 +106,7 @@ class User{
             "HitProcessor" => new HitProcessor($this),
             "MoveProcessor" => new MoveProcessor($this),
             "TickProcessor" => new TickProcessor($this),
+            "RotationProcessor" => new RotationProcessor($this),
             "OtherPacketProcessor" => new OtherPacketProcessor($this),
         ];
         foreach(Mockingbird::getInstance()->availableChecks as $check){
@@ -116,10 +119,6 @@ class User{
 
     public function sendMessage(string $message) : void{
         $this->player->sendMessage(TextFormat::BOLD . TextFormat::DARK_GRAY . "[" . TextFormat::RED . "DEBUG" . TextFormat::DARK_GRAY . "]" . TextFormat::RESET . " $message");
-    }
-
-    public function isGliding() : bool{
-        return $this->player->getGenericFlag(Player::DATA_FLAG_GLIDING);
     }
 
 }

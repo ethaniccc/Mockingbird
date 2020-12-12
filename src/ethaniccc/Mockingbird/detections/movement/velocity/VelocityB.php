@@ -9,16 +9,20 @@ use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
 class VelocityB extends Detection{
 
+    private $previousKeys;
+
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
         $this->vlThreshold = 15;
         $this->lowMax = 10;
         $this->mediumMax = 15;
+        // this falses on localhost testing so this will be off for now.
+        $this->enabled = false;
     }
 
     public function handle(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
-            if($user->timeSinceMotion <= ($user->transactionLatency / 50) + 4 && $user->moveData->lastMotion !== null && $user->player->isAlive()){
+            if($user->timeSinceMotion <= ($user->transactionLatency / 50) + 5 && $user->moveData->lastMotion !== null && $user->player->isAlive()){
                 if($user->timeSinceTeleport <= 6){
                     $this->preVL = 0;
                     return;
@@ -47,31 +51,30 @@ class VelocityB extends Detection{
                 $motion->z *= 0.998;
                 $expectedHorizontal = hypot($motion->x, $motion->z);
                 // if the horizontal knockback is too low I don't want to deal with it
-                if($expectedHorizontal < 0.1){
+                if($expectedHorizontal < 0.2){
                     return;
                 }
                 $horizontalMove = hypot($user->moveData->moveDelta->x, $user->moveData->moveDelta->z);
                 $percentage = $horizontalMove / $expectedHorizontal;
                 $maxPercentage = $this->getSetting("multiplier");
-                if($user->timeSinceAttack <= 2) {
-                    $maxPercentage *= 0.98;
-                }
                 // check if any blocks collide with the user's expanded AABB to prevent falses.
                 $blocksCollide = count($user->player->getLevel()->getCollisionBlocks($user->moveData->AABB->expand(0.2, 0, 0.2), true)) > 0;
-                $scaledPercentage = ($horizontalMove / ($expectedHorizontal * $maxPercentage)) * 100;
-                if($percentage < $maxPercentage && $user->moveData->cobwebTicks >= 6 && $user->moveData->liquidTicks >= 6 && $user->timeSinceStoppedFlight >= 20 && !$blocksCollide){
+                $scaledPercentage = ($horizontalMove / $expectedHorizontal) * 100;
+                $keyList = count($user->moveData->pressedKeys) > 0 ? implode(", ", $user->moveData->pressedKeys) : "none";
+                $hasSameKeys = $keyList === $this->previousKeys;
+                if($percentage < $maxPercentage && $user->moveData->cobwebTicks >= 6 && $user->moveData->liquidTicks >= 6 && $user->timeSinceStoppedFlight >= 20 && !$blocksCollide && $hasSameKeys){
                     if(++$this->preVL > ($user->transactionLatency > 150 ? 40 : 30)){
-                        $keyList = count($user->moveData->pressedKeys) > 0 ? implode(", ", $user->moveData->pressedKeys) : "none";
-                        $this->fail($user, "percentage(horizontal)=$scaledPercentage keys=$keyList");
+                        $this->fail($user, "percentage(horizontal)=$scaledPercentage% keys=$keyList buffer={$this->preVL}");
+                        $this->preVL = min($this->preVL, 50);
                     }
                 } else {
-                    $this->preVL = max($this->preVL - 17.5, 0);
+                    $hasSameKeys ? $this->preVL = max($this->preVL - 15, 0) : $this->preVL = max($this->preVL - 1.5, 0);
                     $this->reward($user, 0.995);
                 }
                 if($this->isDebug($user)){
-                    $keyList = count($user->moveData->pressedKeys) > 0 ? implode(", ", $user->moveData->pressedKeys) : "none";
                     $user->sendMessage("percentage=$scaledPercentage% keys=$keyList buffer={$this->preVL}");
                 }
+                $this->previousKeys = $keyList;
             }
         }
     }

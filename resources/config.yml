@@ -11,7 +11,7 @@
 # Go forth and destroy those pesky hackers!
 
 # PLEASE DO NOT CHANGE THIS #
-version: 2.4.0
+version: 2.4.0-pre
 
 prefix: "§l§7[§cMocking§4bird§7]"
 # {tag} => explanation of tag
@@ -77,7 +77,7 @@ AutoClickerD:
   punishment_type: kick
   max_violations: 20
   # check sensitivity settings
-  duplicate_max: 3
+  duplicate_max: 4
   samples: 10
 
 # KillAura
@@ -99,7 +99,7 @@ ReachA:
   punishment_type: kick
   max_violations: 50
   # check sensitivity settings
-  max_reach: 3.0
+  max_reach: 3.1
 
 # Aim
 AimAssistA:

@@ -6,6 +6,7 @@ use ethaniccc\Mockingbird\utils\location\LocationHistory;
 use pocketmine\entity\Entity;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 
 class TickProcessor extends RunnableProcessor{
 
@@ -52,8 +53,11 @@ class TickProcessor extends RunnableProcessor{
 
     public function process(DataPacket $packet) : void{
         if($packet instanceof PlayerAuthInputPacket){
-            ++$this->ticks;
-            $this->user->tickData->currentTick = $this->ticks;
+            if(ProtocolInfo::CURRENT_PROTOCOL <= 408){
+                $this->ticks = $this->user->tickData->currentTick = ($this->ticks + 1);
+            } else {
+                $this->ticks = $this->user->tickData->currentTick = $packet->getTick();
+            }
         }
     }
 

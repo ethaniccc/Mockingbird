@@ -11,6 +11,7 @@ use pocketmine\block\Liquid;
 use pocketmine\level\Location;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
+use pocketmine\Player;
 
 class MoveProcessor extends Processor{
 
@@ -63,6 +64,11 @@ class MoveProcessor extends Processor{
             } else {
                 $user->timeSinceStoppedFlight = 0;
             }
+            if(!$user->player->getGenericFlag(Player::DATA_FLAG_GLIDING)){
+                ++$user->timeSinceStoppedGlide;
+            } else {
+                $user->timeSinceStoppedGlide = 0;
+            }
             ++$user->timeSinceLastBlockPlace;
             $liquids = 0;
             $cobweb = 0;
@@ -114,6 +120,7 @@ class MoveProcessor extends Processor{
                     $user->player->handleMovePlayer($movePacket);
                 }
             }
+            $user->processors["RotationProcessor"]->run();
         }
     }
 

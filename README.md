@@ -12,14 +12,20 @@ on the GitHub repository with details, so I can fix it. You can leave a bad revi
 2) Find a bypass (for movement detections only)? Make an issue on the GitHub repository with a video.
 3) Got a feature suggestion? Don't put it in reviews - make an issue on the GitHub repository.
 
-Mockingbird no longer has a test server to test because I am poor.
-
 Special Thanks To:
 - shura62
 - Blackjack200
 - Jonhan
 - (discord) @very nice name#6789
 - Bavfalcon9
+
+<div align="center">
+    <img src='https://s3-eu-west-1.amazonaws.com/tpd/logos/5d7ab6dfd22faf0001b7b307/0x0.png'> 
+    <h3>WitherHosting</h3>
+    <p>WitherHosting is the hosting company that Mockingbird's test server runs on. It is very affordable (I used to use the $1.25 multi-server plan) and
+    has very good performance from what I have seen. They were kind enough to give me a good test server without cost, and I really do appreciate it!
+    You can check out WitherHosting and their services by clicking <b><a href="https://billing.witherhosting.com/store/">here</a></b>!</p>
+</div>
 
 ## V2 Changes
 **Mockingbird's base inspiration comes from [Neptune](https://github.com/shura62/Neptune/) made by shura62**

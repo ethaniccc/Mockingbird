@@ -30,8 +30,12 @@ class MathUtils{
     }
 
     public static function vectorAngle(Vector3 $a, Vector3 $b) : float{
-        $dot = $a->dot($b) / ($a->length() * $b->length());
-        return acos($dot);
+        try{
+            $dot = $a->dot($b) / ($a->length() * $b->length());
+            return acos($dot);
+        } catch (\ErrorException $e){
+            return -1;
+        }
     }
 
     public static function directionVectorFromValues(float $yaw, float $pitch) : Vector3{
@@ -103,7 +107,7 @@ class MathUtils{
         return $variance / count($data);
     }
 
-    public static function getOutliers(array $collection) : \stdClass{
+    public static function getOutliers(array $collection) : Pair{
         $q1 = self::getMedian(array_splice($collection, 0, (int) ceil(count($collection) / 2)));
         $q3 = self::getMedian(array_splice($collection, (int) ceil(count($collection) / 2), count($collection)));
 
@@ -122,10 +126,7 @@ class MathUtils{
             }
         }
 
-        $pair = new \stdClass();
-        $pair->x = $x;
-        $pair->y = $y;
-        return $pair;
+        return new Pair($x, $y);
     }
 
     public static function getMedian(array $data) : float{

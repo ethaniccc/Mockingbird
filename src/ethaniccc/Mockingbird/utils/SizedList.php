@@ -22,6 +22,10 @@ class SizedList{
         }
     }
 
+    public function length() : int{
+        return $this->maxSize;
+    }
+
     public function size() : int{
         return count($this->array);
     }
@@ -44,6 +48,10 @@ class SizedList{
 
     public function maxOrElse($fallback = null){
         return count($this->array) > 0 ? max($this->array) : $fallback;
+    }
+
+    public function duplicates(int $sort = SORT_STRING) : int{
+        return count($this->array) - count(array_unique($this->array, $sort));
     }
 
 }
