@@ -31,8 +31,10 @@ class ReachA extends Detection{
             $distances = new SizedList(40);
             foreach($locations as $location){
                 $AABB = AABB::fromPosition($location)->expand(0.1, 0.1, 0.1);
-                // more lightweight way for calculating reach
+                // add the distance from the "to" position to the AABB
                 $distances->add($AABB->distanceFromVector($packet->getPosition()));
+                // add the distance from the "from" position to the AABB
+                $distances->add($AABB->distanceFromVector($user->moveData->lastLocation->add(0, 1.62, 0)));
             }
             $distance = $distances->minOrElse(-1);
             if($distance !== -1){

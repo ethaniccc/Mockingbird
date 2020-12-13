@@ -42,6 +42,8 @@ class MoveData{
     public $cobwebTicks = 0;
     /** @var int - The amount of client ticks that have passed since colliding with cobweb */
     public $liquidTicks = 0;
+    /** @var int - The amount of client ticks that have passed since the user was in the (bottom of the) void. */
+    public $ticksSinceInVoid = 0;
     /** @var AABB - The current AABB of the user. */
     public $AABB;
 }

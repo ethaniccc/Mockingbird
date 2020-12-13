@@ -69,6 +69,11 @@ class MoveProcessor extends Processor{
             } else {
                 $user->timeSinceStoppedGlide = 0;
             }
+            if($location->y > -39.5){
+                ++$user->moveData->ticksSinceInVoid;
+            } else {
+                $user->moveData->ticksSinceInVoid = 0;
+            }
             ++$user->timeSinceLastBlockPlace;
             $liquids = 0;
             $cobweb = 0;
