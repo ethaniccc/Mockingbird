@@ -54,7 +54,7 @@ class Mockingbird extends PluginBase{
         }), 400);
         $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(function(int $currentTick) : void{
             foreach(UserManager::getInstance()->getUsers() as $user){
-                $user->processors["TickProcessor"]->run();
+                $user->tickProcessor->run();
             }
         }), 1);
     }

@@ -4,35 +4,33 @@ namespace ethaniccc\Mockingbird\user;
 
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\Mockingbird;
-use ethaniccc\Mockingbird\processing\ClickProcessor;
-use ethaniccc\Mockingbird\processing\HitProcessor;
-use ethaniccc\Mockingbird\processing\MoveProcessor;
-use ethaniccc\Mockingbird\processing\OtherPacketProcessor;
-use ethaniccc\Mockingbird\processing\Processor;
-use ethaniccc\Mockingbird\processing\RotationProcessor;
+use ethaniccc\Mockingbird\processing\EventProcessor;
+use ethaniccc\Mockingbird\processing\InboundPacketProcessor;
 use ethaniccc\Mockingbird\processing\TickProcessor;
 use ethaniccc\Mockingbird\user\data\ClickData;
 use ethaniccc\Mockingbird\user\data\HitData;
 use ethaniccc\Mockingbird\user\data\MoveData;
 use ethaniccc\Mockingbird\user\data\TickData;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
-use ethaniccc\Mockingbird\utils\location\LocationHistory;
 use pocketmine\block\Air;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
-use ReflectionClass;
 
 class User{
 
     /** @var Player - The player associated with this User class. */
     public $player;
-    /** @var Processor[] - The processors that will process packet data when received. */
-    public $processors = [];
+    /** @var InboundPacketProcessor - The processor that will handle all incoming packets */
+    public $inboundProcessor;
+    /** @var EventProcessor - The processor that will handle events related to the user. */
+    public $eventProcessor;
+    /** @var TickProcessor - The processor that will run every tick for particular data. */
+    public $tickProcessor;
     /** @var Detection[] - The detections available that will run. */
     public $detections = [];
-    /** @var array - The key is the detection name, and the value is the violations (float). - TODO: Make this a class? */
+    /** @var array - The key is the detection name, and the value is the violations (float). - Make this a class? */
     public $violations = [];
     /** @var string[] - The key is the detection name and the value is a mini-debug log string. */
     public $debugCache = [];
@@ -111,14 +109,9 @@ class User{
         $this->moveData->lastLocation = $this->moveData->location;
         $this->moveData->lastMotion = $zeroVector;
         $this->moveData->directionVector = $zeroVector;
-        $this->processors = [
-            "ClickProcessor" => new ClickProcessor($this),
-            "HitProcessor" => new HitProcessor($this),
-            "MoveProcessor" => new MoveProcessor($this),
-            "TickProcessor" => new TickProcessor($this),
-            "RotationProcessor" => new RotationProcessor($this),
-            "OtherPacketProcessor" => new OtherPacketProcessor($this),
-        ];
+        $this->inboundProcessor = new InboundPacketProcessor($this);
+        $this->eventProcessor = new EventProcessor($this);
+        $this->tickProcessor = new TickProcessor($this);
         foreach(Mockingbird::getInstance()->availableChecks as $check){
             $this->detections[$check->name] = clone $check;
         }

@@ -43,24 +43,10 @@ class MockingbirdListener implements Listener{
 
         $user = UserManager::getInstance()->get($player);
         if($user !== null){
-            foreach($user->processors as $processor){
-                if($processor instanceof Processor){
-                    $start = microtime(true);
-                    $processor->process($packet);
-                    $time = microtime(true) - $start;
-                    if($time > 0.01){
-                        Mockingbird::getInstance()->debugTask->addData(get_class($processor) . " took too long to process: $time");
-                    }
-                }
-            }
+            $user->inboundProcessor->process($packet);
             foreach($user->detections as $check){
-                if($check instanceof Detection && $check->enabled){
-                    $start = microtime(true);
+                if($check->enabled){
                     $check->handle($packet, $user);
-                    $time = microtime(true) - $start;
-                    if($time > 0.01){
-                        Mockingbird::getInstance()->debugTask->addData(get_class($check) . " took too long to process: $time");
-                    }
                 }
             }
         }
@@ -86,9 +72,7 @@ class MockingbirdListener implements Listener{
             if($user->player->hasPermission("mockingbird.alerts") && Mockingbird::getInstance()->getConfig()->get("alerts_default")){
                 $user->alerts = true;
             }
-            foreach($user->processors as $processor){
-                $processor->processEvent($event);
-            }
+            $user->eventProcessor->processEvent($event);
         }
     }
 
@@ -97,9 +81,7 @@ class MockingbirdListener implements Listener{
         if($entity instanceof Player){
             $user = UserManager::getInstance()->get($entity);
             if($user !== null){
-                foreach($user->processors as $processor){
-                    $processor->processEvent($event);
-                }
+                $user->eventProcessor->processEvent($event);
                 foreach($user->detections as $detection){
                     $detection->handleEvent($event, $user);
                 }
@@ -122,11 +104,7 @@ class MockingbirdListener implements Listener{
     public function onPlacedBlock(BlockPlaceEvent $event) : void{
         $user = UserManager::getInstance()->get($event->getPlayer());
         if($user !== null){
-            foreach($user->processors as $processor){
-                if($processor instanceof Processor){
-                    $processor->processEvent($event);
-                }
-            }
+            $user->eventProcessor->processEvent($event);
             foreach($user->detections as $check){
                 if($check instanceof Detection){
                     $check->handleEvent($event, $user);
@@ -139,9 +117,7 @@ class MockingbirdListener implements Listener{
     public function onTransaction(InventoryTransactionEvent $event) : void{
         $user = UserManager::getInstance()->get($event->getTransaction()->getSource());
         if($user !== null){
-            foreach($user->processors as $processor){
-                $processor->processEvent($event);
-            }
+            $user->eventProcessor->processEvent($event);
             foreach($user->detections as $detection){
                 $detection->handleEvent($event, $user);
             }
