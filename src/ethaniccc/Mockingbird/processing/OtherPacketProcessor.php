@@ -11,6 +11,7 @@ use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
+use pocketmine\network\mcpe\protocol\PlayerActionPacket;
 use pocketmine\network\mcpe\protocol\types\DeviceOS;
 
 class OtherPacketProcessor extends Processor{
@@ -35,6 +36,21 @@ class OtherPacketProcessor extends Processor{
             if($packet->timestamp === $user->networkStackLatencyPacket->timestamp){
                 $user->responded = true;
                 $user->transactionLatency = round((microtime(true) - $user->lastSentNetworkLatencyTime) * 1000, 0);
+            }
+        } elseif($packet instanceof PlayerActionPacket){
+            switch($packet->action){
+                case PlayerActionPacket::ACTION_START_SPRINT:
+                    $user->isSprinting = true;
+                    break;
+                case PlayerActionPacket::ACTION_STOP_SPRINT:
+                    $user->isSprinting = false;
+                    break;
+                case PlayerActionPacket::ACTION_START_SNEAK:
+                    $user->isSneaking = true;
+                    break;
+                case PlayerActionPacket::ACTION_STOP_SNEAK:
+                    $user->isSneaking = false;
+                    break;
             }
         }
     }

@@ -8,6 +8,12 @@ use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
+/**
+ * Class BadPacketB
+ * @package ethaniccc\Mockingbird\detections\packet\badpackets
+ * BadPacketB checks if the user is consistency sending MovePlayer packets rather than PlayerAuthInput packets.
+ * The client can still send MovePlayer packets, but not constantly.
+ */
 class BadPacketB extends Detection{
 
     private $lastTime;

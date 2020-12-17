@@ -37,15 +37,15 @@ class MoveProcessor extends Processor{
             $user->moveData->yaw = fmod($location->yaw, 360);
             $user->moveData->pitch = fmod($location->pitch, 360);
             $movePacket = PacketUtils::playerAuthToMovePlayer($packet, $user);
-            if($user->moveData->appendingTeleport){
+            if($user->moveData->awaitingTeleport){
                 if($packet->getPosition()->subtract($user->moveData->teleportPos)->length() <= 2){
                     // The user has received the teleport
-                    $user->moveData->appendingTeleport = false;
+                    $user->moveData->awaitingTeleport = false;
                 } else {
                     $shouldHandle = false;
                 }
             }
-            $user->moveData->appendingTeleport ? $user->timeSinceTeleport = 0 : ++$user->timeSinceTeleport;
+            $user->moveData->awaitingTeleport ? $user->timeSinceTeleport = 0 : ++$user->timeSinceTeleport;
             if($user->timeSinceTeleport > 0){
                 $user->moveData->lastMoveDelta = $user->moveData->moveDelta;
                 $user->moveData->moveDelta = $user->moveData->location->subtract($user->moveData->lastLocation)->asVector3();
@@ -125,7 +125,7 @@ class MoveProcessor extends Processor{
                     $user->player->handleMovePlayer($movePacket);
                 }
             }
-            $user->processors["RotationProcessor"]->run();
+            // $user->processors["RotationProcessor"]->run();
         }
     }
 

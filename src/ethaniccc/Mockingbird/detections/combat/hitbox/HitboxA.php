@@ -11,6 +11,13 @@ use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
+/**
+ * Class HitboxA
+ * @package ethaniccc\Mockingbird\detections\combat\hitbox
+ * HitboxA gets a list of locations using "location history", makes a bounding box from the locations, and
+ * see if the user's direction can intersect with those bounding boxes. This check is heavy on performance however,
+ * and therefore is disabled until a better solution for hitbox is found.
+ */
 class HitboxA extends Detection{
 
     private $appendingMove = false;
@@ -20,6 +27,8 @@ class HitboxA extends Detection{
         $this->vlThreshold = 10;
         $this->lowMax = 2;
         $this->mediumMax = 3;
+        // TODO: this is slow, find a better way to detect hitbox.
+        $this->enabled = false;
     }
 
     public function handle(DataPacket $packet, User $user): void{

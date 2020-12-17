@@ -7,6 +7,13 @@ use ethaniccc\Mockingbird\user\User;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
+/**
+ * Class AimAssistA
+ * @package ethaniccc\Mockingbird\detections\combat\aimassist
+ * AimAssistA checks if the user's yaw difference is too high while
+ * the pitch difference remains at zero. This is common when a hacker
+ * turns on an aim-assist without vertical movement,
+ */
 class AimAssistA extends Detection{
 
     public function __construct(string $name, ?array $settings){

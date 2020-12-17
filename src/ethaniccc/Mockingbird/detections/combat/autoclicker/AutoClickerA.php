@@ -9,6 +9,13 @@ use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 
+/**
+ * Class AutoClickerA
+ * @package ethaniccc\Mockingbird\detections\combat\autoclicker
+ * AutoClickerA checks if the current deviation of the click speeds (in ticks)
+ * is too similar to the last deviation of the previous click speeds. This is common
+ * in poorly-made auto-clickers.
+ */
 class AutoClickerA extends Detection{
 
     private $clicks = 0;

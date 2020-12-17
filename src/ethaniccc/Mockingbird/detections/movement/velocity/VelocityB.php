@@ -7,6 +7,13 @@ use ethaniccc\Mockingbird\user\User;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
+/**
+ * Class VelocityB
+ * @package ethaniccc\Mockingbird\detections\movement\velocity
+ * VelocityB checks if the user's horizontal velocity is lower than normal.
+ * This check is still experimental and I'm working on improving it.
+ * TODO: Figure out what other PvP clients are doing with their Velocity modifiers to bypass this check at higher settings.
+ */
 class VelocityB extends Detection{
 
     private $previousKeys;
@@ -16,8 +23,6 @@ class VelocityB extends Detection{
         $this->vlThreshold = 15;
         $this->lowMax = 10;
         $this->mediumMax = 15;
-        // this falses on localhost testing so this will be off for now.
-        $this->enabled = false;
     }
 
     public function handle(DataPacket $packet, User $user): void{
@@ -27,12 +32,27 @@ class VelocityB extends Detection{
                     $this->preVL = 0;
                     return;
                 }
-                $forward = $packet->getMoveVecZ();
-                $strafe = $packet->getMoveVecX();
+                $forward = 0;
+                $strafe = 0;
+                $keyArray = $user->moveData->pressedKeys;
+                if(in_array("W", $keyArray)){
+                    $forward = 1;
+                } elseif(in_array("S", $keyArray)){
+                    $forward = -1;
+                }
+                if(in_array("D", $keyArray)) {
+                    $strafe = 1;
+                } elseif(in_array("A", $keyArray)){
+                    $strafe = -1;
+                }
+                if($user->isSneaking){
+                    $forward *= 0.3;
+                    $strafe *= 0.3;
+                }
                 $motion = clone $user->moveData->lastMotion;
                 // replication: https://github.com/eldariamc/client/blob/c01d23eb05ed83abb4fee00f9bf603b6bc3e2e27/src/main/java/net/minecraft/entity/EntityFlying.java#L30
                 $f = pow($strafe, 2) + pow($forward, 2);
-                if($f >= 9.999999747378752E-5){
+                if($f >= 1E-4){
                     $f = sqrt($f);
                     if($f < 1){
                         $f = 1;

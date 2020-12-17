@@ -8,6 +8,12 @@ use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 
+/**
+ * Class AutoClickerB
+ * @package ethaniccc\Mockingbird\detections\combat\autoclicker
+ * AutoClickerB checks if the user is clicking too fast. This is one of the simplest checks
+ * to make - however may false with certain clicking methods (such as drag-clicking).
+ */
 class AutoClickerB extends Detection{
 
     public function __construct(string $name, ?array $settings){

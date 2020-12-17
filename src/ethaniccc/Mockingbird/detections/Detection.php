@@ -115,7 +115,7 @@ abstract class Detection{
                     $this->getPlugin()->getScheduler()->scheduleDelayedTask(new BanTask($user, $this->getPlugin()->getPrefix() . " " . $this->getPlugin()->getConfig()->get("punish_message_player")), 0);
                     break;
             }
-            $message = $this->getPlugin()->getPrefix() . " " . str_replace("{player}", $name, $this->getPlugin()->getConfig()->get("punish_message_staff"));
+            $message = $this->getPlugin()->getPrefix() . " " . str_replace(["{player}", "{detection}"], [$name, $this->name], $this->getPlugin()->getConfig()->get("punish_message_staff"));
             Server::getInstance()->broadcastMessage($message, Mockingbird::getInstance()->getConfig()->get("punish_message_global") ? Server::getInstance()->getOnlinePlayers() : $staff);
         }
         if($debugData !== null){

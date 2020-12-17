@@ -7,6 +7,12 @@ use ethaniccc\Mockingbird\user\User;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 
+/**
+ * Class BadPacketC
+ * @package ethaniccc\Mockingbird\detections\packet\badpackets
+ * BadPacketC checks if the user is hitting.. themselves. This type of BS
+ * is used in some fly bypasses.
+ */
 class BadPacketC extends Detection{
 
     public function __construct(string $name, ?array $settings){
@@ -19,9 +25,6 @@ class BadPacketC extends Detection{
             $targetEntity = $packet->trData->entityRuntimeId;
             if($user->player->getId() === $targetEntity){
                 $this->fail($user, "id={$user->player->getId()} attackedId=$targetEntity");
-            } else {
-                // entity just died in the world?
-                $this->reward($user, 0.9);
             }
         }
     }

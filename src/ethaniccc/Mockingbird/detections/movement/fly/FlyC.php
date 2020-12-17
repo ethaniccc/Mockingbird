@@ -8,6 +8,13 @@ use ethaniccc\Mockingbird\user\User;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
+/**
+ * Class FlyC
+ * @package ethaniccc\Mockingbird\detections\movement\fly
+ * FlyC checks if the current Y movement is too similar to the last Y movement. This falses when falling after
+ * a while (hence "are PlayerAuthInputPacket y values fucked?"), which is why I check if the Y delta
+ * is less greater -3, as at -3, this check loves to false.
+ */
 class FlyC extends Detection implements CancellableMovement{
 
     public function __construct(string $name, ?array $settings){

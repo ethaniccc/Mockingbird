@@ -10,6 +10,11 @@ use pocketmine\inventory\ChestInventory;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
+/**
+ * Class ChestStealerA
+ * @package ethaniccc\Mockingbird\detections\player\cheststeal
+ * ChestStealerA checks if the user is taking items from a chest too quickly.
+ */
 class ChestStealerA extends Detection{
 
     public $transactions = 0;

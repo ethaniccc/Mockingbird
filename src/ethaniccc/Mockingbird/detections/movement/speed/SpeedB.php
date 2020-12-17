@@ -9,6 +9,12 @@ use pocketmine\block\Ice;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
+/**
+ * Class SpeedB
+ * @package ethaniccc\Mockingbird\detections\movement\speed
+ * SpeedB is a speed limit check which is made off values I've gotten by testing in-game.
+ * This check works well as far as I'm concerned so far.
+ */
 class SpeedB extends Detection implements CancellableMovement{
 
     private $onGroundTicks = 0;
@@ -46,7 +52,7 @@ class SpeedB extends Detection implements CancellableMovement{
                         return;
                     }
                     if(++$this->preVL >= 2){
-                        $this->fail($user, "speed=$horizontalSpeed tpTime={$user->timeSinceTeleport}");
+                        $this->fail($user, "speed=$horizontalSpeed max=$maxSpeed tpTime={$user->timeSinceTeleport}");
                     }
                 } else {
                     $this->preVL = 0;

@@ -74,6 +74,16 @@ class User{
     /** @var NetworkStackLatencyPacket - So I don't have to create multiple of these. */
     public $networkStackLatencyPacket;
 
+    /**
+     * NOTE: I use these values (isSneaking, isSprinting, etc.) because Pocketmine's values will be off by at least one tick, since it has not
+     * handled the packets to set these values yet.
+     */
+
+    /** @var bool - The boolean value for if the user is sneaking or not. */
+    public $isSneaking = false;
+    /** @var bool - The boolean value for if the user is sprinting or not. */
+    public $isSprinting = false;
+
     /** @var MoveData - The class that stores the movement data of the user, the MoveProcessor will handle data to be put in here. */
     public $moveData;
     /** @var ClickData - The class that stores the click data of the user, the ClickProcessor will handle data to be put in here. */

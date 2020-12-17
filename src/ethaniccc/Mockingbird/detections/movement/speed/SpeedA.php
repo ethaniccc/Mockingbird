@@ -8,6 +8,12 @@ use ethaniccc\Mockingbird\user\User;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
+/**
+ * Class SpeedA
+ * @package ethaniccc\Mockingbird\detections\movement\speed
+ * SpeedA is a friction check which checks if the user's movement follows
+ * Minecraft's friction rules. This catches some Jetpacks, and Bhops.
+ */
 class SpeedA extends Detection implements CancellableMovement{
 
     public function __construct(string $name, ?array $settings){
@@ -28,7 +34,7 @@ class SpeedA extends Detection implements CancellableMovement{
                 && $user->timeSinceTeleport >= 5
                 && $user->timeSinceMotion >= 10
                 && !$user->player->isFlying() && !$user->player->isSpectator() && !$user->timeSinceStoppedGlide >= 10
-                && $user->moveData->ticksSinceInVoid >= 10){
+                && $user->moveData->ticksSinceInVoid >= 10 && $user->moveData->liquidTicks >= 10){
                     if(++$this->preVL >= 3){
                         $this->fail($user, "e=$equalness cXZ=$currentXZ lXZ=$lastXZ");
                     }

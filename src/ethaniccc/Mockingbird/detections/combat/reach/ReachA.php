@@ -5,14 +5,24 @@ namespace ethaniccc\Mockingbird\detections\combat\reach;
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
+use ethaniccc\Mockingbird\utils\MathUtils;
 use ethaniccc\Mockingbird\utils\SizedList;
+use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
+/**
+ * Class ReachA
+ * @package ethaniccc\Mockingbird\detections\combat\reach
+ * ReachA gets estimated locations that the target entity may be on (on the client side), and
+ * makes bounding boxes from those locations. With those bounding boxes, we get the distance from the user's
+ * current eye pos and last eye pos to the bounding boc [@see AABB::distanceFromVector()] and store that in a list, then gets the minimum distance in the list.
+ * If the minimum distance is greater than the threshold, and the preVL reaches it's threshold, then the user is flagged.
+ */
 class ReachA extends Detection{
 
-    private $appendingMove = false;
+    private $awaitingMove = false;
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
@@ -20,27 +30,33 @@ class ReachA extends Detection{
     }
 
     public function handle(DataPacket $packet, User $user) : void{
-        if($packet instanceof InventoryTransactionPacket && $user->win10 && !$user->player->isCreative() && !$this->appendingMove && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK){
+        if($packet instanceof InventoryTransactionPacket && $user->win10 && !$user->player->isCreative() && !$this->awaitingMove && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK){
             if($user->tickData->targetLocationHistory->getLocations()->full()){
                 // wait for the next PlayerAuthInputPacket from the client
-                $this->appendingMove = true;
+                $this->awaitingMove = true;
             }
-        } elseif($packet instanceof PlayerAuthInputPacket && $this->appendingMove){
+        } elseif($packet instanceof PlayerAuthInputPacket && $this->awaitingMove){
             $locations = $user->tickData->targetLocationHistory->getLocationsRelativeToTime($user->tickData->currentTick - floor($user->transactionLatency / 50), 2);
             // 40 is the max location history size in the tick data
-            $distances = new SizedList(40);
+            $distances = new SizedList(80);
+            $lastLocation = null;
             foreach($locations as $location){
+                if($lastLocation === null){
+                    $moveDelta = 0;
+                } else {
+                    $moveDelta = $location->subtract($lastLocation)->length();
+                }
                 $AABB = AABB::fromPosition($location)->expand(0.1, 0.1, 0.1);
                 // add the distance from the "to" position to the AABB
-                $distances->add($AABB->distanceFromVector($packet->getPosition()));
+                $distances->add($AABB->distanceFromVector($packet->getPosition()) - $moveDelta);
                 // add the distance from the "from" position to the AABB
-                $distances->add($AABB->distanceFromVector($user->moveData->lastLocation->add(0, 1.62, 0)));
+                $distances->add($AABB->distanceFromVector($user->moveData->lastLocation->add(0, 1.62, 0)) - $moveDelta);
+                $lastLocation = $location;
             }
             $distance = $distances->minOrElse(-1);
             if($distance !== -1){
                 if($distance > $this->getSetting("max_reach")){
                     $this->preVL += 1.5;
-                    // sometimes the preVL can reach to 4, I put 4.1 here as I haven't seen the preVL (on localhost testing) go above 4
                     if($this->preVL >= 4.1){
                         $this->preVL = min($this->preVL, 9);
                         $this->fail($user, "dist=$distance");
@@ -53,7 +69,7 @@ class ReachA extends Detection{
             if($this->isDebug($user)){
                 $user->sendMessage("dist=$distance buff={$this->preVL}");
             }
-            $this->appendingMove = false;
+            $this->awaitingMove = false;
         }
     }
 

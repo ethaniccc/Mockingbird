@@ -9,6 +9,13 @@ use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 
+/**
+ * Class AutoClickerC
+ * @package ethaniccc\Mockingbird\detections\combat\autoclicker
+ * AutoClickerC takes some clicking speeds and gets the kurtosis, skewness, and outliers of those
+ * click samples (thanks Elevated). If the kurtosis, skewness, and outliers surpass a certain threshold,
+ * then the check flags. Note that this check can false (at LOW) with legit players.
+ */
 class AutoClickerC extends Detection{
 
     private $clicks = 0;

@@ -9,6 +9,12 @@ use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
+/**
+ * Class KillAuraB
+ * @package ethaniccc\Mockingbird\detections\combat\killaura
+ * KillAuraB checks if the user sends an animation packet with the action being "swing" before hitting the target entity.
+ * This flags bad killauras that don't swing before attacking an entity (hello, Toolbox).
+ */
 class KillAuraB extends Detection{
 
     private $lastTick = 0;

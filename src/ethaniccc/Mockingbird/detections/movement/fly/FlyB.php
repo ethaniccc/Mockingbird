@@ -9,6 +9,13 @@ use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerActionPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
+/**
+ * Class FlyB
+ * @package ethaniccc\Mockingbird\detections\movement\fly
+ * FlyB checks if the user is not on ground (with two methods) and jumped. The first way
+ * onGround is determined is by checking if the rounded Y position of the player is divisible
+ * by 1/64 (check https://media.discordapp.net/attachments/756662753644511232/764979126783442994/unknown.png?width=1050&height=155).
+ */
 class FlyB extends Detection implements CancellableMovement{
 
     private $lastOnGround = true;

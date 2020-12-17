@@ -8,6 +8,11 @@ use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
+/**
+ * Class NukerA
+ * @package ethaniccc\Mockingbird\detections\player\nuker
+ * NukerA checks if the user is breaking too many blocks within a tick.
+ */
 class NukerA extends Detection{
 
     private $blocks = 0;

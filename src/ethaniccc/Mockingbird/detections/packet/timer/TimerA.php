@@ -8,6 +8,12 @@ use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\Server;
 
+/**
+ * Class TimerA
+ * @package ethaniccc\Mockingbird\detections\packet\timer
+ * TimerA checks if the user is sending too many PlayerAuthInput packets. This check
+ * will false when the server lags, but is here nevertheless.
+ */
 class TimerA extends Detection{
 
     private $lastTime;

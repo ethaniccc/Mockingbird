@@ -14,7 +14,7 @@ class AimAssistB extends Detection{
     }
 
     public function handle(DataPacket $packet, User $user) : void{
-        if($packet instanceof PlayerAuthInputPacket && $user->win10 && $user->moveData->yawDelta > 0.0065 && $user->moveData->pitchDelta > 0.0065 && $user->moveData->yawDelta < 20 && $user->moveData->pitchDelta < 10){
+        if($packet instanceof PlayerAuthInputPacket && $user->moveData->yawDelta > 0.0065 && $user->moveData->pitchDelta > 0.0065 && $user->moveData->yawDelta < 20 && $user->moveData->pitchDelta < 15){
         }
     }
 

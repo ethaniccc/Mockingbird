@@ -8,6 +8,11 @@ use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
+/**
+ * Class KillAuraA
+ * @package ethaniccc\Mockingbird\detections\combat\killaura
+ * KillAuraA checks if the user is hitting too many entities in the same tick.
+ */
 class KillAuraA extends Detection{
 
     private $entities = 0;

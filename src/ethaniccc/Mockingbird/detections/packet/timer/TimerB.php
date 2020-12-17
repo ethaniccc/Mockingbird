@@ -9,6 +9,11 @@ use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\Server;
 
+/**
+ * Class TimerB
+ * @package ethaniccc\Mockingbird\detections\packet\timer
+ * I don't even know why I did this.
+ */
 class TimerB extends Detection{
 
     private $samples = [];

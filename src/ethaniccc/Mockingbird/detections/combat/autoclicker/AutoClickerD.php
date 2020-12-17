@@ -10,6 +10,13 @@ use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 
+/**
+ * Class AutoClickerD
+ * @package ethaniccc\Mockingbird\detections\combat\autoclicker
+ * AutoClickerD gets multiple samples of kurtosis, skewness, and outliers from multiple click speed samples.
+ * Then it checks how many duplicated kurtosis, skewness, and outlier samples there are. If this value surpasses
+ * the maximum duplicate count (4), then the user is most likely cheating and this check flags.
+ */
 class AutoClickerD extends Detection{
 
     private $clicks = 0;

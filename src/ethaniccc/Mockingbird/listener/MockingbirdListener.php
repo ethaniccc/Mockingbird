@@ -113,7 +113,7 @@ class MockingbirdListener implements Listener{
             $user = UserManager::getInstance()->get($entity);
             if($user !== null){
                 $user->timeSinceTeleport = 0;
-                $user->moveData->appendingTeleport = true;
+                $user->moveData->awaitingTeleport = true;
                 $user->moveData->teleportPos = $event->getTo();
             }
         }

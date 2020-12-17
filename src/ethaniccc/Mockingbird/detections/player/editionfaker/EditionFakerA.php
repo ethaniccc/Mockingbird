@@ -8,6 +8,11 @@ use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
+/**
+ * Class EditionFakerA
+ * @package ethaniccc\Mockingbird\detections\player\editionfaker
+ * EditionFakerA checks if a Windows 10 user is faking their edition.
+ */
 class EditionFakerA extends Detection{
 
     private $faking = false;

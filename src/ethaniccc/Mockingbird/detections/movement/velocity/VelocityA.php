@@ -11,6 +11,13 @@ use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use stdClass;
 
+/**
+ * Class VelocityA
+ * @package ethaniccc\Mockingbird\detections\movement\velocity
+ * VelocityA checks if the user's vertical velocity is lower than normal. This can detect 98%
+ * vertical velocity on Horion (and ~94% on other clients).
+ * TODO: Figure out what other PvP clients are doing with their Velocity modifiers to bypass this check at higher settings.
+ */
 class VelocityA extends Detection implements CancellableMovement{
 
     public function __construct(string $name, ?array $settings){

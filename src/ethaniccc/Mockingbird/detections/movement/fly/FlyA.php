@@ -9,6 +9,12 @@ use pocketmine\item\ItemIds;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
+/**
+ * Class FlyA
+ * @package ethaniccc\Mockingbird\detections\movement\fly
+ * FlyA predicts what the user's Y distance should be, and compares that to the current Y movement the user gives.
+ * If the difference between the predicted Y distance and the given Y distance is too high, flag.
+ */
 class FlyA extends Detection implements CancellableMovement{
 
     public function __construct(string $name, ?array $settings){

@@ -25,7 +25,8 @@ fail_message: "§4{player}§r§7 failed §c{check} §4[§4VL: §c{vl}§4] §7Pro
 # Determines if the option below (punish_message_staff) should be sent to everyone online on the server.
 punish_message_global: false
 # {player} => the player punished
-punish_message_staff: "§l§4{player}§r§7 was punished for§b cheating"
+# {detection} => the detection the player was punished for
+punish_message_staff: "§l§4{player}§r§7 was punished for§b {detection}"
 # the message the player will receive when punished
 punish_message_player: "§cUnfair Advantage Detected"
 
