@@ -11,7 +11,7 @@
 # Go forth and destroy those pesky hackers!
 
 # PLEASE DO NOT CHANGE THIS #
-version: 2.4.0-pre
+version: 2.4.0
 
 prefix: "§l§7[§cMocking§4bird§7]"
 # {tag} => explanation of tag
@@ -52,9 +52,7 @@ AutoClickerA:
   punishment_type: kick
   max_violations: 20
   # check sensitivity settings
-  samples: 30
   consistency: 0.85
-  required_cps: 10
 AutoClickerB:
   enabled: true
   punish: true
@@ -100,7 +98,7 @@ ReachA:
   punishment_type: kick
   max_violations: 50
   # check sensitivity settings
-  max_reach: 3.1
+  max_reach: 3.2
 
 # Aim
 AimAssistA:
@@ -109,7 +107,7 @@ AimAssistA:
   punishment_type: kick
   max_violations: 20
 AimAssistB:
-  enabled: true
+  enabled: false
   punish: true
   punishment_type: kick
   max_violations: 45
@@ -172,14 +170,14 @@ FlyC:
 
 # Velocity
 VelocityA:
-  enabled: true
+  enabled: false
   punish: false
   punishment_type: kick
   max_violations: 25
   # check sensitivity settings
   multiplier: 0.991
 VelocityB:
-  enabled: true
+  enabled: false
   punish: false
   punishment_type: kick
   max_violations: 30

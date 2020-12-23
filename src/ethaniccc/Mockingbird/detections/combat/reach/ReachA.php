@@ -5,9 +5,7 @@ namespace ethaniccc\Mockingbird\detections\combat\reach;
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
-use ethaniccc\Mockingbird\utils\MathUtils;
 use ethaniccc\Mockingbird\utils\SizedList;
-use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
@@ -26,7 +24,7 @@ class ReachA extends Detection{
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
-        $this->vlThreshold = 20;
+        $this->vlSecondCount = 20;
     }
 
     public function handle(DataPacket $packet, User $user) : void{
@@ -57,7 +55,7 @@ class ReachA extends Detection{
             if($distance !== -1){
                 if($distance > $this->getSetting("max_reach")){
                     $this->preVL += 1.5;
-                    if($this->preVL >= 4.1){
+                    if($this->preVL >= 3.1){
                         $this->preVL = min($this->preVL, 9);
                         $this->fail($user, "dist=$distance");
                     }

@@ -82,9 +82,6 @@ class MockingbirdListener implements Listener{
             $user = UserManager::getInstance()->get($entity);
             if($user !== null){
                 $user->eventProcessor->processEvent($event);
-                foreach($user->detections as $detection){
-                    $detection->handleEvent($event, $user);
-                }
             }
         }
     }

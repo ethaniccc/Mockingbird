@@ -18,7 +18,7 @@ abstract class Detection{
 
     private $violations = [];
     protected $settings;
-    protected $vlThreshold = 2;
+    protected $vlSecondCount = 2;
     protected $lowMax, $mediumMax;
     public $preVL, $maxVL;
     public $name, $subType, $enabled, $punishable, $punishType, $suppression, $alerts;
@@ -37,8 +37,8 @@ abstract class Detection{
         $this->suppression = $this->settings["suppression"] ?? false;
         $this->maxVL = $this->settings["max_violations"] ?? 25;
         $this->alerts = Mockingbird::getInstance()->getConfig()->get("alerts_enabled") ?? true;
-        $this->lowMax = floor(pow($this->vlThreshold, 1 / 4) * 5);
-        $this->mediumMax = floor(sqrt($this->vlThreshold) * 5);
+        $this->lowMax = floor(pow($this->vlSecondCount, 1 / 4) * 5);
+        $this->mediumMax = floor(sqrt($this->vlSecondCount) * 5);
     }
 
     public function getSetting(string $setting){
@@ -83,7 +83,7 @@ abstract class Detection{
         ++$user->violations[$this->name];
         $this->violations[] = microtime(true);
         $this->violations = array_filter($this->violations, function(float $lastTime) : bool{
-            return microtime(true) - $lastTime <= $this->vlThreshold * (20 / Server::getInstance()->getTicksPerSecond());
+            return microtime(true) - $lastTime <= $this->vlSecondCount * (20 / Server::getInstance()->getTicksPerSecond());
         });
         $name = $user->player->getName();
         $cheatName = $this->name;

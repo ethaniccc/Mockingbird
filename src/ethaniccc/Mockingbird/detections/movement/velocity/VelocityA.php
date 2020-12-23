@@ -16,6 +16,7 @@ use stdClass;
  * @package ethaniccc\Mockingbird\detections\movement\velocity
  * VelocityA checks if the user's vertical velocity is lower than normal. This can detect 98%
  * vertical velocity on Horion (and ~94% on other clients).
+ * THIS CHECK IS UNSTABLE.
  * TODO: Figure out what other PvP clients are doing with their Velocity modifiers to bypass this check at higher settings.
  */
 class VelocityA extends Detection implements CancellableMovement{
@@ -23,12 +24,14 @@ class VelocityA extends Detection implements CancellableMovement{
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
         $this->suppression = false;
-        $this->vlThreshold = 20;
+        $this->vlSecondCount = 20;
         $this->lowMax = 4;
         $this->mediumMax = 8;
     }
 
     public function handle(DataPacket $packet, User $user): void{
+        return;
+        /*
         if($packet instanceof PlayerAuthInputPacket){
             if($user->timeSinceMotion <= ($user->transactionLatency / 50) + 3 && $user->moveData->lastMotion !== null && $user->player->isAlive()){
                 if($user->timeSinceTeleport <= 6){
@@ -54,6 +57,7 @@ class VelocityA extends Detection implements CancellableMovement{
                 }
             }
         }
+        */
     }
 
 }

@@ -12,6 +12,7 @@ use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
  * @package ethaniccc\Mockingbird\detections\movement\velocity
  * VelocityB checks if the user's horizontal velocity is lower than normal.
  * This check is still experimental and I'm working on improving it.
+ * THIS CHECK IS UNSTABLE
  * TODO: Figure out what other PvP clients are doing with their Velocity modifiers to bypass this check at higher settings.
  */
 class VelocityB extends Detection{
@@ -20,35 +21,24 @@ class VelocityB extends Detection{
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
-        $this->vlThreshold = 15;
+        $this->vlSecondCount = 15;
         $this->lowMax = 10;
         $this->mediumMax = 15;
+        // TODO: Fix this check - falses in some scenarios.
+        // $this->enabled = false;
     }
 
     public function handle(DataPacket $packet, User $user): void{
+        return;
+        /*
         if($packet instanceof PlayerAuthInputPacket){
-            if($user->timeSinceMotion <= ($user->transactionLatency / 50) + 5 && $user->moveData->lastMotion !== null && $user->player->isAlive()){
+            if($user->timeSinceMotion <= ($user->transactionLatency / 50) + 4 && $user->moveData->lastMotion !== null && $user->player->isAlive()){
                 if($user->timeSinceTeleport <= 6){
                     $this->preVL = 0;
                     return;
                 }
-                $forward = 0;
-                $strafe = 0;
-                $keyArray = $user->moveData->pressedKeys;
-                if(in_array("W", $keyArray)){
-                    $forward = 1;
-                } elseif(in_array("S", $keyArray)){
-                    $forward = -1;
-                }
-                if(in_array("D", $keyArray)) {
-                    $strafe = 1;
-                } elseif(in_array("A", $keyArray)){
-                    $strafe = -1;
-                }
-                if($user->isSneaking){
-                    $forward *= 0.3;
-                    $strafe *= 0.3;
-                }
+                $forward = $packet->getMoveVecZ();
+                $strafe = $packet->getMoveVecX();
                 $motion = clone $user->moveData->lastMotion;
                 // replication: https://github.com/eldariamc/client/blob/c01d23eb05ed83abb4fee00f9bf603b6bc3e2e27/src/main/java/net/minecraft/entity/EntityFlying.java#L30
                 $f = pow($strafe, 2) + pow($forward, 2);
@@ -57,13 +47,13 @@ class VelocityB extends Detection{
                     if($f < 1){
                         $f = 1;
                     }
-                    $onGround = fmod(round($user->moveData->location->y, 4), 1/64) === 0.0;
-                    $friction = $onGround ? 0.16277136 / pow($user->moveData->blockBelow->getFrictionFactor(), 3) : 0.02;
+                    $onGround = fmod(round($user->moveData->location->y, 4), 0.015625) === 0.0;
+                    $friction = $onGround ? ((0.16277136 / pow($user->moveData->blockBelow->getFrictionFactor(), 3)) * 0.1) : 0.02;
                     $f = $friction / $f;
                     $strafe *= $f;
                     $forward *= $f;
-                    $f2 = sin($user->moveData->yaw * M_PI / 180);
-                    $f3 = cos($user->moveData->yaw * M_PI / 180);
+                    $f2 = sin($user->moveData->yaw * 3.141592653589793 / 180);
+                    $f3 = cos($user->moveData->yaw * 3.141592653589793 / 180);
                     $motion->x += $strafe * $f3 - $forward * $f2;
                     $motion->z += $forward * $f3 + $strafe * $f2;
                 }
@@ -78,7 +68,7 @@ class VelocityB extends Detection{
                 $percentage = $horizontalMove / $expectedHorizontal;
                 $maxPercentage = $this->getSetting("multiplier");
                 // check if any blocks collide with the user's expanded AABB to prevent falses.
-                $blocksCollide = count($user->player->getLevel()->getCollisionBlocks($user->moveData->AABB->expand(0.2, 0, 0.2), true)) > 0;
+                $blocksCollide = count($user->player->getLevel()->getCollisionBlocks($user->moveData->AABB->clone()->expand(0.2, 0, 0.2), true)) > 0;
                 $scaledPercentage = ($horizontalMove / $expectedHorizontal) * 100;
                 $keyList = count($user->moveData->pressedKeys) > 0 ? implode(", ", $user->moveData->pressedKeys) : "none";
                 $hasSameKeys = $keyList === $this->previousKeys;
@@ -92,11 +82,12 @@ class VelocityB extends Detection{
                     $this->reward($user, 0.995);
                 }
                 if($this->isDebug($user)){
-                    $user->sendMessage("percentage=$scaledPercentage% keys=$keyList buffer={$this->preVL}");
+                    $user->sendMessage("percentage=$scaledPercentage% buffer={$this->preVL}");
                 }
                 $this->previousKeys = $keyList;
             }
         }
+        */
     }
 
 }

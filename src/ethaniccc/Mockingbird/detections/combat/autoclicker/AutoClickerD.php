@@ -24,7 +24,7 @@ class AutoClickerD extends Detection{
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
-        $this->vlThreshold = 30;
+        $this->vlSecondCount = 30;
         $this->lowMax = 2;
         $this->mediumMax = 3;
         $this->samples = new SizedList(10);

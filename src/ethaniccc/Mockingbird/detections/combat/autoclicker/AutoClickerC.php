@@ -22,7 +22,7 @@ class AutoClickerC extends Detection{
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
-        $this->vlThreshold = 45;
+        $this->vlSecondCount = 45;
         $this->lowMax = 2;
         $this->mediumMax = 4;
     }

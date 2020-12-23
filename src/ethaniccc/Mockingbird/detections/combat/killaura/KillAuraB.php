@@ -22,7 +22,7 @@ class KillAuraB extends Detection{
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
-        $this->vlThreshold = 10;
+        $this->vlSecondCount = 10;
         $this->lowMax = 3;
         $this->mediumMax = 4;
     }

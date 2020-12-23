@@ -21,7 +21,7 @@ class BadPacketB extends Detection{
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
-        $this->vlThreshold = 5;
+        $this->vlSecondCount = 5;
         $this->lowMax = 1;
         $this->mediumMax = 2;
         $this->lastTime = $this->ticks;

@@ -40,7 +40,7 @@ class TickProcessor extends RunnableProcessor{
             } else {
                 $this->sameTick = 0;
             }
-            if($add) $this->user->tickData->targetLocationHistory->addLocation($targetEntity->getPosition(), $this->ticks);
+            if($add) $this->user->tickData->targetLocationHistory->addLocation($targetEntity->asVector3(), $this->ticks);
         }
         $this->lastTarget = $targetEntity;
         if(microtime(true) - $this->user->lastSentNetworkLatencyTime >= 1 && $this->user->responded){

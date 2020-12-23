@@ -51,6 +51,10 @@ class AABB extends AxisAlignedBB{
         }
     }
 
+    public function clone() : AABB{
+        return clone $this;
+    }
+
     public function translate(float $x, float $y, float $z) : AABB{
         return new AABB($this->minX + $x, $this->minY + $y, $this->minZ + $z, $this->maxX + $x, $this->maxY, $this->maxZ);
     }

@@ -23,7 +23,7 @@ class FlyB extends Detection implements CancellableMovement{
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
-        $this->vlThreshold = 10;
+        $this->vlSecondCount = 10;
         $this->lowMax = 2;
         $this->mediumMax = 3;
     }
