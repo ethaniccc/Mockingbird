@@ -25,6 +25,9 @@ Special Thanks To:
     <p>WitherHosting is the hosting company that Mockingbird's test server runs on. It is very affordable (I used to use the $1.25 multi-server plan) and
     has very good performance from what I have seen. They were kind enough to give me a good test server without cost, and I really do appreciate it!
     You can check out WitherHosting and their services by clicking <b><a href="https://billing.witherhosting.com/store/">here</a></b>!</p>
+    <h3>Test Server Details</h3>
+    <p><b>IP:</b> 104.128.48.53</p>
+    <p><b>Port:</b> 19138</p>
 </div>
 
 ## V2 Changes
