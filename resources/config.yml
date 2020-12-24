@@ -51,8 +51,6 @@ AutoClickerA:
   punish: true
   punishment_type: kick
   max_violations: 20
-  # check sensitivity settings
-  consistency: 0.85
 AutoClickerB:
   enabled: true
   punish: true
@@ -78,6 +76,11 @@ AutoClickerD:
   # check sensitivity settings
   duplicate_max: 4
   samples: 10
+AutoClickerE:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 20
 
 # KillAura
 KillAuraA:
