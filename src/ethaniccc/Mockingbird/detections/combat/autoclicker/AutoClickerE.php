@@ -41,14 +41,14 @@ class AutoClickerE extends Detection{
                     $this->trust = max($this->trust - 0.25, 0);
                     if(++$this->preVL >= 3){
                         $this->preVL = min($this->preVL, 6);
-                        $this->fail($user, "deviation=$deviation outliers=$outliers buff={$this->preVL}");
+                        $this->fail($user, "deviation=$deviation outliers=$outliers cps={$user->clickData->cps} buff={$this->preVL}");
                     }
                 } else {
                     $this->preVL = max($this->preVL - $this->trust, 0);
                     $this->trust = min($this->trust + 0.05, 3);
                 }
                 if($this->isDebug($user)){
-                    $user->sendMessage("deviation=$deviation outliers=$outliers trust={$this->trust} buff={$this->preVL}");
+                    $user->sendMessage("deviation=$deviation outliers=$outliers cps={$user->clickData->cps} trust={$this->trust} buff={$this->preVL}");
                 }
                 $this->clicks = 0;
             }
