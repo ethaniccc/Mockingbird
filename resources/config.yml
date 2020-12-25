@@ -251,7 +251,7 @@ TimerA:
   # this check sees if the player is sending too many PlayerAuthInput packets in a single instance
   # this is MUCH more accurate than Mockingbird's old Timer check looking for MovePlayerPackets
   # however, this check falses when *server lag* occurs.
-  enabled: true
+  enabled: false
   punish: false
   punishment_type: kick
   max_violations: 20
