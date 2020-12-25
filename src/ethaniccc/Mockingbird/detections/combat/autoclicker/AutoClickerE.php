@@ -41,7 +41,7 @@ class AutoClickerE extends Detection{
                     $this->trust = max($this->trust - 0.25, 0);
                     if(++$this->preVL >= 3){
                         $this->preVL = min($this->preVL, 6);
-                        $this->fail($user, "deviation=$deviation outliers=$outliers cps={$user->clickData->cps} buff={$this->preVL}");
+                        $this->fail($user, "deviation=$deviation outliers=$outliers cps={$user->clickData->cps} buff={$this->preVL}", "cps={$user->clickData->cps}");
                     }
                 } else {
                     $this->preVL = max($this->preVL - $this->trust, 0);

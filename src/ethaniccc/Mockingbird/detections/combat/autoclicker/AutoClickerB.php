@@ -27,7 +27,7 @@ class AutoClickerB extends Detection{
             $allowed = $this->getSetting("max_cps");
             if($cps > $allowed){
                 if(++$this->preVL >= 2){
-                    $this->fail($user, "cps=$cps, allowed=$allowed");
+                    $this->fail($user, "cps=$cps, allowed=$allowed", "cps={$user->clickData->cps}");
                 }
             } else {
                 $this->preVL *= 0.65;

@@ -19,8 +19,9 @@ prefix: "§l§7[§cMocking§4bird§7]"
 # {player} => the name of the player who failed the check
 # {check} => the name of the check the player failed
 # {vl} => the new amount of violations the player has for the failed check
-# {probability} => The probability of cheating - this is already colored.
-fail_message: "§4{player}§r§7 failed §c{check} §4[§4VL: §c{vl}§4] §7Probability: {probability}"
+# {probability} => The cheating probability of the player
+# {detail} => If detailed alerts are toggled, this will give detailed debug information (you can remove this if you don't need detailed alerts)
+fail_message: "§4{player}§r§7 failed §c{check} §7(§6{vl} §7@ {probability}§r§7) §7(§b{detail}§7)"
 
 # Determines if the option below (punish_message_staff) should be sent to everyone online on the server.
 punish_message_global: false

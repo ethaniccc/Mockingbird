@@ -44,7 +44,7 @@ class AutoClickerD extends Detection{
                         $duplicates = $this->samples->duplicates();
                         if($duplicates >= $this->getSetting("duplicate_max")){
                             if(++$this->preVL >= 4){
-                                $this->fail($user, "duplicates=$duplicates");
+                                $this->fail($user, "duplicates=$duplicates", "cps={$user->clickData->cps}");
                             }
                         } else {
                             $this->preVL = max($this->preVL - 2.5, 0);

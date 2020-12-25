@@ -57,7 +57,7 @@ class ReachA extends Detection{
                     $this->preVL += 1.5;
                     if($this->preVL >= 3.1){
                         $this->preVL = min($this->preVL, 9);
-                        $this->fail($user, "dist=$distance");
+                        $this->fail($user, "dist=$distance", "dist=$distance buff={$this->preVL}");
                     }
                 } else {
                     $this->reward($user, 0.9995);

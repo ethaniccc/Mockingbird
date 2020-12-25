@@ -37,7 +37,7 @@ class AutoClickerA extends Detection{
                 if($diff === 0.0){
                     $this->preVL = max($this->preVL - 0.25, 0);
                     if($this->preVL < 0.25){
-                        $this->fail($user, "diff=$diff cps={$user->clickData->cps}");
+                        $this->fail($user, "diff=$diff cps={$user->clickData->cps}", "cps={$user->clickData->cps}");
                     }
                 } else {
                     $this->preVL = min($this->preVL + 0.05, 2);

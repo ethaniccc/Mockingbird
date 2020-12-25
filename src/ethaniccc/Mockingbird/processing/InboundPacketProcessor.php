@@ -170,6 +170,9 @@ class InboundPacketProcessor extends Processor{
                 if($packet->timestamp === $user->networkStackLatencyPacket->timestamp){
                     $user->responded = true;
                     $user->transactionLatency = round((microtime(true) - $user->lastSentNetworkLatencyTime) * 1000, 0);
+                    if($user->debugChannel === "latency"){
+                        $user->sendMessage("pmmp={$user->player->getPing()} latency={$user->transactionLatency}");
+                    }
                 }
                 break;
             case LoginPacket::NETWORK_ID:

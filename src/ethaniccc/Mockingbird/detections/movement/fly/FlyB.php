@@ -30,16 +30,18 @@ class FlyB extends Detection implements CancellableMovement{
 
     public function handle(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
-            $this->modulo = fmod(round($user->moveData->location->y, 4), 1 / 64);
+            // 0.00001 off???
+            $this->modulo = fmod(round($user->moveData->location->y, 6) - 0.00001, 1 / 64);
             $this->lastOnGround = $this->modulo === 0.0;
         } elseif($packet instanceof PlayerActionPacket && $packet->action === PlayerActionPacket::ACTION_JUMP){
+            $rounded = round($user->moveData->location->y, 6) - 0.00001;
             if(!$this->lastOnGround && $user->moveData->offGroundTicks > 1 && !$user->player->isImmobile() && $user->moveData->blockBelow->getId() === 0 && $user->timeSinceTeleport >= 4){
-                $this->fail($user, "modulo={$this->modulo} offGround={$user->moveData->offGroundTicks}");
+                $this->fail($user, "modulo={$this->modulo} y=$rounded offGround={$user->moveData->offGroundTicks}");
             } else {
                 $this->reward($user, 0.995);
             }
             if($this->isDebug($user)){
-                $user->sendMessage("modulo={$this->modulo} offTicks={$user->moveData->offGroundTicks}");
+                $user->sendMessage("modulo={$this->modulo} y=$rounded offTicks={$user->moveData->offGroundTicks}");
             }
         }
     }

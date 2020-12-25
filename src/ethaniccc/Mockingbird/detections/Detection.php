@@ -73,7 +73,7 @@ abstract class Detection{
         return "";
     }
 
-    protected function fail(User $user, ?string $debugData = null) : void{
+    protected function fail(User $user, ?string $debugData = null, ?string $detailData = null) : void{
         if(!$user->loggedIn){
             return;
         }
@@ -92,7 +92,7 @@ abstract class Detection{
             return $p->hasPermission("mockingbird.alerts") && UserManager::getInstance()->get($p)->alerts;
         });
         if($this->alerts){
-            $message = $this->getPlugin()->getPrefix() . " " . str_replace(["{player}", "{check}", "{vl}", "{probability}"], [$name, $cheatName, $violations, $this->probabilityColor($this->getCheatProbability())], $this->getPlugin()->getConfig()->get("fail_message"));
+            $message = $this->getPlugin()->getPrefix() . " " . str_replace(["{player}", "{check}", "{vl}", "{probability}", "{detail}"], [$name, $cheatName, $violations, $this->probabilityColor($this->getCheatProbability()), ($detailData !== null ? $detailData . " ping={$user->transactionLatency}" : "ping={$user->transactionLatency}")], $this->getPlugin()->getConfig()->get("fail_message"));
             Server::getInstance()->broadcastMessage($message, $staff);
         }
         if($this instanceof CancellableMovement && $this->suppression){

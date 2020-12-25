@@ -38,7 +38,7 @@ class AutoClickerC extends Detection{
                         $outlierPair = MathUtils::getOutliers($samples);
                         $outliers = count($outlierPair->getX()) + count($outlierPair->getY());
                         if($kurtosis <= $this->getSetting("kurtosis") && $skewness <= $this->getSetting("skewness") && $outliers <= $this->getSetting("outliers")){
-                            $this->fail($user, "kurtosis=$kurtosis skewness=$skewness outliers=$outliers cps={$user->clickData->cps}");
+                            $this->fail($user, "kurtosis=$kurtosis skewness=$skewness outliers=$outliers cps={$user->clickData->cps}", "cps={$user->clickData->cps}");
                         }
                         if($this->isDebug($user)){
                             $user->sendMessage("kurtosis=$kurtosis skewness=$skewness outliers=$outliers cps={$user->clickData->cps}");
