@@ -18,6 +18,8 @@ class TickProcessor extends RunnableProcessor{
     private $lastTarget;
     /** @var int - The amount of ticks the client's tick is the same. */
     private $sameTick = 0;
+    /** @var int - The amount of ticks the client has not responded to the NetworkStackLatency packet */
+    private $noResponseTicks = 0;
 
     public function run() : void{
         if(!$this->user->loggedIn){
@@ -57,6 +59,14 @@ class TickProcessor extends RunnableProcessor{
                 $this->ticks = $this->user->tickData->currentTick = ($this->ticks + 1);
             } else {
                 $this->ticks = $this->user->tickData->currentTick = $packet->getTick();
+            }
+            if(!$this->user->responded){
+                ++$this->noResponseTicks;
+                if($this->noResponseTicks % 100 === 0){
+                    $this->user->player->dataPacket($this->user->networkStackLatencyPacket);
+                }
+            } else {
+                $this->noResponseTicks = 0;
             }
         }
     }

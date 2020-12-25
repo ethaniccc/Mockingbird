@@ -46,7 +46,7 @@ class SpeedB extends Detection implements CancellableMovement{
                 } else {
                     ++$this->ticksSinceSpeed;
                 }
-                if($horizontalSpeed > $maxSpeed && $user->timeSinceTeleport >= 10 && $user->timeSinceMotion >= 20 && !$user->player->isFlying() && !$user->player->isSpectator() && !$user->timeSinceStoppedGlide >= 10){
+                if($horizontalSpeed > $maxSpeed && $user->timeSinceTeleport >= 10 && $user->timeSinceMotion >= 20 && !$user->timeSinceStoppedFlight >= 20 && !$user->player->isSpectator() && !$user->timeSinceStoppedGlide >= 10){
                     // player just lost their speed effect
                     if($user->player->getEffect(1) === null && $this->ticksSinceSpeed <= 20){
                         return;
