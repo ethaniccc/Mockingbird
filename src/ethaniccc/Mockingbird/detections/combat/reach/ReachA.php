@@ -53,11 +53,13 @@ class ReachA extends Detection{
             }
             $distance = $distances->minOrElse(-1);
             if($distance !== -1){
-                if($distance > $this->getSetting("max_reach")){
+                // make sure the user's latency is updated and that the distance is greater than the allowed
+                if($distance > $this->getSetting("max_reach") && $user->responded){
                     $this->preVL += 1.5;
                     if($this->preVL >= 3.1){
                         $this->preVL = min($this->preVL, 9);
-                        $this->fail($user, "dist=$distance", "dist=$distance buff={$this->preVL}");
+                        $rounded = round($distance, 3);
+                        $this->fail($user, "dist=$distance", "dist=$rounded buff={$this->preVL}");
                     }
                 } else {
                     $this->reward($user, 0.9995);
