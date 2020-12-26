@@ -29,7 +29,7 @@ class ReachA extends Detection{
 
     public function handle(DataPacket $packet, User $user) : void{
         if($packet instanceof InventoryTransactionPacket && $user->win10 && !$user->player->isCreative() && !$this->awaitingMove && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK){
-            if($user->tickData->targetLocationHistory->getLocations()->full()){
+            if($user->tickData->targetLocationHistory->getLocations()->size() >= floor($user->transactionLatency / 50) + 2){
                 // wait for the next PlayerAuthInputPacket from the client
                 $this->awaitingMove = true;
             }
@@ -54,12 +54,14 @@ class ReachA extends Detection{
             $distance = $distances->minOrElse(-1);
             if($distance !== -1){
                 // make sure the user's latency is updated and that the distance is greater than the allowed
-                if($distance > $this->getSetting("max_reach") && $user->responded){
-                    $this->preVL += 1.5;
-                    if($this->preVL >= 3.1){
-                        $this->preVL = min($this->preVL, 9);
-                        $rounded = round($distance, 3);
-                        $this->fail($user, "dist=$distance", "dist=$rounded buff={$this->preVL}");
+                if($distance > $this->getSetting("max_reach")){
+                    if($user->responded){
+                        $this->preVL += 1.5;
+                        if($this->preVL >= 3.1){
+                            $this->preVL = min($this->preVL, 9);
+                            $rounded = round($distance, 3);
+                            $this->fail($user, "dist=$distance", "dist=$rounded buff={$this->preVL}");
+                        }
                     }
                 } else {
                     $this->reward($user, 0.9995);

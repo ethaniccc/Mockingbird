@@ -68,7 +68,11 @@ class InboundPacketProcessor extends Processor{
                 }
                 ++$user->timeSinceDamage;
                 ++$user->timeSinceAttack;
-                ++$user->timeSinceJoin;
+                if($user->player->isOnline()){
+                    ++$user->timeSinceJoin;
+                } else {
+                    $user->timeSinceJoin = 0;
+                }
                 ++$user->timeSinceMotion;
                 if(!$user->player->isFlying()){
                     ++$user->timeSinceStoppedFlight;
@@ -106,7 +110,7 @@ class InboundPacketProcessor extends Processor{
                     ++$user->moveData->cobwebTicks;
                 }
                 $user->moveData->onGround = $movePacket->onGround;
-                if($user->moveData->onGround){
+                if($movePacket->onGround){
                     ++$user->moveData->onGroundTicks;
                     $user->moveData->offGroundTicks = 0;
                     $user->moveData->lastOnGroundLocation = $location;

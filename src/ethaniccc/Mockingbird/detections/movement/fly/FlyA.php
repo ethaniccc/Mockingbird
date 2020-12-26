@@ -31,19 +31,16 @@ class FlyA extends Detection implements CancellableMovement{
             $expectedYDelta = ($lastYDelta - 0.08) * 0.980000019073486;
             $equalness = abs($yDelta - $expectedYDelta);
             if($equalness > $this->getSetting("max_breach")
-            && abs($expectedYDelta) > 0.05
+            && abs($expectedYDelta) > 0.005
             && $user->moveData->offGroundTicks >= 10 && $user->timeSinceTeleport > 5
             && $user->timeSinceJoin >= 200
             && $user->timeSinceMotion >= 5
-            && !$user->player->isFlying()
-            && !$user->player->getAllowFlight()
             && !$user->player->isSpectator()
             && $user->moveData->ticksSinceInVoid >= 10 && $user->moveData->blockAbove->getId() === 0 && $user->moveData->blockBelow->getId() === 0
-            && $user->player->getArmorInventory()->getChestplate()->getId() !== ItemIds::ELYTRA
             && !$user->player->isImmobile()
             && $user->timeSinceStoppedFlight >= 10 && $user->timeSinceLastBlockPlace >= 10
             && $user->moveData->cobwebTicks >= 15 && $user->moveData->liquidTicks >= 15
-            && !$user->timeSinceStoppedGlide >= 10){
+            && $user->timeSinceStoppedGlide >= 10){
                 if(++$this->preVL >= 3){
                     $this->fail($user, "yD=$yDelta, eD=$expectedYDelta, eq=$equalness");
                 }

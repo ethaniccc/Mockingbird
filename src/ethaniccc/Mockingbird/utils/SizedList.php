@@ -7,6 +7,12 @@ class SizedList{
     private $array = [];
     private $maxSize;
 
+    public static function fromArray(array $arr) : self{
+        $list = new self(count($arr));
+        $list->array = $arr;
+        return $list;
+    }
+
     public function __construct(int $maxSize = 20){
         $this->maxSize = $maxSize;
     }
