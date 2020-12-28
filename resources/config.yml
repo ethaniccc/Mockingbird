@@ -102,7 +102,7 @@ ReachA:
   punishment_type: kick
   max_violations: 50
   # check sensitivity settings
-  max_reach: 3.2
+  max_reach: 3.03
 
 # Aim
 AimAssistA:

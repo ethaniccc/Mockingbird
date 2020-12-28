@@ -16,11 +16,12 @@ use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
  * ReachA gets estimated locations that the target entity may be on (on the client side), and
  * makes bounding boxes from those locations. With those bounding boxes, we get the distance from the user's
  * current eye pos and last eye pos to the bounding boc [@see AABB::distanceFromVector()] and store that in a list, then gets the minimum distance in the list.
- * If the minimum distance is greater than the threshold, and the preVL reaches it's threshold, then the user is flagged.
+ * This check now also utilizes trust, and if the trust is too low (the player is too un-trustworthy) along with the preVL (buffer) being too high, flag.
  */
 class ReachA extends Detection{
 
     private $awaitingMove = false;
+    private $trust = 0;
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
@@ -56,20 +57,21 @@ class ReachA extends Detection{
                 // make sure the user's latency is updated and that the distance is greater than the allowed
                 if($distance > $this->getSetting("max_reach")){
                     if($user->responded){
-                        $this->preVL += 1.5;
-                        if($this->preVL >= 3.1){
-                            $this->preVL = min($this->preVL, 9);
-                            $rounded = round($distance, 3);
-                            $this->fail($user, "dist=$distance", "dist=$rounded buff={$this->preVL}");
+                        $this->trust = max($this->trust - 0.25, 0);
+                        if(++$this->preVL >= 4 && $this->trust <= 0.35){
+                            $roundedDist = round($distance, 3);
+                            $this->fail($user, "dist=$distance buff={$this->preVL} trust={$this->trust}", "dist=$roundedDist");
                         }
+                        $this->preVL = min($this->preVL, 4.5);
                     }
                 } else {
                     $this->reward($user, 0.9995);
-                    $this->preVL = max($this->preVL - 0.75, 0);
+                    $this->preVL = max($this->preVL - 0.04, 0);
+                    $this->trust = min($this->trust + 0.01, 1.5);
                 }
             }
             if($this->isDebug($user)){
-                $user->sendMessage("dist=$distance buff={$this->preVL}");
+                $user->sendMessage("dist=$distance buff={$this->preVL} trust={$this->trust}");
             }
             $this->awaitingMove = false;
         }
