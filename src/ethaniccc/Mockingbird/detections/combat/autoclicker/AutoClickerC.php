@@ -33,21 +33,13 @@ class AutoClickerC extends Detection{
             if($user->clickData->tickSpeed <= 4){
                 if(++$this->clicks >= $this->getSetting("samples")){
                     $samples = $user->clickData->getTickSamples($this->getSetting("samples"));
-                    if(count($samples) === $this->getSetting("samples")){
-                        $user->calculationThread->addToTodo(function() use ($samples){
-                            $outlierPair = MathUtils::getOutliers($samples);
-                            // i hate everything
-                            return serialize(["kurtosis" => MathUtils::getKurtosis($samples), "skewness" => MathUtils::getSkewness($samples), "outliers" => count($outlierPair->getX()) + count($outlierPair->getY())]);
-                        }, function($result) use ($user, $samples){
-                            $result = unserialize($result);
-                            [$kurtosis, $skewness, $outliers] = [$result["kurtosis"], $result["skewness"], $result["outliers"]];
-                            if($kurtosis <= $this->getSetting("kurtosis") && $skewness <= $this->getSetting("skewness") && $outliers <= $this->getSetting("outliers")){
-                                $this->fail($user, "kurtosis=$kurtosis skewness=$skewness outliers=$outliers cps={$user->clickData->cps}", "cps={$user->clickData->cps}");
-                            }
-                            if($this->isDebug($user)){
-                                $user->sendMessage("kurtosis=$kurtosis skewness=$skewness outliers=$outliers cps={$user->clickData->cps}");
-                            }
-                        });
+                    $kurtosis = MathUtils::getKurtosis($samples); $skewness = MathUtils::getSkewness($samples); $pair = MathUtils::getOutliers($samples);
+                    $outliers = count($pair->getX()) + count($pair->getY());
+                    if($kurtosis <= $this->getSetting("kurtosis") && $skewness <= $this->getSetting("skewness") && $outliers <= $this->getSetting("outliers")){
+                        $this->fail($user, "kurtosis=$kurtosis skewness=$skewness outliers=$outliers cps={$user->clickData->cps}", "cps={$user->clickData->cps}");
+                    }
+                    if($this->isDebug($user)){
+                        $user->sendMessage("kurtosis=$kurtosis skewness=$skewness outliers=$outliers cps={$user->clickData->cps}");
                     }
                     $this->clicks = 0;
                 }

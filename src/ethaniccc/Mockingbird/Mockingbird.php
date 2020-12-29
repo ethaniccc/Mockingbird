@@ -10,9 +10,12 @@ use ethaniccc\Mockingbird\commands\UserLogsCommand;
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\listener\MockingbirdListener;
 use ethaniccc\Mockingbird\tasks\DebugLogWriteTask;
+use ethaniccc\Mockingbird\threads\CalculationThread;
 use ethaniccc\Mockingbird\user\UserManager;
 use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\ClosureTask;
+use pocketmine\Server;
+use pocketmine\snooze\SleeperNotifier;
 use pocketmine\utils\TextFormat;
 
 class Mockingbird extends PluginBase{
@@ -23,6 +26,8 @@ class Mockingbird extends PluginBase{
     public $availableChecks;
     /** @var DebugLogWriteTask */
     public $debugTask;
+    /** @var CalculationThread - Thread where calculations that have long execution times go. */
+    public $calculationThread;
 
     public static function getInstance() : Mockingbird{
         return self::$instance;
@@ -32,6 +37,12 @@ class Mockingbird extends PluginBase{
         if(self::$instance !== null){
             return;
         }
+        $threadNotifier = new SleeperNotifier();
+        $this->calculationThread = new CalculationThread($threadNotifier);
+        Server::getInstance()->getTickSleeper()->addNotifier($threadNotifier, function() : void{
+            ($this->calculationThread->getFinishTask())($this->calculationThread->getFromDone());
+        });
+        $this->calculationThread->start(PTHREADS_INHERIT_NONE);
         $this->debugTask = new DebugLogWriteTask($this->getDataFolder() . "debug_log.txt");
         file_put_contents($this->getDataFolder() . "debug_log.txt", "");
         self::$instance = $this;

@@ -38,8 +38,8 @@ class AutoClickerD extends Detection{
                     if(count($samples) === 30){
                         $kurtosis = MathUtils::getKurtosis($samples);
                         $skewness = MathUtils::getSkewness($samples);
-                        $outlierPair = MathUtils::getOutliers($samples);
-                        $outliers = count($outlierPair->getX()) + count($outlierPair->getY());
+                        $outliers = MathUtils::getOutliers($samples);
+                        $outliers = count($outliers->getX()) + count($outliers->getY());
                         $this->samples->add("kurtosis=$kurtosis skewness=$skewness outliers=$outliers");
                         $duplicates = $this->samples->duplicates();
                         if($duplicates >= $this->getSetting("duplicate_max")){

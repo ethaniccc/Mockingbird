@@ -21,7 +21,8 @@ use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 class ReachA extends Detection{
 
     private $awaitingMove = false;
-    private $trust = 0;
+    // half of the max trust - start neutral
+    private $trust = 0.75;
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
@@ -35,9 +36,9 @@ class ReachA extends Detection{
                 $this->awaitingMove = true;
             }
         } elseif($packet instanceof PlayerAuthInputPacket && $this->awaitingMove){
-            $locations = serialize($user->tickData->targetLocationHistory->getLocationsRelativeToTime($user->tickData->currentTick - floor($user->transactionLatency / 50), 2));
+            $locations = serialize($user->tickData->targetLocationHistory->getLocationsRelativeToTime($user->tickData->currentTick - (floor($user->transactionLatency / 50) + 1), 2));
             [$from, $to] = [serialize($user->moveData->lastLocation->add(0, 1.62, 0)), serialize($packet->getPosition())];
-            $user->calculationThread->addToTodo(function() use($locations, $from, $to){
+            $this->getPlugin()->calculationThread->addToTodo(function() use($locations, $from, $to){
                 [$locations, $from, $to] = [unserialize($locations), unserialize($from), unserialize($to)];
                 $lastLocation = null;
                 $distances = new SizedList(80);
@@ -61,7 +62,7 @@ class ReachA extends Detection{
                             $this->trust = max($this->trust - 0.25, 0);
                             if(++$this->preVL >= 4 && $this->trust <= 0.35){
                                 $roundedDist = round($distance, 3);
-                                $this->fail($user, "dist=$distance buff={$this->preVL} trust={$this->trust}", "dist=$roundedDist");
+                                $this->fail($user, "(A) dist=$distance buff={$this->preVL} trust={$this->trust}", "dist=$roundedDist");
                             }
                             $this->preVL = min($this->preVL, 4.5);
                         }

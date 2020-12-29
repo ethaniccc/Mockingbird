@@ -21,14 +21,13 @@ use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 class HitboxA extends Detection{
 
     private $appendingMove = false;
+    private $lastDirectionVector;
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
         $this->vlSecondCount = 10;
         $this->lowMax = 2;
-        $this->mediumMax = 3;
-        // TODO: this is slow, find a better way to detect hitbox.
-        $this->enabled = false;
+        $this->mediumMax = 5;
     }
 
     public function handle(DataPacket $packet, User $user): void{
@@ -36,27 +35,40 @@ class HitboxA extends Detection{
             if($user->tickData->targetLocationHistory->getLocations()->full()){
                 $this->appendingMove = true;
             }
-        } elseif($packet instanceof PlayerAuthInputPacket && $this->appendingMove){
-            $locations = $user->tickData->targetLocationHistory->getLocationsRelativeToTime($user->tickData->currentTick - floor($user->transactionLatency / 50), 2);
-            $collided = 0;
-            $ray = new Ray($packet->getPosition(), $user->moveData->directionVector);
-            foreach($locations as $location){
-                if(AABB::fromPosition($location)->expand(0.125, 0, 0.125)->collidesRay($ray, 7) !== -69.0){
-                    ++$collided;
-                }
+        } elseif($packet instanceof PlayerAuthInputPacket){
+            if($this->appendingMove){
+                $locations = serialize($user->tickData->targetLocationHistory->getLocationsRelativeToTime($user->tickData->currentTick - (floor($user->transactionLatency / 50) + 1), 2));
+                [$from, $to] = [serialize(new Ray($user->moveData->lastLocation->add(0, $user->isSneaking ? 1.52 : 1.62, 0), $this->lastDirectionVector)), serialize(Ray::fromUser($user))];
+                $this->getPlugin()->calculationThread->addToTodo(function() use ($locations, $from, $to){
+                    [$locations, $from, $to] = [unserialize($locations), unserialize($from), unserialize($to)];
+                    $collided = 0;
+                    foreach($locations as $location){
+                        $AABB = AABB::fromPosition($location)->expand(0.1, 0.1, 0.1);
+                        if($AABB->collidesRay($from, 10) !== -69.0 || $AABB->collidesRay($to, 10) !== -69.0){
+                            ++$collided;
+                        }
+                    }
+                    return $collided;
+                }, function($result) use($user){
+                    if($result !== null){
+                        // there was no collision to the AABB
+                        if($result === 0){
+                            // make sure the user's latency is updated to prevent false flags from lag spikes
+                            if($user->responded){
+                                // this is only going to flag blatant hitbox, but worth it over false positives (for now)
+                                if(++$this->preVL >= 7){
+                                    $this->fail($user);
+                                }
+                            }
+                        } else {
+                            $this->reward($user, 0.999);
+                            $this->preVL = 0;
+                        }
+                    }
+                });
+                $this->appendingMove = false;
             }
-            if($collided === 0){
-                if(++$this->preVL >= 10){
-                    $this->preVL = min($this->preVL, 6);
-                    $this->fail($user, "collided=0 buff={$this->preVL}");
-                }
-            } else {
-                $this->preVL = max($this->preVL - 1, 0);
-            }
-            if($this->isDebug($user)){
-                $user->sendMessage("collided=$collided buff={$this->preVL}");
-            }
-            $this->appendingMove = false;
+            $this->lastDirectionVector = $user->moveData->directionVector;
         }
     }
 
