@@ -7,6 +7,7 @@ use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\processing\EventProcessor;
 use ethaniccc\Mockingbird\processing\InboundPacketProcessor;
 use ethaniccc\Mockingbird\processing\TickProcessor;
+use ethaniccc\Mockingbird\threads\CalculationThread;
 use ethaniccc\Mockingbird\user\data\ClickData;
 use ethaniccc\Mockingbird\user\data\HitData;
 use ethaniccc\Mockingbird\user\data\MoveData;
@@ -16,6 +17,8 @@ use pocketmine\block\Air;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\Player;
+use pocketmine\Server;
+use pocketmine\snooze\SleeperNotifier;
 use pocketmine\utils\TextFormat;
 
 class User{
@@ -91,6 +94,11 @@ class User{
     /** @var TickData - The class that stores data updated every server tick. This data includes entity location history. */
     public $tickData;
 
+    /** @var CalculationThread - The thread where decently sized calculations should be ran. */
+    public $calculationThread;
+    /** @var SleeperNotifier - The notifier of the calculation thread. */
+    public $threadNotifier;
+
     public function __construct(Player $player){
         $this->player = $player;
         $this->moveData = new MoveData();
@@ -118,10 +126,21 @@ class User{
         $this->networkStackLatencyPacket = new NetworkStackLatencyPacket();
         $this->networkStackLatencyPacket->needResponse = true;
         $this->networkStackLatencyPacket->timestamp = mt_rand(1, 100) * 1000;
+        $this->threadNotifier = new SleeperNotifier();
+        $this->calculationThread = new CalculationThread($this->threadNotifier);
+        Server::getInstance()->getTickSleeper()->addNotifier($this->threadNotifier, function() : void{
+            ($this->calculationThread->getFinishTask())($this->calculationThread->getFromDone());
+        });
+        $this->calculationThread->start(PTHREADS_INHERIT_NONE);
     }
 
     public function sendMessage(string $message) : void{
         $this->player->sendMessage(TextFormat::BOLD . TextFormat::DARK_GRAY . "[" . TextFormat::RED . "DEBUG" . TextFormat::DARK_GRAY . "]" . TextFormat::RESET . " $message");
+    }
+
+    public function __destruct(){
+        $this->calculationThread->quit();
+        Server::getInstance()->getTickSleeper()->removeNotifier($this->threadNotifier);
     }
 
 }

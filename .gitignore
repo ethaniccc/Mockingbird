@@ -6,3 +6,4 @@ compile.cmd
 upload/*
 .vscode/*
 out/*
+tests/*
