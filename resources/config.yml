@@ -103,6 +103,13 @@ ReachA:
   max_violations: 50
   # check sensitivity settings
   max_reach: 3.03
+ReachB:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 50
+  # check sensitivity settings
+  max_reach: 3.01
 
 # Aim
 AimAssistA:

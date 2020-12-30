@@ -36,7 +36,7 @@ class ReachA extends Detection{
                 $this->awaitingMove = true;
             }
         } elseif($packet instanceof PlayerAuthInputPacket && $this->awaitingMove){
-            $locations = serialize($user->tickData->targetLocationHistory->getLocationsRelativeToTime($user->tickData->currentTick - (floor($user->transactionLatency / 50) + 1), 2));
+            $locations = serialize($user->tickData->targetLocationHistory->getLocationsRelativeToTime($user->tickData->currentTick - floor($user->transactionLatency / 50), 2));
             [$from, $to] = [serialize($user->moveData->lastLocation->add(0, 1.62, 0)), serialize($packet->getPosition())];
             $this->getPlugin()->calculationThread->addToTodo(function() use($locations, $from, $to){
                 [$locations, $from, $to] = [unserialize($locations), unserialize($from), unserialize($to)];

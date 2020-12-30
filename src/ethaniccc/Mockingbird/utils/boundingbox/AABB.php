@@ -144,7 +144,6 @@ class AABB extends AxisAlignedBB{
                 $distance = $d;
             }
         }
-
         return $vector !== null ? sqrt($distance) : -69.0;
     }
 

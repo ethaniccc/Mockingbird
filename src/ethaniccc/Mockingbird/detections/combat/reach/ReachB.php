@@ -6,6 +6,7 @@ use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\boundingbox\Ray;
+use ethaniccc\Mockingbird\utils\Pair;
 use ethaniccc\Mockingbird\utils\SizedList;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
@@ -31,7 +32,7 @@ class ReachB extends Detection{
             }
         } elseif($packet instanceof PlayerAuthInputPacket){
             if($this->awaitingMove){
-                $locations = serialize($user->tickData->targetLocationHistory->getLocationsRelativeToTime($user->tickData->currentTick - (floor($user->transactionLatency / 50) + 1), 2));
+                $locations = serialize($user->tickData->targetLocationHistory->getLocationsRelativeToTime($user->tickData->currentTick - floor($user->transactionLatency / 50), 3));
                 [$from, $to] = [serialize(new Ray($user->moveData->lastLocation->add(0, $user->isSneaking ? 1.52 : 1.62, 0), $this->lastDirectionVector)), serialize(Ray::fromUser($user))];
                 $this->getPlugin()->calculationThread->addToTodo(function() use($locations, $from, $to){
                     [$locations, $from, $to] = [unserialize($locations), unserialize($from), unserialize($to)];
@@ -58,7 +59,7 @@ class ReachB extends Detection{
                 }, function($distance) use ($user){
                     if($distance !== -1.0 && $distance !== null){
                         // make sure the user's latency is updated and that the distance is greater than the allowed
-                        if($distance > 3.01){
+                        if($distance > $this->getSetting('max_reach')){
                             if($user->responded){
                                 $this->trust = max($this->trust - 0.25, 0);
                                 if(++$this->preVL >= 4 && $this->trust <= 0.35){
