@@ -42,7 +42,7 @@ class AutoClickerD extends Detection{
                         $outliers = count($outliers->getX()) + count($outliers->getY());
                         $this->samples->add("kurtosis=$kurtosis skewness=$skewness outliers=$outliers");
                         $duplicates = $this->samples->duplicates();
-                        if($duplicates >= $this->getSetting("duplicate_max")){
+                        if($user->clickData->cps >= 10 && $duplicates >= $this->getSetting("duplicate_max")){
                             if(++$this->preVL >= 4){
                                 $this->fail($user, "duplicates=$duplicates", "cps={$user->clickData->cps}");
                             }

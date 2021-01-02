@@ -17,8 +17,8 @@ class UserLogsCommand extends Command implements PluginIdentifiableCommand{
 
     public function __construct(Mockingbird $plugin){
         $this->plugin = $plugin;
-        parent::__construct("mblogs", "Get the anti-cheat logs of a user.", '/mblogs <player>', []);
-        $this->setPermission("mockingbird.logs");
+        parent::__construct('mblogs', 'Get the anti-cheat logs of a user', '/mblogs <player>', []);
+        $this->setPermission('mockingbird.logs');
     }
 
     public function execute(CommandSender $sender, string $commandLabel, array $args){
@@ -34,7 +34,7 @@ class UserLogsCommand extends Command implements PluginIdentifiableCommand{
                         if($violationCount >= 1){
                             $has++;
                             $c = $user->detections[$check];
-                            $message .= $c->punishable ? TextFormat::RED . $check . TextFormat::GRAY . " => " . TextFormat::GOLD . "($violationCount / {$c->maxVL}) " . TextFormat::GRAY . '@ ' . $c->probabilityColor($c->getCheatProbability()) . TextFormat::RESET . "\n" : TextFormat::RED . $check . TextFormat::GRAY . " => " . TextFormat::GOLD . "($violationCount) " . TextFormat::GRAY . '@ ' . $c->probabilityColor($c->getCheatProbability()) . TextFormat::RESET . "\n";
+                            $message .= $c->punishable ? TextFormat::RED . $check . TextFormat::GRAY . ' => ' . TextFormat::GOLD . "($violationCount / {$c->maxVL}) " . TextFormat::GRAY . '@ ' . $c->probabilityColor($c->getCheatProbability()) . TextFormat::RESET . "\n" : TextFormat::RED . $check . TextFormat::GRAY . ' => ' . TextFormat::GOLD . "($violationCount) " . TextFormat::GRAY . '@ ' . $c->probabilityColor($c->getCheatProbability()) . TextFormat::RESET . "\n";
                         }
                     }
                     if($has === 0){

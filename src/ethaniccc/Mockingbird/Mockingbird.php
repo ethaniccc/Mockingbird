@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ethaniccc\Mockingbird;
 
+use ethaniccc\Mockingbird\commands\AlertCooldownCommand;
 use ethaniccc\Mockingbird\commands\ToggleAlertsCommand;
 use ethaniccc\Mockingbird\commands\UserDebugCommand;
 use ethaniccc\Mockingbird\commands\UserLogsCommand;
@@ -45,15 +46,15 @@ class Mockingbird extends PluginBase{
             }
         });
         $this->calculationThread->start(PTHREADS_INHERIT_NONE);
-        $this->debugTask = new DebugLogWriteTask($this->getDataFolder() . "debug_log.txt");
-        file_put_contents($this->getDataFolder() . "debug_log.txt", "");
+        $this->debugTask = new DebugLogWriteTask($this->getDataFolder() . 'debug_log.txt');
+        file_put_contents($this->getDataFolder() . 'debug_log.txt', '');
         self::$instance = $this;
-        if($this->getDescription()->getVersion() !== $this->getConfig()->get("version")){
+        if($this->getDescription()->getVersion() !== $this->getConfig()->get('version')){
             if($this->updateConfig()){
-                $this->getLogger()->debug("Mockingbird config has been updated");
+                $this->getLogger()->debug('Mockingbird config has been updated');
                 $this->getConfig()->reload();
             } else {
-                $this->getLogger()->alert("Something went wrong while updating the config, please go manually edit the new config.");
+                $this->getLogger()->alert('Something went wrong while updating the config, please go manually edit the new config.');
             }
         }
         UserManager::init();
@@ -63,7 +64,7 @@ class Mockingbird extends PluginBase{
         // yes, closure tasks
         $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(function(int $currentTick) : void{
             $this->getServer()->getAsyncPool()->submitTask($this->debugTask);
-            $this->debugTask = new DebugLogWriteTask($this->getDataFolder() . "debug_log.txt");
+            $this->debugTask = new DebugLogWriteTask($this->getDataFolder() . 'debug_log.txt');
         }), 400);
         $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(function(int $currentTick) : void{
             foreach(UserManager::getInstance()->getUsers() as $user){
@@ -73,7 +74,7 @@ class Mockingbird extends PluginBase{
     }
 
     public function getPrefix() : string{
-        return $this->getConfig()->get("prefix") . TextFormat::RESET;
+        return $this->getConfig()->get('prefix') . TextFormat::RESET;
     }
 
     private function registerCommands() : void{
@@ -81,28 +82,29 @@ class Mockingbird extends PluginBase{
             new ToggleAlertsCommand($this),
             new UserLogsCommand($this),
             new UserDebugCommand($this),
+            new AlertCooldownCommand($this),
         ];
         $this->getServer()->getCommandMap()->registerAll($this->getName(), $commands);
     }
 
     private function getAvailableChecks() : void{
-        $path = $this->getFile() . "src/ethaniccc/Mockingbird/detections";
+        $path = $this->getFile() . 'src/ethaniccc/Mockingbird/detections';
         foreach(scandir($path) as $file){
-            if(is_dir("$path/$file") && !in_array($file, [".", ".."])){
+            if(is_dir("$path/$file") && !in_array($file, ['.', '..'])){
                 $type = $file;
                 foreach(scandir("$path/$file") as $otherFile){
-                    if(is_dir("$path/$file/$otherFile") && !in_array($file, [".", ".."])){
+                    if(is_dir("$path/$file/$otherFile") && !in_array($file, ['.', '..'])){
                         $subType = $otherFile;
                         foreach(scandir("$path/$file/$otherFile") as $check){
                             if(!is_dir("$path/$file/$otherFile/$check")){
-                                $extension = explode(".", $check)[1];
-                                if(strtolower($extension) === "php"){
-                                    $checkName = explode(".", $check)[0];
+                                $extension = explode('.', $check)[1];
+                                if(strtolower($extension) === 'php'){
+                                    $checkName = explode('.', $check)[0];
                                     $fullCheckName = "ethaniccc\\Mockingbird\\detections\\$type\\$subType\\$checkName";
                                     try{
                                         $classInfo = new \ReflectionClass($fullCheckName);
                                         if(!$classInfo->isAbstract() && $classInfo->isSubclassOf(Detection::class)){
-                                            $this->availableChecks[] = new $fullCheckName($classInfo->getShortName(), $this->getConfig()->get($classInfo->getShortName()) === false ? null : $this->getConfig()->get($classInfo->getShortName()));
+                                            $this->availableChecks[] = new $fullCheckName($classInfo->getShortName(), ($settings = $this->getConfig()->get($classInfo->getShortName())) === false ? null : $settings);
                                         }
                                     } catch(\ReflectionException $e){}
                                 }
@@ -118,7 +120,7 @@ class Mockingbird extends PluginBase{
         // get all the previous settings the user has
         $oldConfig = $this->getConfig()->getAll();
         // remove the version - it's (most likely) outdated
-        unset($oldConfig["version"]);
+        unset($oldConfig['version']);
         @unlink($this->getConfig()->getPath());
         $this->reloadConfig();
         foreach($oldConfig as $key => $value){
@@ -150,19 +152,19 @@ class Mockingbird extends PluginBase{
     }
 
     public function onDisable(){
-        if($this->getConfig()->get("upload_debug")){
+        if($this->getConfig()->get('upload_debug')){
             $options = array(
-                "ssl" => array(
-                    "verify_peer" => false,
-                    "verify_peer_name" => false,
+                'ssl' => array(
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
                 ),
-                "http" => array(
-                    "header" => "Content-type: application/x-www-form-urlencoded\r\n",
-                    "method" => "POST",
-                    "content" => http_build_query(["data" => base64_encode(file_get_contents($this->getDataFolder() . "debug_log.txt"))])
+                'http' => array(
+                    'http' => "Content-type: application/x-www-form-urlencoded\r\n",
+                    'method' => 'POST',
+                    'content' => http_build_query(['data' => base64_encode(file_get_contents($this->getDataFolder() . 'debug_log.txt'))])
                 )
             );
-            $response = file_get_contents("https://mb-debug-logs.000webhostapp.com/", false, stream_context_create($options));
+            $response = file_get_contents('https://mb-debug-logs.000webhostapp.com/', false, stream_context_create($options));
             $this->getLogger()->debug("Response: $response");
         }
     }

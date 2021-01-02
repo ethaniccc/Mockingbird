@@ -16,12 +16,13 @@ use pocketmine\utils\TextFormat;
 
 abstract class Detection{
 
-    private $violations = [];
+    public $preVL, $maxVL;
+    public $name, $subType, $enabled, $punishable, $punishType, $suppression, $alerts;
     protected $settings;
     protected $vlSecondCount = 2;
     protected $lowMax, $mediumMax;
-    public $preVL, $maxVL;
-    public $name, $subType, $enabled, $punishable, $punishType, $suppression, $alerts;
+    private $violations = [];
+    private $cooldown = [];
 
     public const PROBABILITY_LOW = 1;
     public const PROBABILITY_MEDIUM = 2;
@@ -89,10 +90,24 @@ abstract class Detection{
         $cheatName = $this->name;
         $violations = round($user->violations[$this->name], 0);
         $staff = array_filter(Server::getInstance()->getOnlinePlayers(), function(Player $p) : bool{
-            return $p->hasPermission("mockingbird.alerts") && UserManager::getInstance()->get($p)->alerts;
+            $user = UserManager::getInstance()->get($p);
+            $bool = $p->hasPermission('mockingbird.alerts') && $user->alerts;
+            if($bool){
+                if(!isset($this->cooldown[$p->getId()])){
+                    $this->cooldown[$p->getId()] = microtime(true);
+                }
+                if(microtime(true) - $this->cooldown[$p->getId()] >= $user->alertCooldown){
+                    $this->cooldown[$p->getId()] = microtime(true);
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return $bool;
+            }
         });
         if($this->alerts){
-            $message = $this->getPlugin()->getPrefix() . " " . str_replace(["{player}", "{check}", "{vl}", "{probability}", "{detail}"], [$name, $cheatName, $violations, $this->probabilityColor($this->getCheatProbability()), ($detailData !== null ? $detailData . " ping={$user->transactionLatency}" : "ping={$user->transactionLatency}")], $this->getPlugin()->getConfig()->get("fail_message"));
+            $message = $this->getPlugin()->getPrefix() . ' ' . str_replace(['{player}', '{check}', '{vl}', '{probability}', '{detail}'], [$name, $cheatName, $violations, $this->probabilityColor($this->getCheatProbability()), ($detailData !== null ? $detailData . " ping={$user->transactionLatency}" : "ping={$user->transactionLatency}")], $this->getPlugin()->getConfig()->get('fail_message'));
             Server::getInstance()->broadcastMessage($message, $staff);
         }
         if($this instanceof CancellableMovement && $this->suppression){
@@ -104,19 +119,19 @@ abstract class Detection{
         }
         if($this->punishable && $violations >= $this->maxVL){
             switch($this->punishType){
-                case "kick":
+                case 'kick':
                     $user->loggedIn = false;
                     $this->debug("{$user->player->getName()} was punished for {$this->name}");
                     $this->getPlugin()->getScheduler()->scheduleDelayedTask(new KickTask($user, $this->getPlugin()->getPrefix() . " " . $this->getPlugin()->getConfig()->get("punish_message_player")), 0);
                     break;
-                case "ban":
+                case 'ban':
                     $user->loggedIn = false;
                     $this->debug("{$user->player->getName()} was punished for {$this->name}");
                     $this->getPlugin()->getScheduler()->scheduleDelayedTask(new BanTask($user, $this->getPlugin()->getPrefix() . " " . $this->getPlugin()->getConfig()->get("punish_message_player")), 0);
                     break;
             }
-            $message = $this->getPlugin()->getPrefix() . " " . str_replace(["{player}", "{detection}"], [$name, $this->name], $this->getPlugin()->getConfig()->get("punish_message_staff"));
-            Server::getInstance()->broadcastMessage($message, Mockingbird::getInstance()->getConfig()->get("punish_message_global") ? Server::getInstance()->getOnlinePlayers() : $staff);
+            $message = $this->getPlugin()->getPrefix() . ' ' . str_replace(['{player}', '{detection}'], [$name, $this->name], $this->getPlugin()->getConfig()->get('punish_message_staff'));
+            Server::getInstance()->broadcastMessage($message, Mockingbird::getInstance()->getConfig()->get('punish_message_global') ? Server::getInstance()->getOnlinePlayers() : $staff);
         }
         if($debugData !== null){
             if(!isset($user->debugCache[strtolower($this->name)])){

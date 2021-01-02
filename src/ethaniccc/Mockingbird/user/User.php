@@ -46,6 +46,8 @@ class User{
 
     /** @var bool - The boolean value for if the user has alerts enabled. */
     public $alerts = false;
+    /** @var int - The cooldown for alerts in seconds. */
+    public $alertCooldown;
     /** @var string|null - The detection that the user should get debug information from. */
     public $debugChannel = null;
 
@@ -96,6 +98,7 @@ class User{
 
     public function __construct(Player $player){
         $this->player = $player;
+        $this->alertCooldown = ($cooldown = Mockingbird::getInstance()->getConfig()->get('default_alert_delay')) === false ? 2 : $cooldown;
         $this->moveData = new MoveData();
         $this->moveData->blockBelow = new Air();
         $this->moveData->blockAbove = new Air();
@@ -124,7 +127,7 @@ class User{
     }
 
     public function sendMessage(string $message) : void{
-        $this->player->sendMessage(TextFormat::BOLD . TextFormat::DARK_GRAY . "[" . TextFormat::RED . "DEBUG" . TextFormat::DARK_GRAY . "]" . TextFormat::RESET . " $message");
+        $this->player->sendMessage(TextFormat::BOLD . TextFormat::DARK_GRAY . '[' . TextFormat::RED . 'DEBUG' . TextFormat::DARK_GRAY . ']' . TextFormat::RESET . " $message");
     }
 
 }

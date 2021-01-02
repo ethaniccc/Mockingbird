@@ -37,7 +37,7 @@ class AutoClickerE extends Detection{
                 $deviation = sqrt(MathUtils::getVariance($speeds));
                 $pair = MathUtils::getOutliers($speeds);
                 $outliers = count($pair->getX()) + count($pair->getY());
-                if($deviation <= 0.45 && $outliers <= 1 && $user->clickData->cps >= 8){
+                if($user->clickData->cps >= 9 && $deviation <= 0.45 && $outliers <= 1){
                     $this->trust = max($this->trust - 0.25, 0);
                     if(++$this->preVL >= 3){
                         $this->preVL = min($this->preVL, 6);

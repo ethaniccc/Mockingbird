@@ -36,6 +36,9 @@ alerts_enabled: true
 # This option will only be useful if alerts are enabled (in the option above). This option decides whether or not players with alert permissions
 # will have alerts enabled when they join. If this is false, then players with perms must use the /mbalerts command to enable alerts.
 alerts_default: true
+# This option is for what the default alert delay for players that can view alerts (in seconds), this is useful so that alerts are not spammed
+# by someone cheating in the chat.
+default_alert_delay: 2
 # When this option is enabled, every time Mockingbird is disabled, it will upload the debug log into a server so I can read for potential falses.
 upload_debug: true
 

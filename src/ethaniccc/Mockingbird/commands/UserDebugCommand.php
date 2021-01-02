@@ -18,8 +18,8 @@ class UserDebugCommand extends Command implements PluginIdentifiableCommand{
 
     public function __construct(Mockingbird $plugin){
         $this->plugin = $plugin;
-        parent::__construct("mbdebug", "Get the anti-cheat debug logs of a user and a specified detection.", '/mbdebug <player> <detection_name>', []);
-        $this->setPermission("mockingbird.debug");
+        parent::__construct('mbdebug', 'Get the anti-cheat debug logs of a user and a specified detection', '/mbdebug <player> <detection_name>', []);
+        $this->setPermission('mockingbird.debug');
     }
 
     public function execute(CommandSender $sender, string $commandLabel, array $args){
@@ -30,17 +30,17 @@ class UserDebugCommand extends Command implements PluginIdentifiableCommand{
                 $sender->sendMessage($this->getUsage());
             } else {
                 $user = UserManager::getInstance()->getUserByName($selectedUser);
-                if($selectedUser === "--toggle-debug" && $sender instanceof Player){
+                if($selectedUser === '--toggle-debug' && $sender instanceof Player){
                     $user = UserManager::getInstance()->get($sender);
-                    $user->debugChannel = $selectedCheat === "off" ? null : strtolower($selectedCheat);
-                    $selectedCheat === "off" ? $sender->sendMessage("Debug information has been disabled.") : $sender->sendMessage("Debug information for $selectedCheat has been enabled.");;
+                    $user->debugChannel = $selectedCheat === 'off' ? null : strtolower($selectedCheat);
+                    $selectedCheat === 'off' ? $sender->sendMessage('Debug information has been disabled.') : $sender->sendMessage("Debug information for $selectedCheat has been enabled.");;
                     return;
                 }
                 if($user === null){
                     $sender->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RED . " Could not find the user $selectedUser");
                 } else {
                     $selectedCheat = strtolower($selectedCheat);
-                    $sender->sendMessage(TextFormat::BOLD . TextFormat::RED . 'DEBUG DATA' . PHP_EOL . TextFormat::RESET . ($user->debugCache[$selectedCheat] ?? "NO DATA"));
+                    $sender->sendMessage(TextFormat::BOLD . TextFormat::RED . 'DEBUG DATA' . PHP_EOL . TextFormat::RESET . ($user->debugCache[$selectedCheat] ?? 'NO DATA'));
                 }
             }
         }
