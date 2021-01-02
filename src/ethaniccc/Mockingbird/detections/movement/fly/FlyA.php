@@ -40,7 +40,7 @@ class FlyA extends Detection implements CancellableMovement{
             && !$user->player->isImmobile()
             && $user->timeSinceStoppedFlight >= 10 && $user->timeSinceLastBlockPlace >= 10
             && $user->moveData->cobwebTicks >= 15 && $user->moveData->liquidTicks >= 15
-            && $user->timeSinceStoppedGlide >= 10){
+            && $user->timeSinceStoppedGlide >= 10 && $user->moveData->levitationTicks >= 5){
                 if(++$this->preVL >= 3){
                     $this->fail($user, "yD=$yDelta, eD=$expectedYDelta, eq=$equalness");
                 }

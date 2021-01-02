@@ -8,6 +8,7 @@ use ethaniccc\Mockingbird\utils\MathUtils;
 use ethaniccc\Mockingbird\utils\PacketUtils;
 use pocketmine\block\Cobweb;
 use pocketmine\block\Liquid;
+use pocketmine\entity\Effect;
 use pocketmine\level\Location;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
@@ -83,6 +84,12 @@ class InboundPacketProcessor extends Processor{
                     $user->timeSinceStoppedGlide = 0;
                 } else {
                     ++$user->timeSinceStoppedGlide;
+                }
+                // 24 is the hardcoded effect ID for slow falling
+                if($user->player->getEffect(Effect::LEVITATION) !== null || $user->player->getEffect(24) !== null){
+                    $user->moveData->levitationTicks = 0;
+                } else {
+                    ++$user->moveData->levitationTicks;
                 }
                 if($location->y > -39.5){
                     ++$user->moveData->ticksSinceInVoid;
