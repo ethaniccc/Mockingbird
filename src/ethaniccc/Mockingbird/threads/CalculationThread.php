@@ -12,8 +12,6 @@ class CalculationThread extends Thread{
     private $notifier;
     private $running = false;
     private $id;
-    /** @var int - 10ms */
-    private $tickTime = 10;
     private static $currentMaxID = 0;
     private static $finishCallableList = [];
 
@@ -29,19 +27,14 @@ class CalculationThread extends Thread{
     public function run(){
         $this->registerClassLoader();
         while($this->running){
-            $task = $this->getFromTodo();
-            $start = microtime(true);
-            if($task !== null){
-                // run the callable
+            // results will be in batches
+            while(($task = $this->getFromTodo()) !== null){
+                // do the task and add the result
                 $this->addToDone(($task)());
-                // notify completion of the run callable to run the finish callable on the main thread
-                $this->notifier->wakeupSleeper();
             }
-            $end = microtime(true);
-            if(($timeDelta = (($end - $start) * 1000)) < $this->tickTime){
-                // sleep for 0.001 seconds
-                usleep(1000);
-            }
+            // notify the main thread of completion so it can run all the finish tasks along with results
+            $this->notifier->wakeupSleeper();
+            sleep(1);
         }
     }
 

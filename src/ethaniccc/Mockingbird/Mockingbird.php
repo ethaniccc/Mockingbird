@@ -40,7 +40,9 @@ class Mockingbird extends PluginBase{
         $threadNotifier = new SleeperNotifier();
         $this->calculationThread = new CalculationThread($threadNotifier);
         Server::getInstance()->getTickSleeper()->addNotifier($threadNotifier, function() : void{
-            ($this->calculationThread->getFinishTask())($this->calculationThread->getFromDone());
+            while(($task = $this->calculationThread->getFinishTask()) !== null){
+                ($task)($this->calculationThread->getFromDone());
+            }
         });
         $this->calculationThread->start(PTHREADS_INHERIT_NONE);
         $this->debugTask = new DebugLogWriteTask($this->getDataFolder() . "debug_log.txt");
@@ -107,23 +109,6 @@ class Mockingbird extends PluginBase{
                             }
                         }
                     }
-                }
-            }
-        }
-        $customPath = $this->getDataFolder() . "custom_modules";
-        @mkdir($customPath);
-        foreach(scandir($customPath) as $file){
-            if(!is_dir("$customPath/$file") && strtolower(explode(".", $file)[1]) === "php"){
-                require_once "$customPath/$file";
-                $className = explode(".", $file)[0];
-                try{
-                    $fullCheckName = "ethaniccc\\Mockingbird\\detections\\custom\\$className";
-                    $classInfo = new \ReflectionClass($fullCheckName);
-                    if(!$classInfo->isAbstract() && $classInfo->isSubclassOf(Detection::class)){
-                        $this->availableChecks[] = new $fullCheckName($classInfo->getShortName(), null);
-                    }
-                } catch(\ReflectionException $e){
-                    $this->getLogger()->debug($e->getMessage());
                 }
             }
         }

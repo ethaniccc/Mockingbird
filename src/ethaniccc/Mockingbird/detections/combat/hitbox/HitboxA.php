@@ -31,7 +31,10 @@ class HitboxA extends Detection{
     }
 
     public function handle(DataPacket $packet, User $user): void{
-        if($packet instanceof InventoryTransactionPacket && $user->win10 && !$user->player->isCreative() && !$this->awaitingMove && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK && $user->isDesktop && !$user->player->isCreative()){
+        if($user->timeSinceJoin < 100 || !$user->loggedIn){
+            return;
+        }
+        if($packet instanceof InventoryTransactionPacket && $user->win10 && !$user->player->isCreative() && !$this->awaitingMove && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK && $user->isDesktop && !$user->player->isCreative() && $user->tickData->targetLocationHistory !== null){
             if($user->tickData->targetLocationHistory->getLocations()->size() >= floor($user->transactionLatency / 50) + 2){
                 // wait for the next PlayerAuthInputPacket from the client
                 $this->awaitingMove = true;
@@ -42,18 +45,20 @@ class HitboxA extends Detection{
                 [$from, $to] = [serialize(new Ray($user->moveData->lastLocation->add(0, $user->isSneaking ? 1.52 : 1.62, 0), $this->lastDirectionVector)), serialize(Ray::fromUser($user))];
                 $this->getPlugin()->calculationThread->addToTodo(function() use ($locations, $from, $to){
                     [$locations, $from, $to] = [unserialize($locations), unserialize($from), unserialize($to)];
-                    $collided = 0;
                     foreach($locations as $location){
                         $AABB = AABB::fromPosition($location)->expand(0.1, 0.1, 0.1);
-                        if($AABB->collidesRay($from, 10) !== -69.0 || $AABB->collidesRay($to, 10) !== -69.0){
-                            ++$collided;
+                        if($AABB->collidesRay($from, 10) !== -69.0){
+                            return true;
+                        }
+                        if($AABB->collidesRay($to, 10) !== -69.0){
+                            return true;
                         }
                     }
-                    return $collided;
+                    return false;
                 }, function($result) use($user){
                     if($result !== null){
                         // there was no collision to the AABB
-                        if($result === 0){
+                        if(!$result){
                             // make sure the user's latency is updated to prevent false flags from lag spikes
                             if($user->responded){
                                 // this is only going to flag blatant hitbox, but worth it over false positives (for now)
@@ -64,6 +69,10 @@ class HitboxA extends Detection{
                         } else {
                             $this->reward($user, 0.999);
                             $this->preVL = 0;
+                        }
+                        if($this->isDebug($user)){
+                            $collided = $result ? 'true' : 'false';
+                            $user->sendMessage("collided=$collided");
                         }
                     }
                 });

@@ -62,7 +62,7 @@ class ReachB extends Detection{
                         if($distance > $this->getSetting('max_reach')){
                             if($user->responded){
                                 $this->trust = max($this->trust - 0.25, 0);
-                                if(++$this->preVL >= 4 && $this->trust <= 0.35){
+                                if(++$this->preVL >= 4 && $this->trust <= 0.65){
                                     $roundedDist = round($distance, 3);
                                     $this->fail($user, "(B) dist=$distance buff={$this->preVL} trust={$this->trust}", "dist=$roundedDist");
                                 }

@@ -1,6 +1,6 @@
 ---
 name: Mockingbird
-version: 2.4.0
+version: 2.5
 main: ethaniccc\Mockingbird\Mockingbird
 api: 3.15.0
 mcpe-protocol: [408, 419, 422]
