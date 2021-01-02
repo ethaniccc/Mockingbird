@@ -10,7 +10,10 @@ class LevelUtils{
 
     public static function userIsOnGround(User $user) : bool{
         $AABB = clone $user->moveData->AABB;
-        $AABB->minY -= 0.05;
+        // frick you lily pad
+        $AABB->expand(0.1, 0, 0.1);
+        // I wouldn't do this, but because PMMP's onGround is accurate when on cactus, fuck it all
+        $AABB->minY -= 0.2;
         return count($user->player->getLevel()->getCollisionBlocks($AABB, true)) !== 0;
     }
 

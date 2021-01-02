@@ -136,6 +136,11 @@ class InboundPacketProcessor extends Processor{
                 if($shouldHandle){
                     if(!$user->moveData->moveDelta->equals($user->zeroVector) || $user->moveData->yawDelta > 0 || $user->moveData->pitch > 0){
                         // only handle if the move delta is greater than 0 so PlayerMoveEvent isn't spammed
+                        if($user->debugChannel === "onground"){
+                            $serverGround = $user->player->isOnGround() ? 'true' : 'false';
+                            $otherGround = $movePacket->onGround ? 'true' : 'false';
+                            $user->sendMessage('pmmp=' . $serverGround . ' mb=' . $otherGround);
+                        }
                         $user->player->handleMovePlayer($movePacket);
                     }
                 }
@@ -206,9 +211,11 @@ class InboundPacketProcessor extends Processor{
                         $user->isSneaking = false;
                         break;
                     case PlayerActionPacket::ACTION_START_GLIDE:
+                        $user->player->setGenericFlag(Player::DATA_FLAG_GLIDING, true);
                         $user->isGliding = true;
                         break;
                     case PlayerActionPacket::ACTION_STOP_GLIDE:
+                        $user->player->setGenericFlag(Player::DATA_FLAG_GLIDING, false);
                         $user->isGliding = false;
                         break;
                 }

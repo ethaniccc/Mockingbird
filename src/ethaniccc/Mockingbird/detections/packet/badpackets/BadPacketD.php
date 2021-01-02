@@ -18,8 +18,9 @@ class BadPacketD extends Detection{
 
     public function handle(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
-            // the player is gliding without anything to glide with - invalid.
-            if($user->isGliding && $user->player->getArmorInventory()->getChestplate()->getId() !== ItemIds::ELYTRA){
+            // the player is gliding without anything to glide with along with being off ground - invalid.
+            // TODO: While testing ONCE, this check false flagged - make some hack to fix (fml).
+            if($user->isGliding && $user->moveData->offGroundTicks >= 10 && $user->player->getArmorInventory()->getChestplate()->getId() !== ItemIds::ELYTRA){
                 if(++$this->preVL >= 1.01){
                     $this->fail($user, "glide=true chestplate={$user->player->getArmorInventory()->getChestplate()->getId()}");
                 }
