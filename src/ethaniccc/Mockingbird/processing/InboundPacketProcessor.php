@@ -79,10 +79,10 @@ class InboundPacketProcessor extends Processor{
                 } else {
                     $user->timeSinceStoppedFlight = 0;
                 }
-                if(!$user->player->getGenericFlag(Player::DATA_FLAG_GLIDING)){
-                    ++$user->timeSinceStoppedGlide;
-                } else {
+                if($user->isGliding){
                     $user->timeSinceStoppedGlide = 0;
+                } else {
+                    ++$user->timeSinceStoppedGlide;
                 }
                 if($location->y > -39.5){
                     ++$user->moveData->ticksSinceInVoid;
@@ -204,6 +204,12 @@ class InboundPacketProcessor extends Processor{
                         break;
                     case PlayerActionPacket::ACTION_STOP_SNEAK:
                         $user->isSneaking = false;
+                        break;
+                    case PlayerActionPacket::ACTION_START_GLIDE:
+                        $user->isGliding = true;
+                        break;
+                    case PlayerActionPacket::ACTION_STOP_GLIDE:
+                        $user->isGliding = false;
                         break;
                 }
                 break;

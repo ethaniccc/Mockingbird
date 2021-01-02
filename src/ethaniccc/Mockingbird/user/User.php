@@ -86,6 +86,8 @@ class User{
     public $isSneaking = false;
     /** @var bool - The boolean value for if the user is sprinting or not. */
     public $isSprinting = false;
+    /** @var bool - The boolean value for if the user is gliding or not */
+    public $isGliding = false;
 
     /** @var MoveData - The class that stores the movement data of the user, the MoveProcessor will handle data to be put in here. */
     public $moveData;

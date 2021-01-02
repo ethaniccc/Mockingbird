@@ -250,6 +250,12 @@ BadPacketC:
   punish: true
   punishment_type: kick
   max_violations: 2
+BadPacketD:
+  # checks if the user is gliding without an elytra
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 5
 
 # Timer
 TimerA:
