@@ -49,7 +49,8 @@ class Mockingbird extends PluginBase{
         $this->debugTask = new DebugLogWriteTask($this->getDataFolder() . 'debug_log.txt');
         file_put_contents($this->getDataFolder() . 'debug_log.txt', '');
         self::$instance = $this;
-        if($this->getDescription()->getVersion() !== $this->getConfig()->get('version')){
+        // ... why do I have to do this :cringethonk: ?
+        if(((float) $this->getDescription()->getVersion()) !== $this->getConfig()->get('version')){
             if($this->updateConfig()){
                 $this->getLogger()->debug('Mockingbird config has been updated');
                 $this->getConfig()->reload();
@@ -164,7 +165,7 @@ class Mockingbird extends PluginBase{
                     'content' => http_build_query(['data' => base64_encode(file_get_contents($this->getDataFolder() . 'debug_log.txt'))])
                 )
             );
-            $response = file_get_contents('https://mb-debug-logs.000webhostapp.com/', false, stream_context_create($options));
+            $response = @file_get_contents('https://mb-debug-logs.000webhostapp.com/', false, stream_context_create($options));
             $this->getLogger()->debug("Response: $response");
         }
     }

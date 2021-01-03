@@ -105,7 +105,7 @@ ReachA:
   punishment_type: kick
   max_violations: 50
   # check sensitivity settings
-  max_reach: 3.03
+  max_reach: 3.1
 ReachB:
   enabled: true
   punish: true
@@ -171,6 +171,12 @@ FlyB:
   max_violations: 25
   # no check settings
 FlyC:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  suppression: false
+  max_violations: 25
+FlyD:
   enabled: true
   punish: true
   punishment_type: kick

@@ -36,7 +36,8 @@ class ReachA extends Detection{
                 $this->awaitingMove = true;
             }
         } elseif($packet instanceof PlayerAuthInputPacket && $this->awaitingMove){
-            $locations = serialize($user->tickData->targetLocationHistory->getLocationsRelativeToTime($user->tickData->currentTick - floor($user->transactionLatency / 50), 2));
+            // the client is off by at least one tick
+            $locations = serialize($user->tickData->targetLocationHistory->getLocationsRelativeToTime($user->tickData->currentTick - (floor($user->transactionLatency / 50) + 1), 2));
             [$from, $to] = [serialize($user->moveData->lastLocation->add(0, 1.62, 0)), serialize($packet->getPosition())];
             $this->getPlugin()->calculationThread->addToTodo(function() use($locations, $from, $to){
                 [$locations, $from, $to] = [unserialize($locations), unserialize($from), unserialize($to)];
@@ -46,7 +47,8 @@ class ReachA extends Detection{
                     if($lastLocation === null){
                         $moveDelta = 0;
                     } else {
-                        $moveDelta = $location->distance($lastLocation);
+                        // see: https://media.discordapp.net/attachments/727159224320131133/795030256523935784/unknown.png?width=1049&height=316
+                        $moveDelta = $location->distance($lastLocation) / 3;
                     }
                     $AABB = AABB::fromPosition($location)->expand(0.1, 0.1, 0.1);
                     $distances->add($AABB->distanceFromVector($from) - $moveDelta);
@@ -59,16 +61,18 @@ class ReachA extends Detection{
                     // make sure the user's latency is updated and that the distance is greater than the allowed
                     if($distance > $this->getSetting("max_reach")){
                         if($user->responded){
-                            $this->trust = max($this->trust - 0.25, 0);
-                            if(++$this->preVL >= 4 && $this->trust <= 0.65){
+                            $this->trust = max($this->trust - 0.15, 0);
+                            if(++$this->preVL >= 4 && $this->trust <= 0.5){
                                 $roundedDist = round($distance, 3);
+                                // lower the buffer for *possible*  falses
+                                $this->preVL = 3;
                                 $this->fail($user, "(A) dist=$distance buff={$this->preVL} trust={$this->trust}", "dist=$roundedDist");
                             }
                             $this->preVL = min($this->preVL, 4.5);
                         }
                     } else {
                         $this->reward($user, 0.9995);
-                        $this->preVL = max($this->preVL - 0.04, 0);
+                        $this->preVL = max($this->preVL - 0.05, 0);
                         $this->trust = min($this->trust + 0.01, 1.5);
                     }
                 }

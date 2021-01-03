@@ -17,7 +17,7 @@ class Ray{
     }
 
     public static function fromUser(User $user) : Ray{
-        return new Ray($user->moveData->location->add(0, $user->player->getEyeHeight(), 0), $user->moveData->directionVector);
+        return new Ray($user->moveData->location->add(0, ($user->isSneaking ? 1.52 : 1.62), 0), $user->moveData->directionVector);
     }
 
     public function __construct(Vector3 $origin, Vector3 $direction){

@@ -95,6 +95,7 @@ abstract class Detection{
             if($bool){
                 if(!isset($this->cooldown[$p->getId()])){
                     $this->cooldown[$p->getId()] = microtime(true);
+                    return true;
                 }
                 if(microtime(true) - $this->cooldown[$p->getId()] >= $user->alertCooldown){
                     $this->cooldown[$p->getId()] = microtime(true);

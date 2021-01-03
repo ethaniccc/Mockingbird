@@ -28,6 +28,7 @@ class FlyA extends Detection implements CancellableMovement{
             }
             $yDelta = $user->moveData->moveDelta->y;
             $lastYDelta = $user->moveData->lastMoveDelta->y;
+            // prediction (see https://github.com/eldariamc/client/blob/c01d23eb05ed83abb4fee00f9bf603b6bc3e2e27/src/main/java/net/minecraft/entity/EntityLivingBase.java#L1682-L1687)
             $expectedYDelta = ($lastYDelta - 0.08) * 0.980000019073486;
             $equalness = abs($yDelta - $expectedYDelta);
             if($equalness > $this->getSetting("max_breach")

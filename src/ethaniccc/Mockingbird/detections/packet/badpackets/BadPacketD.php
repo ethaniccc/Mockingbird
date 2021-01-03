@@ -8,6 +8,13 @@ use pocketmine\item\ItemIds;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
+/**
+ * Class BadPacketD
+ * @package ethaniccc\Mockingbird\detections\packet\badpackets
+ * BadPacketD checks if the player is gliding without having a valid Elytra in their inventory
+ * to glide with. In rare cases, this check can false positive (see the T-O-D-O), but for the most case does not false.
+ * This check was made to prevent fly disablers using PlayerActionPackets to tell the server it's gliding.
+ */
 class BadPacketD extends Detection{
 
     public function __construct(string $name, ?array $settings){
