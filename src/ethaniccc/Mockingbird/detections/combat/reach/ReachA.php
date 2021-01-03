@@ -64,8 +64,6 @@ class ReachA extends Detection{
                             $this->trust = max($this->trust - 0.15, 0);
                             if(++$this->preVL >= 4 && $this->trust <= 0.5){
                                 $roundedDist = round($distance, 3);
-                                // lower the buffer for *possible*  falses
-                                $this->preVL = 3;
                                 $this->fail($user, "(A) dist=$distance buff={$this->preVL} trust={$this->trust}", "dist=$roundedDist");
                             }
                             $this->preVL = min($this->preVL, 4.5);

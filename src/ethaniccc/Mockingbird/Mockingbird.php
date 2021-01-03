@@ -10,8 +10,8 @@ use ethaniccc\Mockingbird\commands\UserDebugCommand;
 use ethaniccc\Mockingbird\commands\UserLogsCommand;
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\listener\MockingbirdListener;
-use ethaniccc\Mockingbird\tasks\DebugLogWriteTask;
 use ethaniccc\Mockingbird\threads\CalculationThread;
+use ethaniccc\Mockingbird\threads\DebugWriteThread;
 use ethaniccc\Mockingbird\user\UserManager;
 use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\ClosureTask;
@@ -25,8 +25,8 @@ class Mockingbird extends PluginBase{
     private static $instance;
     /** @var Detection[] */
     public $availableChecks;
-    /** @var DebugLogWriteTask */
-    public $debugTask;
+    /** @var DebugWriteThread */
+    public $debugThread;
     /** @var CalculationThread - Thread where calculations that have long execution times go. */
     public $calculationThread;
 
@@ -46,7 +46,8 @@ class Mockingbird extends PluginBase{
             }
         });
         $this->calculationThread->start(PTHREADS_INHERIT_NONE);
-        $this->debugTask = new DebugLogWriteTask($this->getDataFolder() . 'debug_log.txt');
+        $this->debugThread = new DebugWriteThread($this->getDataFolder() . 'debug_log.txt');
+        $this->debugThread->start();
         file_put_contents($this->getDataFolder() . 'debug_log.txt', '');
         self::$instance = $this;
         // ... why do I have to do this :cringethonk: ?
@@ -62,11 +63,6 @@ class Mockingbird extends PluginBase{
         new MockingbirdListener();
         $this->getAvailableChecks();
         $this->registerCommands();
-        // yes, closure tasks
-        $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(function(int $currentTick) : void{
-            $this->getServer()->getAsyncPool()->submitTask($this->debugTask);
-            $this->debugTask = new DebugLogWriteTask($this->getDataFolder() . 'debug_log.txt');
-        }), 400);
         $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(function(int $currentTick) : void{
             foreach(UserManager::getInstance()->getUsers() as $user){
                 $user->tickProcessor->run();

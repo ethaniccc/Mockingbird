@@ -145,7 +145,7 @@ abstract class Detection{
 
     protected function debug($debugData, bool $logWrite = true) : void{
         if($logWrite){
-            Mockingbird::getInstance()->debugTask->addData($debugData);
+            Mockingbird::getInstance()->debugThread->addData($debugData);
         }
     }
 
