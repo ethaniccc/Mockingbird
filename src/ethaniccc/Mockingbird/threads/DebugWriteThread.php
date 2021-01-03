@@ -27,7 +27,7 @@ class DebugWriteThread extends Thread{
                 @fclose($log);
                 $this->debugMessage = '';
             }
-            sleep(3);
+            sleep(1);
         }
     }
 
