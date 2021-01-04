@@ -31,9 +31,8 @@ class TickProcessor extends RunnableProcessor{
         $targetEntity = $this->user->hitData->targetEntity;
         if($targetEntity !== null && $this->lastTarget !== null){
             if($targetEntity->getId() !== $this->lastTarget->getId()){
-                // get rid of the old location history because obsolete
-                unset($this->user->tickData->targetLocationHistory);
-                $this->user->tickData->targetLocationHistory = new LocationHistory();
+                // remove all locations
+                $this->user->tickData->targetLocationHistory->clearLocations();
             }
             $add = true;
             if($this->ticks === $this->lastTick){

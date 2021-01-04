@@ -161,6 +161,7 @@ class InboundPacketProcessor extends Processor{
                         switch($packet->trData->actionType){
                             case InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK:
                                 $user->hitData->attackPos = $packet->trData->playerPos;
+                                $user->hitData->lastTargetEntity = $user->hitData->targetEntity;
                                 $user->hitData->targetEntity = $user->player->getLevel()->getEntity($packet->trData->entityRuntimeId);
                                 $user->hitData->inCooldown = Server::getInstance()->getTick() - $user->hitData->lastTick < 10;
                                 if(!$user->hitData->inCooldown){

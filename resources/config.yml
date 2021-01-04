@@ -120,6 +120,11 @@ AimAssistA:
   punish: true
   punishment_type: kick
   max_violations: 20
+AimAssistB:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 10
 
 # Hitbox
 HitboxA:

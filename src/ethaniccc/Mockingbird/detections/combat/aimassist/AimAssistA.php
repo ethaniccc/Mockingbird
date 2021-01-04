@@ -21,7 +21,7 @@ class AimAssistA extends Detection{
     }
 
     public function handle(DataPacket $packet, User $user): void{
-        if($packet instanceof PlayerAuthInputPacket){
+        if($packet instanceof PlayerAuthInputPacket && $user->win10){
             $yawDelta = $user->moveData->yawDelta;
             $pitchDelta = $user->moveData->pitchDelta;
             if($user->timeSinceAttack <= 10 && $user->moveData->rotated){

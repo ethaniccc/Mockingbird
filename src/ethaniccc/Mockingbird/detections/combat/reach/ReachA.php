@@ -30,7 +30,7 @@ class ReachA extends Detection{
     }
 
     public function handle(DataPacket $packet, User $user) : void{
-        if($packet instanceof InventoryTransactionPacket && !$user->player->isCreative() && !$this->awaitingMove && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK){
+        if($packet instanceof InventoryTransactionPacket && !$user->player->isCreative() && !$this->awaitingMove && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK && $user->hitData->targetEntity === $user->hitData->lastTargetEntity){
             if($user->tickData->targetLocationHistory->getLocations()->size() >= floor($user->transactionLatency / 50) + 2){
                 // wait for the next PlayerAuthInputPacket from the client
                 $this->awaitingMove = true;
@@ -38,8 +38,9 @@ class ReachA extends Detection{
         } elseif($packet instanceof PlayerAuthInputPacket && $this->awaitingMove){
             // the client is off by at least one tick
             $locations = serialize($user->tickData->targetLocationHistory->getLocationsRelativeToTime($user->tickData->currentTick - (floor($user->transactionLatency / 50) + 1), 2));
-            [$from, $to] = [serialize($user->moveData->lastLocation->add(0, 1.62, 0)), serialize($packet->getPosition())];
-            $this->getPlugin()->calculationThread->addToTodo(function() use($locations, $from, $to){
+            [$from, $to] = [serialize($user->moveData->lastLocation->add(0, $user->isSneaking ? 1.54 : 1.62, 0)), serialize($packet->getPosition())];
+            $latency = $user->transactionLatency;
+            $this->getPlugin()->calculationThread->addToTodo(function() use($locations, $from, $to, $latency){
                 [$locations, $from, $to] = [unserialize($locations), unserialize($from), unserialize($to)];
                 $lastLocation = null;
                 $distances = new SizedList(80);
@@ -48,7 +49,7 @@ class ReachA extends Detection{
                         $moveDelta = 0;
                     } else {
                         // see: https://media.discordapp.net/attachments/727159224320131133/795030256523935784/unknown.png?width=1049&height=316
-                        $moveDelta = $location->distance($lastLocation) / 3;
+                        $moveDelta = $location->distance($lastLocation) / ($latency > 50 ? 2 : 3);
                     }
                     $AABB = AABB::fromPosition($location)->expand(0.1, 0.1, 0.1);
                     $distances->add($AABB->distanceFromVector($from) - $moveDelta);

@@ -118,22 +118,22 @@ class AABB extends AxisAlignedBB{
         $v4 = $pos1->getIntermediateWithYValue($pos2, $this->maxY);
         $v5 = $pos1->getIntermediateWithZValue($pos2, $this->minZ);
         $v6 = $pos1->getIntermediateWithZValue($pos2, $this->maxZ);
-        if($v1 !== null and !$this->isVectorInYZ($v1)){
+        if($v1 !== null && !$this->isVectorInYZ($v1)){
             $v1 = null;
         }
-        if($v2 !== null and !$this->isVectorInYZ($v2)){
+        if($v2 !== null && !$this->isVectorInYZ($v2)){
             $v2 = null;
         }
-        if($v3 !== null and !$this->isVectorInXZ($v3)){
+        if($v3 !== null && !$this->isVectorInXZ($v3)){
             $v3 = null;
         }
-        if($v4 !== null and !$this->isVectorInXZ($v4)){
+        if($v4 !== null && !$this->isVectorInXZ($v4)){
             $v4 = null;
         }
-        if($v5 !== null and !$this->isVectorInXY($v5)){
+        if($v5 !== null && !$this->isVectorInXY($v5)){
             $v5 = null;
         }
-        if($v6 !== null and !$this->isVectorInXY($v6)){
+        if($v6 !== null && !$this->isVectorInXY($v6)){
             $v6 = null;
         }
         $vector = null;

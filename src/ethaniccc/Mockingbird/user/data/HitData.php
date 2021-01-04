@@ -9,6 +9,8 @@ class HitData{
 
     /** @var null|Entity - The entity the user attacked.  */
     public $targetEntity;
+    /** @var null|Entity - The last entity the user attacked. */
+    public $lastTargetEntity;
     /** @var Vector3 - The position the client was at when attacking. */
     public $attackPos;
     /** @var bool - The boolean value if the user's hit is in attack cooldown. */

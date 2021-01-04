@@ -43,4 +43,8 @@ class LocationHistory{
         return $locations;
     }
 
+    public function clearLocations() : void{
+        $this->locations->clear();
+    }
+
 }
