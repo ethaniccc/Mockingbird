@@ -143,7 +143,6 @@ class Mockingbird extends PluginBase{
             }
         }
         // save the config - (why are comments being deleted here?)
-        // TODO: Make some sort of hack to bring back the config notes :C
         $this->getConfig()->save();
         return true;
     }

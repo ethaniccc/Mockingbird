@@ -34,7 +34,8 @@ class CalculationThread extends Thread{
             }
             // notify the main thread of completion so it can run all the finish tasks along with results
             $this->notifier->wakeupSleeper();
-            sleep(1);
+            // sleep for two ticks
+            usleep(100000);
         }
     }
 

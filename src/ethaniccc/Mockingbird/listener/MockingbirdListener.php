@@ -16,7 +16,9 @@ use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
+use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
+use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
@@ -43,6 +45,9 @@ class MockingbirdListener implements Listener{
 
         $user = UserManager::getInstance()->get($player);
         if($user !== null){
+            if($user->debugChannel === 'packets' && !in_array(get_class($packet), [BatchPacket::class, PlayerAuthInputPacket::class, NetworkStackLatencyPacket::class])){
+                $user->sendMessage(get_class($packet));
+            }
             $user->inboundProcessor->process($packet);
             foreach($user->detections as $check){
                 if($check->enabled){

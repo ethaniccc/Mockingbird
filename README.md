@@ -20,7 +20,7 @@ Special Thanks To:
 - Bavfalcon9
 
 <div align="center">
-    <img src='https://s3-eu-west-1.amazonaws.com/tpd/logos/5d7ab6dfd22faf0001b7b307/0x0.png'> 
+    <img src='https://s3-eu-west-1.amazonaws.com/tpd/logos/5d7ab6dfd22faf0001b7b307/0x0.png'>
     <h3>WitherHosting</h3>
     <p>WitherHosting is the hosting company that Mockingbird's test server runs on. It is very affordable (I used to use the $1.25 multi-server plan) and
     has very good performance from what I have seen. They were kind enough to give me a good test server without cost, and I really do appreciate it!
@@ -57,7 +57,7 @@ Mockingbird no longer calls custom events.
 There will not be a resetting violation feature unless Mockingbird is still false-punishing users.
 Instead, every time a user passes a check, they will be "rewarded". In rewarding, the player's violations
 for the check gets multiplied by a very small amount (multiplier varies based off the check). This will help with players which
-might false positive some checks at certain points, and is more effective than resetting all the player's violations. 
+might false positive some checks at certain points, and is more effective than resetting all the player's violations.
 
 Detections now have "cheat probability". What this will do is estimate the chance of cheating.
 This is determined by how many times a player flags a certain check a certain amount of times within a period.
@@ -126,5 +126,3 @@ This command is useful for getting debug information in-game, which can help if 
 To get a user's debug information for a certain detection, you can run `/mbdebug <player> <detection_name>`.
 
 ![DebugCommandExample](images/debugExample.png)
-## Custom Detections
-TODO: If you want to make a pull request please do so because I'm a lazy potato :p

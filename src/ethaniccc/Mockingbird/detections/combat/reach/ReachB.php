@@ -6,7 +6,6 @@ use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\boundingbox\Ray;
-use ethaniccc\Mockingbird\utils\Pair;
 use ethaniccc\Mockingbird\utils\SizedList;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
@@ -15,8 +14,6 @@ use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 class ReachB extends Detection{
 
     private $awaitingMove = false;
-    // half of the max trust - start neutral
-    private $trust = 0.75;
     private $lastDirectionVector;
 
     public function __construct(string $name, ?array $settings){
@@ -63,21 +60,18 @@ class ReachB extends Detection{
                         // make sure the user's latency is updated and that the distance is greater than the allowed
                         if($distance > $this->getSetting('max_reach')){
                             if($user->responded){
-                                $this->trust = max($this->trust - 0.15, 0);
-                                if(++$this->preVL >= 3.5 && $this->trust <= 0.5){
+                                if(++$this->preVL >= 3){
                                     $roundedDist = round($distance, 3);
-                                    $this->fail($user, "(B) dist=$distance buff={$this->preVL} trust={$this->trust}", "dist=$roundedDist");
+                                    $this->fail($user, "(B) dist=$distance buff={$this->preVL}", "dist=$roundedDist");
                                 }
-                                $this->preVL = min($this->preVL, 4.5);
+                                $this->preVL = min($this->preVL, 3.5);
                             }
                         } else {
-                            $this->reward($user, 0.9995);
-                            $this->preVL = max($this->preVL - 0.04, 0);
-                            $this->trust = min($this->trust + 0.01, 1.5);
+                            $this->preVL = max($this->preVL - 0.05, 0);
                         }
                     }
                     if($this->isDebug($user)){
-                        $user->sendMessage("dist=$distance buff={$this->preVL} trust={$this->trust}");
+                        $user->sendMessage("dist=$distance buff={$this->preVL}");
                     }
                 });
                 $this->awaitingMove = false;
