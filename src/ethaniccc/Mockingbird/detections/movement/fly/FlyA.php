@@ -36,9 +36,7 @@ class FlyA extends Detection implements CancellableMovement{
             && $user->moveData->offGroundTicks >= 10 && $user->timeSinceTeleport > 5
             && $user->timeSinceJoin >= 200
             && $user->timeSinceMotion >= 5
-            && !$user->player->isSpectator()
             && $user->moveData->ticksSinceInVoid >= 10 && $user->moveData->blockAbove->getId() === 0 && $user->moveData->blockBelow->getId() === 0
-            && !$user->player->isImmobile()
             && $user->timeSinceStoppedFlight >= 10 && $user->timeSinceLastBlockPlace >= 10
             && $user->moveData->cobwebTicks >= 15 && $user->moveData->liquidTicks >= 15
             && $user->timeSinceStoppedGlide >= 10 && $user->moveData->levitationTicks >= 5){

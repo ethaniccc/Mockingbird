@@ -80,7 +80,7 @@ class InboundPacketProcessor extends Processor{
                 } else {
                     $user->timeSinceStoppedFlight = 0;
                 }
-                if($user->isGliding){
+                if($user->isGliding || $user->player->isSpectator() || $user->player->isImmobile()){
                     $user->timeSinceStoppedGlide = 0;
                 } else {
                     ++$user->timeSinceStoppedGlide;

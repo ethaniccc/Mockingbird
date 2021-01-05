@@ -2,6 +2,8 @@
 
 namespace ethaniccc\Mockingbird\processing;
 
+use ethaniccc\Mockingbird\Mockingbird;
+use ethaniccc\Mockingbird\tasks\KickTask;
 use ethaniccc\Mockingbird\utils\location\LocationHistory;
 use pocketmine\entity\Entity;
 use pocketmine\network\mcpe\protocol\DataPacket;
@@ -61,6 +63,10 @@ class TickProcessor extends RunnableProcessor{
             }
             if(!$this->user->responded){
                 ++$this->noResponseTicks;
+                // no disablers 4u :)
+                if($this->noResponseTicks >= 400){
+                    Mockingbird::getInstance()->getScheduler()->scheduleDelayedTask(new KickTask($this->user, 'NetworkStackLatency timeout (bad connection?) - rejoin server.'), 0);
+                }
                 if($this->noResponseTicks % 100 === 0){
                     $this->user->player->dataPacket($this->user->networkStackLatencyPacket);
                 }
