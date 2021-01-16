@@ -25,12 +25,9 @@ class VelocityB extends Detection{
         $this->lowMax = 10;
         $this->mediumMax = 15;
         // TODO: Fix this check - falses in some scenarios.
-        // $this->enabled = false;
     }
 
-    public function handle(DataPacket $packet, User $user): void{
-        return;
-        /*
+    public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
             if($user->timeSinceMotion <= ($user->transactionLatency / 50) + 4 && $user->moveData->lastMotion !== null && $user->player->isAlive()){
                 if($user->timeSinceTeleport <= 6){
@@ -66,7 +63,7 @@ class VelocityB extends Detection{
                 }
                 $horizontalMove = hypot($user->moveData->moveDelta->x, $user->moveData->moveDelta->z);
                 $percentage = $horizontalMove / $expectedHorizontal;
-                $maxPercentage = $this->getSetting("multiplier");
+                $maxPercentage = $this->getSetting('multiplier');
                 // check if any blocks collide with the user's expanded AABB to prevent falses.
                 $blocksCollide = count($user->player->getLevel()->getCollisionBlocks($user->moveData->AABB->clone()->expand(0.2, 0, 0.2), true)) > 0;
                 $scaledPercentage = ($horizontalMove / $expectedHorizontal) * 100;
@@ -87,7 +84,6 @@ class VelocityB extends Detection{
                 $this->previousKeys = $keyList;
             }
         }
-        */
     }
 
 }

@@ -21,7 +21,7 @@ class FlyA extends Detection implements CancellableMovement{
         parent::__construct($name, $settings);
     }
 
-    public function handle(DataPacket $packet, User $user): void{
+    public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
             if(!$user->player->isAlive() || !$user->loggedIn){
                 return;
@@ -39,12 +39,12 @@ class FlyA extends Detection implements CancellableMovement{
             && $user->moveData->ticksSinceInVoid >= 10 && $user->moveData->blockAbove->getId() === 0 && $user->moveData->blockBelow->getId() === 0
             && $user->timeSinceStoppedFlight >= 10 && $user->timeSinceLastBlockPlace >= 10
             && $user->moveData->cobwebTicks >= 15 && $user->moveData->liquidTicks >= 15
-            && $user->timeSinceStoppedGlide >= 10 && $user->moveData->levitationTicks >= 5){
+            && $user->timeSinceStoppedGlide >= 10 && $user->moveData->levitationTicks >= 5 && $user->hasReceivedChunks){
                 if(++$this->preVL >= 3){
                     $this->fail($user, "yD=$yDelta, eD=$expectedYDelta, eq=$equalness");
                 }
             } else {
-                if($user->moveData->offGroundTicks >= 6){
+                if($user->moveData->offGroundTicks >= 6 && $user->hasReceivedChunks){
                     $this->preVL *= 0.8;
                     $this->reward($user, 0.995);
                 }

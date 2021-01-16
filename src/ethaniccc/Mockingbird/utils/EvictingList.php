@@ -2,7 +2,7 @@
 
 namespace ethaniccc\Mockingbird\utils;
 
-class SizedList{
+class EvictingList{
 
     private $array = [];
     private $maxSize;
@@ -21,11 +21,12 @@ class SizedList{
         return count($this->array) === $this->maxSize;
     }
 
-    public function add($val, $key = null) : void{
+    public function add($val, $key = null) : EvictingList{
         $key === null ? $this->array[] = $val : $this->array[$key] = $val;
         if(count($this->array) > $this->maxSize){
             array_shift($this->array);
         }
+        return $this;
     }
 
     public function length() : int{
@@ -58,6 +59,16 @@ class SizedList{
 
     public function duplicates(int $sort = SORT_STRING) : int{
         return count($this->array) - count(array_unique($this->array, $sort));
+    }
+
+    public function filter(callable $call, int $size = null) : EvictingList{
+        $list = new EvictingList($size === null ? $this->maxSize : $size);
+        foreach($this->array as $value){
+            $result = ($call)($value);
+            if($result !== null)
+                $list->add($result);
+        }
+        return $list;
     }
 
 }

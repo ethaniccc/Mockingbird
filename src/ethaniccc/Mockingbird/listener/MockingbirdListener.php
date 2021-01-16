@@ -19,6 +19,7 @@ use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
+use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
@@ -45,20 +46,22 @@ class MockingbirdListener implements Listener{
 
         $user = UserManager::getInstance()->get($player);
         if($user !== null){
-            if($user->debugChannel === 'packets' && !in_array(get_class($packet), [BatchPacket::class, PlayerAuthInputPacket::class, NetworkStackLatencyPacket::class])){
+            if($user->debugChannel === 'clientpk' && !in_array(get_class($packet), [BatchPacket::class, PlayerAuthInputPacket::class, NetworkStackLatencyPacket::class])){
                 $user->sendMessage(get_class($packet));
             }
             $user->inboundProcessor->process($packet);
             foreach($user->detections as $check){
                 if($check->enabled){
-                    $check->handle($packet, $user);
+                    $check->handleReceive($packet, $user);
                 }
             }
         }
     }
 
+    /** @priority HIGHEST */
     public function onPacketSend(DataPacketSendEvent $event) : void{
         $packet = $event->getPacket();
+        $user = UserManager::getInstance()->get($event->getPlayer());
         if($packet instanceof StartGamePacket){
             if(ProtocolInfo::CURRENT_PROTOCOL >= 419){
                 $packet->playerMovementType = PlayerMovementType::SERVER_AUTHORITATIVE_V2_REWIND;
@@ -66,28 +69,8 @@ class MockingbirdListener implements Listener{
                 $packet->isMovementServerAuthoritative = true;
             }
         }
-    }
-
-    public function onJoin(PlayerJoinEvent $event) : void{
-        $user = UserManager::getInstance()->get($event->getPlayer());
-        if($user === null){
-            throw new \UnexpectedValueException("{$event->getPlayer()->getName()} was not registered");
-        } else {
-            $user->loggedIn = true;
-            if($user->player->hasPermission("mockingbird.alerts") && Mockingbird::getInstance()->getConfig()->get("alerts_default")){
-                $user->alerts = true;
-            }
-            $user->eventProcessor->processEvent($event);
-        }
-    }
-
-    public function onMotion(EntityMotionEvent $event) : void{
-        $entity = $event->getEntity();
-        if($entity instanceof Player){
-            $user = UserManager::getInstance()->get($entity);
-            if($user !== null){
-                $user->eventProcessor->processEvent($event);
-            }
+        if($user !== null){
+            $user->outboundProcessor->process($packet);
         }
     }
 
@@ -103,23 +86,10 @@ class MockingbirdListener implements Listener{
         }
     }
 
-    public function onPlacedBlock(BlockPlaceEvent $event) : void{
-        $user = UserManager::getInstance()->get($event->getPlayer());
-        if($user !== null){
-            $user->eventProcessor->processEvent($event);
-            foreach($user->detections as $check){
-                if($check instanceof Detection){
-                    $check->handleEvent($event, $user);
-                }
-            }
-        }
-    }
-
     // I hate it here
     public function onTransaction(InventoryTransactionEvent $event) : void{
         $user = UserManager::getInstance()->get($event->getTransaction()->getSource());
         if($user !== null){
-            $user->eventProcessor->processEvent($event);
             foreach($user->detections as $detection){
                 $detection->handleEvent($event, $user);
             }

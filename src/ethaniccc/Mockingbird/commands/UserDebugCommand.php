@@ -3,10 +3,14 @@
 namespace ethaniccc\Mockingbird\commands;
 
 use ethaniccc\Mockingbird\Mockingbird;
+use ethaniccc\Mockingbird\tasks\KickTask;
 use ethaniccc\Mockingbird\user\UserManager;
+use ethaniccc\TextCenterFormat\TextCenterFormat;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginIdentifiableCommand;
+use pocketmine\entity\Entity;
+use pocketmine\entity\Villager;
 use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\utils\TextFormat;
@@ -34,6 +38,13 @@ class UserDebugCommand extends Command implements PluginIdentifiableCommand{
                     $user = UserManager::getInstance()->get($sender);
                     $user->debugChannel = $selectedCheat === 'off' ? null : strtolower($selectedCheat);
                     $selectedCheat === 'off' ? $sender->sendMessage('Debug information has been disabled.') : $sender->sendMessage("Debug information for $selectedCheat has been enabled.");;
+                    return;
+                } elseif($selectedUser === '--spawn-dummy' && $sender instanceof Player){
+                    $nbt = Entity::createBaseNBT($sender->asVector3());
+                    $dummy = new Villager($sender->getLevelNonNull(), $nbt);
+                    $dummy->setMaxHealth(10000);
+                    $dummy->setHealth(10000);
+                    $dummy->spawnTo($sender);
                     return;
                 }
                 if($user === null){

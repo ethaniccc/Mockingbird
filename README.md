@@ -41,6 +41,7 @@ TLDR List:
 - Cheat probability
 - Reward system (for when players pass checks to prevent falses)
 - Less CPU Usage
+- Some threaded checks
 
 Well, first things first - detection modules are no longer event listeners, instead, Detections
 extend a Detection class which has a function called "process" which runs every time a packet gets received from the player.
@@ -71,7 +72,7 @@ and false at sometimes, but the new reward system should compensate.
 ### Combat Detections
 - Aim
     - (A) -> Yaw delta to pitch delta check
-    - (B) -> GCD diff check
+    - (B) -> Modulo check
 - AutoClicker
     - (A) -> Consistency
     - (B) -> Speed
@@ -81,7 +82,7 @@ and false at sometimes, but the new reward system should compensate.
     - (A) -> MultiAura
     - (B) -> NoSwing
 - Reach
-    - (A) -> Colliding Ray Check w/ Location History
+    - (A) -> AABB Distance Check with Location History
 - Hitbox
     - (A) -> Colliding Ray Check
 ### Movement Checks
@@ -92,9 +93,6 @@ and false at sometimes, but the new reward system should compensate.
 - Speed
     - (A) -> Friction Check (flags while using bhop and some other hacks)
     - (B) -> Speed Limit Check
-- Velocity
-    - (A) -> Vertical Check (**98% by default**)
-    - (B) -> Horizontal Check (**95% by default**)
 ### Player Checks
 - Nuker (yep lag compensated in less than 40 lines)
 - ChestStealer (yep also lag compensated in less than 40 lines)
@@ -105,6 +103,7 @@ Mockingbird also has packet checks.
     * (A) -> Pitch validity check
     * (B) -> MovePlayerPacket consistency check
     * (C) -> Checks if player hits themselves (can be used to bypass some checks?)
+    * (D) -> Checks if player is gliding without an Elytra.
 - Timer (checks if player is sending too many packets in an instance)
     - (A) -> Balance Check (bad with server lag)
 

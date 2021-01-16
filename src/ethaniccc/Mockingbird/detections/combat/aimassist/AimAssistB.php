@@ -23,7 +23,7 @@ class AimAssistB extends Detection{
         $this->mediumMax = 3;
     }
 
-    public function handle(DataPacket $packet, User $user): void{
+    public function handleReceive(DataPacket $packet, User $user): void{
         // right now I'm only using this check for win10 players as this isn't tested on other platforms
         if($packet instanceof PlayerAuthInputPacket && $user->win10){
             if($user->moveData->yawDelta > 0.0065){
@@ -33,6 +33,7 @@ class AimAssistB extends Detection{
                         $this->fail($user, "roundedYawDiff=$roundedDiff");
                     }
                 } else {
+                    $this->reward($user, 0.9995);
                     $this->preVL = max($this->preVL - 0.05, 0);
                 }
                 if($this->isDebug($user)){

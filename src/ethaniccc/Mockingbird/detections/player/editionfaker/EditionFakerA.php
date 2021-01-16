@@ -23,7 +23,7 @@ class EditionFakerA extends Detection{
         parent::__construct($name, $settings);
     }
 
-    public function handle(DataPacket $packet, User $user): void{
+    public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof LoginPacket){
             // finally the reign of using Horion's EditionFaker to fucking bypass some combat checks is finally over
             if($user->win10 && !$user->isDesktop){

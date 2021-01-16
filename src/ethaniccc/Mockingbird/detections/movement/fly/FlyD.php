@@ -25,7 +25,7 @@ class FlyD extends Detection{
         $this->mediumMax = 4;
     }
 
-    public function handle(DataPacket $packet, User $user): void{
+    public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket && $user->loggedIn){
             if($user->moveData->offGroundTicks >= 10){
                 $yDelta = $user->moveData->moveDelta->y;

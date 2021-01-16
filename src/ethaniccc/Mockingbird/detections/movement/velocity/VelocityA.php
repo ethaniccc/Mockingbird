@@ -29,9 +29,7 @@ class VelocityA extends Detection implements CancellableMovement{
         $this->mediumMax = 8;
     }
 
-    public function handle(DataPacket $packet, User $user): void{
-        return;
-        /*
+    public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
             if($user->timeSinceMotion <= ($user->transactionLatency / 50) + 3 && $user->moveData->lastMotion !== null && $user->player->isAlive()){
                 if($user->timeSinceTeleport <= 6){
@@ -45,19 +43,18 @@ class VelocityA extends Detection implements CancellableMovement{
                 $expectedY *= $this->getSetting("multiplier");
                 $scaledPercentage = ($yDelta / $expectedY) * 100;
                 if($yDelta < $expectedY && $user->moveData->cobwebTicks >= 6 && $user->moveData->liquidTicks >= 6 && $user->moveData->blockAbove->getId() === 0
-                && $user->timeSinceStoppedFlight >= 20){
+                && $user->timeSinceStoppedFlight >= 20 && $user->hasReceivedChunks){
                     if(++$this->preVL >= ($user->transactionLatency > 150 ? 40 : 30)){
                         $this->fail($user, "percentage(vertical)=$scaledPercentage% buffer={$this->preVL}");
                     }
                 } else {
-                    $this->preVL = max($this->preVL - 10, 0);
+                    $this->preVL = max($this->preVL - 15, 0);
                 }
                 if($this->isDebug($user)){
                     $user->sendMessage("percentage=$scaledPercentage% buffer={$this->preVL}");
                 }
             }
         }
-        */
     }
 
 }

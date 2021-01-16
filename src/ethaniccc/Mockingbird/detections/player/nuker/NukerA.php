@@ -21,7 +21,7 @@ class NukerA extends Detection{
         parent::__construct($name, $settings);
     }
 
-    public function handle(DataPacket $packet, User $user) : void{
+    public function handleReceive(DataPacket $packet, User $user) : void{
         if($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ACTION_BREAK_BLOCK){
             ++$this->blocks;
         } elseif($packet instanceof PlayerAuthInputPacket){

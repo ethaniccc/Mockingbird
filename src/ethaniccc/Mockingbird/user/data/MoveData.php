@@ -48,4 +48,7 @@ class MoveData{
     public $levitationTicks = 0;
     /** @var AABB - The current AABB of the user. */
     public $AABB;
+    /** @var bool - The boolean value for wether or not the user is moving in the current tick. */
+    public $isMoving = false;
+
 }

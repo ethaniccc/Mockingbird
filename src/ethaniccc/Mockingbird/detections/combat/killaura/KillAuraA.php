@@ -22,7 +22,7 @@ class KillAuraA extends Detection{
         parent::__construct($name, $settings);
     }
 
-    public function handle(DataPacket $packet, User $user): void{
+    public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK){
             if($packet->trData->entityRuntimeId !== $this->lastEntity){
                 ++$this->entities;

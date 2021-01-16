@@ -21,7 +21,7 @@ class FlyC extends Detection implements CancellableMovement{
         parent::__construct($name, $settings);
     }
 
-    public function handle(DataPacket $packet, User $user): void{
+    public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
             if($user->moveData->offGroundTicks >= 10){
                 $yDelta = $user->moveData->moveDelta->y;
@@ -29,7 +29,8 @@ class FlyC extends Detection implements CancellableMovement{
                 $equalness = abs($yDelta - $lastYDelta);
                 // are PlayerAuthInputPacket y values fucked?
                 if($user->timeSinceJoin >= 200 && $yDelta > -3.0 && $equalness <= 0.01 && $user->player->isAlive() && $user->timeSinceMotion > 5 && $user->loggedIn
-                    && $user->timeSinceStoppedFlight >= 10 && $user->moveData->blockBelow->getId() === 0 && $user->moveData->ticksSinceInVoid >= 10 && $user->moveData->cobwebTicks >= 15 && $user->moveData->liquidTicks >= 15 && $user->timeSinceStoppedGlide >= 10 && $user->moveData->levitationTicks >= 5){
+                    && $user->timeSinceStoppedFlight >= 10 && $user->moveData->blockBelow->getId() === 0 && $user->moveData->ticksSinceInVoid >= 10 && $user->moveData->cobwebTicks >= 15
+                    && $user->moveData->liquidTicks >= 15 && $user->timeSinceStoppedGlide >= 10 && $user->moveData->levitationTicks >= 5 && $user->hasReceivedChunks){
                     if(++$this->preVL >= 3){
                         $this->fail($user, "yD=$yDelta, eq=$equalness");
                     }

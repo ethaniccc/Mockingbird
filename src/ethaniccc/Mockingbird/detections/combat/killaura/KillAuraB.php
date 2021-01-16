@@ -27,7 +27,7 @@ class KillAuraB extends Detection{
         $this->mediumMax = 4;
     }
 
-    public function handle(DataPacket $packet, User $user): void{
+    public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK){
             if($user->tickData->currentTick - $this->lastTick >= 4){
                 if(!$this->swung){

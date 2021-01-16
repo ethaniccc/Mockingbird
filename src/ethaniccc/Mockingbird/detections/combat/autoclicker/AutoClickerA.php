@@ -28,15 +28,19 @@ class AutoClickerA extends Detection{
         $this->mediumMax = 4;
     }
 
-    public function handle(DataPacket $packet, User $user): void{
+    public function handleReceive(DataPacket $packet, User $user): void{
         if(($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) || ($packet instanceof LevelSoundEventPacket && $packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE) && $user->isDesktop){
             if($user->clickData->tickSpeed <= 3 && ++$this->clicks >= 20){
-                $deviation = MathUtils::getDeviation($user->clickData->getTickSamples(20));
+                $samples = $user->clickData->getTickSamples(20);
+                $deviation = MathUtils::getDeviation($samples);
+                $skewness = MathUtils::getSkewness($samples);
                 $diff = abs($deviation - $this->lastDeviation);
-                if($diff === 0.0 && $user->clickData->cps >= 8){
+                // Skewness was added to here to prevent false-flags when butterfly clicking consistenly, as
+                // jitter clicking tends to have a skewness lower than 0, and butterfly clicking has higher skewness.
+                if($diff === 0.0 && $skewness <= 0.0 && $user->clickData->cps >= 8){
                     $this->preVL = min($this->preVL + 0.25, 2);
                     if($this->preVL > 0.75){
-                        $this->fail($user, "diff=$diff cps={$user->clickData->cps}", "cps={$user->clickData->cps}");
+                        $this->fail($user, "deviation=$deviation diff=$diff cps={$user->clickData->cps}", "cps={$user->clickData->cps}");
                     }
                 } else {
                     $this->preVL = max($this->preVL - 0.05, 0);

@@ -6,8 +6,9 @@ use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\processing\EventProcessor;
 use ethaniccc\Mockingbird\processing\InboundPacketProcessor;
+use ethaniccc\Mockingbird\processing\OutboundProcessor;
+use ethaniccc\Mockingbird\processing\TestProcessor;
 use ethaniccc\Mockingbird\processing\TickProcessor;
-use ethaniccc\Mockingbird\threads\CalculationThread;
 use ethaniccc\Mockingbird\user\data\ClickData;
 use ethaniccc\Mockingbird\user\data\HitData;
 use ethaniccc\Mockingbird\user\data\MoveData;
@@ -17,8 +18,6 @@ use pocketmine\block\Air;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\Player;
-use pocketmine\Server;
-use pocketmine\snooze\SleeperNotifier;
 use pocketmine\utils\TextFormat;
 
 class User{
@@ -27,10 +26,12 @@ class User{
     public $player;
     /** @var InboundPacketProcessor - The processor that will handle all incoming packets */
     public $inboundProcessor;
-    /** @var EventProcessor - The processor that will handle events related to the user. */
-    public $eventProcessor;
+    /** @var OutboundProcessor - The processor that will handle all packets sent by the server. */
+    public $outboundProcessor;
     /** @var TickProcessor - The processor that will run every tick for particular data. */
     public $tickProcessor;
+    /** @var TestProcessor - A development processor for testing things that should not be used in a release. */
+    public $testProcessor;
     /** @var Detection[] - The detections available that will run. */
     public $detections = [];
     /** @var array - The key is the detection name, and the value is the violations (float). - Make this a class? */
@@ -71,11 +72,15 @@ class User{
     public $transactionLatency = 0;
     /** @var bool - Boolean value for if the user responded with a NetworkStackLatencyPacket. */
     public $responded = false;
+    /** @var bool - Boolean value for if the user has (probablly) received and loaded chunks. */
+    public $hasReceivedChunks = false;
 
     /** @var Vector3 - Just a Vector3 with it's x, y, and z values at 0 - don't mind me! */
     public $zeroVector;
-    /** @var NetworkStackLatencyPacket - So I don't have to create multiple of these. */
-    public $networkStackLatencyPacket;
+    /** @var NetworkStackLatencyPacket - Packet responsible for measuring user latency. */
+    public $latencyPacket;
+    /** @var NetworkStackLatencyPacket - Packet responsible for chunk receiving. */
+    public $chunkResponsePacket;
 
     /**
      * NOTE: I use these values (isSneaking, isSprinting, etc.) because Pocketmine's values will be off by at least one tick, since it has not
@@ -117,19 +122,22 @@ class User{
         $this->moveData->lastLocation = $this->moveData->location;
         $this->moveData->lastMotion = $zeroVector;
         $this->moveData->directionVector = $zeroVector;
-        $this->inboundProcessor = new InboundPacketProcessor($this);
-        $this->eventProcessor = new EventProcessor($this);
-        $this->tickProcessor = new TickProcessor($this);
+        $this->inboundProcessor = new InboundPacketProcessor($this); $this->outboundProcessor = new OutboundProcessor($this);
+        $this->tickProcessor = new TickProcessor($this); $this->testProcessor = new TestProcessor($this);
         foreach(Mockingbird::getInstance()->availableChecks as $check){
             $this->detections[$check->name] = clone $check;
         }
-        $this->networkStackLatencyPacket = new NetworkStackLatencyPacket();
-        $this->networkStackLatencyPacket->needResponse = true;
-        $this->networkStackLatencyPacket->timestamp = mt_rand(1, 100) * 1000;
+        $this->latencyPacket = new NetworkStackLatencyPacket();
+        $this->latencyPacket->needResponse = true;
+        $this->latencyPacket->timestamp = mt_rand(10, 1000000) * 1000;
+        $this->chunkResponsePacket = new NetworkStackLatencyPacket();
+        $this->chunkResponsePacket->needResponse = true;
+        // to ensure that the two timestamps are NOT the same in any case (the chance of it happening is low, but still possible)
+        $this->chunkResponsePacket->timestamp = $this->latencyPacket->timestamp + mt_rand(-10000, 10000) * 1000;
     }
 
     public function sendMessage(string $message) : void{
-        $this->player->sendMessage(TextFormat::BOLD . TextFormat::DARK_GRAY . '[' . TextFormat::RED . 'DEBUG' . TextFormat::DARK_GRAY . ']' . TextFormat::RESET . " $message");
+        $this->player->sendMessage(TextFormat::BOLD . TextFormat::DARK_GRAY . '[' . TextFormat::RED . 'DEBUG' . TextFormat::DARK_GRAY . ']' . TextFormat::RESET . ' ' . $message);
     }
 
 }

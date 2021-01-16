@@ -24,7 +24,7 @@ class TimerA extends Detection{
         $this->vlSecondCount = 40;
     }
 
-    public function handle(DataPacket $packet, User $user): void{
+    public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
             if(!$user->loggedIn){
                 $this->balance = 0;

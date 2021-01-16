@@ -5,7 +5,7 @@ namespace ethaniccc\Mockingbird\detections\combat\reach;
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
-use ethaniccc\Mockingbird\utils\SizedList;
+use ethaniccc\Mockingbird\utils\EvictingList;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
@@ -29,41 +29,35 @@ class ReachA extends Detection{
         $this->vlSecondCount = 20;
     }
 
-    public function handle(DataPacket $packet, User $user) : void{
+    public function handleReceive(DataPacket $packet, User $user) : void{
         if($packet instanceof InventoryTransactionPacket && !$user->player->isCreative() && !$this->awaitingMove && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK && $user->hitData->targetEntity === $user->hitData->lastTargetEntity){
-            if($user->tickData->targetLocationHistory->getLocations()->size() >= floor($user->transactionLatency / 50) + 2){
-                // wait for the next PlayerAuthInputPacket from the client
-                $this->awaitingMove = true;
-            }
+            // wait for the next PlayerAuthInputPacket from the client
+            $this->awaitingMove = true;
         } elseif($packet instanceof PlayerAuthInputPacket && $this->awaitingMove){
-            // the client is off by at least one tick
-            $locations = serialize($user->tickData->targetLocationHistory->getLocationsRelativeToTime($user->tickData->currentTick - (floor($user->transactionLatency / 50) + 1), 2));
+            $locations = serialize($user->tickData->targetLocationHistory->getLocationsRelativeToTime($user->tickData->currentTick - floor(($user->transactionLatency / 50) + 1), 2));
             [$from, $to] = [serialize($user->moveData->lastLocation->add(0, $user->isSneaking ? 1.54 : 1.62, 0)), serialize($packet->getPosition())];
-            $latency = $user->transactionLatency;
-            $this->getPlugin()->calculationThread->addToTodo(function() use($locations, $from, $to, $latency){
+            $this->getPlugin()->calculationThread->addToTodo(function() use($locations, $from, $to){
                 [$locations, $from, $to] = [unserialize($locations), unserialize($from), unserialize($to)];
-                $lastLocation = null;
-                $distances = new SizedList(80);
-                foreach($locations as $location){
-                    if($lastLocation === null){
-                        $moveDelta = 0;
-                    } else {
-                        // see: https://media.discordapp.net/attachments/727159224320131133/795030256523935784/unknown.png?width=1049&height=316
-                        $moveDelta = $location->distance($lastLocation) / ($latency > 50 ? 2 : 3);
-                    }
-                    $AABB = AABB::fromPosition($location)->expand(0.1, 0.1, 0.1);
-                    $distances->add($AABB->distanceFromVector($from) - $moveDelta);
-                    $distances->add($AABB->distanceFromVector($to) - $moveDelta);
-                    $lastLocation = $location;
+                $distances = new EvictingList(80);
+                foreach($locations as $AABB){
+                    /** @var AABB $AABB */
+                    $AABB = clone $AABB;
+                    $AABB->expand(0.1, 0.1, 0.1);
+                    $distances
+                        ->add($AABB->distanceFromVector($from))
+                        ->add($AABB->distanceFromVector($to));
                 }
                 return $distances->minOrElse(-1.0);
             }, function($distance) use ($user){
                 if($distance !== -1.0 && $distance !== null){
+                    if(!$user->loggedIn){
+                        return;
+                    }
                     // make sure the user's latency is updated and that the distance is greater than the allowed
                     if($distance > $this->getSetting("max_reach")){
                         if($user->responded){
                             $this->trust = max($this->trust - 0.15, 0);
-                            if(++$this->preVL >= 4 && $this->trust <= 0.5){
+                            if(++$this->preVL >= 2.1 && $this->trust <= 0.5){
                                 $roundedDist = round($distance, 3);
                                 $this->fail($user, "(A) dist=$distance buff={$this->preVL} trust={$this->trust}", "dist=$roundedDist");
                             }

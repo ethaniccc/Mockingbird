@@ -27,7 +27,7 @@ class BadPacketB extends Detection{
         $this->lastTime = $this->ticks;
     }
 
-    public function handle(DataPacket $packet, User $user): void{
+    public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof MovePlayerPacket){
             $speed = $this->ticks - $this->lastTime;
             if($speed < 2){

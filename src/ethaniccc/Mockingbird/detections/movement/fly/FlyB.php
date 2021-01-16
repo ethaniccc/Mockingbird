@@ -28,7 +28,7 @@ class FlyB extends Detection implements CancellableMovement{
         $this->mediumMax = 3;
     }
 
-    public function handle(DataPacket $packet, User $user): void{
+    public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
             // 0.00001 off???
             $this->modulo = fmod(round($user->moveData->location->y, 6) - 0.00001, 1 / 64);

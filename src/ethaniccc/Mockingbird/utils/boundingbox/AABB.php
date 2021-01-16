@@ -31,6 +31,10 @@ class AABB extends AxisAlignedBB{
         return new AABB($pos->x - 0.3, $pos->y, $pos->z - 0.3, $pos->x + 0.3, $pos->y + 1.8, $pos->z + 0.3);
     }
 
+    public static function fromAxisAlignedBB(AxisAlignedBB $alignedBB) : AABB{
+        return new AABB($alignedBB->minX - 0.1, $alignedBB->minY, $alignedBB->minZ - 0.1, $alignedBB->maxX + 0.1, $alignedBB->maxY, $alignedBB->maxZ + 0.1);
+    }
+
     public static function fromPosition(Vector3 $pos) : AABB{
         return new AABB($pos->x - 0.3, $pos->y, $pos->z - 0.3, $pos->x + 0.3, $pos->y + 1.8, $pos->z + 0.3);
     }

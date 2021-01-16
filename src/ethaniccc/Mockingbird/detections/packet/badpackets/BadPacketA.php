@@ -20,7 +20,7 @@ class BadPacketA extends Detection implements CancellableMovement{
         parent::__construct($name, $settings);
     }
 
-    public function handle(DataPacket $packet, User $user): void{
+    public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
             if(abs($packet->getPitch()) > 90 && $user->timeSinceJoin >= 10){
                 $this->fail($user, "{$user->player->getName()}: pitch={$packet->getPitch()}");

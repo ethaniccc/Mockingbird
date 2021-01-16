@@ -16,7 +16,7 @@ use pocketmine\utils\TextFormat;
 
 abstract class Detection{
 
-    public $preVL, $maxVL;
+    public $preVL = 0, $maxVL;
     public $name, $subType, $enabled, $punishable, $punishType, $suppression, $alerts;
     protected $settings;
     protected $vlSecondCount = 2;
@@ -46,7 +46,10 @@ abstract class Detection{
         return $this->settings[$setting] ?? null;
     }
 
-    public abstract function handle(DataPacket $packet, User $user) : void;
+    public abstract function handleReceive(DataPacket $packet, User $user) : void;
+
+    public function handleSend(DataPacket $packet, User $user) : void{
+    }
 
     public function handleEvent(Event $event, User $user) : void{
     }
@@ -74,6 +77,7 @@ abstract class Detection{
         return "";
     }
 
+    // TODO: This can probably cause some lag on servers, find a way to do this *better* (async?)
     protected function fail(User $user, ?string $debugData = null, ?string $detailData = null) : void{
         if(!$user->loggedIn){
             return;
@@ -123,12 +127,12 @@ abstract class Detection{
                 case 'kick':
                     $user->loggedIn = false;
                     $this->debug("{$user->player->getName()} was punished for {$this->name}");
-                    $this->getPlugin()->getScheduler()->scheduleDelayedTask(new KickTask($user, $this->getPlugin()->getPrefix() . " " . $this->getPlugin()->getConfig()->get("punish_message_player")), 0);
+                    $this->getPlugin()->getScheduler()->scheduleDelayedTask(new KickTask($user, $this->getPlugin()->getPrefix() . " " . $this->getPlugin()->getConfig()->get("punish_message_player")), 1);
                     break;
                 case 'ban':
                     $user->loggedIn = false;
                     $this->debug("{$user->player->getName()} was punished for {$this->name}");
-                    $this->getPlugin()->getScheduler()->scheduleDelayedTask(new BanTask($user, $this->getPlugin()->getPrefix() . " " . $this->getPlugin()->getConfig()->get("punish_message_player")), 0);
+                    $this->getPlugin()->getScheduler()->scheduleDelayedTask(new BanTask($user, $this->getPlugin()->getPrefix() . " " . $this->getPlugin()->getConfig()->get("punish_message_player")), 1);
                     break;
             }
             $message = $this->getPlugin()->getPrefix() . ' ' . str_replace(['{player}', '{detection}'], [$name, $this->name], $this->getPlugin()->getConfig()->get('punish_message_staff'));
@@ -145,8 +149,9 @@ abstract class Detection{
 
     protected function debug($debugData, bool $logWrite = true) : void{
         if($logWrite){
-            Mockingbird::getInstance()->debugThread->addData($debugData);
+            Mockingbird::getInstance()->debugTask->addData($debugData);
         }
+        Mockingbird::getInstance()->getLogger()->debug($debugData);
     }
 
     protected function isDebug(User $user) : bool{

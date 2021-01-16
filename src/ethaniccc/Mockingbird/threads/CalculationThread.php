@@ -2,21 +2,18 @@
 
 namespace ethaniccc\Mockingbird\threads;
 
-use pocketmine\snooze\SleeperNotifier;
 use pocketmine\Thread;
 
 class CalculationThread extends Thread{
 
     private $todo;
     private $done;
-    private $notifier;
     private $running = false;
     private $id;
     private static $currentMaxID = 0;
     private static $finishCallableList = [];
 
-    public function __construct(SleeperNotifier $notifier){
-        $this->notifier = $notifier;
+    public function __construct(){
         $this->todo = new \Threaded();
         $this->done = new \Threaded();
         $this->id = self::$currentMaxID++;
@@ -28,14 +25,19 @@ class CalculationThread extends Thread{
         $this->registerClassLoader();
         while($this->running){
             // results will be in batches
+            $start = microtime(true);
             while(($task = $this->getFromTodo()) !== null){
                 // do the task and add the result
-                $this->addToDone(($task)());
+                $result = ($task)();
+                $this->addToDone($result);
             }
-            // notify the main thread of completion so it can run all the finish tasks along with results
-            $this->notifier->wakeupSleeper();
-            // sleep for two ticks
-            usleep(100000);
+            $end = microtime(true);
+            $tickSpeed = 0.05;
+            // if the run time is less than the tick speed then we can allow the thread to sleep,
+            // otherwise, the thread is lacking behind and no sleeping for it until it gets the work done.
+            if(($delta = $end - $start) < $tickSpeed){
+                @time_sleep_until($end + $tickSpeed - $delta);
+            }
         }
     }
 
@@ -68,6 +70,14 @@ class CalculationThread extends Thread{
 
     public function getFinishTask() : ?callable{
         return array_shift(self::$finishCallableList[$this->id]);
+    }
+
+    public function getAllDone() : \Threaded{
+        return $this->done;
+    }
+
+    public function getAllFinishTasks() : array{
+        return self::$finishCallableList[$this->id];
     }
 
     public function quit(){

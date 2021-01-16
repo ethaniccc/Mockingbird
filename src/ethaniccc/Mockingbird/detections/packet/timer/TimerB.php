@@ -24,7 +24,7 @@ class TimerB extends Detection{
         $this->lastTick = Server::getInstance()->getTick();
     }
 
-    public function handle(DataPacket $packet, User $user): void{
+    public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
             $speed = Server::getInstance()->getTick() - $this->lastTick;
             $this->samples[] = $speed;

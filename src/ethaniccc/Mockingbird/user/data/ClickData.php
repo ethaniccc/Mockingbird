@@ -2,7 +2,7 @@
 
 namespace ethaniccc\Mockingbird\user\data;
 
-use ethaniccc\Mockingbird\utils\SizedList;
+use ethaniccc\Mockingbird\utils\EvictingList;
 
 class ClickData{
 
@@ -13,8 +13,8 @@ class ClickData{
     public $cps = 0;
 
     public function __construct(){
-        $this->tickSamples = new SizedList(150);
-        $this->timeSamples = new SizedList(150);
+        $this->tickSamples = new EvictingList(150);
+        $this->timeSamples = new EvictingList(150);
     }
 
     public function getTickSamples(int $samples) : array{

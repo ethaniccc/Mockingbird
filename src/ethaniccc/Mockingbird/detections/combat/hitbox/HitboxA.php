@@ -30,7 +30,7 @@ class HitboxA extends Detection{
         $this->mediumMax = 5;
     }
 
-    public function handle(DataPacket $packet, User $user): void{
+    public function handleReceive(DataPacket $packet, User $user): void{
         if($user->timeSinceJoin < 100 || !$user->loggedIn){
             return;
         }
@@ -45,8 +45,7 @@ class HitboxA extends Detection{
                 [$from, $to] = [serialize(new Ray($user->moveData->lastLocation->add(0, $user->isSneaking ? 1.52 : 1.62, 0), $this->lastDirectionVector)), serialize(Ray::fromUser($user))];
                 $this->getPlugin()->calculationThread->addToTodo(function() use ($locations, $from, $to){
                     [$locations, $from, $to] = [unserialize($locations), unserialize($from), unserialize($to)];
-                    foreach($locations as $location){
-                        $AABB = AABB::fromPosition($location)->expand(0.1, 0.1, 0.1);
+                    foreach($locations as $AABB){
                         if($AABB->collidesRay($from, 10) !== -69.0){
                             return true;
                         }

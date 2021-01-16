@@ -23,7 +23,7 @@ class BadPacketD extends Detection{
         $this->lowMax = 0; $this->mediumMax = 2;
     }
 
-    public function handle(DataPacket $packet, User $user): void{
+    public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
             // the player is gliding without anything to glide with along with being off ground - invalid.
             // TODO: While testing ONCE, this check false flagged - make some hack to fix (fml).

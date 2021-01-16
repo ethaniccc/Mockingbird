@@ -76,7 +76,7 @@ AutoClickerD:
   enabled: true
   punish: true
   punishment_type: kick
-  max_violations: 20
+  max_violations: 5
   # check sensitivity settings
   duplicate_max: 4
   samples: 10

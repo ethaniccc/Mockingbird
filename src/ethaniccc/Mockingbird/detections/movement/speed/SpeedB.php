@@ -8,7 +8,6 @@ use ethaniccc\Mockingbird\user\User;
 use pocketmine\block\Ice;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
-
 /**
  * Class SpeedB
  * @package ethaniccc\Mockingbird\detections\movement\speed
@@ -24,7 +23,7 @@ class SpeedB extends Detection implements CancellableMovement{
         parent::__construct($name, $settings);
     }
 
-    public function handle(DataPacket $packet, User $user): void{
+    public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
             $theoreticalOnGround = fmod(($posY = round($user->moveData->location->y, 4)), 1 / 64) === 0.0;
             if($theoreticalOnGround){
@@ -35,7 +34,10 @@ class SpeedB extends Detection implements CancellableMovement{
             $horizontalSpeed = hypot($user->moveData->moveDelta->x, $user->moveData->moveDelta->z);
             if($user->timeSinceStoppedFlight >= 20
             && $user->moveData->blockAbove->getId() === 0){
-                $maxSpeed = $this->onGroundTicks >= 10 ? $this->getSetting("max_speed_on_ground") : $this->getSetting("max_speed_off_ground");
+                $maxSpeed = $this->onGroundTicks >= 10 ? $this->getSetting('max_speed_on_ground') : $this->getSetting('max_speed_off_ground');
+                if(!$user->hasReceivedChunks){
+                    $maxSpeed = $this->getSetting('max_speed_off_ground');
+                }
                 if($user->moveData->blockBelow instanceof Ice){
                     $maxSpeed *= 5/3;
                 }
@@ -55,8 +57,10 @@ class SpeedB extends Detection implements CancellableMovement{
                         $this->fail($user, "speed=$horizontalSpeed max=$maxSpeed tpTime={$user->timeSinceTeleport}");
                     }
                 } else {
-                    $this->preVL = 0;
-                    $this->reward($user, 0.999);
+                    if($horizontalSpeed > 0){
+                        $this->preVL = 0;
+                        $this->reward($user, 0.999);
+                    }
                 }
                 if($this->isDebug($user)){
                     $user->sendMessage("speed=$horizontalSpeed max=$maxSpeed");

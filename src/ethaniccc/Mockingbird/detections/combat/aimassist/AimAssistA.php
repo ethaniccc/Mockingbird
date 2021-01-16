@@ -20,7 +20,7 @@ class AimAssistA extends Detection{
         parent::__construct($name, $settings);
     }
 
-    public function handle(DataPacket $packet, User $user): void{
+    public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket && $user->win10){
             $yawDelta = $user->moveData->yawDelta;
             $pitchDelta = $user->moveData->pitchDelta;
