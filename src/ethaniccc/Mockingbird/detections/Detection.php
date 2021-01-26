@@ -9,6 +9,7 @@ use ethaniccc\Mockingbird\tasks\KickTask;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\user\UserManager;
 use pocketmine\event\Event;
+use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -49,6 +50,10 @@ abstract class Detection{
     public abstract function handleReceive(DataPacket $packet, User $user) : void;
 
     public function handleSend(DataPacket $packet, User $user) : void{
+    }
+
+    public function canHandleSend() : bool{
+        return false;
     }
 
     public function handleEvent(Event $event, User $user) : void{
@@ -92,28 +97,27 @@ abstract class Detection{
         });
         $name = $user->player->getName();
         $cheatName = $this->name;
-        $violations = round($user->violations[$this->name], 0);
+        $violations = round($user->violations[$this->name], 2);
         $staff = array_filter(Server::getInstance()->getOnlinePlayers(), function(Player $p) : bool{
             $user = UserManager::getInstance()->get($p);
-            $bool = $p->hasPermission('mockingbird.alerts') && $user->alerts;
-            if($bool){
-                if(!isset($this->cooldown[$p->getId()])){
-                    $this->cooldown[$p->getId()] = microtime(true);
-                    return true;
-                }
-                if(microtime(true) - $this->cooldown[$p->getId()] >= $user->alertCooldown){
-                    $this->cooldown[$p->getId()] = microtime(true);
-                    return true;
-                } else {
-                    return false;
-                }
+            return $p->hasPermission('mockingbird.alerts') && $user->alerts;
+        });
+        $cooldownStaff = array_filter($staff, function(Player $p) : bool{
+            $user = UserManager::getInstance()->get($p);
+            if(!isset($this->cooldown[$p->getId()])){
+                $this->cooldown[$p->getId()] = microtime(true);
+                return true;
+            }
+            if(microtime(true) - $this->cooldown[$p->getId()] >= $user->alertCooldown){
+                $this->cooldown[$p->getId()] = microtime(true);
+                return true;
             } else {
-                return $bool;
+                return false;
             }
         });
         if($this->alerts){
             $message = $this->getPlugin()->getPrefix() . ' ' . str_replace(['{player}', '{check}', '{vl}', '{probability}', '{detail}'], [$name, $cheatName, $violations, $this->probabilityColor($this->getCheatProbability()), ($detailData !== null ? $detailData . " ping={$user->transactionLatency}" : "ping={$user->transactionLatency}")], $this->getPlugin()->getConfig()->get('fail_message'));
-            Server::getInstance()->broadcastMessage($message, $staff);
+            Server::getInstance()->broadcastMessage($message, $cooldownStaff);
         }
         if($this instanceof CancellableMovement && $this->suppression){
             if(!$user->moveData->onGround){
@@ -158,9 +162,9 @@ abstract class Detection{
         return strtolower($user->debugChannel) === strtolower($this->name);
     }
 
-    protected function reward(User $user, float $multiplier) : void{
+    protected function reward(User $user, float $num, bool $multiply = true) : void{
         if(isset($user->violations[$this->name])){
-            $user->violations[$this->name] *= $multiplier;
+            $multiply ? $user->violations[$this->name] *= $num : $user->violations[$this->name] = max($user->violations[$this->name] - $num, 0);
         }
     }
 

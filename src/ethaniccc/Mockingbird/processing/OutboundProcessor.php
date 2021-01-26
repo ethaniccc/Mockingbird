@@ -7,6 +7,7 @@ use ethaniccc\Mockingbird\user\UserManager;
 use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\MoveActorAbsolutePacket;
+use pocketmine\network\mcpe\protocol\MoveActorDeltaPacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\NetworkChunkPublisherUpdatePacket;
 use pocketmine\network\mcpe\protocol\PacketPool;
@@ -15,12 +16,7 @@ use pocketmine\network\mcpe\protocol\DisconnectPacket;
 
 class OutboundProcessor extends Processor{
 
-    public function __construct(User $user){
-        parent::__construct($user);
-    }
-
-    public function process(DataPacket $pk): void{
-        $user = $this->user;
+    public function process(DataPacket $pk, User $user): void{
         // is it me... or does the server only send batch packets..?
         if($pk instanceof BatchPacket){
             foreach($pk->getPackets() as $buff){
@@ -50,7 +46,7 @@ class OutboundProcessor extends Processor{
                 } catch(\RuntimeException $e){/* the packet could not be decoded */}
                 // $user->testProcessor->process($packet);
                 foreach($user->detections as $detection){
-                    if($detection->enabled){
+                    if($detection->enabled && $detection->canHandleSend()){
                         $detection->handleSend($packet, $user);
                     }
                 }

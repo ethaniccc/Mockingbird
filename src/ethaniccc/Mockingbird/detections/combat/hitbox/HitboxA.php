@@ -41,29 +41,28 @@ class HitboxA extends Detection{
             }
         } elseif($packet instanceof PlayerAuthInputPacket){
             if($this->awaitingMove){
-                $locations = serialize($user->tickData->targetLocationHistory->getLocationsRelativeToTime($user->tickData->currentTick - floor($user->transactionLatency / 50), 2));
+                $locations = serialize($user->tickData->targetLocationHistory->getLocationsRelativeToTime($user->tickData->currentTick - floor($user->transactionLatency / 50), 3));
                 [$from, $to] = [serialize(new Ray($user->moveData->lastLocation->add(0, $user->isSneaking ? 1.52 : 1.62, 0), $this->lastDirectionVector)), serialize(Ray::fromUser($user))];
                 $this->getPlugin()->calculationThread->addToTodo(function() use ($locations, $from, $to){
                     [$locations, $from, $to] = [unserialize($locations), unserialize($from), unserialize($to)];
+                    $collided = 0;
                     foreach($locations as $AABB){
-                        if($AABB->collidesRay($from, 10) !== -69.0){
-                            return true;
+                        /** @var AABB $AABB */
+                        if($AABB->collidesRay($from, 0, 10) !== -69.0){
+                            $collided++;
                         }
-                        if($AABB->collidesRay($to, 10) !== -69.0){
-                            return true;
+                        if($AABB->collidesRay($to, 0, 10) !== -69.0){
+                            $collided++;
                         }
                     }
-                    return false;
-                }, function($result) use($user){
-                    if($result !== null){
+                    return $collided;
+                }, function($result) use(&$user){
+                    if($result !== null && $user !== null){
                         // there was no collision to the AABB
-                        if(!$result){
-                            // make sure the user's latency is updated to prevent false flags from lag spikes
-                            if($user->responded){
-                                // this is only going to flag blatant hitbox, but worth it over false positives (for now)
-                                if(++$this->preVL >= 7){
-                                    $this->fail($user);
-                                }
+                        if($result === 0 && $user->responded){
+                            // this is only going to flag blatant hitbox, but worth it over false positives (for now)
+                            if(++$this->preVL >= 7){
+                                $this->fail($user, 'collided=false buff=' . $this->preVL);
                             }
                         } else {
                             $this->reward($user, 0.999);
@@ -71,7 +70,7 @@ class HitboxA extends Detection{
                         }
                         if($this->isDebug($user)){
                             $collided = $result ? 'true' : 'false';
-                            $user->sendMessage("collided=$collided");
+                            $user->sendMessage("collided=$collided count=$result");
                         }
                     }
                 });

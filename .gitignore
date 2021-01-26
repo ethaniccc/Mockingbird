@@ -2,6 +2,7 @@
 resources/notes/*
 start.cmd
 upload.cmd
+upload.sh
 compile.cmd
 upload/*
 .vscode/*

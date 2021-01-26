@@ -61,14 +61,13 @@ class EvictingList{
         return count($this->array) - count(array_unique($this->array, $sort));
     }
 
-    public function filter(callable $call, int $size = null) : EvictingList{
-        $list = new EvictingList($size === null ? $this->maxSize : $size);
-        foreach($this->array as $value){
-            $result = ($call)($value);
-            if($result !== null)
-                $list->add($result);
+    public function reverse(bool $referenced = false) : EvictingList{
+        if($referenced){
+            $this->array = array_reverse($this->array);
+            return $this;
+        } else {
+            return self::fromArray(array_reverse($this->array));
         }
-        return $list;
     }
 
 }

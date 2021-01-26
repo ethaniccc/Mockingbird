@@ -16,8 +16,10 @@ use ethaniccc\Mockingbird\user\data\TickData;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use pocketmine\block\Air;
 use pocketmine\math\Vector3;
+use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\Player;
+use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 
 class User{
@@ -51,7 +53,10 @@ class User{
     public $alertCooldown;
     /** @var string|null - The detection that the user should get debug information from. */
     public $debugChannel = null;
-
+    /** @var bool - The boolean value for if the user is being packet logged. */
+    public $isPacketLogged = false;
+    /** @var DataPacket[] - The packet log of the user. */
+    public $packetLog = [];
     /**
      * @var int - The client ticks that have passed since the specified "thing". For
      * instance, if the client sends 10 PlayerAuthInputPackets since their teleport,
@@ -111,6 +116,7 @@ class User{
         $this->moveData->blockAbove = new Air();
         $this->clickData = new ClickData();
         $this->hitData = new HitData();
+        $this->hitData->lastTick = Server::getInstance()->getTick();
         $this->tickData = new TickData();
         $this->moveData->lastOnGroundLocation = $player->asLocation();
         $zeroVector = new Vector3(0, 0, 0);
@@ -122,8 +128,8 @@ class User{
         $this->moveData->lastLocation = $this->moveData->location;
         $this->moveData->lastMotion = $zeroVector;
         $this->moveData->directionVector = $zeroVector;
-        $this->inboundProcessor = new InboundPacketProcessor($this); $this->outboundProcessor = new OutboundProcessor($this);
-        $this->tickProcessor = new TickProcessor($this); $this->testProcessor = new TestProcessor($this);
+        $this->inboundProcessor = new InboundPacketProcessor(); $this->outboundProcessor = new OutboundProcessor();
+        $this->tickProcessor = new TickProcessor(); $this->testProcessor = new TestProcessor();
         foreach(Mockingbird::getInstance()->availableChecks as $check){
             $this->detections[$check->name] = clone $check;
         }

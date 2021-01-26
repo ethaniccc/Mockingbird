@@ -5,10 +5,15 @@ namespace ethaniccc\Mockingbird\detections\movement\velocity;
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\detections\movement\CancellableMovement;
 use ethaniccc\Mockingbird\user\User;
+use ethaniccc\Mockingbird\utils\EvictingList;
 use pocketmine\event\entity\EntityMotionEvent;
 use pocketmine\event\Event;
+use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\DataPacket;
+use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
+use pocketmine\network\mcpe\protocol\SetActorMotionPacket;
+use pocketmine\network\Network;
 use stdClass;
 
 /**
@@ -16,10 +21,12 @@ use stdClass;
  * @package ethaniccc\Mockingbird\detections\movement\velocity
  * VelocityA checks if the user's vertical velocity is lower than normal. This can detect 98%
  * vertical velocity on Horion (and ~94% on other clients).
- * THIS CHECK IS UNSTABLE.
- * TODO: Figure out what other PvP clients are doing with their Velocity modifiers to bypass this check at higher settings.
  */
 class VelocityA extends Detection implements CancellableMovement{
+
+    /** @var Vector3|null */
+    private $receivedMotion;
+    private $pendingMotions = [];
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
@@ -30,31 +37,47 @@ class VelocityA extends Detection implements CancellableMovement{
     }
 
     public function handleReceive(DataPacket $packet, User $user): void{
-        if($packet instanceof PlayerAuthInputPacket){
-            if($user->timeSinceMotion <= ($user->transactionLatency / 50) + 3 && $user->moveData->lastMotion !== null && $user->player->isAlive()){
-                if($user->timeSinceTeleport <= 6){
-                    $this->preVL = 0;
-                }
-                $expectedY = $user->moveData->lastMotion->y;
-                if($expectedY < 0.2){
-                    return;
-                }
-                $yDelta = $user->moveData->moveDelta->y;
-                $expectedY *= $this->getSetting("multiplier");
-                $scaledPercentage = ($yDelta / $expectedY) * 100;
-                if($yDelta < $expectedY && $user->moveData->cobwebTicks >= 6 && $user->moveData->liquidTicks >= 6 && $user->moveData->blockAbove->getId() === 0
-                && $user->timeSinceStoppedFlight >= 20 && $user->hasReceivedChunks){
-                    if(++$this->preVL >= ($user->transactionLatency > 150 ? 40 : 30)){
-                        $this->fail($user, "percentage(vertical)=$scaledPercentage% buffer={$this->preVL}");
+        if($packet instanceof PlayerAuthInputPacket && $this->receivedMotion !== null){
+            if($this->receivedMotion->y > 0){
+                // TODO: Account for more scenarios where falses could occur.
+                $currentYDelta = $user->moveData->moveDelta->y;
+                $percentage = ($currentYDelta / $this->receivedMotion->y) * 100;
+                // against walls this check for some reason will false at ~99.9999%, what the fuck
+                if($percentage < 99.9999 && $user->moveData->blockAbove->getId() === 0 && $user->moveData->liquidTicks >= 10 && $user->moveData->cobwebTicks >= 10
+                    && $user->moveData->levitationTicks >= 10 && $user->timeSinceTeleport >= 10 && $user->timeSinceStoppedFlight >= 10 && $user->timeSinceStoppedGlide >= 10){
+                    if(++$this->preVL >= 1){
+                        $roundedPercentage = round($percentage, 3); $roundedBuffer = round($this->preVL, 2);
+                        $this->fail($user, "(A) percentage=$percentage% buff={$this->preVL}", "pct=$roundedPercentage% buff=$roundedBuffer");
                     }
                 } else {
-                    $this->preVL = max($this->preVL - 15, 0);
+                    $this->reward($user, $user->transactionLatency > 400 ? 0.4 : 0.2, false);
+                    $this->preVL = max($this->preVL - 0.75, 0);
                 }
                 if($this->isDebug($user)){
-                    $user->sendMessage("percentage=$scaledPercentage% buffer={$this->preVL}");
+                    $user->sendMessage("percentage=$percentage% latency={$user->transactionLatency} buff={$this->preVL}");
                 }
             }
+            $this->receivedMotion = null;
+        } elseif($packet instanceof NetworkStackLatencyPacket){
+            $motion = $this->pendingMotions[$packet->timestamp] ?? null;
+            if($motion !== null){
+                $this->receivedMotion = $motion;
+                unset($this->pendingMotions[$packet->timestamp]);
+            }
         }
+    }
+
+    public function handleSend(DataPacket $packet, User $user): void{
+        if($packet instanceof SetActorMotionPacket && $user->player !== null && $packet->entityRuntimeId === $user->player->getId()){
+            $pk = new NetworkStackLatencyPacket();
+            $pk->needResponse = true; $pk->timestamp = ($timestamp = mt_rand(1, 10000000) * 1000);
+            $user->player->dataPacket($pk);
+            $this->pendingMotions[$timestamp] = $packet->motion;
+        }
+    }
+
+    public function canHandleSend(): bool{
+        return true;
     }
 
 }

@@ -110,45 +110,22 @@ class AABB extends AxisAlignedBB{
         return sqrt(($distX ** 2) + ($distY ** 2) + ($distZ ** 2));
     }
 
-    public function collidesRay(Ray $ray, float $maxDist) : float{
-        $pos1 = $ray->getOrigin();
-        if($this->isVectorInside($pos1)){
-            return 0.0;
-        }
-        $pos2 = $pos1->add($ray->getDirection()->multiply($maxDist));
-        $v1 = $pos1->getIntermediateWithXValue($pos2, $this->minX);
-        $v2 = $pos1->getIntermediateWithXValue($pos2, $this->maxX);
-        $v3 = $pos1->getIntermediateWithYValue($pos2, $this->minY);
-        $v4 = $pos1->getIntermediateWithYValue($pos2, $this->maxY);
-        $v5 = $pos1->getIntermediateWithZValue($pos2, $this->minZ);
-        $v6 = $pos1->getIntermediateWithZValue($pos2, $this->maxZ);
-        if($v1 !== null && !$this->isVectorInYZ($v1)){
-            $v1 = null;
-        }
-        if($v2 !== null && !$this->isVectorInYZ($v2)){
-            $v2 = null;
-        }
-        if($v3 !== null && !$this->isVectorInXZ($v3)){
-            $v3 = null;
-        }
-        if($v4 !== null && !$this->isVectorInXZ($v4)){
-            $v4 = null;
-        }
-        if($v5 !== null && !$this->isVectorInXY($v5)){
-            $v5 = null;
-        }
-        if($v6 !== null && !$this->isVectorInXY($v6)){
-            $v6 = null;
-        }
-        $vector = null;
-        $distance = PHP_INT_MAX;
-        foreach([$v1, $v2, $v3, $v4, $v5, $v6] as $v){
-            if($v !== null and ($d = $pos1->distanceSquared($v)) < $distance){
-                $vector = $v;
-                $distance = $d;
+    public function collidesRay(Ray $ray, float $tmin, float $tmax) : float{
+        for($i = 0; $i < 3; ++$i) {
+            $d = 1 / ($ray->direction($i) ?: 0.01);
+            $t0 = ($this->min($i) - $ray->origin($i)) * $d;
+            $t1 = ($this->max($i) - $ray->origin($i)) * $d;
+            if($d < 0) {
+                $t = $t0;
+                $t0 = $t1;
+                $t1 = $t;
             }
+            $tmin = $t0 > $tmin ? $t0 : $tmin;
+            $tmax = $t1 < $tmax ? $t1 : $tmax;
+            if($tmax <= $tmin)
+                return -69.0;
         }
-        return $vector !== null ? sqrt($distance) : -69.0;
+        return $tmin;
     }
 
 }

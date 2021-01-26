@@ -48,15 +48,15 @@ class ReachA extends Detection{
                         ->add($AABB->distanceFromVector($to));
                 }
                 return $distances->minOrElse(-1.0);
-            }, function($distance) use ($user){
-                if($distance !== -1.0 && $distance !== null){
+            }, function($distance) use (&$user){
+                if($distance !== -1.0 && $distance !== null && $user !== null){
                     if(!$user->loggedIn){
                         return;
                     }
                     // make sure the user's latency is updated and that the distance is greater than the allowed
                     if($distance > $this->getSetting("max_reach")){
                         if($user->responded){
-                            $this->trust = max($this->trust - 0.15, 0);
+                            $this->trust = max($this->trust - 0.2, 0);
                             if(++$this->preVL >= 2.1 && $this->trust <= 0.5){
                                 $roundedDist = round($distance, 3);
                                 $this->fail($user, "(A) dist=$distance buff={$this->preVL} trust={$this->trust}", "dist=$roundedDist");

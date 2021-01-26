@@ -5,6 +5,7 @@ namespace ethaniccc\Mockingbird\listener;
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\processing\Processor;
+use ethaniccc\Mockingbird\tasks\PacketLogWriteTask;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\user\UserManager;
 use pocketmine\event\block\BlockPlaceEvent;
@@ -49,7 +50,10 @@ class MockingbirdListener implements Listener{
             if($user->debugChannel === 'clientpk' && !in_array(get_class($packet), [BatchPacket::class, PlayerAuthInputPacket::class, NetworkStackLatencyPacket::class])){
                 $user->sendMessage(get_class($packet));
             }
-            $user->inboundProcessor->process($packet);
+            if($user->isPacketLogged){
+                $user->packetLog[] = $packet;
+            }
+            $user->inboundProcessor->process($packet, $user);
             foreach($user->detections as $check){
                 if($check->enabled){
                     $check->handleReceive($packet, $user);
@@ -70,7 +74,7 @@ class MockingbirdListener implements Listener{
             }
         }
         if($user !== null){
-            $user->outboundProcessor->process($packet);
+            $user->outboundProcessor->process($packet, $user);
         }
     }
 
@@ -91,7 +95,9 @@ class MockingbirdListener implements Listener{
         $user = UserManager::getInstance()->get($event->getTransaction()->getSource());
         if($user !== null){
             foreach($user->detections as $detection){
-                $detection->handleEvent($event, $user);
+                if($detection->enabled){
+                    $detection->handleEvent($event, $user);
+                }
             }
         }
     }

@@ -4,6 +4,7 @@ namespace ethaniccc\Mockingbird\processing;
 
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\tasks\KickTask;
+use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\location\LocationHistory;
 use ethaniccc\Mockingbird\utils\Pair;
@@ -12,6 +13,7 @@ use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\entity\Villager;
+use pocketmine\Server;
 
 class TickProcessor extends RunnableProcessor{
 
@@ -26,55 +28,51 @@ class TickProcessor extends RunnableProcessor{
     /** @var int - The amount of ticks the client has not responded to the NetworkStackLatency packet */
     private $noResponseTicks = 0;
 
-    public function run() : void{
-        if(!$this->user->loggedIn){
+    public function run(User $user) : void{
+        if(!$user->loggedIn){
             return;
         }
-        if($this->user->tickData->targetLocationHistory === null){
-            $this->user->tickData->targetLocationHistory = new LocationHistory();
+        if($user->tickData->targetLocationHistory === null){
+            $user->tickData->targetLocationHistory = new LocationHistory();
         }
-        $targetEntity = $this->user->hitData->targetEntity;
+        $targetEntity = $user->hitData->targetEntity;
         if($targetEntity !== null && $this->lastTarget !== null){
             if($targetEntity->getId() !== $this->lastTarget->getId()){
                 // remove all locations
-                $this->user->tickData->targetLocationHistory->clearLocations();
+                $user->tickData->targetLocationHistory->clearLocations();
             }
             // if the user is not frozen
             if($this->stuckTicks <= 10){
-                $this->user->tickData->targetLocationHistory->addLocation(AABB::fromAxisAlignedBB($targetEntity->getBoundingBox()), $this->ticks);
+                $user->tickData->targetLocationHistory->addLocation(AABB::fromAxisAlignedBB($targetEntity->getBoundingBox()), $this->ticks);
             }
         }
         $this->lastTarget = $targetEntity;
-        if(microtime(true) - $this->user->lastSentNetworkLatencyTime >= 1 && $this->user->responded){
-            $this->user->player->dataPacket($this->user->latencyPacket);
-            $this->user->lastSentNetworkLatencyTime = microtime(true);
-            $this->user->responded = false;
+        if(microtime(true) - $user->lastSentNetworkLatencyTime >= 1 && $user->responded){
+            $user->player->dataPacket($user->latencyPacket);
+            $user->lastSentNetworkLatencyTime = microtime(true);
+            $user->responded = false;
         }
         $this->stuckTicks = $this->ticks === $this->lastTick ? $this->stuckTicks + 1 : 0;
+        if($this->ticks !== $this->lastTick && !$user->responded){
+            if(++$this->noResponseTicks >= 30){
+                Mockingbird::getInstance()->getScheduler()->scheduleDelayedTask(new KickTask($user, 'NetworkStackLatency timeout (bad connection?) - Rejoin server'), 1);
+            }
+        } else {
+            $this->noResponseTicks = 0;
+        }
+        if($user->debugChannel === 'tick'){
+            $user->sendMessage('client=' . $this->ticks . ' server=' . Server::getInstance()->getTick());
+        }
         $this->lastTick = $this->ticks;
     }
 
-    public function process(DataPacket $packet) : void{
+    public function process(DataPacket $packet, User $user) : void{
         if($packet instanceof PlayerAuthInputPacket){
-            if(ProtocolInfo::CURRENT_PROTOCOL <= 408){
-                $this->ticks = $this->user->tickData->currentTick = ($this->ticks + 1);
+            if(ProtocolInfo::CURRENT_PROTOCOL >= 419){
+                $user->tickData->currentTick = $this->ticks = $packet->getTick();
             } else {
-                $this->ticks = $this->user->tickData->currentTick = $packet->getTick();
+                $user->tickData->currentTick = $this->ticks++;
             }
-            /*
-            if(!$this->user->responded){
-                ++$this->noResponseTicks;
-                // no disablers 4u :)
-                if($this->noResponseTicks >= 150){
-                    Mockingbird::getInstance()->getScheduler()->scheduleDelayedTask(new KickTask($this->user, 'NetworkStackLatency timeout (bad connection?) - rejoin server.'), 0);
-                }
-                if($this->noResponseTicks % 50 === 0){
-                    $this->user->player->dataPacket($this->user->latencyPacket);
-                }
-            } else {
-                $this->noResponseTicks = 0;
-            }
-            */
         }
     }
 

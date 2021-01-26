@@ -30,7 +30,8 @@ class FlyC extends Detection implements CancellableMovement{
                 // are PlayerAuthInputPacket y values fucked?
                 if($user->timeSinceJoin >= 200 && $yDelta > -3.0 && $equalness <= 0.01 && $user->player->isAlive() && $user->timeSinceMotion > 5 && $user->loggedIn
                     && $user->timeSinceStoppedFlight >= 10 && $user->moveData->blockBelow->getId() === 0 && $user->moveData->ticksSinceInVoid >= 10 && $user->moveData->cobwebTicks >= 15
-                    && $user->moveData->liquidTicks >= 15 && $user->timeSinceStoppedGlide >= 10 && $user->moveData->levitationTicks >= 5 && $user->hasReceivedChunks){
+                    && $user->moveData->liquidTicks >= 15 && $user->timeSinceStoppedGlide >= 10 && $user->moveData->levitationTicks >= 5 && $user->hasReceivedChunks
+                    && $user->timeSinceLastBlockPlace >= 5){
                     if(++$this->preVL >= 3){
                         $this->fail($user, "yD=$yDelta, eq=$equalness");
                     }

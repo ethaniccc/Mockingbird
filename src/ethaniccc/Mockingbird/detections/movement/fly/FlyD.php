@@ -38,7 +38,9 @@ class FlyD extends Detection{
                 && $user->timeSinceStoppedGlide >= 10
                 && $user->timeSinceStoppedFlight >= 10
                 && $user->timeSinceJoin >= 200
-                && $user->timeSinceTeleport >= 10){
+                && $user->timeSinceTeleport >= 10
+                && $user->timeSinceLastBlockPlace >= 5
+                && $user->moveData->levitationTicks >= 10){
                     if(++$this->preVL >= 2){
                         $this->fail($user, "yDelta=$yDelta lastYDelta=$lastYDelta");
                     }
@@ -46,6 +48,8 @@ class FlyD extends Detection{
                     $this->preVL = max($this->preVL - 0.5, 0);
                     $this->reward($user, 0.999);
                 }
+            } else {
+                $this->preVL = 0;
             }
         }
     }

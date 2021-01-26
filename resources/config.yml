@@ -76,7 +76,7 @@ AutoClickerD:
   enabled: true
   punish: true
   punishment_type: kick
-  max_violations: 5
+  max_violations: 3
   # check sensitivity settings
   duplicate_max: 4
   samples: 10
@@ -194,15 +194,11 @@ VelocityA:
   punish: false
   punishment_type: kick
   max_violations: 25
-  # check sensitivity settings
-  multiplier: 0.991
 VelocityB:
   enabled: false
   punish: false
   punishment_type: kick
   max_violations: 30
-  # check sensitivity settings
-  multiplier: 0.975
 
 #  ______ _
 #  | ___ \ |
@@ -272,11 +268,10 @@ BadPacketD:
 TimerA:
   # this check sees if the player is sending too many PlayerAuthInput packets in a single instance
   # this is MUCH more accurate than Mockingbird's old Timer check looking for MovePlayerPackets
-  # however, this check falses when *server lag* occurs.
-  enabled: false
-  punish: false
+  enabled: true
+  punish: true
   punishment_type: kick
-  max_violations: 20
+  max_violations: 3
 TimerB:
   enabled: false
   punish: false

@@ -11,10 +11,12 @@ use ethaniccc\Mockingbird\utils\PacketUtils;
 use pocketmine\block\Block;
 use pocketmine\block\Cobweb;
 use pocketmine\block\Liquid;
+use pocketmine\block\UnknownBlock;
 use pocketmine\entity\Effect;
+use pocketmine\item\Item;
+use pocketmine\item\ItemIds;
 use pocketmine\level\Location;
 use pocketmine\level\particle\DustParticle;
-use pocketmine\level\particle\FlameParticle;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
@@ -27,17 +29,15 @@ use pocketmine\network\mcpe\protocol\SetLocalPlayerAsInitializedPacket;
 use pocketmine\network\mcpe\protocol\types\DeviceOS;
 use pocketmine\Player;
 use pocketmine\Server;
+use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
 
 class InboundPacketProcessor extends Processor{
 
-    public function __construct(User $user){
-        parent::__construct($user);
-        $user->hitData->lastTick = Server::getInstance()->getTick();
+    public function __construct(){
         $this->lastTime = microtime(true);
     }
 
-    public function process(DataPacket $packet) : void{
-        $user = $this->user;
+    public function process(DataPacket $packet, User $user) : void{
         switch($packet->pid()){
             case PlayerAuthInputPacket::NETWORK_ID:
                 /** @var PlayerAuthInputPacket $packet */
@@ -53,6 +53,7 @@ class InboundPacketProcessor extends Processor{
                 $user->moveData->lastPitch = $user->moveData->pitch;
                 $user->moveData->yaw = fmod($location->yaw, 360);
                 $user->moveData->pitch = fmod($location->pitch, 360);
+                // the fact that for some reason the yaw/pitch deltas are sometimes not zero when afk is stupid and gets rid of the purpouse for this variable...
                 $hasMoved = $location->distanceSquared($user->moveData->lastLocation) > 0.0 || $user->moveData->pitch !== $user->moveData->lastPitch || $user->moveData->yaw !== $user->moveData->lastYaw;
                 $user->moveData->isMoving = $hasMoved;
                 unset($user->moveData->AABB);
@@ -94,8 +95,8 @@ class InboundPacketProcessor extends Processor{
                 } else {
                     ++$user->timeSinceStoppedGlide;
                 }
-                // 24 is the hardcoded effect ID for slow falling
-                if($user->player->getEffect(Effect::LEVITATION) !== null || $user->player->getEffect(24) !== null){
+                // 27 is the hardcoded effect ID for slow falling (I think...?)
+                if($user->player->getEffect(Effect::LEVITATION) !== null || $user->player->getEffect(27) !== null){
                     $user->moveData->levitationTicks = 0;
                 } else {
                     ++$user->moveData->levitationTicks;
@@ -126,8 +127,8 @@ class InboundPacketProcessor extends Processor{
                     } else {
                         ++$user->moveData->cobwebTicks;
                     }
-                    // debug for block AABB - (RESOURCE INTENSIVE)
-                    if($user->debugChannel === 'blockbb'){
+                    // debug for block AABB - (VERY RESOURCE INTENSIVE)
+                    if($user->debugChannel === 'block-bb'){
                         $expandedAABB = $user->moveData->AABB->clone()->expand(4, 4, 4);
                         $distance = PHP_INT_MAX; $target = null;
                         $ray = Ray::fromUser($user);
@@ -143,7 +144,7 @@ class InboundPacketProcessor extends Processor{
                                     $block = $user->player->getLevelNonNull()->getBlockAt($x, $y, $z);
                                     if($block->getId() !== 0){
                                         $AABB = AABB::fromBlock($block);
-                                        if(($dist = $AABB->collidesRay($ray, 7)) !== -69.0){
+                                        if(($dist = $AABB->collidesRay($ray, 0, 7)) !== -69.0){
                                             if($dist < $distance){
                                                 $distance = $dist;
                                                 $target = $block;
@@ -154,7 +155,7 @@ class InboundPacketProcessor extends Processor{
                             }
                         }
                         if($target instanceof Block){
-                            $AABB = AABB::fromBlock($target);
+                            $AABB = AABB::fromAxisAlignedBB($target->getBoundingBox());
                             foreach($AABB->getCornerVectors() as $cornerVector){
                                 $user->player->getLevelNonNull()->addParticle(new DustParticle($cornerVector, 0, 255, 255));
                             }
@@ -198,9 +199,9 @@ class InboundPacketProcessor extends Processor{
                         $user->player->handleMovePlayer($movePacket);
                     }
                 }
-                $user->tickProcessor->process($packet);
+                $user->tickProcessor->process($packet, $user);
                 ++$this->tickSpeed;
-                // $user->testProcessor->process($packet);
+                // $user->testProcessor->process($packet, $user);
                 break;
             case InventoryTransactionPacket::NETWORK_ID:
                 /** @var InventoryTransactionPacket $packet */
@@ -218,12 +219,12 @@ class InboundPacketProcessor extends Processor{
                                 }
                                 break;
                         }
-                        $this->handleClick();
+                        $this->handleClick($user);
                         break;
                     case InventoryTransactionPacket::TYPE_USE_ITEM:
                         switch($packet->trData->actionType){
                             case InventoryTransactionPacket::USE_ITEM_ACTION_CLICK_BLOCK:
-                                // the user wants to place a block, vadilate what the user wants to do
+                                // the user wants to place a block, (TODO: Make sure the action is valid)
                                 $valid = true;
                                 $distance = $user->moveData->location->add(0, $user->isSneaking ? 1.54 : 1.62, 0)->distance($packet->trData->clickPos);
                                 if($user->debugChannel === 'blockdist'){
@@ -231,6 +232,16 @@ class InboundPacketProcessor extends Processor{
                                 }
                                 if($valid){
                                     $user->timeSinceLastBlockPlace = 0;
+                                }
+                                /** @var Item $inHand */
+                                $inHand = $packet->trData->itemInHand;
+                                $pos = new Vector3($packet->trData->x, $packet->trData->y, $packet->trData->z);
+                                if(($inHand->getId() === ItemIds::BUCKET && $inHand->getDamage() === 8) || true){
+                                    $pk = new UpdateBlockPacket();
+                                    $pk->x = $pos->x; $pk->y = $pos->y; $pk->z = $pos->z;
+                                    $pk->dataLayerId = UpdateBlockPacket::DATA_LAYER_LIQUID;
+                                    $pk->blockRuntimeId = 134; $pk->flags = UpdateBlockPacket::FLAG_NETWORK;
+                                    $user->player->dataPacket($pk);
                                 }
                                 break;
                         }
@@ -242,7 +253,7 @@ class InboundPacketProcessor extends Processor{
                 /** @var LevelSoundEventPacket $packet */
                 switch($packet->sound){
                     case LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE:
-                        $this->handleClick();
+                        $this->handleClick($user);
                         break;
                 }
                 break;
@@ -320,8 +331,7 @@ class InboundPacketProcessor extends Processor{
     private $lastTime;
     private $tickSpeed = 0;
 
-    private function handleClick() : void{
-        $user = $this->user;
+    private function handleClick(User $user) : void{
         $currentTick = $user->tickData->currentTick;
         $this->clicks[] = $currentTick;
         $this->clicks = array_filter($this->clicks, function(int $t) use ($currentTick) : bool{
