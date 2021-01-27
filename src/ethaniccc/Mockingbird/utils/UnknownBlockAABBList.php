@@ -36,8 +36,8 @@ final class UnknownBlockAABBList{
         //Pressure Plates
         foreach([BlockIds::STONE_PRESSURE_PLATE, BlockIds::WOODEN_PRESSURE_PLATE, BlockIds::LIGHT_WEIGHTED_PRESSURE_PLATE, BlockIds::HEAVY_WEIGHTED_PRESSURE_PLATE] as $id){
             self::registerAABB(new AABB(0.0625, 0.0, 0.0625, 0.9375, 0.0625, 0.9375), $id);
-            foreach(range(1, 15) as $meta){
-                self::registerAABB(new AABB(0.0625, 0.0, 0.03125, 0.9375, 0.0625, 0.9375), $id, $meta);
+            for($i = 1; $i <= 15; ++$i){
+                self::registerAABB(new AABB(0.0625, 0.0, 0.03125, 0.9375, 0.0625, 0.9375), $id, $i);
             }
         }
         self::registerAABB(new AABB(0.25, 0.0, 0.25, 0.75, 1.0, 0.75), BlockIds::STANDING_SIGN);
@@ -45,6 +45,26 @@ final class UnknownBlockAABBList{
         self::registerAABB(new AABB(0.0, 0.28125, 0.0, 0.125, 0.78125, 1.0), BlockIds::WALL_SIGN, 3);
         self::registerAABB(new AABB(0.0, 0.28125, 0.0, 1.0, 0.78125, 0.125), BlockIds::WALL_SIGN, 4);
         self::registerAABB(new AABB(0.0, 0.28125, 0.875, 1.0, 0.78125, 1.0), BlockIds::WALL_SIGN, 5);
+        //Daylight Sensor
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.375, 1.0), BlockIds::DAYLIGHT_SENSOR);
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.375, 1.0), BlockIds::DAYLIGHT_SENSOR_INVERTED);
+        //Wheat
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.140125, 1.0), BlockIds::WHEAT_BLOCK);
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.28125, 1.0), BlockIds::WHEAT_BLOCK, 1);
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.4375, 1.0), BlockIds::WHEAT_BLOCK, 2);
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.5625, 1.0), BlockIds::WHEAT_BLOCK, 3);
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.71875, 1.0), BlockIds::WHEAT_BLOCK, 4);
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.90625, 1.0), BlockIds::WHEAT_BLOCK, 5);
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0), BlockIds::WHEAT_BLOCK, 6);
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 1.140125, 1.0), BlockIds::WHEAT_BLOCK, 7);
+        //Mushrooms
+        self::registerAABB(new AABB(0.3125, 0.0, 0.3125, 0.6875, 0.375, 0.6875), BlockIds::RED_MUSHROOM);
+        self::registerAABB(new AABB(0.3125, 0.0, 0.3125, 0.6875, 0.375, 0.6875), BlockIds::BROWN_MUSHROOM);
+        //Nether Wart
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.25, 1.0), BlockIds::NETHER_WART);
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.5, 1.0), BlockIds::NETHER_WART, 1);
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.75, 1.0), BlockIds::NETHER_WART, 2);
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0), BlockIds::NETHER_WART, 3);
     }
     public static function getFromList(Vector3 $pos, int $id, int $meta = 0): AABB{
         return (self::$list[($id << 4) | $meta] ?? self::$list[$id << 4] ?? AABB::fromBlock(BlockFactory::get($id, $meta)->setComponents(0, 0, 0)))->offsetCopy($pos->x, $pos->y, $pos->z);
