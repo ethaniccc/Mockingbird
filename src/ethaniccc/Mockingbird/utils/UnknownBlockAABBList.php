@@ -40,6 +40,7 @@ final class UnknownBlockAABBList{
                 self::registerAABB(new AABB(0.0625, 0.0, 0.03125, 0.9375, 0.0625, 0.9375), $id, $i);
             }
         }
+        //Signs
         self::registerAABB(new AABB(0.25, 0.0, 0.25, 0.75, 1.0, 0.75), BlockIds::STANDING_SIGN);
         self::registerAABB(new AABB(0.875, 0.28125, 0.0, 1.0, 0.78125, 1.0), BlockIds::WALL_SIGN, 2);
         self::registerAABB(new AABB(0.0, 0.28125, 0.0, 0.125, 0.78125, 1.0), BlockIds::WALL_SIGN, 3);
@@ -65,6 +66,13 @@ final class UnknownBlockAABBList{
         self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.5, 1.0), BlockIds::NETHER_WART, 1);
         self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.75, 1.0), BlockIds::NETHER_WART, 2);
         self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0), BlockIds::NETHER_WART, 3);
+        //Stems
+        foreach([BlockIds::PUMPKIN_STEM, BlockIds::MELON_STEM] as $stem){
+            self::registerAABB(new AABB(0.375, 0.0, 0.375, 0.625, 0.125, 0.625), $id);
+            for($i = 2; $i <= 8; ++$i){
+                self::registerAABB(new AABB(0.375, 0.0, 0.375, 0.625, $i*0.125, 0.625), $id, $i-1);
+            }
+        }
     }
     public static function getFromList(Vector3 $pos, int $id, int $meta = 0): AABB{
         return (self::$list[($id << 4) | $meta] ?? self::$list[$id << 4] ?? AABB::fromBlock(BlockFactory::get($id, $meta)->setComponents(0, 0, 0)))->offsetCopy($pos->x, $pos->y, $pos->z);
