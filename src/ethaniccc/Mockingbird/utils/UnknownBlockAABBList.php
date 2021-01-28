@@ -73,6 +73,31 @@ final class UnknownBlockAABBList{
                 self::registerAABB(new AABB(0.375, 0.0, 0.375, 0.625, $i*0.125, 0.625), $id, $i-1);
             }
         }
+        //Carrots
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.09375, 1.0), BlockIds::CARROTS);
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.1875, 1.0), BlockIds::CARROTS, 1);
+        self::registerAABB(new AABB(0.0  0.0, 0.0, 1.0, 0.3125, 1.0), BlockIds::CARROTS, 2);
+        self::registerAABB(new AABB(0.0  0.0, 0.0, 1.0, 0.40625, 1.0), BlockIds::CARROTS, 3);
+        self::registerAABB(new AABB(0.0  0.0, 0.0, 1.0, 0.5, 1.0), BlockIds::CARROTS, 4);
+        self::registerAABB(new AABB(0.0  0.0, 0.0, 1.0, 0.59375, 1.0), BlockIds::CARROTS, 5);
+        self::registerAABB(new AABB(0.0  0.0, 0.0, 1.0, 0.6875, 1.0), BlockIds::CARROTS, 6);
+        self::registerAABB(new AABB(0.0  0.0, 0.0, 1.0, 0.8125, 1.0), BlockIds::CARROTS, 7);
+        //Beetroot/Potatoes
+        foreach([BlockIds::BEETROOT, BlockIds::POTATOES] as $plant){
+            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.09375, 1.0), $plant);
+            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.1875, 1.0), $plant, 1);
+            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.25, 1.0), $plant, 2);
+            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.34375, 1.0), $plant, 3);
+            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.4375, 1.0), $plant, 4);
+            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.5, 1.0), $plant, 5);
+            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.59375, 1.0), $plant, 6);
+            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.6975, 1.0), $plant, 7);
+        }
+        //Tripwire
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.5, 1.0), BlockIds::TRIPWIRE);
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.09375, 1.0), BlockIds::TRIPWIRE, 1);
+        //Sapling
+        self::registerAABB(new AABB(0.09375, 0.0, 0.09375, 0.90625, 0.8125, 0.90625), BlockIds::SAPLING);
     }
     public static function getFromList(Vector3 $pos, int $id, int $meta = 0): AABB{
         return (self::$list[($id << 4) | $meta] ?? self::$list[$id << 4] ?? AABB::fromBlock(BlockFactory::get($id, $meta)->setComponents(0, 0, 0)))->offsetCopy($pos->x, $pos->y, $pos->z);
