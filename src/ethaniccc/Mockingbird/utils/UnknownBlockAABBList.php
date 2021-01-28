@@ -37,7 +37,7 @@ final class UnknownBlockAABBList{
         foreach([BlockIds::STONE_PRESSURE_PLATE, BlockIds::WOODEN_PRESSURE_PLATE, BlockIds::LIGHT_WEIGHTED_PRESSURE_PLATE, BlockIds::HEAVY_WEIGHTED_PRESSURE_PLATE] as $id){
             self::registerAABB(new AABB(0.0625, 0.0, 0.0625, 0.9375, 0.0625, 0.9375), $id);
             for($i = 1; $i <= 15; ++$i){
-                self::registerAABB(new AABB(0.0625, 0.0, 0.03125, 0.9375, 0.0625, 0.9375), $id, $i);
+                self::registerAABB(new AABB(0.0625, 0.0, 0.0625, 0.9375, 0.03125, 0.9375), $id, $i);
             }
         }
         //Signs
@@ -83,21 +83,46 @@ final class UnknownBlockAABBList{
         self::registerAABB(new AABB(0.0  0.0, 0.0, 1.0, 0.6875, 1.0), BlockIds::CARROTS, 6);
         self::registerAABB(new AABB(0.0  0.0, 0.0, 1.0, 0.8125, 1.0), BlockIds::CARROTS, 7);
         //Beetroot/Potatoes
-        foreach([BlockIds::BEETROOT, BlockIds::POTATOES] as $plant){
-            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.09375, 1.0), $plant);
-            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.1875, 1.0), $plant, 1);
-            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.25, 1.0), $plant, 2);
-            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.34375, 1.0), $plant, 3);
-            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.4375, 1.0), $plant, 4);
-            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.5, 1.0), $plant, 5);
-            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.59375, 1.0), $plant, 6);
-            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.6975, 1.0), $plant, 7);
+        foreach([BlockIds::BEETROOT, BlockIds::POTATOES] as $crop){
+            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.09375, 1.0), $crop);
+            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.1875, 1.0), $crop, 1);
+            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.25, 1.0), $crop, 2);
+            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.34375, 1.0), $crop, 3);
+            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.4375, 1.0), $crop, 4);
+            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.5, 1.0), $crop, 5);
+            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.59375, 1.0), $crop, 6);
+            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.6975, 1.0), $crop, 7);
         }
         //Tripwire
         self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.5, 1.0), BlockIds::TRIPWIRE);
         self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.09375, 1.0), BlockIds::TRIPWIRE, 1);
         //Sapling
         self::registerAABB(new AABB(0.09375, 0.0, 0.09375, 0.90625, 0.8125, 0.90625), BlockIds::SAPLING);
+        //Banner
+        self::registerAABB(new AABB(0.25, 0.0, 0.25, 0.75, 1.0, 0.75), BlockIds::STANDING_BANNER);
+        self::registerAABB(new AABB(0.0, 0.0, 0.875, 1.0, 0.78125, 1.0), BlockIds::WALL_BANNER, 2);
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.78125, 0.125), BlockIds::WALL_BANNER, 3);
+        self::registerAABB(new AABB(0.875, 0.0, 0.0, 1.0, 0.78125, 1.0), BlockIds::WALL_BANNER, 4);
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 0.125, 0.78125, 1.0), BlockIds::WALL_BANNER, 5);
+        //Dead bush
+        self::registerAABB(new AABB(0.3125, 0.0, 0.3125, 0.6875, 0.59375, 0.6875), BlockIds::DEAD_BUSH);
+        //Vine
+        for($i = 3; $i <= 15; ++$i){
+            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0), BlockIds::VINE, $i);
+        }
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.0625, 1.0), BlockIds::VINE);
+        self::registerAABB(new AABB(0.0, 0.0, 0.9375, 1.0, 1.0, 1.0), BlockIds::VINE, 1);
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 0.0625, 1.0, 1.0), BlockIds::VINE, 2);
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 1.0, 0.0625), BlockIds::VINE, 4);
+        self::registerAABB(new AABB(0.9375, 0.0, 0.0, 1.0, 1.0, 1.0), BlockIds::VINE, 8);
+        //Torches
+        foreach([BlockIds::UNLIT_REDSTONE_TORCH, BlockIds::REDSTONE_TORCH, BlockIds::TORCH] as $torch){
+            self::registerAABB(new AABB(0.0, 0.203125, 0.34375, 0.3125, 0.796875, 0.65625), $torch, 1);
+            self::registerAABB(new AABB(0.6875, 0.203125, 0.34375, 1.0, 0.796875, 0.65625), $torch, 2);
+            self::registerAABB(new AABB(0.34375, 0.203125, 0.0, 0.65625, 0.796875, 0.3125), $torch, 3);
+            self::registerAABB(new AABB(0.34375, 0.203125, 0.6875, 0.65625, 0.796875, 1.0), $torch, 4);
+            self::registerAABB(new AABB(0.40625, 0.0, 0.40625, 0.59375, 0.59375, 0.59375), $torch, 5);
+        }
     }
     public static function getFromList(Vector3 $pos, int $id, int $meta = 0): AABB{
         return (self::$list[($id << 4) | $meta] ?? self::$list[$id << 4] ?? AABB::fromBlock(BlockFactory::get($id, $meta)->setComponents(0, 0, 0)))->offsetCopy($pos->x, $pos->y, $pos->z);
