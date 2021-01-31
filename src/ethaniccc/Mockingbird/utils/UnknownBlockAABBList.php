@@ -123,6 +123,15 @@ final class UnknownBlockAABBList{
             self::registerAABB(new AABB(0.34375, 0.203125, 0.6875, 0.65625, 0.796875, 1.0), $torch, 4);
             self::registerAABB(new AABB(0.40625, 0.0, 0.40625, 0.59375, 0.59375, 0.59375), $torch, 5);
         }
+        //Buttons
+        foreach([BlockIds::STONE_BUTTON, BlockIds::WOODEN_BUTTON] as $button){
+            self::registerAABB(new AABB(0.3125, 0.875, 0.375, 0.6875, 1.0, 0.625), $button);
+            self::registerAABB(new AABB(0.3125, 0.0, 0.375, 0.6875, 0.125, 0.625), $button, 1);
+            self::registerAABB(new AABB(0.3125, 0.375, 0.875, 0.6875, 0.625, 1.0), $button, 2);
+            self::registerAABB(new AABB(0.3125, 0.375, 0.0, 0.6875, 0.625, 0.125), $button, 3);
+            self::registerAABB(new AABB(0.875, 0.375, 0.3125, 1.0, 0.625, 0.6875), $button, 4);
+            self::registerAABB(new AABB(0.0, 0.375, 0.3125, 0.125, 0.625, 0.6875), $button, 5);
+        }
     }
     public static function getFromList(Vector3 $pos, int $id, int $meta = 0): AABB{
         return (self::$list[($id << 4) | $meta] ?? self::$list[$id << 4] ?? AABB::fromBlock(BlockFactory::get($id, $meta)->setComponents(0, 0, 0)))->offsetCopy($pos->x, $pos->y, $pos->z);
