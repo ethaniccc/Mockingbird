@@ -10,19 +10,24 @@
 # Mockingbird GitHub Repository: https://www.github.com/ethaniccc/Mockingbird
 # Go forth and destroy those pesky hackers!
 
+# PLEASE DO NOT CHANGE THIS #
+version: 2.5
+
 prefix: "§l§7[§cMocking§4bird§7]"
 # {tag} => explanation of tag
 # ============================================================================= #
 # {player} => the name of the player who failed the check
 # {check} => the name of the check the player failed
 # {vl} => the new amount of violations the player has for the failed check
-# {probability} => The probability of cheating - this is already colored.
-fail_message: "§4{player}§r§7 failed §c{check} §4[§4VL: §c{vl}§4] §7Probability: {probability}"
+# {probability} => The cheating probability of the player
+# {detail} => If detailed alerts are toggled, this will give detailed debug information (you can remove this if you don't need detailed alerts)
+fail_message: "§4{player}§r§7 failed §c{check} §7(§6{vl} §7@ {probability}§r§7) §7(§b{detail}§7)"
 
 # Determines if the option below (punish_message_staff) should be sent to everyone online on the server.
 punish_message_global: false
 # {player} => the player punished
-punish_message_staff: "§l§4{player}§r§7 was punished for§b cheating"
+# {detection} => the detection the player was punished for
+punish_message_staff: "§l§4{player}§r§7 was punished for§b {detection}"
 # the message the player will receive when punished
 punish_message_player: "§cUnfair Advantage Detected"
 
@@ -31,29 +36,25 @@ alerts_enabled: true
 # This option will only be useful if alerts are enabled (in the option above). This option decides whether or not players with alert permissions
 # will have alerts enabled when they join. If this is false, then players with perms must use the /mbalerts command to enable alerts.
 alerts_default: true
+# This option is for what the default alert delay for players that can view alerts (in seconds), this is useful so that alerts are not spammed
+# by someone cheating in the chat.
+default_alert_delay: 2
 # When this option is enabled, every time Mockingbird is disabled, it will upload the debug log into a server so I can read for potential falses.
 upload_debug: true
 
-#  ▄████████  ▄██████▄    ▄▄▄▄███▄▄▄▄   ▀█████████▄     ▄████████     ███
-#  ███    ███ ███    ███ ▄██▀▀▀███▀▀▀██▄   ███    ███   ███    ███ ▀█████████▄
-#  ███    █▀  ███    ███ ███   ███   ███   ███    ███   ███    ███    ▀███▀▀██
-#  ███        ███    ███ ███   ███   ███  ▄███▄▄▄██▀    ███    ███     ███   ▀
-#  ███        ███    ███ ███   ███   ███ ▀▀███▀▀▀██▄  ▀███████████     ███
-#  ███    █▄  ███    ███ ███   ███   ███   ███    ██▄   ███    ███     ███
-#  ███    ███ ███    ███ ███   ███   ███   ███    ███   ███    ███     ███
-#  ████████▀   ▀██████▀   ▀█   ███   █▀  ▄█████████▀    ███    █▀     ▄████▀
-
+#   _____                 _           _
+#  /  __ \               | |         | |
+# | /  \/ ___  _ __ ___ | |__   __ _| |_
+# | |    / _ \| '_ ` _ \| '_ \ / _` | __|
+# | \__/\ (_) | | | | | | |_) | (_| | |_
+# \____/\___/|_| |_| |_|_.__/ \__,_|\__|
 
 # AutoClicker
 AutoClickerA:
   enabled: true
-  punish: false
+  punish: true
   punishment_type: kick
   max_violations: 20
-  # check sensitivity settings
-  samples: 30
-  consistency: 0.85
-  required_cps: 10
 AutoClickerB:
   enabled: true
   punish: true
@@ -61,6 +62,29 @@ AutoClickerB:
   max_violations: 20
   # check sensitivity settings
   max_cps: 25
+AutoClickerC:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 20
+  # check sensitivity settings - best to not change
+  samples: 30
+  skewness: 0.035
+  kurtosis: 0.02
+  outliers: 2
+AutoClickerD:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 3
+  # check sensitivity settings
+  duplicate_max: 4
+  samples: 10
+AutoClickerE:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 20
 
 # KillAura
 KillAuraA:
@@ -76,31 +100,45 @@ KillAuraB:
 
 # Reach
 ReachA:
-  # this will only detect blatant reach. if you want to detect lower values,
-  # I recommend setting max_reach to 3.15
   enabled: true
   punish: true
   punishment_type: kick
   max_violations: 50
   # check sensitivity settings
   max_reach: 3.1
+ReachB:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 50
+  # check sensitivity settings
+  max_reach: 3.01
 
 # Aim
-AimA:
+AimAssistA:
   enabled: true
   punish: true
   punishment_type: kick
   max_violations: 20
+AimAssistB:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 10
 
-#    ▄▄▄▄███▄▄▄▄    ▄██████▄   ▄█    █▄     ▄████████   ▄▄▄▄███▄▄▄▄      ▄████████ ███▄▄▄▄       ███
-#  ▄██▀▀▀███▀▀▀██▄ ███    ███ ███    ███   ███    ███ ▄██▀▀▀███▀▀▀██▄   ███    ███ ███▀▀▀██▄ ▀█████████▄
-#  ███   ███   ███ ███    ███ ███    ███   ███    █▀  ███   ███   ███   ███    █▀  ███   ███    ▀███▀▀██
-#  ███   ███   ███ ███    ███ ███    ███  ▄███▄▄▄     ███   ███   ███  ▄███▄▄▄     ███   ███     ███   ▀
-#  ███   ███   ███ ███    ███ ███    ███ ▀▀███▀▀▀     ███   ███   ███ ▀▀███▀▀▀     ███   ███     ███
-#  ███   ███   ███ ███    ███ ███    ███   ███    █▄  ███   ███   ███   ███    █▄  ███   ███     ███
-#  ███   ███   ███ ███    ███ ███    ███   ███    ███ ███   ███   ███   ███    ███ ███   ███     ███
-#  ▀█   ███   █▀   ▀██████▀   ▀██████▀    ██████████  ▀█   ███   █▀    ██████████  ▀█   █▀     ▄████▀
+# Hitbox
+HitboxA:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 35
 
+# ___  ___                                    _
+# |  \/  |                                   | |
+# | .  . | _____   _____ _ __ ___   ___ _ __ | |_
+# | |\/| |/ _ \ \ / / _ \ '_ ` _ \ / _ \ '_ \| __|
+# | |  | | (_) \ V /  __/ | | | | |  __/ | | | |_
+# \_|  |_/\___/ \_/ \___|_| |_| |_|\___|_| |_|\__|
 
 # Speed
 SpeedA:
@@ -118,7 +156,7 @@ SpeedB:
   suppression: false
   max_violations: 25
   # check sensitivity settings
-  max_speed_on_ground: 0.31
+  max_speed_on_ground: 0.29
   max_speed_off_ground: 0.78
 
 # Fly
@@ -143,31 +181,60 @@ FlyC:
   punishment_type: kick
   suppression: false
   max_violations: 25
+FlyD:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  suppression: false
+  max_violations: 25
 
 # Velocity
 VelocityA:
-  enabled: true
+  enabled: false
   punish: false
   punishment_type: kick
   max_violations: 25
-  # check sensitivity settings
-  multiplier: 0.991
 VelocityB:
-  enabled: true
+  enabled: false
   punish: false
   punishment_type: kick
   max_violations: 30
-  # check sensitivity settings
-  multiplier: 0.99
 
-#   ▄███████▄    ▄████████  ▄████████    ▄█   ▄█▄    ▄████████     ███
-#  ███    ███   ███    ███ ███    ███   ███ ▄███▀   ███    ███ ▀█████████▄
-#  ███    ███   ███    ███ ███    █▀    ███▐██▀     ███    █▀     ▀███▀▀██
-#  ███    ███   ███    ███ ███         ▄█████▀     ▄███▄▄▄         ███   ▀
-#  ▀█████████▀  ▀███████████ ███        ▀▀█████▄    ▀▀███▀▀▀         ███
-#  ███          ███    ███ ███    █▄    ███▐██▄     ███    █▄      ███
-#  ███          ███    ███ ███    ███   ███ ▀███▄   ███    ███     ███
-#  ▄████▀        ███    █▀  ████████▀    ███   ▀█▀   ██████████    ▄████▀
+#  ______ _
+#  | ___ \ |
+#  | |_/ / | __ _ _   _  ___ _ __
+#  |  __/| |/ _` | | | |/ _ \ '__|
+#  | |   | | (_| | |_| |  __/ |
+#  \_|   |_|\__,_|\__, |\___|_|
+#                 __/ |
+#                |___/
+
+NukerA:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 10
+  # check sensitivity settings
+  max_blocks: 6
+ChestStealerA:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 10
+  # check sensitivity settings
+  max_transactions: 4
+EditionFakerA:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 1
+
+#  ______          _        _
+# | ___ \        | |      | |
+# | |_/ /_ _  ___| | _____| |_
+# |  __/ _` |/ __| |/ / _ \ __|
+# | | | (_| | (__|   <  __/ |_
+# \_|  \__,_|\___|_|\_\___|\__|
 
 # BadPackets
 BadPacketA:
@@ -190,13 +257,23 @@ BadPacketC:
   punish: true
   punishment_type: kick
   max_violations: 2
+BadPacketD:
+  # checks if the user is gliding without an elytra
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 5
 
 # Timer
 TimerA:
   # this check sees if the player is sending too many PlayerAuthInput packets in a single instance
   # this is MUCH more accurate than Mockingbird's old Timer check looking for MovePlayerPackets
-  # however, this check falses when *server lag* occurs.
   enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 3
+TimerB:
+  enabled: false
   punish: false
   punishment_type: kick
   max_violations: 20

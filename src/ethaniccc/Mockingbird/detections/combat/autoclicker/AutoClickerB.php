@@ -8,24 +8,30 @@ use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 
+/**
+ * Class AutoClickerB
+ * @package ethaniccc\Mockingbird\detections\combat\autoclicker
+ * AutoClickerB checks if the user is clicking too fast. This is one of the simplest checks
+ * to make - however may false with certain clicking methods (such as drag-clicking).
+ */
 class AutoClickerB extends Detection{
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
-        $this->vlThreshold = 10;
+        $this->vlSecondCount = 10;
     }
 
-    public function handle(DataPacket $packet, User $user): void{
+    public function handleReceive(DataPacket $packet, User $user): void{
         if(($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) || ($packet instanceof LevelSoundEventPacket && $packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE)){
-            $cps = $user->cps;
-            $allowed = $this->getSetting("max_cps");
+            $cps = $user->clickData->cps;
+            $allowed = $this->getSetting('max_cps');
             if($cps > $allowed){
-                if(++$this->preVL >= 5){
-                    $this->fail($user, "cps=$cps, allowed=$allowed");
-                }
+                $this->fail($user, "cps=$cps, allowed=$allowed", "cps=$cps");
             } else {
-                $this->preVL *= 0.65;
-                $this->reward($user, 0.99);
+                $this->reward($user, 0.995);
+            }
+            if($this->isDebug($user)){
+                $user->sendMessage("cps=$cps");
             }
         }
     }

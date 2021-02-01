@@ -4,7 +4,6 @@ namespace ethaniccc\Mockingbird\utils\boundingbox;
 
 use ethaniccc\Mockingbird\user\User;
 use pocketmine\block\Block;
-use pocketmine\entity\Entity;
 use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Vector3;
 
@@ -12,20 +11,28 @@ class AABB extends AxisAlignedBB{
 
     public $minX, $minY, $minZ;
     public $maxX, $maxY, $maxZ;
+    public $minVector, $maxVector;
 
-    public function __construct(float $minX, float $minY, float $minZ, float $maxX, float $maxY, float $maxZ) {
-        parent::__construct($minX, $minY, $minZ, $maxX, $maxX, $maxZ);
+    public function __construct(float $minX, $minY, float $minZ, float $maxX, float $maxY, float $maxZ) {
+        // TODO: Why is minY sometimes zero? Refer to issue 
+        parent::__construct($minX, $minY ?? 0.0, $minZ, $maxX, $maxX, $maxZ);
         $this->minX = $minX;
         $this->minY = $minY;
         $this->minZ = $minZ;
         $this->maxX = $maxX;
         $this->maxY = $maxY;
         $this->maxZ = $maxZ;
+        $this->minVector = new Vector3($this->minX, $this->minY, $this->minZ);
+        $this->maxVector = new Vector3($this->maxX, $this->maxY, $this->maxZ);
     }
 
     public static function from(User $user) : AABB{
-        $pos = $user->location;
+        $pos = $user->moveData->location;
         return new AABB($pos->x - 0.3, $pos->y, $pos->z - 0.3, $pos->x + 0.3, $pos->y + 1.8, $pos->z + 0.3);
+    }
+
+    public static function fromAxisAlignedBB(AxisAlignedBB $alignedBB) : AABB{
+        return new AABB($alignedBB->minX - 0.1, $alignedBB->minY, $alignedBB->minZ - 0.1, $alignedBB->maxX + 0.1, $alignedBB->maxY, $alignedBB->maxZ + 0.1);
     }
 
     public static function fromPosition(Vector3 $pos) : AABB{
@@ -46,6 +53,10 @@ class AABB extends AxisAlignedBB{
                 $block->getX() + 1, $block->getY() + 1, $block->getZ() + 1
             );
         }
+    }
+
+    public function clone() : AABB{
+        return clone $this;
     }
 
     public function translate(float $x, float $y, float $z) : AABB{
@@ -92,7 +103,13 @@ class AABB extends AxisAlignedBB{
         ];
     }
 
-    // thanks shura62 again :p
+    public function distanceFromVector(Vector3 $vector) : float{
+        $distX = max($this->minX - $vector->x, max(0, $vector->x - $this->maxX));
+        $distY = max($this->minY - $vector->y, max(0, $vector->y - $this->maxY));
+        $distZ = max($this->minZ - $vector->z, max(0, $vector->z - $this->maxZ));
+        return sqrt(($distX ** 2) + ($distY ** 2) + ($distZ ** 2));
+    }
+
     public function collidesRay(Ray $ray, float $tmin, float $tmax) : float{
         for($i = 0; $i < 3; ++$i) {
             $d = 1 / ($ray->direction($i) ?: 0.01);
@@ -105,56 +122,10 @@ class AABB extends AxisAlignedBB{
             }
             $tmin = $t0 > $tmin ? $t0 : $tmin;
             $tmax = $t1 < $tmax ? $t1 : $tmax;
-            if($tmax <= $tmin){
-                return -1;
-            }
+            if($tmax <= $tmin)
+                return -69.0;
         }
         return $tmin;
-    }
-
-    public function calculateInterceptedDistance(Vector3 $pos1, Vector3 $pos2) : ?float{
-        $v1 = $pos1->getIntermediateWithXValue($pos2, $this->minX);
-        $v2 = $pos1->getIntermediateWithXValue($pos2, $this->maxX);
-        $v3 = $pos1->getIntermediateWithYValue($pos2, $this->minY);
-        $v4 = $pos1->getIntermediateWithYValue($pos2, $this->maxY);
-        $v5 = $pos1->getIntermediateWithZValue($pos2, $this->minZ);
-        $v6 = $pos1->getIntermediateWithZValue($pos2, $this->maxZ);
-
-        if($v1 !== null and !$this->isVectorInYZ($v1)){
-            $v1 = null;
-        }
-
-        if($v2 !== null and !$this->isVectorInYZ($v2)){
-            $v2 = null;
-        }
-
-        if($v3 !== null and !$this->isVectorInXZ($v3)){
-            $v3 = null;
-        }
-
-        if($v4 !== null and !$this->isVectorInXZ($v4)){
-            $v4 = null;
-        }
-
-        if($v5 !== null and !$this->isVectorInXY($v5)){
-            $v5 = null;
-        }
-
-        if($v6 !== null and !$this->isVectorInXY($v6)){
-            $v6 = null;
-        }
-
-        $vector = null;
-        $distance = PHP_INT_MAX;
-
-        foreach([$v1, $v2, $v3, $v4, $v5, $v6] as $v){
-            if($v !== null and ($d = $pos1->distanceSquared($v)) < $distance){
-                $vector = $v;
-                $distance = $d;
-            }
-        }
-
-        return $vector !== null ? sqrt($distance) : null;
     }
 
 }

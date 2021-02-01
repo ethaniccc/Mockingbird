@@ -3,6 +3,7 @@
 namespace ethaniccc\Mockingbird\tasks;
 
 use ethaniccc\Mockingbird\user\User;
+use ethaniccc\Mockingbird\user\UserManager;
 use pocketmine\scheduler\Task;
 use pocketmine\Server;
 
@@ -20,6 +21,7 @@ class BanTask extends Task{
         $player = $this->user->player;
         Server::getInstance()->getNameBans()->addBan($player->getName(), $this->message, null, "Mockingbird Anti-Cheat");
         $player->kick($this->message, false);
+        UserManager::getInstance()->unregister($player);
     }
 
 }

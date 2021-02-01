@@ -3,74 +3,81 @@
 namespace ethaniccc\Mockingbird\detections\movement\velocity;
 
 use ethaniccc\Mockingbird\detections\Detection;
-use ethaniccc\Mockingbird\detections\movement\MovementDetection;
-use ethaniccc\Mockingbird\packets\MotionPacket;
+use ethaniccc\Mockingbird\detections\movement\CancellableMovement;
 use ethaniccc\Mockingbird\user\User;
-use ethaniccc\Mockingbird\utils\boundingbox\AABB;
+use ethaniccc\Mockingbird\utils\EvictingList;
+use pocketmine\event\entity\EntityMotionEvent;
+use pocketmine\event\Event;
+use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\DataPacket;
+use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
+use pocketmine\network\mcpe\protocol\SetActorMotionPacket;
+use pocketmine\network\Network;
+use stdClass;
 
-class VelocityA extends Detection implements MovementDetection{
+/**
+ * Class VelocityA
+ * @package ethaniccc\Mockingbird\detections\movement\velocity
+ * VelocityA checks if the user's vertical velocity is lower than normal. This can detect 98%
+ * vertical velocity on Horion (and ~94% on other clients).
+ */
+class VelocityA extends Detection implements CancellableMovement{
 
-    private $queue = [];
+    /** @var Vector3|null */
+    private $receivedMotion;
+    private $pendingMotions = [];
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
         $this->suppression = false;
-        $this->vlThreshold = 20;
+        $this->vlSecondCount = 20;
+        $this->lowMax = 4;
+        $this->mediumMax = 8;
     }
 
-    public function handle(DataPacket $packet, User $user): void{
-        if($packet instanceof MotionPacket && $user->loggedIn){
-            if(count($this->queue) > 5){
-                return;
-            }
-            $info = new \stdClass();
-            $info->motion = $packet->motionY;
-            $info->maxTime = (int) ($user->transactionLatency / 50) + 3;
-            $info->time = 0;
-            $info->failedTime = 0;
-            $info->maxFailedMotion = 0;
-            $this->queue[] = $info;
-        } elseif($packet instanceof PlayerAuthInputPacket){
-            if($user->timeSinceTeleport < 2){
-                $this->queue = [];
-                return;
-            }
-            if(!empty($this->queue)){
-                $currentData = $this->queue[0];
-                if(++$currentData->time <= $currentData->maxTime){
-                    $notSolidBlocksAround = count($user->player->getBlocksAround());
-                    $AABB = AABB::from($user);
-                    $AABB->maxY += 0.1;
-                    $solidBlocksAround = count($user->player->getLevel()->getCollisionBlocks($AABB));
-                    if($user->moveDelta->y < $currentData->motion * $this->getSetting("multiplier")
-                    && $user->blockAbove === null && $notSolidBlocksAround === 0 && $solidBlocksAround === 0 && $currentData->motion >= 0.3){
-                        ++$currentData->failedTime;
-                        if(abs($currentData->maxFailedMotion) < abs($user->moveDelta->y)){
-                            $currentData->maxFailedMotion = $user->moveDelta->y;
-                        }
+    public function handleReceive(DataPacket $packet, User $user): void{
+        if($packet instanceof PlayerAuthInputPacket && $this->receivedMotion !== null){
+            if($this->receivedMotion->y > 0){
+                // TODO: Account for more scenarios where falses could occur.
+                $currentYDelta = $user->moveData->moveDelta->y;
+                $percentage = ($currentYDelta / $this->receivedMotion->y) * 100;
+                // against walls this check for some reason will false at ~99.9999%, what the fuck
+                if($percentage < 99.9999 && $user->moveData->blockAbove->getId() === 0 && $user->moveData->liquidTicks >= 10 && $user->moveData->cobwebTicks >= 10
+                    && $user->moveData->levitationTicks >= 10 && $user->timeSinceTeleport >= 10 && $user->timeSinceStoppedFlight >= 10 && $user->timeSinceStoppedGlide >= 10){
+                    if(++$this->preVL >= 1){
+                        $roundedPercentage = round($percentage, 3); $roundedBuffer = round($this->preVL, 2);
+                        $this->fail($user, "(A) percentage=$percentage% buff={$this->preVL}", "pct=$roundedPercentage% buff=$roundedBuffer");
                     }
                 } else {
-                    if($currentData->failedTime >= $currentData->maxTime){
-                        if(++$this->preVL >= 10){
-                            $this->fail($user, "eD={$currentData->motion}, mYD={$currentData->maxFailedMotion}, mT={$currentData->maxTime}");
-                        }
-                    } else {
-                        $this->preVL -= $this->preVL;
-                        $this->reward($user, 0.95);
-                    }
-                    $this->queue[0] = null;
-                    array_shift($this->queue);
-                    if(!empty($this->queue)){
-                        // if the queue is not empty, make this process
-                        // with the same move delta, but with the next motion in
-                        // queue.
-                        $this->handle($packet, $user);
-                    }
+                    $this->reward($user, $user->transactionLatency > 400 ? 0.4 : 0.2, false);
+                    $this->preVL = max($this->preVL - 0.75, 0);
+                }
+                if($this->isDebug($user)){
+                    $user->sendMessage("percentage=$percentage% latency={$user->transactionLatency} buff={$this->preVL}");
                 }
             }
+            $this->receivedMotion = null;
+        } elseif($packet instanceof NetworkStackLatencyPacket){
+            $motion = $this->pendingMotions[$packet->timestamp] ?? null;
+            if($motion !== null){
+                $this->receivedMotion = $motion;
+                unset($this->pendingMotions[$packet->timestamp]);
+            }
         }
+    }
+
+    public function handleSend(DataPacket $packet, User $user): void{
+        if($packet instanceof SetActorMotionPacket && $user->player !== null && $packet->entityRuntimeId === $user->player->getId()){
+            $pk = new NetworkStackLatencyPacket();
+            $pk->needResponse = true; $pk->timestamp = ($timestamp = mt_rand(1, 10000000) * 1000);
+            $user->player->dataPacket($pk);
+            $this->pendingMotions[$timestamp] = $packet->motion;
+        }
+    }
+
+    public function canHandleSend(): bool{
+        return true;
     }
 
 }

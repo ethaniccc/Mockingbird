@@ -2,6 +2,12 @@
 resources/notes/*
 start.cmd
 upload.cmd
+upload.sh
 compile.cmd
 upload/*
 .vscode/*
+out/*
+tests/*
+src/ethaniccc/TextCenterFormat/*
+src/ethaniccc/Mockingbird/detections/combat/reach/ReachB.php
+src/ethaniccc/Mockingbird/detections/movement/velocity/VelocityB.php

@@ -4,20 +4,27 @@ namespace ethaniccc\Mockingbird\listener;
 
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\Mockingbird;
-use ethaniccc\Mockingbird\packets\MotionPacket;
 use ethaniccc\Mockingbird\processing\Processor;
+use ethaniccc\Mockingbird\tasks\PacketLogWriteTask;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\user\UserManager;
+use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\entity\EntityMotionEvent;
 use pocketmine\event\entity\EntityTeleportEvent;
+use pocketmine\event\inventory\InventoryTransactionEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
+use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
+use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
+use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
+use pocketmine\network\mcpe\protocol\types\PlayerMovementType;
 use pocketmine\Player;
 use pocketmine\Server;
 
@@ -27,70 +34,47 @@ class MockingbirdListener implements Listener{
         Server::getInstance()->getPluginManager()->registerEvents($this, Mockingbird::getInstance());
     }
 
+    /** @priority HIGHEST */
     public function onPacket(DataPacketReceiveEvent $event) : void{
         $packet = $event->getPacket();
         $player = $event->getPlayer();
         if($packet instanceof LoginPacket){
             $user = new User($player);
             UserManager::getInstance()->register($user);
+        } elseif($packet instanceof PlayerAuthInputPacket){
+            $event->setCancelled();
         }
 
         $user = UserManager::getInstance()->get($player);
         if($user !== null){
-            foreach($user->processors as $processor){
-                if($processor instanceof Processor){
-                    $processor->process($packet);
+            if($user->debugChannel === 'clientpk' && !in_array(get_class($packet), [BatchPacket::class, PlayerAuthInputPacket::class, NetworkStackLatencyPacket::class])){
+                $user->sendMessage(get_class($packet));
+            }
+            if($user->isPacketLogged){
+                $user->packetLog[] = $packet;
+            }
+            $user->inboundProcessor->process($packet, $user);
+            foreach($user->detections as $check){
+                if($check->enabled){
+                    $check->handleReceive($packet, $user);
                 }
             }
-            foreach($user->checks as $check){
-                if($check instanceof Detection){
-                    $check->handle($packet, $user);
-                }
-            }
-        }
-
-        if($packet instanceof PlayerAuthInputPacket){
-            // make debug *insert IdotHub :shut: emoji*
-            $event->setCancelled();
         }
     }
 
+    /** @priority HIGHEST */
     public function onPacketSend(DataPacketSendEvent $event) : void{
         $packet = $event->getPacket();
-        if($packet instanceof StartGamePacket){
-            $packet->isMovementServerAuthoritative = true;
-        }
-    }
-
-    public function onJoin(PlayerJoinEvent $event) : void{
         $user = UserManager::getInstance()->get($event->getPlayer());
-        if($user === null){
-            throw new \UnexpectedValueException("{$event->getPlayer()->getName()} was not registered");
-        } else {
-            $user->loggedIn = true;
-            if($user->player->hasPermission("mockingbird.alerts") && Mockingbird::getInstance()->getConfig()->get("alerts_default")){
-                $user->alerts = true;
+        if($packet instanceof StartGamePacket){
+            if(ProtocolInfo::CURRENT_PROTOCOL >= 419){
+                $packet->playerMovementType = PlayerMovementType::SERVER_AUTHORITATIVE_V2_REWIND;
+            } else {
+                $packet->isMovementServerAuthoritative = true;
             }
-            $pk = new NetworkStackLatencyPacket();
-            $pk->timestamp = 1000;
-            $pk->needResponse = true;
-            $user->player->dataPacket($pk);
-            $user->lastSentNetworkLatencyTime = microtime(true);
         }
-    }
-
-    public function onMotion(EntityMotionEvent $event) : void{
-        $entity = $event->getEntity();
-        if($entity instanceof Player){
-            $user = UserManager::getInstance()->get($entity);
-            $user->timeSinceMotion -= $user->timeSinceMotion > 0 ? $user->timeSinceMotion : 3;
-            $user->currentMotion = $event->getVector();
-            $motionPK = new MotionPacket($event);
-            foreach($user->checks as $check){
-                if($check instanceof Detection){
-                    $check->handle($motionPK, $user);
-                }
-            }
+        if($user !== null){
+            $user->outboundProcessor->process($packet, $user);
         }
     }
 
@@ -100,8 +84,27 @@ class MockingbirdListener implements Listener{
             $user = UserManager::getInstance()->get($entity);
             if($user !== null){
                 $user->timeSinceTeleport = 0;
+                $user->moveData->awaitingTeleport = true;
+                $user->moveData->teleportPos = $event->getTo();
             }
         }
+    }
+
+    // I hate it here
+    public function onTransaction(InventoryTransactionEvent $event) : void{
+        $user = UserManager::getInstance()->get($event->getTransaction()->getSource());
+        if($user !== null){
+            foreach($user->detections as $detection){
+                if($detection->enabled){
+                    $detection->handleEvent($event, $user);
+                }
+            }
+        }
+    }
+
+    public function onLeave(PlayerQuitEvent $event) : void{
+        $player = $event->getPlayer();
+        UserManager::getInstance()->unregister($player);
     }
 
 }
