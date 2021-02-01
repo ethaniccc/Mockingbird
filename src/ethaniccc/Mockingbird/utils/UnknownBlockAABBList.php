@@ -131,6 +131,43 @@ final class UnknownBlockAABBList{
             self::registerAABB(new AABB(0.3125, 0.375, 0.0, 0.6875, 0.625, 0.125), $button, 3);
             self::registerAABB(new AABB(0.875, 0.375, 0.3125, 1.0, 0.625, 0.6875), $button, 4);
             self::registerAABB(new AABB(0.0, 0.375, 0.3125, 0.125, 0.625, 0.6875), $button, 5);
+            self::registerAABB(new AABB(0.3125, 0.9375, 0.375, 0.6875, 1.0, 0.625), $button, 6);
+            self::registerAABB(new AABB(0.3125, 0.9375, 0.375, 0.6875, 1.0, 0.625), $button, 7);
+            self::registerAABB(new AABB(0.3125, 0.375, 0.9375, 0.6875, 0.625, 1.0), $button, 8);
+            self::registerAABB(new AABB(0.3125, 0.375, 0.0, 0.6875, 0.625, 0.0625), $button, 9);
+            self::registerAABB(new AABB(0.9375, 0.375, 0.3125, 1.0, 0.625, 0.6875), $button, 10);
+            self::registerAABB(new AABB(0.0, 0.375, 0.3125, 0.0625, 0.625, 0.6875), $button, 11);
+            self::registerAABB(new AABB(0.9375, 0.375, 0.3125, 1.0, 0.625, 0.6875), $button, 12);
+            self::registerAABB(new AABB(0.0, 0.375, 0.3125, 0.0625, 0.625, 0.6875), $button, 13);
+            self::registerAABB(new AABB(0.3125, 0.9375, 0.375, 0.6875, 1.0, 0.625), $button, 14);
+            self::registerAABB(new AABB(0.3125, 0.9375, 0.375, 0.6875, 1.0, 0.625), $button, 15);
+        }
+        //Fence Gates
+        foreach([BlockIds::FENCE_GATE, BlockIds::SPRUCE_FENCE_GATE, BlockIds::BIRCH_FENCE_GATE, BlockIds::JUNGLE_FENCE_GATE, BlockIds::DARK_OAK_FENCE_GATE, BlockIds::ACACIA_FENCE_GATE] as $gate){
+            for($i = 0; $i <= 15; ++$i){
+                if($i%2 == 0){
+                    self::registerAABB(new AABB(0.0, 0.0, 0.375, 1.0, 1.0, 0.625), $gate, $i);
+                }else{
+                    self::registerAABB(new AABB(0.375, 0.0, 0.0, 0.625, 1.0, 1.0), $gate, $i);
+                }
+            }
+        }
+        //Tripwire Hook
+        for($i = 0; $i <= 15; ++$i){
+            switch($i%4){
+                case 0:
+                    self::registerAABB(new AABB(0.375, 0.0625, 0.0, 0.625, 0.5625, 0.375), BlockIds::TRIPWIRE_HOOK, $i);
+                    break;
+                case 1:
+                    self::registerAABB(new AABB(0.625, 0.0625, 0.375, 1.0, 0.5625, 0.625), BlockIds::TRIPWIRE_HOOK, $i);
+                    break;
+                case 2:
+                    self::registerAABB(new AABB(0.375, 0.0625, 0.625, 0.625, 0.5625, 1.0), BlockIds::TRIPWIRE_HOOK, $i);
+                    break;
+                case 3:
+                    self::registerAABB(new AABB(0.0, 0.0625, 0.375, 0.375, 0.5625, 0.625), BlockIds::TRIPWIRE_HOOK, $i);
+                    break;
+            }
         }
     }
     public static function getFromList(Vector3 $pos, int $id, int $meta = 0): AABB{
