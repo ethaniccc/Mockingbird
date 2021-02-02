@@ -169,6 +169,8 @@ final class UnknownBlockAABBList{
                     break;
             }
         }
+        //Border block
+        self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 1.5, 1.0), 212);
     }
     public static function getFromList(Vector3 $pos, int $id, int $meta = 0): AABB{
         return (self::$list[($id << 4) | $meta] ?? self::$list[$id << 4] ?? AABB::fromBlock(BlockFactory::get($id, $meta)->setComponents(0, 0, 0)))->offsetCopy($pos->x, $pos->y, $pos->z);
