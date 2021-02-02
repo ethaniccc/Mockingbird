@@ -171,6 +171,11 @@ final class UnknownBlockAABBList{
         }
         //Border block
         self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 1.5, 1.0), 212);
+        //Repeater/Comparator
+        foreach([BlockIds::REPEATER_BLOCK, BlockIds::UNPOWERED_REPEATER, BlockIds::COMPARATOR_BLOCK, BlockIds::UNPOWERED_COMPARATOR] as $circuit){
+            self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.125, 1.0), $circuit);
+        }
+        //TODO: Cocoa block
     }
     public static function getFromList(Vector3 $pos, int $id, int $meta = 0): AABB{
         return (self::$list[($id << 4) | $meta] ?? self::$list[$id << 4] ?? AABB::fromBlock(BlockFactory::get($id, $meta)->setComponents(0, 0, 0)))->offsetCopy($pos->x, $pos->y, $pos->z);
