@@ -8,6 +8,7 @@ use ethaniccc\Mockingbird\processing\Processor;
 use ethaniccc\Mockingbird\tasks\PacketLogWriteTask;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\user\UserManager;
+use pocketmine\block\UnknownBlock;
 use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\entity\EntityMotionEvent;
 use pocketmine\event\entity\EntityTeleportEvent;
@@ -17,12 +18,17 @@ use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
+use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\BatchPacket;
+use pocketmine\network\mcpe\protocol\ContainerOpenPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
+use pocketmine\network\mcpe\protocol\MoveActorAbsolutePacket;
+use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
+use pocketmine\network\mcpe\protocol\SetActorMotionPacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\network\mcpe\protocol\types\PlayerMovementType;
 use pocketmine\Player;
@@ -72,6 +78,19 @@ class MockingbirdListener implements Listener{
             } else {
                 $packet->isMovementServerAuthoritative = true;
             }
+        }
+        if($packet instanceof BatchPacket){
+            try{
+                foreach($packet->getPackets() as $buff){
+                    $pk = PacketPool::getPacket($buff);
+                    $pk->decode();
+                    // this is to prevent a glitch with Shulker boxes staying open and falsing movement checks
+                    // if you have a plugin that properly implements Shulker boxes, then you should be fine.
+                    if($pk instanceof ContainerOpenPacket && $user->player->getLevel()->getBlock(new Vector3($pk->x, $pk->y, $pk->z)) instanceof UnknownBlock){
+                        $event->setCancelled();
+                    }
+                }
+            } catch(\UnexpectedValueException $e){}
         }
         if($user !== null){
             $user->outboundProcessor->process($packet, $user);

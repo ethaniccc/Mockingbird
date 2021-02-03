@@ -190,10 +190,10 @@ FlyD:
 
 # Velocity
 VelocityA:
-  enabled: false
-  punish: false
+  enabled: true
+  punish: true
   punishment_type: kick
-  max_violations: 25
+  max_violations: 10
 VelocityB:
   enabled: false
   punish: false

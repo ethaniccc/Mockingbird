@@ -34,20 +34,19 @@ class HitboxA extends Detection{
         if($user->timeSinceJoin < 100 || !$user->loggedIn){
             return;
         }
-        if($packet instanceof InventoryTransactionPacket && $user->win10 && !$user->player->isCreative() && !$this->awaitingMove && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK && $user->isDesktop && !$user->player->isCreative() && $user->tickData->targetLocationHistory !== null){
-            if($user->tickData->targetLocationHistory->getLocations()->size() >= floor($user->transactionLatency / 50) + 2){
-                // wait for the next PlayerAuthInputPacket from the client
+        if($packet instanceof InventoryTransactionPacket && $user->win10 && !$user->player->isCreative() && !$this->awaitingMove && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK && $user->isDesktop && !$user->player->isCreative()){
+            if(count($user->tickData->targetLocations) > 1){
                 $this->awaitingMove = true;
             }
         } elseif($packet instanceof PlayerAuthInputPacket){
             if($this->awaitingMove){
-                $locations = serialize($user->tickData->targetLocationHistory->getLocationsRelativeToTime($user->tickData->currentTick - floor($user->transactionLatency / 50), 3));
-                [$from, $to] = [serialize(new Ray($user->moveData->lastLocation->add(0, $user->isSneaking ? 1.52 : 1.62, 0), $this->lastDirectionVector)), serialize(Ray::fromUser($user))];
+                $locations = serialize($user->tickData->targetLocations);
+                [$from, $to] = [serialize(new Ray($user->moveData->lastLocation->add(0, $user->isSneaking ? 1.54 : 1.62, 0), $this->lastDirectionVector)), serialize(Ray::fromUser($user))];
                 $this->getPlugin()->calculationThread->addToTodo(function() use ($locations, $from, $to){
                     [$locations, $from, $to] = [unserialize($locations), unserialize($from), unserialize($to)];
                     $collided = 0;
-                    foreach($locations as $AABB){
-                        /** @var AABB $AABB */
+                    foreach($locations as $location){
+                        $AABB = AABB::fromPosition($location)->expand(0.2, 0.2, 0.2);
                         if($AABB->collidesRay($from, 0, 10) !== -69.0){
                             $collided++;
                         }
@@ -59,13 +58,13 @@ class HitboxA extends Detection{
                 }, function($result) use(&$user){
                     if($result !== null && $user !== null){
                         // there was no collision to the AABB
-                        if($result === 0 && $user->responded){
+                        if($result === 0){
                             // this is only going to flag blatant hitbox, but worth it over false positives (for now)
-                            if(++$this->preVL >= 7){
+                            if(++$this->preVL >= 10){
                                 $this->fail($user, 'collided=false buff=' . $this->preVL);
                             }
                         } else {
-                            $this->reward($user, 0.999);
+                            $this->reward($user, 0.05, false);
                             $this->preVL = 0;
                         }
                         if($this->isDebug($user)){

@@ -21,7 +21,6 @@ class BadPacketC extends Detection{
 
     public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK){
-            // what the fuck
             $targetEntity = $packet->trData->entityRuntimeId;
             if($user->player->getId() === $targetEntity){
                 $this->fail($user, "id={$user->player->getId()} attackedId=$targetEntity");

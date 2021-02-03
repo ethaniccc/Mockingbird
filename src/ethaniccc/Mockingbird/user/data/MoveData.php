@@ -20,7 +20,7 @@ class MoveData{
     public $onGroundTicks = 0, $offGroundTicks = 0;
     /** @var Location - The last onGround location of the User */
     public $lastOnGroundLocation;
-    /** @var null|Block - THe blocks above and below the user from the move location.*/
+    /** @var null|Block - The blocks above and below the user from the move location.*/
     public $blockAbove, $blockBelow;
     /** @var Vector3 - The last motion the user has took. */
     public $lastMotion;

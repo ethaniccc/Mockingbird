@@ -14,6 +14,7 @@ use ethaniccc\Mockingbird\user\data\HitData;
 use ethaniccc\Mockingbird\user\data\MoveData;
 use ethaniccc\Mockingbird\user\data\TickData;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
+use ethaniccc\Mockingbird\utils\MouseRecorder;
 use pocketmine\block\Air;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\DataPacket;
@@ -34,6 +35,8 @@ class User{
     public $tickProcessor;
     /** @var TestProcessor - A development processor for testing things that should not be used in a release. */
     public $testProcessor;
+    /** @var MouseRecorder|null - A debug feature to record mouse movements and clicks, meant for determining aiming patterns and such. */
+    public $mouseRecorder;
     /** @var Detection[] - The detections available that will run. */
     public $detections = [];
     /** @var array - The key is the detection name, and the value is the violations (float). - Make this a class? */
@@ -143,6 +146,7 @@ class User{
     }
 
     public function sendMessage(string $message) : void{
+        if(!$this->loggedIn) return;
         $this->player->sendMessage(TextFormat::BOLD . TextFormat::DARK_GRAY . '[' . TextFormat::RED . 'DEBUG' . TextFormat::DARK_GRAY . ']' . TextFormat::RESET . ' ' . $message);
     }
 

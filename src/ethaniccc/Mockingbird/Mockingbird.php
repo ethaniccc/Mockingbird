@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace ethaniccc\Mockingbird;
 
 use ethaniccc\Mockingbird\commands\AlertCooldownCommand;
@@ -24,6 +22,7 @@ use ethaniccc\Mockingbird\detections\movement\fly\FlyA;
 use ethaniccc\Mockingbird\detections\movement\fly\FlyB;
 use ethaniccc\Mockingbird\detections\movement\fly\FlyC;
 use ethaniccc\Mockingbird\detections\movement\fly\FlyD;
+use ethaniccc\Mockingbird\detections\movement\omnisprint\OmniSprintA;
 use ethaniccc\Mockingbird\detections\movement\speed\SpeedA;
 use ethaniccc\Mockingbird\detections\movement\speed\SpeedB;
 use ethaniccc\Mockingbird\detections\movement\velocity\VelocityA;
@@ -45,6 +44,7 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\snooze\SleeperNotifier;
 use pocketmine\utils\TextFormat;
+use pocketmine\timings\TimingsHandler;
 
 final class Mockingbird extends PluginBase{
 
@@ -113,6 +113,7 @@ final class Mockingbird extends PluginBase{
             }
         }), 1);
         @mkdir($this->getDataFolder() . 'packet_logs');
+        @mkdir($this->getDataFolder() . 'mouse_recordings');
     }
 
     public function getPrefix() : string{
@@ -158,6 +159,8 @@ final class Mockingbird extends PluginBase{
             new SpeedB('SpeedB', $this->getConfig()->exists('SpeedB') ? $this->getConfig()->get('SpeedB') : null),
             // Velocity checks
             new VelocityA('VelocityA', $this->getConfig()->exists('VelocityA') ? $this->getConfig()->get('VelocityA') : null),
+            // OmiSprint checks
+            new OmniSprintA('OmniSprintA', $this->getConfig()->exists('OmniSprintA') ? $this->getConfig()->get('OmniSprintA') : null),
             // BadPacket Checks
             new BadPacketA('BadPacketA', $this->getConfig()->exists('BadPacketA') ? $this->getConfig()->get('BadPacketA') : null),
             new BadPacketB('BadPacketB', $this->getConfig()->exists('BadPacketB') ? $this->getConfig()->get('BadPacketB') : null),

@@ -31,7 +31,7 @@ class BadPacketB extends Detection{
         if($packet instanceof MovePlayerPacket){
             $speed = $this->ticks - $this->lastTime;
             if($speed < 2){
-                $this->fail($user, "speed=$speed");
+                $this->fail($user, 'packet speed=' . $speed);
             }
             $this->lastTime = $this->ticks;
         } elseif($packet instanceof PlayerAuthInputPacket){

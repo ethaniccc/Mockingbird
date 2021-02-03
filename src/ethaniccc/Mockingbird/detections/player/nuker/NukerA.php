@@ -26,7 +26,7 @@ class NukerA extends Detection{
             ++$this->blocks;
         } elseif($packet instanceof PlayerAuthInputPacket){
             // PlayerAuthInputPacket on top
-            if($this->blocks >= (int) $this->getSetting("max_blocks")){
+            if($this->blocks >= (int) $this->getSetting('max_blocks')){
                 $this->fail($user, "blocks={$this->blocks}");
             } else {
                 if($this->blocks > 0){

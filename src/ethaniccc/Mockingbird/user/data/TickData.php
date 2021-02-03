@@ -3,6 +3,7 @@
 namespace ethaniccc\Mockingbird\user\data;
 
 use ethaniccc\Mockingbird\utils\location\LocationHistory;
+use pocketmine\math\Vector3;
 
 class TickData{
 
@@ -10,5 +11,7 @@ class TickData{
     public $currentTick = 0;
     /** @var LocationHistory - The location history of the target entity. */
     public $targetLocationHistory;
+    /** @var Vector3[] - The locations of the target entity the user has received. */
+    public $targetLocations = [];
 
 }

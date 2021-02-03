@@ -7,14 +7,18 @@ use ethaniccc\Mockingbird\tasks\DebugWriteTask;
 use ethaniccc\Mockingbird\tasks\KickTask;
 use ethaniccc\Mockingbird\tasks\PacketLogWriteTask;
 use ethaniccc\Mockingbird\user\UserManager;
-use ethaniccc\TextCenterFormat\TextCenterFormat;
+use ethaniccc\Mockingbird\utils\MouseRecorder;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginIdentifiableCommand;
 use pocketmine\entity\Entity;
+use pocketmine\entity\Human;
 use pocketmine\entity\Villager;
+use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\DataPacketTest;
+use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\PacketPool;
+use pocketmine\network\mcpe\protocol\SetActorMotionPacket;
 use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\Server;
@@ -52,7 +56,7 @@ class UserDebugCommand extends Command implements PluginIdentifiableCommand{
                     $dummy->setHealth(10000);
                     $dummy->spawnTo($sender);
                     return;
-                }*/ elseif($selectedUser === '--packet-log'){
+                } */ elseif($selectedUser === '--packet-log'){
                     $u = UserManager::getInstance()->getUserByName($selectedCheat);
                     if($u !== null){
                         $u->isPacketLogged = !$u->isPacketLogged;
@@ -64,6 +68,25 @@ class UserDebugCommand extends Command implements PluginIdentifiableCommand{
                         }
                     } else {
                         $sender->sendMessage($this->plugin->getPrefix() . TextFormat::RED . ' This user was not found.');
+                    }
+                    return;
+                } /* elseif($selectedUser === '--motion-test' && $sender instanceof Player && ($entity = $sender->getLevel()->getEntity((int) $selectedCheat)) !== null){
+                    // $entity->setMotion(new Vector3(0.4, 0.4, 0.4));
+                    $pk = new SetActorMotionPacket();
+                    $pk->motion = new Vector3(1, 2, 1);
+                    $pk->entityRuntimeId = (int) $selectedCheat;
+                    $sender->dataPacket($pk);
+                    return;
+                } */ elseif($selectedUser === '--record-mouse' && $sender instanceof Player){
+                    // mbdebug --record-mouse coEthaniccc 30 2
+                    $u = UserManager::getInstance()->get($sender);
+                    $p = $sender->getServer()->getPlayer($selectedCheat);
+                    if($p !== null && $u !== null && ($tu = UserManager::getInstance()->get($p)) !== null){
+                        $tu->mouseRecorder = new MouseRecorder($u, $this->getPlugin()->getDataFolder() . 'mouse_recordings/' . $p->getName() . '.png', (int) $args[2] ?? 25, $args[3] ?? 1);
+                        $tu->mouseRecorder->start();
+                        $u->sendMessage('You have started a mouse recording for ' . $p->getName() . ' lasting ' . ($args[2] ?? 25) . ' seconds');
+                    } elseif($p === null){
+                        $sender->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RED . ' Could not find the player ' . $selectedCheat);
                     }
                     return;
                 } /* elseif($selectedUser === 'lag-server'){
