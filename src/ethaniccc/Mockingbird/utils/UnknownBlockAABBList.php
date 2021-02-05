@@ -175,7 +175,22 @@ final class UnknownBlockAABBList{
         foreach([BlockIds::REPEATER_BLOCK, BlockIds::UNPOWERED_REPEATER, BlockIds::COMPARATOR_BLOCK, BlockIds::UNPOWERED_COMPARATOR] as $circuit){
             self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.125, 1.0), $circuit);
         }
-        //TODO: Cocoa block
+        self::registerAABB(new AABB(0.375, 0.5, 0.6875, 0.625, 0.71875, 0.9375), BlockIds::COCOA);
+        self::registerAABB(new AABB(0.0625, 0.5, 0.375, 0.3125, 0.71875, 0.625), BlockIds::COCOA, 1);
+        self::registerAABB(new AABB(0.375, 0.5, 0.0625, 0.625, 0.71875, 0.3125), BlockIds::COCOA, 2);
+        self::registerAABB(new AABB(0.6875, 0.5, 0.375, 0.9375, 0.71875, 0.625), BlockIds::COCOA, 3);
+        self::registerAABB(new AABB(0.3125, 0.3125, 0.5125, 0.6875, 0.75, 0.9375), BlockIds::COCOA, 4);
+        self::registerAABB(new AABB(0.0625, 0.3125, 0.3125, 0.4375, 0.75, 0.6875), BlockIds::COCOA, 5);
+        self::registerAABB(new AABB(0.3125, 0.3125, 0.0625, 0.6875, 0.75, 0.4375), BlockIds::COCOA, 6);
+        self::registerAABB(new AABB(0.5625, 0.3125, 0.3125, 0.9375, 0.75, 0.6875), BlockIds::COCOA, 7);
+        self::registerAABB(new AABB(0.25, 0.1875, 0.4375, 0.75, 0.75, 0.9375), BlockIds::COCOA, 8);
+        self::registerAABB(new AABB(0.0625, 0.1875, 0.25, 0.5625, 0.75, 0.75), BlockIds::COCOA, 9);
+        self::registerAABB(new AABB(0.25, 0.1875, 0.0625, 0.75, 0.75, 0.5625), BlockIds::COCOA, 10);
+        self::registerAABB(new AABB(0.4375, 0.1875, 0.25, 0.9375, 0.75, 0.75), BlockIds::COCOA, 11);
+        self::registerAABB(new AABB(0.375, 0.5, 0.6875, 0.625, 0.71875, 0.9375), BlockIds::COCOA, 12);
+        self::registerAABB(new AABB(0.0625, 0.5, 0.375, 0.3125, 0.71875, 0.625), BlockIds::COCOA, 13);
+        self::registerAABB(new AABB(0.375, 0.5, 0.0625, 0.625, 0.71875, 0.3125), BlockIds::COCOA, 14);
+        self::registerAABB(new AABB(0.6875, 0.5, 0.375, 0.9375, 0.71875, 0.625), BlockIds::COCOA, 15);
     }
     public static function getFromList(Vector3 $pos, int $id, int $meta = 0): AABB{
         return (self::$list[($id << 4) | $meta] ?? self::$list[$id << 4] ?? AABB::fromBlock(BlockFactory::get($id, $meta)->setComponents(0, 0, 0)))->offsetCopy($pos->x, $pos->y, $pos->z);
