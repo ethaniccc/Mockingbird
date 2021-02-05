@@ -3,7 +3,6 @@
 namespace ethaniccc\Mockingbird\utils;
 
 use pocketmine\math\Vector3;
-use pocketmine\level\Position;
 use pocketmine\block\{BlockFactory, BlockIds};
 use ethanicc\Mockingbird\utils\boundingbox\AABB;
 
