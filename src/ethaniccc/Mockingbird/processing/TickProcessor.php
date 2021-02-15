@@ -10,6 +10,7 @@ use ethaniccc\Mockingbird\utils\location\LocationHistory;
 use ethaniccc\Mockingbird\utils\Pair;
 use pocketmine\entity\Entity;
 use pocketmine\network\mcpe\protocol\DataPacket;
+use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\entity\Villager;

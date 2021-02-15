@@ -32,7 +32,7 @@ abstract class Detection{
     public function __construct(string $name, ?array $settings){
         $this->name = $name;
         $this->subType = substr($this->name, -1);
-        self::$settings[$name] = $settings === null ? ["enabled" => true, "punish" => false] : $settings;
+        self::$settings[$name] = $settings === null ? ['enabled' => true, 'punish' => false] : $settings;
         $this->enabled = $this->getSetting('enabled');
         $this->punishable = $this->getSetting('punish');
         $this->punishType = $this->getSetting('punishment_type') ?? 'kick';
@@ -162,9 +162,9 @@ abstract class Detection{
         return strtolower($user->debugChannel) === strtolower($this->name);
     }
 
-    protected function reward(User $user, float $num, bool $multiply = true) : void{
+    protected function reward(User $user, float $num) : void{
         if(isset($user->violations[$this->name])){
-            $multiply ? $user->violations[$this->name] *= $num : $user->violations[$this->name] = max($user->violations[$this->name] - $num, 0);
+            $user->violations[$this->name] = max($user->violations[$this->name] - $num, 0);
         }
     }
 

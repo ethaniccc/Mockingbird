@@ -97,18 +97,6 @@ class MockingbirdListener implements Listener{
         }
     }
 
-    public function onTeleport(EntityTeleportEvent $event) : void{
-        $entity = $event->getEntity();
-        if($entity instanceof Player){
-            $user = UserManager::getInstance()->get($entity);
-            if($user !== null){
-                $user->timeSinceTeleport = 0;
-                $user->moveData->awaitingTeleport = true;
-                $user->moveData->teleportPos = $event->getTo();
-            }
-        }
-    }
-
     // I hate it here
     public function onTransaction(InventoryTransactionEvent $event) : void{
         $user = UserManager::getInstance()->get($event->getTransaction()->getSource());

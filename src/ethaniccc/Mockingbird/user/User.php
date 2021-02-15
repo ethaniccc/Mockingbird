@@ -16,6 +16,7 @@ use ethaniccc\Mockingbird\user\data\TickData;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\MouseRecorder;
 use pocketmine\block\Air;
+use pocketmine\block\Block;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
@@ -71,8 +72,12 @@ class User{
     public $timeSinceDamage = 0;
     public $timeSinceAttack = 0;
     public $timeSinceStoppedFlight = 0;
-    public $timeSinceLastBlockPlace = 0;
     public $timeSinceStoppedGlide = 0;
+
+    /** @var Block[] - An array of vector3's which represent the position the User has recently placed. */
+    public $placedBlocks = [];
+    /** @var Block[] - An array of ghost blocks the client has client-side. */
+    public $ghostBlocks = [];
 
     /** @var int|float - The time the last NetworkStackLatencyPacket has been sent. */
     public $lastSentNetworkLatencyTime = 0;
@@ -115,8 +120,6 @@ class User{
         $this->player = $player;
         $this->alertCooldown = ($cooldown = Mockingbird::getInstance()->getConfig()->get('default_alert_delay')) === false ? 2 : $cooldown;
         $this->moveData = new MoveData();
-        $this->moveData->blockBelow = new Air();
-        $this->moveData->blockAbove = new Air();
         $this->clickData = new ClickData();
         $this->hitData = new HitData();
         $this->hitData->lastTick = Server::getInstance()->getTick();

@@ -44,6 +44,7 @@ class AutoClickerA extends Detection{
                     }
                 } else {
                     $this->preVL = max($this->preVL - 0.05, 0);
+                    $this->reward($user, 0.1);
                 }
                 if($this->isDebug($user)){
                     $user->sendMessage("diff=$diff buff={$this->preVL} cps={$user->clickData->cps}");

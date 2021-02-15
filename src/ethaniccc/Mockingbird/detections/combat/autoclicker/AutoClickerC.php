@@ -41,6 +41,7 @@ class AutoClickerC extends Detection{
                         }
                     } else {
                         $this->preVL = max($this->preVL - 0.2, 0);
+                        $this->reward($user, 0.2);
                     }
                     if($this->isDebug($user)){
                         $user->sendMessage("kurtosis=$kurtosis skewness=$skewness outliers=$outliers cps={$user->clickData->cps} buff={$this->preVL}");

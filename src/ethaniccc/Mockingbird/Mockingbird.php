@@ -30,6 +30,7 @@ use ethaniccc\Mockingbird\detections\packet\badpackets\BadPacketA;
 use ethaniccc\Mockingbird\detections\packet\badpackets\BadPacketB;
 use ethaniccc\Mockingbird\detections\packet\badpackets\BadPacketC;
 use ethaniccc\Mockingbird\detections\packet\badpackets\BadPacketD;
+use ethaniccc\Mockingbird\detections\packet\badpackets\BadPacketE;
 use ethaniccc\Mockingbird\detections\packet\timer\TimerA;
 use ethaniccc\Mockingbird\detections\packet\timer\TimerB;
 use ethaniccc\Mockingbird\detections\player\cheststeal\ChestStealerA;
@@ -40,17 +41,17 @@ use ethaniccc\Mockingbird\listener\MockingbirdListener;
 use ethaniccc\Mockingbird\tasks\DebugWriteTask;
 use ethaniccc\Mockingbird\threads\CalculationThread;
 use ethaniccc\Mockingbird\user\UserManager;
+use ethaniccc\Mockingbird\utils\MathUtils;
 use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\snooze\SleeperNotifier;
 use pocketmine\utils\TextFormat;
-use pocketmine\timings\TimingsHandler;
 
 final class Mockingbird extends PluginBase{
 
     /** @var Mockingbird */
     private static $instance;
-    /** @var Detection[] */
+    /** @var Detection[] - A list of detections that will be used. */
     public $availableChecks;
     /** @var DebugWriteTask - Debug information is written to the debug log with this task. */
     public $debugTask;
@@ -97,8 +98,9 @@ final class Mockingbird extends PluginBase{
             }
         }
         UserManager::init();
+        MathUtils::init();
         new MockingbirdListener();
-        $this->loadAvailableChecks();
+        $this->loadDefaultChecks();
         // this will only work if the premium checks are in the given copy of Mockingbird
         PremiumLoader::register();
         $this->registerCommands();
@@ -111,6 +113,7 @@ final class Mockingbird extends PluginBase{
                 $this->getServer()->getAsyncPool()->submitTask($this->debugTask);
                 $this->debugTask = new DebugWriteTask($this->getDataFolder() . 'debug_log.txt');
             }
+            $this->calculationThread->handleServerTick();
         }), 1);
         @mkdir($this->getDataFolder() . 'packet_logs');
         @mkdir($this->getDataFolder() . 'mouse_recordings');
@@ -118,6 +121,20 @@ final class Mockingbird extends PluginBase{
 
     public function getPrefix() : string{
         return $this->getConfig()->get('prefix') . TextFormat::RESET;
+    }
+
+    /**
+     * @param Detection[] $detections
+     * This function was made for any external plugins that want to add custom checks.
+     * These custom checks must be constructed with their name for the first parameter, and
+     * the second parameter null, unless there is a config for those checks in the plugin using this
+     * function.
+     */
+    public function registerCustomChecks(array $detections) : void{
+        foreach($detections as $detection){
+            $this->getLogger()->debug('Registering detection ' . $detection->name . ' class ' . get_class($detection));
+            $this->availableChecks[] = $detection;
+        }
     }
 
     private function registerCommands() : void{
@@ -130,7 +147,7 @@ final class Mockingbird extends PluginBase{
         $this->getServer()->getCommandMap()->registerAll($this->getName(), $commands);
     }
 
-    private function loadAvailableChecks() : void{
+    private function loadDefaultChecks() : void{
         // hardcode checks because why not?
         $this->availableChecks = [
             // AimAssist checks
@@ -166,6 +183,7 @@ final class Mockingbird extends PluginBase{
             new BadPacketB('BadPacketB', $this->getConfig()->exists('BadPacketB') ? $this->getConfig()->get('BadPacketB') : null),
             new BadPacketC('BadPacketC', $this->getConfig()->exists('BadPacketC') ? $this->getConfig()->get('BadPacketC') : null),
             new BadPacketD('BadPacketD', $this->getConfig()->exists('BadPacketD') ? $this->getConfig()->get('BadPacketD') : null),
+            new BadPacketE('BadPacketE', $this->getConfig()->exists('BadPacketE') ? $this->getConfig()->get('BadPacketE') : null),
             // Timer checks
             new TimerA('TimerA', $this->getConfig()->exists('TimerA') ? $this->getConfig()->get('TimerA') : null),
             // new TimerB('TimerB', $this->getConfig()->exists('TimerB') ? $this->getConfig()->get('TimerB') : null),

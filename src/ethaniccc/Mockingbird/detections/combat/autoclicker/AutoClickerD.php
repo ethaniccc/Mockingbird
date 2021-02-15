@@ -48,6 +48,7 @@ class AutoClickerD extends Detection{
                             $this->samples->clear();
                         } else {
                             $this->preVL = max($this->preVL - 2.5, 0);
+                            $this->reward($user, 0.03);
                         }
                         if($this->isDebug($user)){
                             $user->sendMessage("duplicates=$duplicates kurtosis=$kurtosis skewness=$skewness outliers=$outliers");

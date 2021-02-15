@@ -40,7 +40,6 @@ TLDR List:
 - More accurate
 - Cheat probability
 - Reward system (for when players pass checks to prevent falses)
-- Less CPU Usage
 - Some threaded checks
 
 Well, first things first - detection modules are no longer event listeners, instead, Detections
@@ -70,7 +69,7 @@ This is a list of all the detections Mockingbird has, these detections may not b
 and false at sometimes, but the new reward system should compensate.
 
 ### Combat Detections
-- Aim
+- AimAssist
     - (A) -> Yaw delta to pitch delta check
     - (B) -> Modulo check
 - AutoClicker
@@ -82,7 +81,7 @@ and false at sometimes, but the new reward system should compensate.
     - (A) -> MultiAura
     - (B) -> NoSwing
 - Reach
-    - (A) -> AABB Distance Check with Location History
+    - (A) -> AABB Distance Check
 - Hitbox
     - (A) -> Colliding Ray Check
 ### Movement Checks
@@ -93,9 +92,11 @@ and false at sometimes, but the new reward system should compensate.
 - Speed
     - (A) -> Friction Check (flags while using bhop and some other hacks)
     - (B) -> Speed Limit Check
+- Velocity
+    - (A) -> Vertical velocity check (can detect 99.999%)
 ### Player Checks
 - Nuker (yep lag compensated in less than 40 lines)
-- ChestStealer (yep also lag compensated in less than 40 lines)
+- ChestStealer (yep also lag compensated in less than 40 lines) =
 - EditionFaker (**pog**)
 
 Mockingbird also has packet checks.
@@ -105,8 +106,8 @@ Mockingbird also has packet checks.
     * (C) -> Checks if player hits themselves (can be used to bypass some checks?)
     * (D) -> Checks if player is gliding without an Elytra.
 - Timer (checks if player is sending too many packets in an instance)
-    - (A) -> Balance Check (bad with server lag)
-
+    - (A) -> Balance Check
+  
 ## Commands
 ### Toggling Alerts
 To toggle alerts on/off, all you need to do is run `/mbalerts`. There are no arguments needed for this command,
@@ -120,6 +121,12 @@ Format with punishments enabled: `Detection Name => (currentViolations / maxViol
 Format with punishments disabled: `Detection Name => (currentViolations) @ Cheating Probability`
 
 ![LogsCommandExample](images/logsExample.png)
+### Setting Alert Cooldown
+By default, alert cooldown is two seconds for every check the player flagging has, however, some may want
+this cooldown lowered to view every single alert, or to increase the alert cooldown because it's spamming chat.
+
+To set the cooldown, run the command `/mbdelay` with the first argument as the amount of second you want to change the 
+alert cooldown to. E.g If I wanted to set the alert cooldown to 10 seconds, I would run `/mbdelay 10`.
 ### Getting User Debug Log Data
 This command is useful for getting debug information in-game, which can help if you are having an issue.
 To get a user's debug information for a certain detection, you can run `/mbdebug <player> <detection_name>`.

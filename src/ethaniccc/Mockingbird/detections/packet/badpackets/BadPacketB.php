@@ -36,7 +36,7 @@ class BadPacketB extends Detection{
             $this->lastTime = $this->ticks;
         } elseif($packet instanceof PlayerAuthInputPacket){
             ++$this->ticks;
-            $this->reward($user, 0.999);
+            $this->reward($user, 0.05);
         }
     }
 

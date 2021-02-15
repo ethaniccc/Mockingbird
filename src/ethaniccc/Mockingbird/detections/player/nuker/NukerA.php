@@ -30,7 +30,7 @@ class NukerA extends Detection{
                 $this->fail($user, "blocks={$this->blocks}");
             } else {
                 if($this->blocks > 0){
-                    $this->reward($user, 0.99);
+                    $this->reward($user, 0.05);
                 }
             }
             $this->blocks = 0;

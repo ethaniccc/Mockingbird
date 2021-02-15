@@ -112,7 +112,7 @@ ReachB:
   punishment_type: kick
   max_violations: 50
   # check sensitivity settings
-  max_reach: 3.01
+  max_reach: 3.0425
 
 # Aim
 AimAssistA:
@@ -200,6 +200,13 @@ VelocityB:
   punishment_type: kick
   max_violations: 30
 
+# OmniSprint (checks if the user is not pressing "W" while sprinting)
+OmniSprintA:
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 10
+
 #  ______ _
 #  | ___ \ |
 #  | |_/ / | __ _ _   _  ___ _ __
@@ -259,6 +266,17 @@ BadPacketC:
   max_violations: 2
 BadPacketD:
   # checks if the user is gliding without an elytra
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 5
+BadPacketE:
+  # checks for invalid deltas in a movement packet
+  enabled: true
+  punish: true
+  punishment_type: kick
+  max_violations: 10
+BadPacketF:
   enabled: true
   punish: true
   punishment_type: kick
