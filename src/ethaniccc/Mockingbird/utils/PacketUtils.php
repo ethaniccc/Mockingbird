@@ -16,7 +16,7 @@ class PacketUtils{
         $movePk->pitch = $packet->getPitch();
         $movePk->yaw = $packet->getYaw();
         $movePk->headYaw = $packet->getHeadYaw();
-        $movePk->onGround = LevelUtils::userIsOnGround($user);
+        $movePk->onGround = true;
         return $movePk;
     }
 

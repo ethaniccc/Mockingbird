@@ -33,7 +33,7 @@ class AimAssistB extends Detection{
                         $this->fail($user, "roundedYawDiff=$roundedDiff");
                     }
                 } else {
-                    $this->reward($user, 0.9995);
+                    $this->reward($user, 0.02);
                     $this->preVL = max($this->preVL - 0.05, 0);
                 }
                 if($this->isDebug($user)){

@@ -6,6 +6,38 @@ use pocketmine\math\Vector3;
 
 class MathUtils{
 
+    private static $SIN_TABLE = [];
+    private static $SIN_TABLE_FAST = [];
+    // so I don't have to recode everything if I want to switch...
+    private const FAST_MATH = false;
+
+    // welcome to the fuckery of https://github.com/eldariamc/client/blob/c01d23eb05ed83abb4fee00f9bf603b6bc3e2e27/src/main/java/net/minecraft/util/MathHelper.java
+    public static function init() : void{
+        for($i = 0; $i < 65536; $i++){
+            self::$SIN_TABLE[$i] = sin($i * M_PI * 2 / 65536);
+        }
+        for($i = 0; $i < 4096; $i++){
+            self::$SIN_TABLE_FAST[$i] = sin(($i + 0.5) / 4096 * (M_PI * 2));
+        }
+        for($i = 0; $i < 360; $i += 90){
+            self::$SIN_TABLE_FAST[($i * 11.377778) & 4095] = sin($i * 0.017453292);
+        }
+    }
+
+    public static function sin(float $val) : float{
+        // see self::init()
+        return self::FAST_MATH ? self::$SIN_TABLE_FAST[($val * 651.8986) & 4095] : self::$SIN_TABLE[($val * 10430.378) & 65535];
+    }
+
+    public static function cos(float $val) : float{
+        // see self::init()
+        return self::FAST_MATH ? self::$SIN_TABLE_FAST[($val + (M_PI / 2) * 651.8986) & 4095] : self::$SIN_TABLE[($val * 10430.378 + 16384.0) & 65535];
+    }
+
+    public static function hypot(float $p1, float $p2) : float{
+        return sqrt($p1 * $p1 + $p2 * $p2);
+    }
+
     public static function getDeviation(array $nums) : float{
         if(count($nums) < 1){
             return 0.0;
@@ -25,10 +57,6 @@ class MathUtils{
         return array_sum($nums) / count($nums);
     }
 
-    public static function vectorXZDistance(Vector3 $a, Vector3 $b) : float{
-        return hypot($a->x - $b->x, $a->z - $b->z);
-    }
-
     public static function vectorAngle(Vector3 $a, Vector3 $b) : float{
         try{
             $dot = $a->dot($b) / ($a->length() * $b->length());
@@ -38,13 +66,13 @@ class MathUtils{
         }
     }
 
+    // see https://github.com/eldariamc/client/blob/c01d23eb05ed83abb4fee00f9bf603b6bc3e2e27/src/main/java/net/minecraft/entity/EntityLivingBase.java#L2129
     public static function directionVectorFromValues(float $yaw, float $pitch) : Vector3{
-        $vector = new Vector3(0, 0, 0);
-        $y = -sin(deg2rad($pitch));
-        $xz = cos(deg2rad($pitch));
-        $x = -$xz * sin(deg2rad($yaw));
-        $z = $xz * cos(deg2rad($yaw));
-        return $vector->setComponents($x, $y, $z)->normalize();
+        $var2 = MathUtils::cos(-$yaw * 0.017453292 - M_PI);
+        $var3 = MathUtils::sin(-$yaw * 0.017453292 - M_PI);
+        $var4 = -(MathUtils::cos(-$pitch * 0.017453292));
+        $var5 = MathUtils::sin(-$pitch * 0.017453292);
+        return new Vector3($var3 * $var4, $var5, $var2 * $var4);
     }
 
     public static function getKurtosis(array $data) : float{
@@ -157,12 +185,6 @@ class MathUtils{
             $result = self::getGCD($nums[$i], $result);
         }
         return $result;
-    }
-
-    public static function getMostCommonNumber(array $nums) : int{
-        $values = array_count_values($nums);
-        asort($values);
-        return array_slice(array_keys($values), 0, 5, true)[0];
     }
 
 }

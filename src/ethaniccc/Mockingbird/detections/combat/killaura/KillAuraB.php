@@ -35,6 +35,7 @@ class KillAuraB extends Detection{
                         $this->fail($user);
                     }
                 } else {
+                    $this->reward($user, 0.02);
                     $this->preVL *= 0.5;
                 }
                 $this->swung = false;

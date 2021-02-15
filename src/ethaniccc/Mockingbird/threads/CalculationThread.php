@@ -2,6 +2,7 @@
 
 namespace ethaniccc\Mockingbird\threads;
 
+use ethaniccc\Mockingbird\utils\MathUtils;
 use pocketmine\Thread;
 use pocketmine\snooze\SleeperNotifier;
 
@@ -16,6 +17,9 @@ class CalculationThread extends Thread{
     private static $currentMaxID = 0;
     private static $finishCallableList = [];
 
+    private $tickSpeed = 1;
+    private $lastTick;
+
     public function __construct(\AttachableThreadedLogger $logger, SleeperNotifier $notifier){
         $this->todo = new \Threaded();
         $this->done = new \Threaded();
@@ -28,6 +32,7 @@ class CalculationThread extends Thread{
 
     public function run(){
         $this->registerClassLoader();
+        MathUtils::init();
         while($this->running){
             // results will be in batches
             $start = microtime(true);
@@ -41,17 +46,26 @@ class CalculationThread extends Thread{
                 }
             }
             $end = microtime(true);
-            $tickSpeed = 0.05;
-            // if the run time is less than the tick speed then we can allow the thread to sleep,
-            // otherwise, the thread is lacking behind and no sleeping for it until it gets the work done.
             $this->notifier->wakeupSleeper();
-            if(($delta = $end - $start) < $tickSpeed){
+            $tickSpeed = $this->tickSpeed * 0.05;
+            if(($delta = ($end - $start)) <= $tickSpeed){
                 @time_sleep_until($end + $tickSpeed - $delta);
+            } else {
+                $this->logger->debug('Mockingbird CalculationThread catching up (no sleep) delta=' . $delta);
             }
         }
     }
 
-    public function start(int $options = PTHREADS_INHERIT_ALL){
+    public function handleServerTick() : void{
+        if($this->lastTick === null){
+            $this->lastTick = microtime(true);
+        } else {
+            $this->tickSpeed = max(round((microtime(true) - $this->lastTick) / 0.05), 1);
+            $this->lastTick = microtime(true);
+        }
+    }
+
+    public function start(int $options = PTHREADS_INHERIT_ALL) : bool{
         $this->running = true;
         return parent::start($options);
     }

@@ -5,9 +5,15 @@ namespace ethaniccc\Mockingbird\detections\movement\speed;
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\detections\movement\CancellableMovement;
 use ethaniccc\Mockingbird\user\User;
+use ethaniccc\Mockingbird\utils\MathUtils;
+use ethaniccc\Mockingbird\utils\PredictionUtils;
 use pocketmine\block\Ice;
+use pocketmine\entity\Effect;
+use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
+use pocketmine\block\PackedIce;
+
 /**
  * Class SpeedB
  * @package ethaniccc\Mockingbird\detections\movement\speed
@@ -31,15 +37,17 @@ class SpeedB extends Detection implements CancellableMovement{
             } else {
                 $this->onGroundTicks = 0;
             }
-            $horizontalSpeed = hypot($user->moveData->moveDelta->x, $user->moveData->moveDelta->z);
-            if($user->timeSinceStoppedFlight >= 20
-            && $user->moveData->blockAbove->getId() === 0){
+            $horizontalSpeed = MathUtils::hypot($user->moveData->moveDelta->x, $user->moveData->moveDelta->z);
+            if($user->timeSinceStoppedFlight >= 20){
                 $maxSpeed = $this->onGroundTicks >= 10 ? $this->getSetting('max_speed_on_ground') : $this->getSetting('max_speed_off_ground');
                 if(!$user->hasReceivedChunks){
                     $maxSpeed = $this->getSetting('max_speed_off_ground');
                 }
-                if($user->moveData->blockBelow instanceof Ice){
-                    $maxSpeed *= 5/3;
+                foreach($user->moveData->verticalCollisions as $block){
+                    if($block instanceof Ice || $block instanceof PackedIce){
+                        $maxSpeed = ($maxSpeed / 0.6) * 0.98;
+                        break;
+                    }
                 }
                 if($user->player->getEffect(1) !== null){
                     $amplifier = $user->player->getEffect(1)->getAmplifier() + 1;
@@ -59,10 +67,10 @@ class SpeedB extends Detection implements CancellableMovement{
                 } else {
                     if($horizontalSpeed > 0){
                         $this->preVL = 0;
-                        $this->reward($user, 0.999);
+                        $this->reward($user, 0.02);
                     }
                 }
-                if($this->isDebug($user)){
+                if($this->isDebug($user) && $horizontalSpeed > 0){
                     $user->sendMessage("speed=$horizontalSpeed max=$maxSpeed");
                 }
             }

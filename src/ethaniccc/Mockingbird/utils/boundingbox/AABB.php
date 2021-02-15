@@ -47,7 +47,6 @@ class AABB extends AxisAlignedBB{
                 $b->maxX, $b->maxY, $b->maxZ
             );
         } else {
-            // apparently some blocks (Cobweb in my case) have no AABB
             return new AABB(
                 $block->getX(), $block->getY(), $block->getZ(),
                 $block->getX() + 1, $block->getY() + 1, $block->getZ() + 1

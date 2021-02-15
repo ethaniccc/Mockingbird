@@ -28,11 +28,12 @@ class TimerA extends Detection{
 
     public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
-            $currentTime = microtime(true) * 1000;
-            if(!$user->loggedIn){
+            if($user->timeSinceJoin < 20 || !$user->player->isAlive()){
                 $this->balance = 0;
+                $this->lastTime = null;
                 return;
             }
+            $currentTime = microtime(true) * 1000;
             if($this->lastTime === null){
                 $this->lastTime = $currentTime;
                 return;

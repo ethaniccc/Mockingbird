@@ -28,7 +28,7 @@ class AutoClickerB extends Detection{
             if($cps > $allowed){
                 $this->fail($user, "cps=$cps, allowed=$allowed", "cps=$cps");
             } else {
-                $this->reward($user, 0.995);
+                $this->reward($user, 0.04);
             }
             if($this->isDebug($user)){
                 $user->sendMessage("cps=$cps");

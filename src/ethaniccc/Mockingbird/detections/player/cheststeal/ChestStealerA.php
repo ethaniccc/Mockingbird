@@ -29,7 +29,7 @@ class ChestStealerA extends Detection{
                 $this->fail($user, "transactions={$this->transactions}");
             } else {
                 if($this->transactions !== 0){
-                    $this->reward($user, 0.99);
+                    $this->reward($user, 0.04);
                 }
             }
             $this->transactions = 0;
@@ -40,6 +40,7 @@ class ChestStealerA extends Detection{
         if($event instanceof InventoryTransactionEvent){
             foreach($event->getTransaction()->getInventories() as $inventory){
                 if($inventory instanceof ChestInventory){
+                    // TODO: Account for certain transactions that can false this check.
                     $this->transactions++;
                     return;
                 }

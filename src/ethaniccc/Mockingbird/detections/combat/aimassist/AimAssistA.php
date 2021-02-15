@@ -32,7 +32,7 @@ class AimAssistA extends Detection{
                     }
                 } else {
                     $this->preVL -= $this->preVL > 0 ? 1 : 0;
-                    $this->reward($user, 0.999);
+                    $this->reward($user, 0.02);
                 }
                 if($this->isDebug($user)){
                     $user->sendMessage("yaw=$yawDelta pitch=$pitchDelta buff={$this->preVL}");

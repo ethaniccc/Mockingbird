@@ -19,7 +19,7 @@ abstract class Detection{
 
     public $preVL = 0, $maxVL;
     public $name, $subType, $enabled, $punishable, $punishType, $suppression, $alerts;
-    protected $settings;
+    protected static $settings = [];
     protected $vlSecondCount = 2;
     protected $lowMax, $mediumMax;
     private $violations = [];
@@ -32,19 +32,19 @@ abstract class Detection{
     public function __construct(string $name, ?array $settings){
         $this->name = $name;
         $this->subType = substr($this->name, -1);
-        $this->settings = $settings === null ? ["enabled" => true, "punish" => false] : $settings;
-        $this->enabled = $this->settings["enabled"];
-        $this->punishable = $this->settings["punish"];
-        $this->punishType = $this->settings["punishment_type"] ?? "kick";
-        $this->suppression = $this->settings["suppression"] ?? false;
-        $this->maxVL = $this->settings["max_violations"] ?? 25;
-        $this->alerts = Mockingbird::getInstance()->getConfig()->get("alerts_enabled") ?? true;
+        self::$settings[$name] = $settings === null ? ['enabled' => true, 'punish' => false] : $settings;
+        $this->enabled = $this->getSetting('enabled');
+        $this->punishable = $this->getSetting('punish');
+        $this->punishType = $this->getSetting('punishment_type') ?? 'kick';
+        $this->suppression = $this->getSetting('suppression') ?? false;
+        $this->maxVL = $this->getSetting('max_violations') ?? 25;
+        $this->alerts = Mockingbird::getInstance()->getConfig()->get('alerts_enabled') ?? true;
         $this->lowMax = floor(pow($this->vlSecondCount, 1 / 4) * 5);
         $this->mediumMax = floor(sqrt($this->vlSecondCount) * 5);
     }
 
     public function getSetting(string $setting){
-        return $this->settings[$setting] ?? null;
+        return self::$settings[$this->name][$setting] ?? null;
     }
 
     public abstract function handleReceive(DataPacket $packet, User $user) : void;
@@ -82,7 +82,7 @@ abstract class Detection{
         return "";
     }
 
-    // TODO: This can probably cause some lag on servers, find a way to do this *better* (async?)
+    // TODO: This can probably cause some lag on servers, find a way to do this *better*
     protected function fail(User $user, ?string $debugData = null, ?string $detailData = null) : void{
         if(!$user->loggedIn){
             return;
@@ -102,20 +102,20 @@ abstract class Detection{
             $user = UserManager::getInstance()->get($p);
             return $p->hasPermission('mockingbird.alerts') && $user->alerts;
         });
-        $cooldownStaff = array_filter($staff, function(Player $p) : bool{
-            $user = UserManager::getInstance()->get($p);
-            if(!isset($this->cooldown[$p->getId()])){
-                $this->cooldown[$p->getId()] = microtime(true);
-                return true;
-            }
-            if(microtime(true) - $this->cooldown[$p->getId()] >= $user->alertCooldown){
-                $this->cooldown[$p->getId()] = microtime(true);
-                return true;
-            } else {
-                return false;
-            }
-        });
         if($this->alerts){
+            $cooldownStaff = array_filter($staff, function(Player $p) : bool{
+                $user = UserManager::getInstance()->get($p);
+                if(!isset($this->cooldown[$p->getId()])){
+                    $this->cooldown[$p->getId()] = microtime(true);
+                    return true;
+                }
+                if(microtime(true) - $this->cooldown[$p->getId()] >= $user->alertCooldown){
+                    $this->cooldown[$p->getId()] = microtime(true);
+                    return true;
+                } else {
+                    return false;
+                }
+            });
             $message = $this->getPlugin()->getPrefix() . ' ' . str_replace(['{player}', '{check}', '{vl}', '{probability}', '{detail}'], [$name, $cheatName, $violations, $this->probabilityColor($this->getCheatProbability()), ($detailData !== null ? $detailData . " ping={$user->transactionLatency}" : "ping={$user->transactionLatency}")], $this->getPlugin()->getConfig()->get('fail_message'));
             Server::getInstance()->broadcastMessage($message, $cooldownStaff);
         }
@@ -130,16 +130,16 @@ abstract class Detection{
             switch($this->punishType){
                 case 'kick':
                     $user->loggedIn = false;
-                    $this->debug("{$user->player->getName()} was punished for {$this->name}");
+                    $this->debug($user->player->getName() . ' was kicked for ' . $cheatName);
                     $this->getPlugin()->getScheduler()->scheduleDelayedTask(new KickTask($user, $this->getPlugin()->getPrefix() . " " . $this->getPlugin()->getConfig()->get("punish_message_player")), 1);
                     break;
                 case 'ban':
                     $user->loggedIn = false;
-                    $this->debug("{$user->player->getName()} was punished for {$this->name}");
+                    $this->debug($user->player->getName() . ' was banned for ' . $cheatName);
                     $this->getPlugin()->getScheduler()->scheduleDelayedTask(new BanTask($user, $this->getPlugin()->getPrefix() . " " . $this->getPlugin()->getConfig()->get("punish_message_player")), 1);
                     break;
             }
-            $message = $this->getPlugin()->getPrefix() . ' ' . str_replace(['{player}', '{detection}'], [$name, $this->name], $this->getPlugin()->getConfig()->get('punish_message_staff'));
+            $message = $this->getPlugin()->getPrefix() . ' ' . str_replace(['{player}', '{detection}'], [$name, $cheatName], $this->getPlugin()->getConfig()->get('punish_message_staff'));
             Server::getInstance()->broadcastMessage($message, Mockingbird::getInstance()->getConfig()->get('punish_message_global') ? Server::getInstance()->getOnlinePlayers() : $staff);
         }
         if($debugData !== null){
@@ -147,7 +147,7 @@ abstract class Detection{
                 $user->debugCache[strtolower($this->name)] = '';
             }
             $user->debugCache[strtolower($this->name)] .= $debugData . PHP_EOL;
-            $this->debug("{$user->player->getName()}: $debugData");
+            $this->debug($user->player->getName() . ': ' . $debugData);
         }
     }
 
@@ -162,9 +162,9 @@ abstract class Detection{
         return strtolower($user->debugChannel) === strtolower($this->name);
     }
 
-    protected function reward(User $user, float $num, bool $multiply = true) : void{
+    protected function reward(User $user, float $num) : void{
         if(isset($user->violations[$this->name])){
-            $multiply ? $user->violations[$this->name] *= $num : $user->violations[$this->name] = max($user->violations[$this->name] - $num, 0);
+            $user->violations[$this->name] = max($user->violations[$this->name] - $num, 0);
         }
     }
 

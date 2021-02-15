@@ -31,6 +31,8 @@ class KillAuraA extends Detection{
                 ++$this->entities;
                 if($this->entities > 1){
                     $this->fail($user, "entities={$this->entities}");
+                } else {
+                    $this->reward($user, 0.075);
                 }
             }
             $this->lastEntity = $ent;

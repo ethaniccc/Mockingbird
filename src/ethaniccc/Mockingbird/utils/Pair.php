@@ -18,4 +18,12 @@ class Pair{
         return $this->y;
     }
 
+    public function setX($x) : void{
+        $this->x = $x;
+    }
+
+    public function setY($y) : void{
+        $this->y = $y;
+    }
+
 }

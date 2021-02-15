@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace ethaniccc\Mockingbird;
 
 use ethaniccc\Mockingbird\commands\AlertCooldownCommand;
@@ -24,6 +22,7 @@ use ethaniccc\Mockingbird\detections\movement\fly\FlyA;
 use ethaniccc\Mockingbird\detections\movement\fly\FlyB;
 use ethaniccc\Mockingbird\detections\movement\fly\FlyC;
 use ethaniccc\Mockingbird\detections\movement\fly\FlyD;
+use ethaniccc\Mockingbird\detections\movement\omnisprint\OmniSprintA;
 use ethaniccc\Mockingbird\detections\movement\speed\SpeedA;
 use ethaniccc\Mockingbird\detections\movement\speed\SpeedB;
 use ethaniccc\Mockingbird\detections\movement\velocity\VelocityA;
@@ -31,6 +30,7 @@ use ethaniccc\Mockingbird\detections\packet\badpackets\BadPacketA;
 use ethaniccc\Mockingbird\detections\packet\badpackets\BadPacketB;
 use ethaniccc\Mockingbird\detections\packet\badpackets\BadPacketC;
 use ethaniccc\Mockingbird\detections\packet\badpackets\BadPacketD;
+use ethaniccc\Mockingbird\detections\packet\badpackets\BadPacketE;
 use ethaniccc\Mockingbird\detections\packet\timer\TimerA;
 use ethaniccc\Mockingbird\detections\packet\timer\TimerB;
 use ethaniccc\Mockingbird\detections\player\cheststeal\ChestStealerA;
@@ -41,6 +41,7 @@ use ethaniccc\Mockingbird\listener\MockingbirdListener;
 use ethaniccc\Mockingbird\tasks\DebugWriteTask;
 use ethaniccc\Mockingbird\threads\CalculationThread;
 use ethaniccc\Mockingbird\user\UserManager;
+use ethaniccc\Mockingbird\utils\MathUtils;
 use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\snooze\SleeperNotifier;
@@ -50,7 +51,7 @@ final class Mockingbird extends PluginBase{
 
     /** @var Mockingbird */
     private static $instance;
-    /** @var Detection[] */
+    /** @var Detection[] - A list of detections that will be used. */
     public $availableChecks;
     /** @var DebugWriteTask - Debug information is written to the debug log with this task. */
     public $debugTask;
@@ -97,8 +98,9 @@ final class Mockingbird extends PluginBase{
             }
         }
         UserManager::init();
+        MathUtils::init();
         new MockingbirdListener();
-        $this->loadAvailableChecks();
+        $this->loadDefaultChecks();
         // this will only work if the premium checks are in the given copy of Mockingbird
         PremiumLoader::register();
         $this->registerCommands();
@@ -111,12 +113,28 @@ final class Mockingbird extends PluginBase{
                 $this->getServer()->getAsyncPool()->submitTask($this->debugTask);
                 $this->debugTask = new DebugWriteTask($this->getDataFolder() . 'debug_log.txt');
             }
+            $this->calculationThread->handleServerTick();
         }), 1);
         @mkdir($this->getDataFolder() . 'packet_logs');
+        @mkdir($this->getDataFolder() . 'mouse_recordings');
     }
 
     public function getPrefix() : string{
         return $this->getConfig()->get('prefix') . TextFormat::RESET;
+    }
+
+    /**
+     * @param Detection[] $detections
+     * This function was made for any external plugins that want to add custom checks.
+     * These custom checks must be constructed with their name for the first parameter, and
+     * the second parameter null, unless there is a config for those checks in the plugin using this
+     * function.
+     */
+    public function registerCustomChecks(array $detections) : void{
+        foreach($detections as $detection){
+            $this->getLogger()->debug('Registering detection ' . $detection->name . ' class ' . get_class($detection));
+            $this->availableChecks[] = $detection;
+        }
     }
 
     private function registerCommands() : void{
@@ -129,49 +147,52 @@ final class Mockingbird extends PluginBase{
         $this->getServer()->getCommandMap()->registerAll($this->getName(), $commands);
     }
 
-    private function loadAvailableChecks() : void{
+    private function loadDefaultChecks() : void{
         // hardcode checks because why not?
         $this->availableChecks = [
             // AimAssist checks
-            new AimAssistA('AimAssistA', $this->getConfig()->exists('AimAssistA') ? $this->getConfig()->get('AimAssistA') : null),
-            new AimAssistB('AimAssistB', $this->getConfig()->exists('AimAssistB') ? $this->getConfig()->get('AimAssistB') : null),
+            new AimAssistA('AimAssistA', $this->getConfig()->get('AimAssistA', null)),
+            new AimAssistB('AimAssistB', $this->getConfig()->get('AimAssistB', null)),
             // AutoClicker checks
-            new AutoClickerA('AutoClickerA', $this->getConfig()->exists('AutoClickerA') ? $this->getConfig()->get('AutoClickerA') : null),
-            new AutoClickerB('AutoClickerB', $this->getConfig()->exists('AutoClickerB') ? $this->getConfig()->get('AutoClickerB') : null),
-            new AutoClickerC('AutoClickerC', $this->getConfig()->exists('AutoClickerC') ? $this->getConfig()->get('AutoClickerC') : null),
-            new AutoClickerD('AutoClickerD', $this->getConfig()->exists('AutoClickerD') ? $this->getConfig()->get('AutoClickerD') : null),
-            new AutoClickerE('AutoClickerE', $this->getConfig()->exists('AutoClickerE') ? $this->getConfig()->get('AutoClickerE') : null),
+            new AutoClickerA('AutoClickerA', $this->getConfig()->get('AutoClickerA', null)),
+            new AutoClickerB('AutoClickerB', $this->getConfig()->get('AutoClickerB', null)),
+            new AutoClickerC('AutoClickerC', $this->getConfig()->get('AutoClickerC', null)),
+            new AutoClickerD('AutoClickerD', $this->getConfig()->get('AutoClickerD', null)),
+            new AutoClickerE('AutoClickerE', $this->getConfig()->get('AutoClickerE', null)),
             // Hitbox Checks
-            new HitboxA('HitboxA', $this->getConfig()->exists('HitboxA') ? $this->getConfig()->get('HitboxA') : null),
+            new HitboxA('HitboxA', $this->getConfig()->get('HitboxA', null)),
             // KillAura Checks
-            new KillAuraA('KillAuraA', $this->getConfig()->exists('KillAuraA') ? $this->getConfig()->get('KillAuraA') : null),
-            new KillAuraB('KillAuraB', $this->getConfig()->exists('KillAuraB') ? $this->getConfig()->get('KillAuraB') : null),
+            new KillAuraA('KillAuraA', $this->getConfig()->get('KillAuraA', null)),
+            new KillAuraB('KillAuraB', $this->getConfig()->get('KillAuraB', null)),
             // Reach checks
-            new ReachA('ReachA', $this->getConfig()->exists('ReachA') ? $this->getConfig()->get('ReachA') : null),
+            new ReachA('ReachA', $this->getConfig()->get('ReachA', null)),
             // Fly checks
-            new FlyA('FlyA', $this->getConfig()->exists('FlyA') ? $this->getConfig()->get('FlyA') : null),
-            new FlyB('FlyB', $this->getConfig()->exists('FlyB') ? $this->getConfig()->get('FlyB') : null),
-            new FlyC('FlyC', $this->getConfig()->exists('FlyC') ? $this->getConfig()->get('FlyC') : null),
-            new FlyD('FlyD', $this->getConfig()->exists('FlyD') ? $this->getConfig()->get('FlyD') : null),
+            new FlyA('FlyA', $this->getConfig()->get('FlyA', null)),
+            new FlyB('FlyB', $this->getConfig()->get('FlyB', null)),
+            new FlyC('FlyC', $this->getConfig()->get('FlyC', null)),
+            new FlyD('FlyD', $this->getConfig()->get('FlyD', null)),
             // Speed checks
-            new SpeedA('SpeedA', $this->getConfig()->exists('SpeedA') ? $this->getConfig()->get('SpeedA') : null),
-            new SpeedB('SpeedB', $this->getConfig()->exists('SpeedB') ? $this->getConfig()->get('SpeedB') : null),
+            new SpeedA('SpeedA', $this->getConfig()->get('SpeedA', null)),
+            new SpeedB('SpeedB', $this->getConfig()->get('SpeedB', null)),
             // Velocity checks
-            new VelocityA('VelocityA', $this->getConfig()->exists('VelocityA') ? $this->getConfig()->get('VelocityA') : null),
+            new VelocityA('VelocityA', $this->getConfig()->get('VelocityA', null)),
+            // OmiSprint checks
+            new OmniSprintA('OmniSprintA', $this->getConfig()->get('OmniSprintA', null)),
             // BadPacket Checks
-            new BadPacketA('BadPacketA', $this->getConfig()->exists('BadPacketA') ? $this->getConfig()->get('BadPacketA') : null),
-            new BadPacketB('BadPacketB', $this->getConfig()->exists('BadPacketB') ? $this->getConfig()->get('BadPacketB') : null),
-            new BadPacketC('BadPacketC', $this->getConfig()->exists('BadPacketC') ? $this->getConfig()->get('BadPacketC') : null),
-            new BadPacketD('BadPacketD', $this->getConfig()->exists('BadPacketD') ? $this->getConfig()->get('BadPacketD') : null),
+            new BadPacketA('BadPacketA', $this->getConfig()->get('BadPacketA', null)),
+            new BadPacketB('BadPacketB', $this->getConfig()->get('BadPacketB', null)),
+            new BadPacketC('BadPacketC', $this->getConfig()->get('BadPacketC', null)),
+            new BadPacketD('BadPacketD', $this->getConfig()->get('BadPacketD', null)),
+            new BadPacketE('BadPacketE', $this->getConfig()->get('BadPacketE', null)),
             // Timer checks
             new TimerA('TimerA', $this->getConfig()->exists('TimerA') ? $this->getConfig()->get('TimerA') : null),
             // new TimerB('TimerB', $this->getConfig()->exists('TimerB') ? $this->getConfig()->get('TimerB') : null),
             // ChestStealer checks
-            new ChestStealerA('ChestStealerA', $this->getConfig()->exists('ChestStealerA') ? $this->getConfig()->get('ChestStealerA') : null),
+            // new ChestStealerA('ChestStealerA', $this->getConfig()->get('ChestStealerA', null)),
             // EditionFaker checks
-            new EditionFakerA('EditionFakerA', $this->getConfig()->exists('EditionFakerA') ? $this->getConfig()->get('EditionFakerA') : null),
+            new EditionFakerA('EditionFakerA', $this->getConfig()->get('EditionFakerA', null)),
             // Nuker checks
-            new NukerA('NukerA', $this->getConfig()->exists('NukerA') ? $this->getConfig()->get('NukerA') : null),
+            new NukerA('NukerA', $this->getConfig()->get('NukerA', null)),
         ];
     }
 

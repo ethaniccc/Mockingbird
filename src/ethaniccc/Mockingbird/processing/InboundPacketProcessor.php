@@ -8,15 +8,22 @@ use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\boundingbox\Ray;
 use ethaniccc\Mockingbird\utils\MathUtils;
 use ethaniccc\Mockingbird\utils\PacketUtils;
+use pocketmine\block\Air;
 use pocketmine\block\Block;
 use pocketmine\block\Cobweb;
+use pocketmine\block\Ladder;
 use pocketmine\block\Liquid;
+use pocketmine\block\StillWater;
+use pocketmine\block\Transparent;
 use pocketmine\block\UnknownBlock;
+use pocketmine\block\Vine;
+use pocketmine\block\Water;
 use pocketmine\entity\Effect;
 use pocketmine\item\Item;
 use pocketmine\item\ItemIds;
 use pocketmine\level\Location;
 use pocketmine\level\particle\DustParticle;
+use pocketmine\level\Position;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
@@ -30,8 +37,12 @@ use pocketmine\network\mcpe\protocol\types\DeviceOS;
 use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
+use pocketmine\utils\TextFormat;
 
 class InboundPacketProcessor extends Processor{
+
+    /** @var Vector3[] */
+    private $postPendingTeleports = [];
 
     public function __construct(){
         $this->lastTime = microtime(true);
@@ -44,7 +55,6 @@ class InboundPacketProcessor extends Processor{
                 if(!$user->loggedIn){
                     return;
                 }
-                $shouldHandle = true;
                 $location = Location::fromObject($packet->getPosition()->subtract(0, 1.62, 0), $user->player->getLevel(), $packet->getYaw(), $packet->getPitch());
                 // $user->locationHistory->addLocation($location);
                 $user->moveData->lastLocation = $user->moveData->location;
@@ -53,21 +63,22 @@ class InboundPacketProcessor extends Processor{
                 $user->moveData->lastPitch = $user->moveData->pitch;
                 $user->moveData->yaw = fmod($location->yaw, 360);
                 $user->moveData->pitch = fmod($location->pitch, 360);
-                // the fact that for some reason the yaw/pitch deltas are sometimes not zero when afk is stupid and gets rid of the purpouse for this variable...
-                $hasMoved = $location->distanceSquared($user->moveData->lastLocation) > 0.0 || $user->moveData->pitch !== $user->moveData->lastPitch || $user->moveData->yaw !== $user->moveData->lastYaw;
+                $hasMoved = $location->distanceSquared($user->moveData->lastLocation) > 0.0 || abs($user->moveData->pitch - $user->moveData->lastPitch) > 9E-6 || abs($user->moveData->yaw !== $user->moveData->lastYaw) > 9E-6;
                 $user->moveData->isMoving = $hasMoved;
                 unset($user->moveData->AABB);
                 $user->moveData->AABB = AABB::from($user);
                 $movePacket = PacketUtils::playerAuthToMovePlayer($packet, $user);
-                if($user->moveData->awaitingTeleport){
-                    if($packet->getPosition()->subtract($user->moveData->teleportPos)->length() <= 2){
-                        // The user has received the teleport
-                        $user->moveData->awaitingTeleport = false;
-                    } else {
-                        $shouldHandle = false;
+                if($user->moveData->moveDelta->lengthSquared() > 0.0009){
+                    if(count($user->outboundProcessor->pendingTeleports) !== 0){
+                        foreach($user->outboundProcessor->pendingTeleports as $teleport){
+                            if($user->moveData->location->distance($teleport) <= 2){
+                                $user->timeSinceTeleport = 0;
+                                break;
+                            }
+                        }
                     }
                 }
-                $user->moveData->awaitingTeleport ? $user->timeSinceTeleport = 0 : ++$user->timeSinceTeleport;
+                ++$user->timeSinceTeleport;
                 if($user->timeSinceTeleport > 0 && $hasMoved){
                     $user->moveData->lastMoveDelta = $user->moveData->moveDelta;
                     $user->moveData->moveDelta = $user->moveData->location->subtract($user->moveData->lastLocation)->asVector3();
@@ -76,6 +87,26 @@ class InboundPacketProcessor extends Processor{
                     $user->moveData->yawDelta = abs($user->moveData->lastYaw - $user->moveData->yaw);
                     $user->moveData->pitchDelta = abs($user->moveData->lastPitch - $user->moveData->pitch);
                     $user->moveData->rotated = $user->moveData->yawDelta > 0 || $user->moveData->pitchDelta > 0;
+                    if($user->moveData->rotated && $user->debugChannel === 'rotation'){
+                        $user->sendMessage('yawDelta=' . $user->moveData->yawDelta . ' pitchDelta=' . $user->moveData->pitchDelta);
+                    }
+                } else {
+                    $user->moveData->lastMoveDelta = $user->moveData->moveDelta;
+                    $user->moveData->moveDelta = $user->zeroVector;
+                    $user->moveData->lastYawDelta = $user->moveData->yawDelta;
+                    $user->moveData->lastPitchDelta = $user->moveData->pitchDelta;
+                    $user->moveData->yawDelta = 0.0;
+                    $user->moveData->pitchDelta = 0.0;
+                    $user->moveData->rotated = false;
+                }
+                if($user->mouseRecorder !== null && $user->mouseRecorder->isRunning && $user->moveData->yawDelta > 0){
+                    $user->mouseRecorder->handleRotation($user->moveData->yawDelta, $user->moveData->pitchDelta);
+                    if($user->mouseRecorder->getAdmin()->debugChannel === 'mouse-recorder'){
+                        $user->mouseRecorder->getAdmin()->sendMessage('The mouse recording is ' . TextFormat::BOLD . TextFormat::GOLD . round($user->mouseRecorder->getPercentage(), 4) . '%' . TextFormat::RESET . ' done!');
+                    }
+                    if($user->mouseRecorder->isFinished()){
+                        $user->mouseRecorder->finish($user);
+                    }
                 }
                 ++$user->timeSinceDamage;
                 ++$user->timeSinceAttack;
@@ -106,15 +137,22 @@ class InboundPacketProcessor extends Processor{
                 } else {
                     $user->moveData->ticksSinceInVoid = 0;
                 }
-                ++$user->timeSinceLastBlockPlace;
-                if($hasMoved){
+                // 0.03 ^ 2
+                if($user->moveData->moveDelta->lengthSquared() > 0.0009){
+                    $speed = $user->player->getAttributeMap()->getAttribute(5)->getValue();
+                    if($user->debugChannel === 'speed'){
+                        $user->sendMessage('speed=' . $speed);
+                    }
                     $liquids = 0;
                     $cobweb = 0;
+                    $climb = 0;
                     foreach($user->player->getBlocksAround() as $block){
                         if($block instanceof Liquid){
                             $liquids++;
                         } elseif($block instanceof Cobweb){
                             $cobweb++;
+                        } elseif($block instanceof Ladder || $block instanceof Vine){
+                            $climb++;
                         }
                     }
                     if($liquids > 0){
@@ -126,6 +164,11 @@ class InboundPacketProcessor extends Processor{
                         $user->moveData->cobwebTicks = 0;
                     } else {
                         ++$user->moveData->cobwebTicks;
+                    }
+                    if($climb > 0){
+                        $user->moveData->climbableTicks = 0;
+                    } else {
+                        ++$user->moveData->climbableTicks;
                     }
                     // debug for block AABB - (VERY RESOURCE INTENSIVE)
                     if($user->debugChannel === 'block-bb'){
@@ -155,15 +198,38 @@ class InboundPacketProcessor extends Processor{
                             }
                         }
                         if($target instanceof Block){
-                            $AABB = AABB::fromAxisAlignedBB($target->getBoundingBox());
+                            $AABB = AABB::fromBlock($target);
                             foreach($AABB->getCornerVectors() as $cornerVector){
                                 $user->player->getLevelNonNull()->addParticle(new DustParticle($cornerVector, 0, 255, 255));
                             }
                         }
                     }
                 }
-                $user->moveData->onGround = $movePacket->onGround;
-                if($movePacket->onGround){
+                // 0.03 ^ 2
+                if($user->moveData->moveDelta->lengthSquared() > 0.0009){
+                    // should I be worried about performance here?
+                    $verticalBlocks = $user->player->getLevel()->getCollisionBlocks($user->moveData->AABB->expandedCopy(0.1, 0.2, 0.1));
+                    $horizontalBlocks = $user->player->getLevel()->getCollisionBlocks($user->moveData->AABB->expandedCopy(0.2, -0.1, 0.2));
+                    $ghostCollisions = 0;
+                    $user->moveData->ghostCollisions = [];
+                    $verticalAABB = $user->moveData->AABB->expandedCopy(0.1, 0.2, 0.1);
+                    foreach($user->ghostBlocks as $block){
+                        if(!$block->canPassThrough() && AABB::fromBlock($block)->intersectsWith($verticalAABB, 0.0001)){
+                            $ghostCollisions++;
+                            $user->moveData->ghostCollisions[] = $block;
+                            break;
+                        }
+                    }
+                    $user->moveData->onGround = count($verticalBlocks) !== 0 || $ghostCollisions > 0;
+                    if($user->debugChannel === 'on-ground'){
+                        $user->sendMessage('onGround=' . var_export($user->moveData->onGround, true) . ' ghostCollisions=' . $ghostCollisions . ' pmmp=' . var_export($user->player->isOnGround(), true));
+                    }
+                    $user->moveData->verticalCollisions = $verticalBlocks;
+                    $user->moveData->horizontalCollisions = $horizontalBlocks;
+                    $user->moveData->isCollidedVertically = count($verticalBlocks) !== 0;
+                    $user->moveData->isCollidedHorizontally = count($horizontalBlocks) !== 0;
+                }
+                if($user->moveData->onGround){
                     ++$user->moveData->onGroundTicks;
                     $user->moveData->offGroundTicks = 0;
                     $user->moveData->lastOnGroundLocation = $location;
@@ -172,32 +238,33 @@ class InboundPacketProcessor extends Processor{
                     $user->moveData->onGroundTicks = 0;
                 }
                 if($hasMoved){
-                    $user->moveData->blockBelow = $user->player->getLevel()->getBlock($location->subtract(0, (1/64), 0));
-                    $user->moveData->blockAbove = $user->player->getLevel()->getBlock($location->add(0, 2 + (1/64), 0));
-                    $user->moveData->directionVector = MathUtils::directionVectorFromValues($user->moveData->yaw, $user->moveData->pitch);
+                    $user->moveData->lastDirectionVector = $user->moveData->directionVector;
+                    try{
+                        $user->moveData->directionVector = MathUtils::directionVectorFromValues($user->moveData->yaw, $user->moveData->pitch);
+                    } catch(\ErrorException $e){
+                        $user->moveData->directionVector = clone $user->zeroVector;
+                    }
                 }
                 $user->moveData->pressedKeys = [];
                 if($packet->getMoveVecZ() > 0){
-                    $user->moveData->pressedKeys[] = "W";
+                    $user->moveData->pressedKeys[] = 'W';
                 } elseif($packet->getMoveVecZ() < 0){
-                    $user->moveData->pressedKeys[] = "S";
+                    $user->moveData->pressedKeys[] = 'S';
                 }
                 if($packet->getMoveVecX() > 0){
-                    $user->moveData->pressedKeys[] = "A";
+                    $user->moveData->pressedKeys[] = 'A';
                 } elseif($packet->getMoveVecX() < 0){
-                    $user->moveData->pressedKeys[] = "D";
+                    $user->moveData->pressedKeys[] = 'D';
                 }
                 // shouldHandle will be false if the player isn't near the teleport position
-                if($shouldHandle){
-                    if($hasMoved){
-                        // only handle if the move delta is greater than 0 so PlayerMoveEvent isn't spammed
-                        if($user->debugChannel === "onground"){
-                            $serverGround = $user->player->isOnGround() ? 'true' : 'false';
-                            $otherGround = $movePacket->onGround ? 'true' : 'false';
-                            $user->sendMessage('pmmp=' . $serverGround . ' mb=' . $otherGround);
-                        }
-                        $user->player->handleMovePlayer($movePacket);
+                if($hasMoved){
+                    // only handle if the move delta is greater than 0 so PlayerMoveEvent isn't spammed
+                    if($user->debugChannel === 'onground'){
+                        $serverGround = $user->player->isOnGround() ? 'true' : 'false';
+                        $otherGround = $movePacket->onGround ? 'true' : 'false';
+                        $user->sendMessage('pmmp=' . $serverGround . ' mb=' . $otherGround);
                     }
+                    $user->player->handleMovePlayer($movePacket);
                 }
                 $user->tickProcessor->process($packet, $user);
                 ++$this->tickSpeed;
@@ -217,6 +284,10 @@ class InboundPacketProcessor extends Processor{
                                     $user->timeSinceAttack = 0;
                                     $user->hitData->lastTick = Server::getInstance()->getTick();
                                 }
+                                if($user->hitData->targetEntity !== $user->hitData->lastTargetEntity){
+                                    $user->tickData->targetLocations = [];
+                                    $user->outboundProcessor->pendingLocations = [];
+                                }
                                 break;
                         }
                         $this->handleClick($user);
@@ -224,25 +295,77 @@ class InboundPacketProcessor extends Processor{
                     case InventoryTransactionPacket::TYPE_USE_ITEM:
                         switch($packet->trData->actionType){
                             case InventoryTransactionPacket::USE_ITEM_ACTION_CLICK_BLOCK:
-                                // the user wants to place a block, (TODO: Make sure the action is valid)
-                                $valid = true;
-                                $distance = $user->moveData->location->add(0, $user->isSneaking ? 1.54 : 1.62, 0)->distance($packet->trData->clickPos);
-                                if($user->debugChannel === 'blockdist'){
-                                    $user->sendMessage("block place dist=$distance");
-                                }
-                                if($valid){
-                                    $user->timeSinceLastBlockPlace = 0;
-                                }
                                 /** @var Item $inHand */
                                 $inHand = $packet->trData->itemInHand;
-                                $pos = new Vector3($packet->trData->x, $packet->trData->y, $packet->trData->z);
-                                if(($inHand->getId() === ItemIds::BUCKET && $inHand->getDamage() === 8) || true){
+                                $clickedBlockPos = new Vector3($packet->trData->x, $packet->trData->y, $packet->trData->z);
+                                $blockClicked = $user->player->getLevel()->getBlock($clickedBlockPos, false, false);
+                                $block = $inHand->getBlock();
+                                if($inHand->getId() < 0){
+                                    // suck my...
+                                    $block = new UnknownBlock($inHand->getId(), $inHand->getDamage());
+                                }
+                                if($block->canBePlaced() || $block instanceof UnknownBlock){
+                                    $placeable = true;
+                                    $block->position(Position::fromObject($clickedBlockPos->getSide($packet->trData->face), $user->player->getLevel()));
+                                    $isGhostBlock = false;
+                                    foreach($user->ghostBlocks as $ghostBlock){
+                                        if($ghostBlock->asVector3()->distanceSquared($block->asVector3()) === 0.0){
+                                            $isGhostBlock = true;
+                                            break;
+                                        }
+                                    }
+                                    if($block->canBePlacedAt($blockClicked, ($packet->trData->clickPos ?? new Vector3(0, 0, 0)), $packet->trData->face, true) && !$isGhostBlock){
+                                        $block->position($blockClicked->asPosition());
+                                    } /* elseif($block->canBePlacedAt($blockClicked, ($packet->trData->clickPos ?? new Vector3(0, 0, 0)), $packet->trData->face, true) && $isGhostBlock){
+                                        $user->sendMessage('ghost block placed on ghost block.');
+                                    } */
+                                    if($block->isSolid()){
+                                        foreach($block->getCollisionBoxes() as $BB){
+                                            if(count($user->player->getLevel()->getCollidingEntities($BB)) > 0){
+                                                $placeable = false; // an entity in a block
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if($placeable){
+                                        $user->placedBlocks[] = $block;
+                                        $interactPos = $clickedBlockPos->getSide($packet->trData->face)->add($packet->trData->clickPos);
+                                        $distance = $interactPos->distance($user->moveData->location->add($user->isSneaking ? 1.54 : 1.62));
+                                        if($user->debugChannel === 'block-dist'){
+                                            $user->sendMessage('dist=' . $distance);
+                                        }
+                                    }
+                                }
+                                if($inHand->getId() === ItemIds::BUCKET && $inHand->getDamage() === 8){
+                                    $pos = $clickedBlockPos;
+                                    $blockClicked = $user->player->getLevel()->getBlock($clickedBlockPos);
+                                    // the block can't be replaced and the block relative to the face can also not be replaced
+                                    // water-logging blocks by placing the water under the transparent block... idot stuff
+                                    if(!$blockClicked->canBeReplaced() && !$user->player->getLevel()->getBlock($clickedBlockPos->getSide($packet->trData->face))->canBeReplaced()){
+                                        $pos = $clickedBlockPos->getSide($packet->trData->face);
+                                    }
                                     $pk = new UpdateBlockPacket();
+                                    $pk->x = $pos->x; $pk->y = $pos->y; $pk->z = $pos->z;
+                                    $pk->blockRuntimeId = 134; $pk->flags = UpdateBlockPacket::FLAG_NETWORK;
+                                    $pk->dataLayerId = UpdateBlockPacket::DATA_LAYER_LIQUID;
+                                    foreach($user->player->getLevel()->getPlayers() as $v){
+                                        $v->dataPacket($pk);
+                                    }
+                                    $user->player->dataPacket($pk);
+                                } elseif($block instanceof Transparent && $user->player->getLevel()->getBlock($clickedBlockPos->getSide($packet->trData->face), false, false) instanceof Water){
+                                    // reverse-waterlogging?
+                                    $pk = new UpdateBlockPacket();
+                                    $pos = $clickedBlockPos->getSide($packet->trData->face);
                                     $pk->x = $pos->x; $pk->y = $pos->y; $pk->z = $pos->z;
                                     $pk->dataLayerId = UpdateBlockPacket::DATA_LAYER_LIQUID;
                                     $pk->blockRuntimeId = 134; $pk->flags = UpdateBlockPacket::FLAG_NETWORK;
+                                    foreach($user->player->getLevel()->getPlayers() as $v){
+                                        $v->dataPacket($pk);
+                                    }
                                     $user->player->dataPacket($pk);
                                 }
+                                // TODO: Fix water-logging with doors.. what the actual fuck?
+                                // ^ at this rate I might just not fix to be honest.
                                 break;
                         }
                         break;
@@ -265,17 +388,43 @@ class InboundPacketProcessor extends Processor{
                     if($user->debugChannel === 'latency'){
                         $user->sendMessage("pmmp={$user->player->getPing()} latency={$user->transactionLatency}");
                     }
-                    $pk = new NetworkStackLatencyPacket();
+                    /* $pk = new NetworkStackLatencyPacket();
                     $pk->needResponse = true; $pk->timestamp = mt_rand(100000, 10000000) * 1000;
-                    $user->latencyPacket = $pk;
+                    $user->latencyPacket = $pk; */
+                    $user->latencyPacket->timestamp = mt_rand(1, 10000000) * 1000;
+                    $user->latencyPacket->encode();
                 } elseif($packet->timestamp === $user->chunkResponsePacket->timestamp){
                     $user->hasReceivedChunks = true;
                     if($user->debugChannel === 'receive-chunk'){
                         $user->sendMessage('received chunks');
                     }
-                    $pk = new NetworkStackLatencyPacket();
-                    $pk->needResponse = true; $pk->timestamp = $user->latencyPacket->timestamp + mt_rand(-10000, 10000) * 1000;
-                    $user->chunkResponsePacket = $pk;
+                    $user->chunkResponsePacket->timestamp = mt_rand(10, 10000000) * 1000;
+                    $user->chunkResponsePacket->encode();
+                } elseif(isset($user->outboundProcessor->pendingMotions[$packet->timestamp])){
+                    $motion = $user->outboundProcessor->pendingMotions[$packet->timestamp];
+                    if($user->debugChannel === 'get-motion'){
+                        $user->sendMessage('got ' . $packet->timestamp);
+                    }
+                    $user->timeSinceMotion = 0;
+                    $user->moveData->lastMotion = $motion;
+                    unset($user->outboundProcessor->pendingMotions[$packet->timestamp]);
+                } elseif(isset($user->outboundProcessor->pendingLocations[$packet->timestamp])){
+                    $location = $user->outboundProcessor->pendingLocations[$packet->timestamp];
+                    $user->tickData->targetLocations[$user->tickData->currentTick] = $location;
+                    $currentTick = $user->tickData->currentTick;
+                    $user->tickData->targetLocations = array_filter($user->tickData->targetLocations, function(int $tick) use($currentTick) : bool{
+                        return $currentTick - $tick <= 4;
+                    }, ARRAY_FILTER_USE_KEY);
+                    if($user->debugChannel === 'get-location'){
+                        $user->sendMessage('got ' . $packet->timestamp);
+                    }
+                    unset($user->outboundProcessor->pendingLocations[$packet->timestamp]);
+                } elseif(isset($user->ghostBlocks[$packet->timestamp])){
+                    $block = $user->ghostBlocks[$packet->timestamp];
+                    if($user->debugChannel === 'ghost-block'){
+                        $user->sendMessage('ghost block ' . $block->getId() . ' removed with (x=' . $block->getX() . ' y=' . $block->getY() . ' z=' . $block->getZ() . ')');
+                    }
+                    unset($user->ghostBlocks[$packet->timestamp]);
                 }
                 // $user->testProcessor->process($packet);
                 break;
@@ -349,6 +498,9 @@ class InboundPacketProcessor extends Processor{
             $user->clickData->timeSamples->add($clickTime);
         }
         $this->tickSpeed = 0;
+        if($user->mouseRecorder !== null && $user->mouseRecorder->isRunning && $user->moveData->yawDelta > 0){
+            $user->mouseRecorder->handleClick();
+        }
     }
 
 }

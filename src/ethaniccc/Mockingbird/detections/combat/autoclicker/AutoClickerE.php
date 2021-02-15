@@ -40,7 +40,7 @@ class AutoClickerE extends Detection{
                 $skewness = MathUtils::getSkewness($speeds);
                 // Skewness was added to here to prevent false-flags when butterfly clicking consistently, as
                 // jitter clicking tends to have a skewness lower than 0, and butterfly clicking has higher skewness.
-                if($user->clickData->cps >= 9 && $deviation <= 0.45 && $skewness <= 0.0 && $outliers <= 1){
+                if($user->clickData->cps >= 10 && $deviation <= 0.45 && $skewness <= 0.0 && $outliers <= 1){
                     $this->trust = max($this->trust - 0.25, 0);
                     if(++$this->preVL >= 3){
                         $this->preVL = min($this->preVL, 6);
