@@ -28,7 +28,7 @@ class TimerA extends Detection{
 
     public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
-            if($user->timeSinceJoin >= 100 && $user->player->isAlive()){
+            if($user->timeSinceJoin < 20 || !$user->player->isAlive()){
                 $this->balance = 0;
                 $this->lastTime = null;
                 return;
