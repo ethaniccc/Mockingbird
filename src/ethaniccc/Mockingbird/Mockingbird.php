@@ -133,45 +133,45 @@ final class Mockingbird extends PluginBase{
         // hardcode checks because why not?
         $this->availableChecks = [
             // AimAssist checks
-            new AimAssistA('AimAssistA', $this->getConfig()->exists('AimAssistA') ? $this->getConfig()->get('AimAssistA') : null),
-            new AimAssistB('AimAssistB', $this->getConfig()->exists('AimAssistB') ? $this->getConfig()->get('AimAssistB') : null),
+            new AimAssistA('AimAssistA', $this->getConfig()->get('AimAssistA', null)),
+            new AimAssistB('AimAssistB', $this->getConfig()->get('AimAssistB', null)),
             // AutoClicker checks
-            new AutoClickerA('AutoClickerA', $this->getConfig()->exists('AutoClickerA') ? $this->getConfig()->get('AutoClickerA') : null),
-            new AutoClickerB('AutoClickerB', $this->getConfig()->exists('AutoClickerB') ? $this->getConfig()->get('AutoClickerB') : null),
-            new AutoClickerC('AutoClickerC', $this->getConfig()->exists('AutoClickerC') ? $this->getConfig()->get('AutoClickerC') : null),
-            new AutoClickerD('AutoClickerD', $this->getConfig()->exists('AutoClickerD') ? $this->getConfig()->get('AutoClickerD') : null),
-            new AutoClickerE('AutoClickerE', $this->getConfig()->exists('AutoClickerE') ? $this->getConfig()->get('AutoClickerE') : null),
+            new AutoClickerA('AutoClickerA', $this->getConfig()->get('AutoClickerA', null)),
+            new AutoClickerB('AutoClickerB', $this->getConfig()->get('AutoClickerB', null)),
+            new AutoClickerC('AutoClickerC', $this->getConfig()->get('AutoClickerC', null)),
+            new AutoClickerD('AutoClickerD', $this->getConfig()->get('AutoClickerD', null)),
+            new AutoClickerE('AutoClickerE', $this->getConfig()->get('AutoClickerE', null)),
             // Hitbox Checks
-            new HitboxA('HitboxA', $this->getConfig()->exists('HitboxA') ? $this->getConfig()->get('HitboxA') : null),
+            new HitboxA('HitboxA', $this->getConfig()->get('HitboxA', null)),
             // KillAura Checks
-            new KillAuraA('KillAuraA', $this->getConfig()->exists('KillAuraA') ? $this->getConfig()->get('KillAuraA') : null),
-            new KillAuraB('KillAuraB', $this->getConfig()->exists('KillAuraB') ? $this->getConfig()->get('KillAuraB') : null),
+            new KillAuraA('KillAuraA', $this->getConfig()->get('KillAuraA'. null)),
+            new KillAuraB('KillAuraB', $this->getConfig()->get('KillAuraB', null)),
             // Reach checks
-            new ReachA('ReachA', $this->getConfig()->exists('ReachA') ? $this->getConfig()->get('ReachA') : null),
+            new ReachA('ReachA', $this->getConfig()->get('ReachA', null)),
             // Fly checks
-            new FlyA('FlyA', $this->getConfig()->exists('FlyA') ? $this->getConfig()->get('FlyA') : null),
-            new FlyB('FlyB', $this->getConfig()->exists('FlyB') ? $this->getConfig()->get('FlyB') : null),
-            new FlyC('FlyC', $this->getConfig()->exists('FlyC') ? $this->getConfig()->get('FlyC') : null),
-            new FlyD('FlyD', $this->getConfig()->exists('FlyD') ? $this->getConfig()->get('FlyD') : null),
+            new FlyA('FlyA', $this->getConfig()->get('FlyA', null)),
+            new FlyB('FlyB', $this->getConfig()->get('FlyB', null)),
+            new FlyC('FlyC', $this->getConfig()->get('FlyC', null)),
+            new FlyD('FlyD', $this->getConfig()->get('FlyD', null)),
             // Speed checks
-            new SpeedA('SpeedA', $this->getConfig()->exists('SpeedA') ? $this->getConfig()->get('SpeedA') : null),
-            new SpeedB('SpeedB', $this->getConfig()->exists('SpeedB') ? $this->getConfig()->get('SpeedB') : null),
+            new SpeedA('SpeedA', $this->getConfig()->get('SpeedA', null)),
+            new SpeedB('SpeedB', $this->getConfig()->get('SpeedB', null)),
             // Velocity checks
-            new VelocityA('VelocityA', $this->getConfig()->exists('VelocityA') ? $this->getConfig()->get('VelocityA') : null),
+            new VelocityA('VelocityA', $this->getConfig()->get('VelocityA', null)),
             // BadPacket Checks
-            new BadPacketA('BadPacketA', $this->getConfig()->exists('BadPacketA') ? $this->getConfig()->get('BadPacketA') : null),
-            new BadPacketB('BadPacketB', $this->getConfig()->exists('BadPacketB') ? $this->getConfig()->get('BadPacketB') : null),
-            new BadPacketC('BadPacketC', $this->getConfig()->exists('BadPacketC') ? $this->getConfig()->get('BadPacketC') : null),
-            new BadPacketD('BadPacketD', $this->getConfig()->exists('BadPacketD') ? $this->getConfig()->get('BadPacketD') : null),
+            new BadPacketA('BadPacketA', $this->getConfig()->get('BadPacketA', null)),
+            new BadPacketB('BadPacketB', $this->getConfig()->get('BadPacketB', null)),
+            new BadPacketC('BadPacketC', $this->getConfig()->get('BadPacketC', null)),
+            new BadPacketD('BadPacketD', $this->getConfig()->get('BadPacketD', null)),
             // Timer checks
-            new TimerA('TimerA', $this->getConfig()->exists('TimerA') ? $this->getConfig()->get('TimerA') : null),
-            // new TimerB('TimerB', $this->getConfig()->exists('TimerB') ? $this->getConfig()->get('TimerB') : null),
+            new TimerA('TimerA', $this->getConfig()->get('TimerA', null)),
+            // new TimerB('TimerB', $this->getConfig()->get('TimerB', null)),
             // ChestStealer checks
-            new ChestStealerA('ChestStealerA', $this->getConfig()->exists('ChestStealerA') ? $this->getConfig()->get('ChestStealerA') : null),
+            new ChestStealerA('ChestStealerA', $this->getConfig()->get('ChestStealerA', null)),
             // EditionFaker checks
-            new EditionFakerA('EditionFakerA', $this->getConfig()->exists('EditionFakerA') ? $this->getConfig()->get('EditionFakerA') : null),
+            new EditionFakerA('EditionFakerA', $this->getConfig()->get('EditionFakerA', null)),
             // Nuker checks
-            new NukerA('NukerA', $this->getConfig()->exists('NukerA') ? $this->getConfig()->get('NukerA') : null),
+            new NukerA('NukerA', $this->getConfig()->get('NukerA', null)),
         ];
     }
 
