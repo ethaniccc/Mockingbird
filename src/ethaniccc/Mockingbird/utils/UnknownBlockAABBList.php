@@ -2,16 +2,16 @@
 
 namespace ethaniccc\Mockingbird\utils;
 
+use pocketmine\math\AxisAlignedBB;
 use pocketmine\math\Vector3;
 use pocketmine\block\{BlockFactory, BlockIds};
-use ethanicc\Mockingbird\utils\boundingbox\AABB;
+use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 
+// not in use for now, will use in next update probably.
 final class UnknownBlockAABBList{
 
     private static $list = [];
-    private function __construct(){
-        //NOOP
-    }
+
     public static function registerDefaults(): void{
         self::registerAABB(new AABB(0.125, 0.0, 0.125, 0.875, 0.875, 0.875), BlockIds::BREWING_STAND);
         self::registerAABB(new AABB(0.0, 0.0, 0.0, 1.0, 0.75, 1.0), BlockIds::ENCHANTING_TABLE);
@@ -191,7 +191,7 @@ final class UnknownBlockAABBList{
         self::registerAABB(new AABB(0.375, 0.5, 0.0625, 0.625, 0.71875, 0.3125), BlockIds::COCOA, 14);
         self::registerAABB(new AABB(0.6875, 0.5, 0.375, 0.9375, 0.71875, 0.625), BlockIds::COCOA, 15);
     }
-    public static function getFromList(Vector3 $pos, int $id, int $meta = 0): AABB{
+    public static function getFromList(Vector3 $pos, int $id, int $meta = 0) : AxisAlignedBB{
         return (self::$list[($id << 4) | $meta] ?? self::$list[$id << 4] ?? AABB::fromBlock(BlockFactory::get($id, $meta)->setComponents(0, 0, 0)))->offsetCopy($pos->x, $pos->y, $pos->z);
     }
     public static function registerAABB(AABB $aabb, int $id, int $meta = 0): void{
