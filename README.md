@@ -89,11 +89,13 @@ and false at sometimes, but the new reward system should compensate.
     - (A) -> Prediction Check
     - (B) -> AirJump Check
     - (C) -> Acceleration Check
+    - (D) -> Positive/Negative delta ratio check
 - Speed
     - (A) -> Friction Check (flags while using bhop and some other hacks)
     - (B) -> Speed Limit Check
 - Velocity
     - (A) -> Vertical velocity check (can detect 99.999%)
+- OmniSprint (checks if the user is sprinting while not going forwards).
 ### Player Checks
 - Nuker (yep lag compensated in less than 40 lines)
 - ChestStealer (yep also lag compensated in less than 40 lines) =
@@ -105,6 +107,7 @@ Mockingbird also has packet checks.
     * (B) -> MovePlayerPacket consistency check
     * (C) -> Checks if player hits themselves (can be used to bypass some checks?)
     * (D) -> Checks if player is gliding without an Elytra.
+    * (E) -> Checks for invalid deltas in the PlayerAuthInputPacket.
 - Timer (checks if player is sending too many packets in an instance)
     - (A) -> Balance Check
   
