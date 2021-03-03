@@ -42,6 +42,8 @@ class MoveData{
     public $directionVector;
     /** @var Vector3 - The last direction vector of the user. */
     public $lastDirectionVector;
+    /** @var Vector3 - The previous last direction vector of the user. */
+    public $previousLastDirectionVector;
     /** @var string[] - The WASD combo the player is using */
     public $pressedKeys = [];
     /** @var int - The amount of client ticks that have passed since colliding with cobweb. */
@@ -58,5 +60,7 @@ class MoveData{
     public $AABB;
     /** @var bool - The boolean value for wether or not the user is moving in the current tick. */
     public $isMoving = false;
+    /** @var Vector3|null - Last position sent to the player by the server. */
+    public $forceMoveSync;
 
 }

@@ -35,8 +35,7 @@ class AutoClickerE extends Detection{
             if($user->clickData->tickSpeed <= 4 && ++$this->clicks === 20){
                 $speeds = $user->clickData->getTickSamples(20);
                 $deviation = sqrt(MathUtils::getVariance($speeds));
-                $pair = MathUtils::getOutliers($speeds);
-                $outliers = count($pair->getX()) + count($pair->getY());
+                $outliers = MathUtils::getOutliers($speeds);
                 $skewness = MathUtils::getSkewness($speeds);
                 // Skewness was added to here to prevent false-flags when butterfly clicking consistently, as
                 // jitter clicking tends to have a skewness lower than 0, and butterfly clicking has higher skewness.

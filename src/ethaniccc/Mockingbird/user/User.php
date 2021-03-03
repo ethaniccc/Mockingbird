@@ -4,7 +4,6 @@ namespace ethaniccc\Mockingbird\user;
 
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\Mockingbird;
-use ethaniccc\Mockingbird\processing\EventProcessor;
 use ethaniccc\Mockingbird\processing\InboundPacketProcessor;
 use ethaniccc\Mockingbird\processing\OutboundProcessor;
 use ethaniccc\Mockingbird\processing\TestProcessor;
@@ -14,8 +13,9 @@ use ethaniccc\Mockingbird\user\data\HitData;
 use ethaniccc\Mockingbird\user\data\MoveData;
 use ethaniccc\Mockingbird\user\data\TickData;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
+use ethaniccc\Mockingbird\utils\EvictingList;
 use ethaniccc\Mockingbird\utils\MouseRecorder;
-use pocketmine\block\Air;
+use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\block\Block;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\DataPacket;
@@ -28,6 +28,8 @@ class User{
 
     /** @var Player - The player associated with this User class. */
     public $player;
+    /** @var string - The object hash of the player */
+    public $hash = "";
     /** @var InboundPacketProcessor - The processor that will handle all incoming packets */
     public $inboundProcessor;
     /** @var OutboundProcessor - The processor that will handle all packets sent by the server. */
@@ -73,6 +75,7 @@ class User{
     public $timeSinceAttack = 0;
     public $timeSinceStoppedFlight = 0;
     public $timeSinceStoppedGlide = 0;
+    public $timeSinceClick = 0;
 
     /** @var Block[] - An array of vector3's which represent the position the User has recently placed. */
     public $placedBlocks = [];
@@ -85,13 +88,11 @@ class User{
     public $transactionLatency = 0;
     /** @var bool - Boolean value for if the user responded with a NetworkStackLatencyPacket. */
     public $responded = false;
-    /** @var bool - Boolean value for if the user has (probablly) received and loaded chunks. */
+    /** @var bool - Boolean value for if the user has (probably) received and loaded chunks. */
     public $hasReceivedChunks = false;
 
     /** @var Vector3 - Just a Vector3 with it's x, y, and z values at 0 - don't mind me! */
     public $zeroVector;
-    /** @var NetworkStackLatencyPacket - Packet responsible for measuring user latency. */
-    public $latencyPacket;
     /** @var NetworkStackLatencyPacket - Packet responsible for chunk receiving. */
     public $chunkResponsePacket;
 
@@ -115,9 +116,12 @@ class User{
     public $hitData;
     /** @var TickData - The class that stores data updated every server tick. This data includes entity location history. */
     public $tickData;
+    /** @var mixed[]|null - Client data from the LoginPacket */
+    public $clientData;
 
     public function __construct(Player $player){
         $this->player = $player;
+        $this->hash = spl_object_hash($player);
         $this->alertCooldown = ($cooldown = Mockingbird::getInstance()->getConfig()->get('default_alert_delay')) === false ? 2 : $cooldown;
         $this->moveData = new MoveData();
         $this->clickData = new ClickData();
@@ -139,13 +143,6 @@ class User{
         foreach(Mockingbird::getInstance()->availableChecks as $check){
             $this->detections[$check->name] = clone $check;
         }
-        $this->latencyPacket = new NetworkStackLatencyPacket();
-        $this->latencyPacket->needResponse = true;
-        $this->latencyPacket->timestamp = mt_rand(10, 1000000) * 1000;
-        $this->chunkResponsePacket = new NetworkStackLatencyPacket();
-        $this->chunkResponsePacket->needResponse = true;
-        // to ensure that the two timestamps are NOT the same in any case (the chance of it happening is low, but still possible)
-        $this->chunkResponsePacket->timestamp = $this->latencyPacket->timestamp + mt_rand(-10000, 10000) * 1000;
     }
 
     public function sendMessage(string $message) : void{

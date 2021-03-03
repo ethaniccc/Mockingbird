@@ -27,7 +27,7 @@ class CalculationThread extends Thread{
         $this->id = self::$currentMaxID++;
         $this->notifier = $notifier;
         self::$finishCallableList[$this->id] = [];
-        $this->setClassLoader(null);
+        $this->setClassLoader();
     }
 
     public function run(){
@@ -36,14 +36,15 @@ class CalculationThread extends Thread{
         while($this->running){
             // results will be in batches
             $start = microtime(true);
-            while(($task = $this->getFromTodo()) !== null){
-                // try to do the task and add the result - otherwise catch the error and log so the thread doesn't crash.
+            foreach($this->todo as $taskID => $callable){
                 try{
-                    $result = ($task)();
-                    $this->addToDone($result);
+                    $result = ($callable)();
+                    $this->done[$taskID] = $result;
                 } catch(\Error $e){
-                    $this->logger->debug('Error while attempting to complete task: ' . $e->getMessage());
+                    $this->logger->debug("Unable to run task on Mockingbird thread | " . $e->getMessage());
+                    $this->done[$taskID] = null;
                 }
+                unset($this->todo[$taskID]);
             }
             $end = microtime(true);
             $this->notifier->wakeupSleeper();
@@ -72,28 +73,28 @@ class CalculationThread extends Thread{
 
     /**
      * @param callable $do - The callable that should run on the separate thread
-     * @param callable $finish - The callable that should run on the main thread.
+     * @param ResultContainer $finish - The callable that should run on the main thread.
      * This method should be called from the main thread ONLY.
      */
-    public function addToTodo(callable $do, callable $finish) : void{
-        $this->todo[] = $do;
-        self::$finishCallableList[$this->id][] = $finish;
+    public function addToTodo(callable $do, ResultContainer $finish) : void{
+        $this->todo[$finish->getID()] = $do;
+        self::$finishCallableList[$this->id][$finish->getID()] = $finish;
     }
 
-    public function getFromTodo() : ?callable{
-        return $this->todo->shift();
-    }
-
-    public function addToDone($val) : void{
-        $this->done[] = $val;
-    }
-
-    public function getFromDone(bool $shift = true){
-        return $shift ? $this->done->shift() : reset($this->done);
-    }
-
-    public function getFinishTask(bool $shift = true){
-        return $shift ? array_shift(self::$finishCallableList[$this->id]) : reset(self::$finishCallableList[$this->id]);
+    public function finish() : int{
+        $finished = 0;
+        foreach(self::$finishCallableList[$this->id] as $taskID => $container){
+            /** @var ResultContainer $container */
+            $result = $this->done[$taskID] ?? null;
+            if($result !== null){
+                $container->setResult($result);
+                $container->run();
+                unset($this->done[$taskID]);
+                unset(self::$finishCallableList[$this->id][$taskID]);
+                $finished++;
+            }
+        }
+        return $finished;
     }
 
     public function quit(){

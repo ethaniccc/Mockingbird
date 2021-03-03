@@ -32,30 +32,25 @@ class AutoClickerD extends Detection{
 
     public function handleReceive(DataPacket $packet, User $user): void{
         if(($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) || ($packet instanceof LevelSoundEventPacket && $packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE)){
-            if($user->clickData->tickSpeed <= 4){
-                if(++$this->clicks === 30){
-                    $samples = $user->clickData->getTickSamples(30);
-                    if(count($samples) === 30){
-                        $kurtosis = MathUtils::getKurtosis($samples);
-                        $skewness = MathUtils::getSkewness($samples);
-                        $outliers = MathUtils::getOutliers($samples);
-                        $outliers = count($outliers->getX()) + count($outliers->getY());
-                        $this->samples->add("kurtosis=$kurtosis skewness=$skewness outliers=$outliers");
-                        $duplicates = $this->samples->duplicates();
-                        if($user->clickData->cps >= 10 && $duplicates >= $this->getSetting("duplicate_max")){
-                            // unless you can consistently click the same like you're god, you're not going to flag this.
-                            $this->fail($user, "duplicates=$duplicates", "cps={$user->clickData->cps}");
-                            $this->samples->clear();
-                        } else {
-                            $this->preVL = max($this->preVL - 2.5, 0);
-                            $this->reward($user, 0.03);
-                        }
-                        if($this->isDebug($user)){
-                            $user->sendMessage("duplicates=$duplicates kurtosis=$kurtosis skewness=$skewness outliers=$outliers");
-                        }
-                    }
-                    $this->clicks = 0;
+            if($user->clickData->tickSpeed <= 4 && ++$this->clicks === 20){
+                $samples = $user->clickData->getTickSamples(20);
+                $kurtosis = MathUtils::getKurtosis($samples);
+                $skewness = MathUtils::getSkewness($samples);
+                $outliers = MathUtils::getOutliers($samples);
+                $this->samples->add("kurtosis=$kurtosis skewness=$skewness outliers=$outliers");
+                $duplicates = $this->samples->duplicates();
+                if($user->clickData->cps >= 10 && $duplicates >= $this->getSetting("duplicate_max")){
+                    // unless you can consistently click the same like you're god, you're not going to flag this.
+                    $this->fail($user, "duplicates=$duplicates", "cps={$user->clickData->cps}");
+                    $this->samples->clear();
+                } else {
+                    $this->preVL = max($this->preVL - 2.5, 0);
+                    $this->reward($user, 0.03);
                 }
+                if($this->isDebug($user)){
+                    $user->sendMessage("duplicates=$duplicates kurtosis=$kurtosis skewness=$skewness outliers=$outliers");
+                }
+                $this->clicks = 0;
             }
         }
     }

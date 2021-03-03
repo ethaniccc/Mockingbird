@@ -13,7 +13,7 @@
 # PLEASE DO NOT CHANGE THIS #
 version: 2.5
 
-prefix: "§l§7[§cMocking§4bird§7]"
+prefix: "§l§7[§cM§4B§7]"
 # {tag} => explanation of tag
 # ============================================================================= #
 # {player} => the name of the player who failed the check
@@ -27,9 +27,11 @@ fail_message: "§4{player}§r§7 failed §c{check} §7(§6{vl} §7@ {probability
 punish_message_global: false
 # {player} => the player punished
 # {detection} => the detection the player was punished for
-punish_message_staff: "§l§4{player}§r§7 was punished for§b {detection}"
+# {prefix} => the prefix of Mockingbird (optional)
+punish_message_staff: "§l§c✗ §4{player} §7was removed from the server for §6Unfair Advantage. §c✗"
 # the message the player will receive when punished
-punish_message_player: "§cUnfair Advantage Detected"
+# {prefix} => Include the prefix here if you wish
+punish_message_player: "§cYou were removed from the server for Unfair Advantage"
 
 # If you want staff members to get alerts at all. If this is enabled, no alerts will be given, only punishments on checks where enabled.
 alerts_enabled: true
@@ -104,15 +106,11 @@ ReachA:
   punish: true
   punishment_type: kick
   max_violations: 50
-  # check sensitivity settings
-  max_reach: 3.1
 ReachB:
   enabled: true
   punish: true
   punishment_type: kick
-  max_violations: 50
-  # check sensitivity settings
-  max_reach: 3.0425
+  max_violations: 20
 
 # Aim
 AimAssistA:
@@ -194,6 +192,8 @@ VelocityA:
   punish: true
   punishment_type: kick
   max_violations: 10
+  # detection settings
+  percentage: 99.99
 VelocityB:
   enabled: false
   punish: false

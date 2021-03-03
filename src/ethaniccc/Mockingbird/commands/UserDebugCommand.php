@@ -21,6 +21,7 @@ use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\SetActorMotionPacket;
 use pocketmine\Player;
 use pocketmine\plugin\Plugin;
+use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 use pocketmine\network\mcpe\protocol\DataPacket;
@@ -82,17 +83,14 @@ class UserDebugCommand extends Command implements PluginIdentifiableCommand{
                     $u = UserManager::getInstance()->get($sender);
                     $p = $sender->getServer()->getPlayer($selectedCheat);
                     if($p !== null && $u !== null && ($tu = UserManager::getInstance()->get($p)) !== null){
-                        $tu->mouseRecorder = new MouseRecorder($u, $this->getPlugin()->getDataFolder() . 'mouse_recordings/' . $p->getName() . '.png', (int) $args[2] ?? 25, $args[3] ?? 1);
+                        $tu->mouseRecorder = new MouseRecorder($u, (int) ($args[2] ?? 25));
                         $tu->mouseRecorder->start();
                         $u->sendMessage('You have started a mouse recording for ' . $p->getName() . ' lasting ' . ($args[2] ?? 25) . ' seconds');
                     } elseif($p === null){
                         $sender->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RED . ' Could not find the player ' . $selectedCheat);
                     }
                     return;
-                } /* elseif($selectedUser === 'lag-server'){
-                    sleep((int) $selectedCheat);
-                    return;
-                } */ // i was testing... lol
+                }
                 if($user === null){
                     $sender->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RED . " Could not find the user $selectedUser");
                 } else {

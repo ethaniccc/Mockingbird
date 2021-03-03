@@ -61,6 +61,10 @@ class EvictingList{
         return count($this->array) - count(array_unique($this->array, $sort));
     }
 
+    public function shift(){
+        return array_shift($this->array);
+    }
+
     public function reverse(bool $referenced = false) : EvictingList{
         if($referenced){
             $this->array = array_reverse($this->array);

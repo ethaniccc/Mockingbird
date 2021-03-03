@@ -2,19 +2,14 @@
 
 namespace ethaniccc\Mockingbird\listener;
 
-use ethaniccc\Mockingbird\detections\Detection;
+use ethaniccc\Mockingbird\handler\NetworkStackLatencyHandler;
 use ethaniccc\Mockingbird\Mockingbird;
-use ethaniccc\Mockingbird\processing\Processor;
-use ethaniccc\Mockingbird\tasks\PacketLogWriteTask;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\user\UserManager;
 use pocketmine\block\UnknownBlock;
-use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\entity\EntityMotionEvent;
-use pocketmine\event\entity\EntityTeleportEvent;
 use pocketmine\event\inventory\InventoryTransactionEvent;
 use pocketmine\event\Listener;
-use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
@@ -22,16 +17,12 @@ use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\network\mcpe\protocol\ContainerOpenPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
-use pocketmine\network\mcpe\protocol\MoveActorAbsolutePacket;
-use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
-use pocketmine\network\mcpe\protocol\SetActorMotionPacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\network\mcpe\protocol\types\PlayerMovementType;
-use pocketmine\Player;
 use pocketmine\Server;
 
 class MockingbirdListener implements Listener{
@@ -40,7 +31,7 @@ class MockingbirdListener implements Listener{
         Server::getInstance()->getPluginManager()->registerEvents($this, Mockingbird::getInstance());
     }
 
-    /** @priority HIGHEST */
+    /** @priority HIGH */
     public function onPacket(DataPacketReceiveEvent $event) : void{
         $packet = $event->getPacket();
         $player = $event->getPlayer();
@@ -68,7 +59,7 @@ class MockingbirdListener implements Listener{
         }
     }
 
-    /** @priority HIGHEST */
+    /** @priority HIGH */
     public function onPacketSend(DataPacketSendEvent $event) : void{
         $packet = $event->getPacket();
         $user = UserManager::getInstance()->get($event->getPlayer());
@@ -81,19 +72,21 @@ class MockingbirdListener implements Listener{
         }
         if($packet instanceof BatchPacket){
             try{
-                foreach($packet->getPackets() as $buff){
-                    $pk = PacketPool::getPacket($buff);
-                    $pk->decode();
-                    // this is to prevent a glitch with Shulker boxes staying open and falsing movement checks
-                    // if you have a plugin that properly implements Shulker boxes, then you should be fine.
-                    if($pk instanceof ContainerOpenPacket && $user->player->getLevel()->getBlock(new Vector3($pk->x, $pk->y, $pk->z)) instanceof UnknownBlock){
-                        $event->setCancelled();
+                try{
+                    foreach($packet->getPackets() as $buff){
+                        $pk = PacketPool::getPacket($buff);
+                        $pk->decode();
+                        // this is to prevent a glitch with Shulker boxes staying open and falsing movement checks
+                        // if you have a plugin that properly implements Shulker boxes, then you should be fine.
+                        if($pk instanceof ContainerOpenPacket && $user->player->getLevel()->getBlock(new Vector3($pk->x, $pk->y, $pk->z)) instanceof UnknownBlock){
+                            $event->setCancelled();
+                        }
                     }
-                }
-            } catch(\UnexpectedValueException $e){}
-        }
-        if($user !== null){
-            $user->outboundProcessor->process($packet, $user);
+                } catch(\UnexpectedValueException $e){}
+            } catch(\InvalidArgumentException $e){return;}
+            if($user !== null){
+                $user->outboundProcessor->process($packet, $user);
+            }
         }
     }
 
@@ -109,9 +102,20 @@ class MockingbirdListener implements Listener{
         }
     }
 
+    public function onMotion(EntityMotionEvent $event) : void{
+        $motion = $event->getVector();
+        if($motion->x >= 20 || $motion->y >= 20 || $motion->z >= 20){
+            $event->setCancelled();
+        }
+    }
+
     public function onLeave(PlayerQuitEvent $event) : void{
         $player = $event->getPlayer();
-        UserManager::getInstance()->unregister($player);
+        $user = UserManager::getInstance()->get($player);
+        if($user !== null){
+            NetworkStackLatencyHandler::remove($user->hash);
+            UserManager::getInstance()->unregister($player);
+        }
     }
 
 }

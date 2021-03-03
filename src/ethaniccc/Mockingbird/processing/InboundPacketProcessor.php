@@ -2,6 +2,7 @@
 
 namespace ethaniccc\Mockingbird\processing;
 
+use ethaniccc\Mockingbird\handler\NetworkStackLatencyHandler;
 use ethaniccc\Mockingbird\Mockingbird;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
@@ -23,8 +24,11 @@ use pocketmine\item\Item;
 use pocketmine\item\ItemIds;
 use pocketmine\level\Location;
 use pocketmine\level\particle\DustParticle;
+use pocketmine\level\particle\FlameParticle;
 use pocketmine\level\Position;
+use pocketmine\math\Facing;
 use pocketmine\math\Vector3;
+use pocketmine\network\mcpe\protocol\AnimatePacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
@@ -42,7 +46,7 @@ use pocketmine\utils\TextFormat;
 class InboundPacketProcessor extends Processor{
 
     /** @var Vector3[] */
-    private $postPendingTeleports = [];
+    private $titleIDS = [];
 
     public function __construct(){
         $this->lastTime = microtime(true);
@@ -56,7 +60,16 @@ class InboundPacketProcessor extends Processor{
                     return;
                 }
                 $location = Location::fromObject($packet->getPosition()->subtract(0, 1.62, 0), $user->player->getLevel(), $packet->getYaw(), $packet->getPitch());
-                // $user->locationHistory->addLocation($location);
+                if($user->moveData->forceMoveSync !== null){
+                    if($location->distanceSquared($user->moveData->forceMoveSync) > 1){
+                        if($user->debugChannel === 'teleport') $user->sendMessage('expected pre-teleport movement');
+                    } elseif((!$user->player->isAlive() || !$user->loggedIn) && $location->distanceSquared($user->player) > 0.01){
+                        if($user->debugChannel === 'teleport') $user->sendMessage('bad movement, not alive / has not spawned');
+                    } else {
+                        $user->moveData->forceMoveSync = null;
+                        $user->timeSinceTeleport = 0;
+                    }
+                }
                 $user->moveData->lastLocation = $user->moveData->location;
                 $user->moveData->location = $location;
                 $user->moveData->lastYaw = $user->moveData->yaw;
@@ -68,24 +81,14 @@ class InboundPacketProcessor extends Processor{
                 unset($user->moveData->AABB);
                 $user->moveData->AABB = AABB::from($user);
                 $movePacket = PacketUtils::playerAuthToMovePlayer($packet, $user);
-                if($user->moveData->moveDelta->lengthSquared() > 0.0009){
-                    if(count($user->outboundProcessor->pendingTeleports) !== 0){
-                        foreach($user->outboundProcessor->pendingTeleports as $teleport){
-                            if($user->moveData->location->distance($teleport) <= 2){
-                                $user->timeSinceTeleport = 0;
-                                break;
-                            }
-                        }
-                    }
-                }
                 ++$user->timeSinceTeleport;
                 if($user->timeSinceTeleport > 0 && $hasMoved){
                     $user->moveData->lastMoveDelta = $user->moveData->moveDelta;
                     $user->moveData->moveDelta = $user->moveData->location->subtract($user->moveData->lastLocation)->asVector3();
                     $user->moveData->lastYawDelta = $user->moveData->yawDelta;
                     $user->moveData->lastPitchDelta = $user->moveData->pitchDelta;
-                    $user->moveData->yawDelta = abs($user->moveData->lastYaw - $user->moveData->yaw);
-                    $user->moveData->pitchDelta = abs($user->moveData->lastPitch - $user->moveData->pitch);
+                    $user->moveData->yawDelta = abs(abs($user->moveData->lastYaw) - abs($user->moveData->yaw));
+                    $user->moveData->pitchDelta = abs(abs($user->moveData->lastPitch) - abs($user->moveData->pitch));
                     $user->moveData->rotated = $user->moveData->yawDelta > 0 || $user->moveData->pitchDelta > 0;
                     if($user->moveData->rotated && $user->debugChannel === 'rotation'){
                         $user->sendMessage('yawDelta=' . $user->moveData->yawDelta . ' pitchDelta=' . $user->moveData->pitchDelta);
@@ -99,8 +102,8 @@ class InboundPacketProcessor extends Processor{
                     $user->moveData->pitchDelta = 0.0;
                     $user->moveData->rotated = false;
                 }
-                if($user->mouseRecorder !== null && $user->mouseRecorder->isRunning && $user->moveData->yawDelta > 0){
-                    $user->mouseRecorder->handleRotation($user->moveData->yawDelta, $user->moveData->pitchDelta);
+                if($user->mouseRecorder !== null && $user->mouseRecorder->isRunning && ($user->moveData->yawDelta > 0 || $user->moveData->pitchDelta > 0)){
+                    $user->mouseRecorder->handleRotation($user->moveData->yaw, $user->moveData->pitch);
                     if($user->mouseRecorder->getAdmin()->debugChannel === 'mouse-recorder'){
                         $user->mouseRecorder->getAdmin()->sendMessage('The mouse recording is ' . TextFormat::BOLD . TextFormat::GOLD . round($user->mouseRecorder->getPercentage(), 4) . '%' . TextFormat::RESET . ' done!');
                     }
@@ -110,6 +113,7 @@ class InboundPacketProcessor extends Processor{
                 }
                 ++$user->timeSinceDamage;
                 ++$user->timeSinceAttack;
+                ++$user->timeSinceClick;
                 if($user->player->isOnline()){
                     ++$user->timeSinceJoin;
                 } else {
@@ -238,6 +242,7 @@ class InboundPacketProcessor extends Processor{
                     $user->moveData->onGroundTicks = 0;
                 }
                 if($hasMoved){
+                    $user->moveData->previousLastDirectionVector = $user->moveData->lastDirectionVector;
                     $user->moveData->lastDirectionVector = $user->moveData->directionVector;
                     try{
                         $user->moveData->directionVector = MathUtils::directionVectorFromValues($user->moveData->yaw, $user->moveData->pitch);
@@ -286,7 +291,6 @@ class InboundPacketProcessor extends Processor{
                                 }
                                 if($user->hitData->targetEntity !== $user->hitData->lastTargetEntity){
                                     $user->tickData->targetLocations = [];
-                                    $user->outboundProcessor->pendingLocations = [];
                                 }
                                 break;
                         }
@@ -330,7 +334,7 @@ class InboundPacketProcessor extends Processor{
                                     if($placeable){
                                         $user->placedBlocks[] = $block;
                                         $interactPos = $clickedBlockPos->getSide($packet->trData->face)->add($packet->trData->clickPos);
-                                        $distance = $interactPos->distance($user->moveData->location->add($user->isSneaking ? 1.54 : 1.62));
+                                        $distance = $interactPos->distance($user->moveData->location->add(0, $user->isSneaking ? 1.54 : 1.62, 0));
                                         if($user->debugChannel === 'block-dist'){
                                             $user->sendMessage('dist=' . $distance);
                                         }
@@ -380,54 +384,6 @@ class InboundPacketProcessor extends Processor{
                         break;
                 }
                 break;
-            case NetworkStackLatencyPacket::NETWORK_ID:
-                /** @var NetworkStackLatencyPacket $packet */
-                if($packet->timestamp === $user->latencyPacket->timestamp){
-                    $user->responded = true;
-                    $user->transactionLatency = round((microtime(true) - $user->lastSentNetworkLatencyTime) * 1000, 0);
-                    if($user->debugChannel === 'latency'){
-                        $user->sendMessage("pmmp={$user->player->getPing()} latency={$user->transactionLatency}");
-                    }
-                    /* $pk = new NetworkStackLatencyPacket();
-                    $pk->needResponse = true; $pk->timestamp = mt_rand(100000, 10000000) * 1000;
-                    $user->latencyPacket = $pk; */
-                    $user->latencyPacket->timestamp = mt_rand(1, 10000000) * 1000;
-                    $user->latencyPacket->encode();
-                } elseif($packet->timestamp === $user->chunkResponsePacket->timestamp){
-                    $user->hasReceivedChunks = true;
-                    if($user->debugChannel === 'receive-chunk'){
-                        $user->sendMessage('received chunks');
-                    }
-                    $user->chunkResponsePacket->timestamp = mt_rand(10, 10000000) * 1000;
-                    $user->chunkResponsePacket->encode();
-                } elseif(isset($user->outboundProcessor->pendingMotions[$packet->timestamp])){
-                    $motion = $user->outboundProcessor->pendingMotions[$packet->timestamp];
-                    if($user->debugChannel === 'get-motion'){
-                        $user->sendMessage('got ' . $packet->timestamp);
-                    }
-                    $user->timeSinceMotion = 0;
-                    $user->moveData->lastMotion = $motion;
-                    unset($user->outboundProcessor->pendingMotions[$packet->timestamp]);
-                } elseif(isset($user->outboundProcessor->pendingLocations[$packet->timestamp])){
-                    $location = $user->outboundProcessor->pendingLocations[$packet->timestamp];
-                    $user->tickData->targetLocations[$user->tickData->currentTick] = $location;
-                    $currentTick = $user->tickData->currentTick;
-                    $user->tickData->targetLocations = array_filter($user->tickData->targetLocations, function(int $tick) use($currentTick) : bool{
-                        return $currentTick - $tick <= 4;
-                    }, ARRAY_FILTER_USE_KEY);
-                    if($user->debugChannel === 'get-location'){
-                        $user->sendMessage('got ' . $packet->timestamp);
-                    }
-                    unset($user->outboundProcessor->pendingLocations[$packet->timestamp]);
-                } elseif(isset($user->ghostBlocks[$packet->timestamp])){
-                    $block = $user->ghostBlocks[$packet->timestamp];
-                    if($user->debugChannel === 'ghost-block'){
-                        $user->sendMessage('ghost block ' . $block->getId() . ' removed with (x=' . $block->getX() . ' y=' . $block->getY() . ' z=' . $block->getZ() . ')');
-                    }
-                    unset($user->ghostBlocks[$packet->timestamp]);
-                }
-                // $user->testProcessor->process($packet);
-                break;
             case LoginPacket::NETWORK_ID:
                 /** @var LoginPacket $packet */
                 $user->isDesktop = !in_array($packet->clientData["DeviceOS"], [DeviceOS::AMAZON, DeviceOS::ANDROID, DeviceOS::IOS]);
@@ -435,9 +391,11 @@ class InboundPacketProcessor extends Processor{
                     $data = $packet->chainData;
                     $parts = explode(".", $data['chain'][2]);
                     $jwt = json_decode(base64_decode($parts[1]), true);
-                    $id = $jwt['extraData']['titleId'];
+                    $id = $jwt['extraData']['titleId'] ?? "";
                     $user->win10 = ($id === "896928775");
+                    $this->titleIDS[$packet->username] = $id;
                 } catch(\Exception $e){}
+                $user->clientData = $packet->clientData;
                 break;
             case PlayerActionPacket::NETWORK_ID:
                 /** @var PlayerActionPacket $packet */
@@ -469,9 +427,26 @@ class InboundPacketProcessor extends Processor{
                 if($user->player->hasPermission('mockingbird.alerts') && Mockingbird::getInstance()->getConfig()->get('alerts_default')){
                     $user->alerts = true;
                 }
-                $user->player->dataPacket($user->latencyPacket);
+                $start = microtime(true);
+                $user->responded = false;
+                NetworkStackLatencyHandler::send($user, NetworkStackLatencyHandler::random(), function(int $timestamp) use ($user, $start) : void{
+                    $user->transactionLatency = (int)((microtime(true) - $start) * 1000);
+                    $user->lastSentNetworkLatencyTime = microtime(true);
+                    $user->responded = true;
+                    if($user->debugChannel === "latency"){
+                        $user->sendMessage("pmmp={$user->player->getPing()} MB={$user->transactionLatency}");
+                    }
+                });
                 $user->lastSentNetworkLatencyTime = microtime(true);
                 $user->responded = false;
+                if(isset($this->titleIDS[$user->player->getName()])){
+                    // $user->sendMessage('titleID=' . $this->titleIDS[$user->player->getName()]);
+                    unset($this->titleIDS[$user->player->getName()]);
+                }
+                break;
+            case NetworkStackLatencyPacket::NETWORK_ID:
+                /** @var NetworkStackLatencyPacket $packet */
+                NetworkStackLatencyHandler::execute($user, $packet->timestamp);
                 break;
         }
     }
@@ -482,6 +457,7 @@ class InboundPacketProcessor extends Processor{
 
     private function handleClick(User $user) : void{
         $currentTick = $user->tickData->currentTick;
+        $user->timeSinceClick = 0;
         $this->clicks[] = $currentTick;
         $this->clicks = array_filter($this->clicks, function(int $t) use ($currentTick) : bool{
             return $currentTick - $t <= 20;
@@ -498,9 +474,6 @@ class InboundPacketProcessor extends Processor{
             $user->clickData->timeSamples->add($clickTime);
         }
         $this->tickSpeed = 0;
-        if($user->mouseRecorder !== null && $user->mouseRecorder->isRunning && $user->moveData->yawDelta > 0){
-            $user->mouseRecorder->handleClick();
-        }
     }
 
 }

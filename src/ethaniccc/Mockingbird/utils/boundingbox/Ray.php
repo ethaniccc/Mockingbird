@@ -25,20 +25,16 @@ class Ray{
         $this->direction = $direction;
     }
 
-    public function origin(int $i) : float{
-        return [$this->origin->getX(), $this->origin->getY(), $this->origin->getZ()][$i] ?? 0.001;
-    }
-
-    public function direction(int $i) : float{
-        return [$this->direction->getX(), $this->direction->getY(), $this->direction->getZ()][$i] ?? 0.001;
-    }
-
     public function getOrigin() : Vector3{
         return $this->origin;
     }
 
     public function getDirection() : Vector3{
         return $this->direction;
+    }
+
+    public function traverse(float $travel) : Vector3{
+        return $this->origin->add($this->direction->multiply($travel));
     }
 
 }

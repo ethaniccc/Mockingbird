@@ -68,11 +68,16 @@ class MathUtils{
 
     // see https://github.com/eldariamc/client/blob/c01d23eb05ed83abb4fee00f9bf603b6bc3e2e27/src/main/java/net/minecraft/entity/EntityLivingBase.java#L2129
     public static function directionVectorFromValues(float $yaw, float $pitch) : Vector3{
-        $var2 = MathUtils::cos(-$yaw * 0.017453292 - M_PI);
-        $var3 = MathUtils::sin(-$yaw * 0.017453292 - M_PI);
-        $var4 = -(MathUtils::cos(-$pitch * 0.017453292));
-        $var5 = MathUtils::sin(-$pitch * 0.017453292);
+        $var2 = cos(-$yaw * 0.017453292 - M_PI);
+        $var3 = sin(-$yaw * 0.017453292 - M_PI);
+        $var4 = -(cos(-$pitch * 0.017453292));
+        $var5 = sin(-$pitch * 0.017453292);
         return new Vector3($var3 * $var4, $var5, $var2 * $var4);
+        /* $y = -sin(deg2rad($pitch));
+        $xz = cos(deg2rad($pitch));
+        $x = -$xz * sin(deg2rad($yaw));
+        $z = $xz * cos(deg2rad($yaw));
+        return (new Vector3($x, $y, $z))->normalize(); */
     }
 
     public static function getKurtosis(array $data) : float{
@@ -135,7 +140,7 @@ class MathUtils{
         return $variance / count($data);
     }
 
-    public static function getOutliers(array $collection) : Pair{
+    public static function getOutliers(array $collection) : float{
         $q1 = self::getMedian(array_splice($collection, 0, (int) ceil(count($collection) / 2)));
         $q3 = self::getMedian(array_splice($collection, (int) ceil(count($collection) / 2), count($collection)));
 
@@ -154,7 +159,7 @@ class MathUtils{
             }
         }
 
-        return new Pair($x, $y);
+        return count($x) + count($y);
     }
 
     public static function getMedian(array $data) : float{

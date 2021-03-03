@@ -1,5 +1,6 @@
 ---
 name: Mockingbird
+description: An anti-cheat made for PocketMine-MP
 version: 2.5
 main: ethaniccc\Mockingbird\Mockingbird
 api: 3.15.0
@@ -16,5 +17,8 @@ permissions:
         default: op
       mockingbird.logs:
         description: Get the anti-cheat logs of a player
+        default: op
+      mockingbird.bypass:
+        description: Bypass Mockingbird punishments
         default: op
 ...

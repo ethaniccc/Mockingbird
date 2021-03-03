@@ -25,7 +25,7 @@ use stdClass;
  */
 class VelocityA extends Detection implements CancellableMovement{
 
-    private $receivedMotion;
+    private $receivedYMotion;
 
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
@@ -33,25 +33,30 @@ class VelocityA extends Detection implements CancellableMovement{
         $this->vlSecondCount = 20;
         $this->lowMax = 4;
         $this->mediumMax = 8;
-        $this->receivedMotion = new Vector3(0, 0, 0);
+        $this->receivedYMotion = 0.0;
     }
 
     public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof PlayerAuthInputPacket){
-            if($user->timeSinceMotion <= 1){
-                $this->receivedMotion = $user->moveData->lastMotion;
+            if($user->timeSinceMotion === 1){
+                $this->receivedYMotion = $user->moveData->lastMotion->y;
             }
-            if($this->receivedMotion->y > 0.005){
+            if($user->timeSinceTeleport <= 10){
+                $this->receivedYMotion = 0;
+                $this->preVL = 0;
+            }
+            if($this->receivedYMotion > 0.005){
                 $currentYDelta = $user->moveData->moveDelta->y;
-                $percentage = ($currentYDelta / $this->receivedMotion->y) * 100;
+                $percentage = ($currentYDelta / $this->receivedYMotion) * 100;
                 // against walls this check for some reason will false at ~99.9999%, what the fuck
+                // on some KB plugins, this can false at ~99.99%, adjust your config accordingly.
                 $collisionAABB = clone $user->moveData->AABB;
                 $collisionAABB->minY = $collisionAABB->maxY;
                 $collisionAABB->maxY += 0.2;
                 $collisionAABB->grow(-0.2, 0, -0.2);
-                if($percentage < 99.9999 && count($user->player->getLevel()->getCollisionBlocks($collisionAABB, true)) === 0 && $user->moveData->liquidTicks >= 10 && $user->moveData->cobwebTicks >= 10
-                    && $user->moveData->levitationTicks >= 10 && $user->timeSinceTeleport >= 10 && $user->timeSinceStoppedFlight >= 10 && $user->timeSinceStoppedGlide >= 10){
-                    if(++$this->preVL >= 5){
+                if($percentage < $this->getSetting('percentage', 99.99) && count($user->player->getLevel()->getCollisionBlocks($collisionAABB, true)) === 0 && $user->moveData->liquidTicks >= 10 && $user->moveData->cobwebTicks >= 10
+                    && $user->moveData->levitationTicks >= 10 && $user->timeSinceStoppedFlight >= 10 && $user->timeSinceStoppedGlide >= 10){
+                    if(++$this->preVL >= 6){
                         $roundedPercentage = round($percentage, 3); $roundedBuffer = round($this->preVL, 2);
                         $this->fail($user, "(A) percentage=$percentage% buff={$this->preVL}", "pct=$roundedPercentage% buff=$roundedBuffer");
                         $this->preVL = min($this->preVL, 30);
@@ -60,10 +65,10 @@ class VelocityA extends Detection implements CancellableMovement{
                     $this->reward($user, $user->transactionLatency > 400 ? 0.4 : 0.2);
                     $this->preVL = max($this->preVL - 0.5, 0);
                 }
-                $this->receivedMotion->y = ($this->receivedMotion->y - 0.08) * 0.980000012;
                 if($this->isDebug($user)){
                     $user->sendMessage("percentage=$percentage% latency={$user->transactionLatency} buff={$this->preVL}");
                 }
+                $this->receivedYMotion = ($this->receivedYMotion - 0.08) * 0.980000012;
             }
         }
     }

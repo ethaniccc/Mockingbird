@@ -33,12 +33,15 @@ class AutoClickerC extends Detection{
             if($user->clickData->tickSpeed <= 4){
                 if(++$this->clicks >= $this->getSetting('samples')){
                     $samples = $user->clickData->getTickSamples($this->getSetting('samples'));
-                    $kurtosis = MathUtils::getKurtosis($samples); $skewness = MathUtils::getSkewness($samples); $pair = MathUtils::getOutliers($samples);
-                    $outliers = count($pair->getX()) + count($pair->getY());
+                    $kurtosis = MathUtils::getKurtosis($samples); $skewness = MathUtils::getSkewness($samples);
+                    $outliers = MathUtils::getOutliers($samples);
                     if($user->clickData->cps >= 10 && $kurtosis <= $this->getSetting('kurtosis') && $skewness <= $this->getSetting('skewness') && $outliers <= $this->getSetting('outliers')){
                         if(++$this->preVL >= 1.2){
                             $this->fail($user, "kurtosis=$kurtosis skewness=$skewness outliers=$outliers cps={$user->clickData->cps}", "cps={$user->clickData->cps}");
                         }
+                    } elseif($kurtosis === 0.0 && $skewness === 0.0 && $outliers === 0.0){
+                        // impossible consistency
+                        $this->fail($user, "kurtosis, skewness, outliers=0 cps={$user->clickData->cps}", "cps={$user->clickData->cps}");
                     } else {
                         $this->preVL = max($this->preVL - 0.2, 0);
                         $this->reward($user, 0.2);

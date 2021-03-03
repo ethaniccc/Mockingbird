@@ -2,6 +2,7 @@
 
 namespace ethaniccc\Mockingbird\processing;
 
+use ethaniccc\Mockingbird\handler\NetworkStackLatencyHandler;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\user\UserManager;
 use pocketmine\block\BlockIds;
@@ -23,10 +24,6 @@ use pocketmine\block\Block;
 
 class OutboundProcessor extends Processor{
 
-    public $pendingMotions = [];
-    public $pendingLocations = [];
-    public $pendingTeleports = [];
-
     public function process(DataPacket $packet, User $user): void{
         // is it me... or does the server only send batch packets..?
         if($packet instanceof BatchPacket){
@@ -40,7 +37,12 @@ class OutboundProcessor extends Processor{
                         case NetworkChunkPublisherUpdatePacket::NETWORK_ID:
                             if($user->loggedIn){
                                 $user->hasReceivedChunks = false;
-                                $user->player->dataPacket($user->chunkResponsePacket);
+                                NetworkStackLatencyHandler::send($user, NetworkStackLatencyHandler::random(), function(int $currentTick) use ($user) : void{
+                                    $user->hasReceivedChunks = true;
+                                    if($user->debugChannel === 'receive-chunk'){
+                                        $user->sendMessage('received chunks');
+                                    }
+                                });
                             } else {
                                 // even though this is a bad idea - assume the player received the chunks.
                                 $user->hasReceivedChunks = true;
@@ -49,14 +51,12 @@ class OutboundProcessor extends Processor{
                         case SetActorMotionPacket::NETWORK_ID:
                             /** @var SetActorMotionPacket $pk */
                             if($pk->entityRuntimeId === $user->player->getId()){
-                                $pK = new NetworkStackLatencyPacket();
-                                $pK->timestamp = ($timestamp = mt_rand(10, 10000000) * 1000);
-                                $pK->needResponse = true;
-                                $user->player->dataPacket($pK);
-                                $this->pendingMotions[$timestamp] = $pk->motion;
-                                if($user->debugChannel === 'get-motion'){
-                                    $user->sendMessage('sent ' . $timestamp . ' with motion ' . $pk->motion);
-                                }
+                                $motion = $pk->motion;
+                                NetworkStackLatencyHandler::send($user, NetworkStackLatencyHandler::random(), function(int $timestamp) use($motion, $user) : void{
+                                    $user->moveData->lastMotion = $motion;
+                                    $user->timeSinceMotion = 0;
+                                    $user->tickProcessor->noResponseTicks = 0;
+                                });
                             }
                             break;
                         case DisconnectPacket::NETWORK_ID:
@@ -68,16 +68,18 @@ class OutboundProcessor extends Processor{
                             /** @var MovePlayerPacket|MoveActorAbsolutePacket $pk */
                             if($user->hitData->targetEntity !== null && $pk->entityRuntimeId === $user->hitData->targetEntity->getId()){
                                 $location = $pk->pid() === MovePlayerPacket::NETWORK_ID ? $pk->position->subtract(0, 1.62, 0) : $pk->position;
-                                $pK = new NetworkStackLatencyPacket();
-                                $pK->timestamp = ($timestamp = mt_rand(10, 10000000) * 1000);
-                                $pK->needResponse = true;
-                                $user->player->dataPacket($pK);
-                                $this->pendingLocations[$timestamp] = $location;
-                                if($user->debugChannel === 'get-location'){
-                                    $user->sendMessage('sent ' . $timestamp . ' with position ' . $location);
+                                NetworkStackLatencyHandler::send($user, NetworkStackLatencyHandler::random(), function(int $timestamp) use($user, $location) : void{
+                                    $user->tickData->targetLocations[$user->tickData->currentTick] = $location;
+                                    $currentTick = $user->tickData->currentTick;
+                                    $user->tickData->targetLocations = array_filter($user->tickData->targetLocations, function(int $tick) use($currentTick) : bool{
+                                        return $currentTick - $tick <= 4;
+                                    }, ARRAY_FILTER_USE_KEY);
+                                    $user->tickProcessor->noResponseTicks = 0;
+                                });
+                            } elseif($pk instanceof MovePlayerPacket && $user->player->getId() === $pk->entityRuntimeId){
+                                if($pk->mode === MovePlayerPacket::MODE_RESET || $pk->mode === MovePlayerPacket::MODE_TELEPORT){
+                                    $user->moveData->forceMoveSync = $pk->position->subtract(0, 1.62, 0);
                                 }
-                            } elseif($packet instanceof MovePlayerPacket && $pk->mode === MovePlayerPacket::MODE_TELEPORT && $user->player->getId() === $pk->entityRuntimeId){
-                                $this->pendingTeleports[] = $pk->position->subtract(0, 1.62, 0);
                             }
                             break;
                         case UpdateBlockPacket::NETWORK_ID:
@@ -96,11 +98,15 @@ class OutboundProcessor extends Processor{
                             if($pk->blockRuntimeId === 134 && $found){
                                 foreach($user->placedBlocks as $search => $block){
                                     if($block->asVector3()->subtract($pos)->lengthSquared() === 0.0){
-                                        $pK = new NetworkStackLatencyPacket();
-                                        $pK->timestamp = mt_rand(10, 10000000) * 1000;
-                                        $pK->needResponse = true;
-                                        $user->player->dataPacket($pK);
+                                        $pK = NetworkStackLatencyHandler::random();
                                         $user->ghostBlocks[$pK->timestamp] = $block;
+                                        NetworkStackLatencyHandler::send($user, $pK, function(int $timestamp) use($block, $user) : void{
+                                            if($user->debugChannel === 'ghost-block'){
+                                                $user->sendMessage('ghost block ' . $block->getId() . ' removed with (x=' . $block->getX() . ' y=' . $block->getY() . ' z=' . $block->getZ() . ')');
+                                            }
+                                            unset($user->ghostBlocks[$timestamp]);
+                                            $user->tickProcessor->noResponseTicks = 0;
+                                        });
                                         if($user->debugChannel === 'ghost-block'){
                                             $user->sendMessage('ghost block ' . $block->getId() . ' client-side with (x=' . $block->getX() . ' y=' . $block->getY() . ' z=' . $block->getZ() . ')');
                                         }

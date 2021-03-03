@@ -13,6 +13,8 @@ class AABB extends AxisAlignedBB{
     public $maxX, $maxY, $maxZ;
     public $minVector, $maxVector;
 
+    public const NO_INTERSECTION = -69.0;
+
     public function __construct(float $minX, $minY, float $minZ, float $maxX, float $maxY, float $maxZ) {
         // TODO: Why is minY sometimes zero? Refer to issue 
         parent::__construct($minX, $minY ?? 0.0, $minZ, $maxX, $maxX, $maxZ);
@@ -110,7 +112,12 @@ class AABB extends AxisAlignedBB{
     }
 
     public function collidesRay(Ray $ray, float $tmin, float $tmax) : float{
-        for($i = 0; $i < 3; ++$i) {
+        if($this->isVectorInside($ray->origin)){
+            return 0.0;
+        } else {
+            return ($result = $this->calculateIntercept($ray->traverse($tmin), $ray->traverse($tmax))) !== null ? $ray->origin->distance($result->getHitVector()) : self::NO_INTERSECTION;
+        }
+        /* for($i = 0; $i < 3; ++$i) {
             $d = 1 / ($ray->direction($i) ?: 0.01);
             $t0 = ($this->min($i) - $ray->origin($i)) * $d;
             $t1 = ($this->max($i) - $ray->origin($i)) * $d;
@@ -124,7 +131,7 @@ class AABB extends AxisAlignedBB{
             if($tmax <= $tmin)
                 return -69.0;
         }
-        return $tmin;
+        return $tmin; */
     }
 
 }

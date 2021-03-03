@@ -18,20 +18,20 @@ use pocketmine\utils\TextFormat;
 abstract class Detection{
 
     public $preVL = 0, $maxVL;
-    public $name, $subType, $enabled, $punishable, $punishType, $suppression, $alerts;
+    public $name, $enabled, $punishable, $punishType, $suppression, $alerts;
     protected static $settings = [];
     protected $vlSecondCount = 2;
     protected $lowMax, $mediumMax;
     private $violations = [];
     private $cooldown = [];
 
+    public const PROBABILITY_EXPERIMENTAL = 0;
     public const PROBABILITY_LOW = 1;
     public const PROBABILITY_MEDIUM = 2;
     public const PROBABILITY_HIGH = 3;
 
     public function __construct(string $name, ?array $settings){
         $this->name = $name;
-        $this->subType = substr($this->name, -1);
         self::$settings[$name] = $settings === null ? ['enabled' => true, 'punish' => false] : $settings;
         $this->enabled = $this->getSetting('enabled');
         $this->punishable = $this->getSetting('punish');
@@ -43,8 +43,8 @@ abstract class Detection{
         $this->mediumMax = floor(sqrt($this->vlSecondCount) * 5);
     }
 
-    public function getSetting(string $setting){
-        return self::$settings[$this->name][$setting] ?? null;
+    public function getSetting(string $setting, $default = null){
+        return self::$settings[$this->name][$setting] ?? $default;
     }
 
     public abstract function handleReceive(DataPacket $packet, User $user) : void;
@@ -56,22 +56,32 @@ abstract class Detection{
         return false;
     }
 
+    public function canHandleBatch() : bool{
+        return false;
+    }
+
     public function handleEvent(Event $event, User $user) : void{
     }
 
     public function getCheatProbability() : int{
-        $violations = count($this->violations);
-        if($violations <= $this->lowMax){
-            return self::PROBABILITY_LOW;
-        } elseif($violations <= $this->mediumMax){
-            return self::PROBABILITY_MEDIUM;
+        if($this instanceof Experimental){
+            return self::PROBABILITY_EXPERIMENTAL;
         } else {
-            return self::PROBABILITY_HIGH;
+            $violations = count($this->violations);
+            if($violations <= $this->lowMax){
+                return self::PROBABILITY_LOW;
+            } elseif($violations <= $this->mediumMax){
+                return self::PROBABILITY_MEDIUM;
+            } else {
+                return self::PROBABILITY_HIGH;
+            }
         }
     }
 
     public function probabilityColor(int $probability) : string{
         switch($probability){
+            case self::PROBABILITY_EXPERIMENTAL:
+                return TextFormat::AQUA . "Experimental";
             case self::PROBABILITY_LOW:
                 return TextFormat::GREEN . "Low";
             case self::PROBABILITY_MEDIUM:
@@ -98,10 +108,7 @@ abstract class Detection{
         $name = $user->player->getName();
         $cheatName = $this->name;
         $violations = round($user->violations[$this->name], 2);
-        $staff = array_filter(Server::getInstance()->getOnlinePlayers(), function(Player $p) : bool{
-            $user = UserManager::getInstance()->get($p);
-            return $p->hasPermission('mockingbird.alerts') && $user->alerts;
-        });
+        $staff = Mockingbird::getInstance()->toNotify;
         if($this->alerts){
             $cooldownStaff = array_filter($staff, function(Player $p) : bool{
                 $user = UserManager::getInstance()->get($p);
@@ -126,21 +133,8 @@ abstract class Detection{
                 $user->player->teleport($user->moveData->lastLocation);
             }
         }
-        if($this->punishable && $violations >= $this->maxVL){
-            switch($this->punishType){
-                case 'kick':
-                    $user->loggedIn = false;
-                    $this->debug($user->player->getName() . ' was kicked for ' . $cheatName);
-                    $this->getPlugin()->getScheduler()->scheduleDelayedTask(new KickTask($user, $this->getPlugin()->getPrefix() . " " . $this->getPlugin()->getConfig()->get("punish_message_player")), 1);
-                    break;
-                case 'ban':
-                    $user->loggedIn = false;
-                    $this->debug($user->player->getName() . ' was banned for ' . $cheatName);
-                    $this->getPlugin()->getScheduler()->scheduleDelayedTask(new BanTask($user, $this->getPlugin()->getPrefix() . " " . $this->getPlugin()->getConfig()->get("punish_message_player")), 1);
-                    break;
-            }
-            $message = $this->getPlugin()->getPrefix() . ' ' . str_replace(['{player}', '{detection}'], [$name, $cheatName], $this->getPlugin()->getConfig()->get('punish_message_staff'));
-            Server::getInstance()->broadcastMessage($message, Mockingbird::getInstance()->getConfig()->get('punish_message_global') ? Server::getInstance()->getOnlinePlayers() : $staff);
+        if($this->punishable && $user->violations[$this->name] > $this->maxVL){
+            $this->punish($user);
         }
         if($debugData !== null){
             if(!isset($user->debugCache[strtolower($this->name)])){
@@ -149,6 +143,27 @@ abstract class Detection{
             $user->debugCache[strtolower($this->name)] .= $debugData . PHP_EOL;
             $this->debug($user->player->getName() . ': ' . $debugData);
         }
+    }
+
+    protected function punish(User $user) : void{
+        if(!$user->player->hasPermission('mockingbird.bypass')){
+            switch($this->punishType){
+                case 'kick':
+                    $user->loggedIn = false;
+                    $this->debug($user->player->getName() . ' was kicked for ' . $this->name);
+                    $this->getPlugin()->getScheduler()->scheduleDelayedTask(new KickTask($user, str_replace("{prefix}", $this->getPlugin()->getPrefix(), $this->getPlugin()->getConfig()->get("punish_message_player"))), 1);
+                    break;
+                case 'ban':
+                    $user->loggedIn = false;
+                    $this->debug($user->player->getName() . ' was banned for ' . $this->name);
+                    $this->getPlugin()->getScheduler()->scheduleDelayedTask(new BanTask($user, str_replace("{prefix}", $this->getPlugin()->getPrefix(), $this->getPlugin()->getConfig()->get("punish_message_player"))), 1);
+                    break;
+            }
+        } else {
+            $user->violations = [];
+        }
+        $message = str_replace(['{player}', '{detection}', '{prefix}'], [$user->player->getName(), $this->name, $this->getPlugin()->getPrefix()], $this->getPlugin()->getConfig()->get('punish_message_staff'));
+        Server::getInstance()->broadcastMessage($message, Mockingbird::getInstance()->getConfig()->get('punish_message_global') ? Server::getInstance()->getOnlinePlayers() : Mockingbird::getInstance()->toNotify);
     }
 
     protected function debug($debugData, bool $logWrite = true) : void{
