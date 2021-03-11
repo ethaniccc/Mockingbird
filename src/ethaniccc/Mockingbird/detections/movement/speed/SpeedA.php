@@ -30,7 +30,8 @@ class SpeedA extends Detection implements CancellableMovement{
                 $currentMoveDelta = $user->moveData->moveDelta;
                 $lastXZ = MathUtils::hypot($lastMoveDelta->x, $lastMoveDelta->z);
                 $currentXZ = MathUtils::hypot($currentMoveDelta->x, $currentMoveDelta->z);
-                $expectedXZ = $lastXZ * 0.91 + ($user->isSprinting ? 0.026 : 0.02);
+                // going to leave this at 0.026 - removing support for all previous versions once .210 PMMP update comes out
+                $expectedXZ = $lastXZ * 0.91 + 0.026;
                 $equalness = $currentXZ - $expectedXZ;
                 if($equalness > $this->getSetting('max_breach')
                 && $user->timeSinceStoppedFlight >= 20
@@ -55,7 +56,8 @@ class SpeedA extends Detection implements CancellableMovement{
                     }
                 }
                 if($this->isDebug($user)){
-                    $user->sendMessage("diff=$equalness curr=$currentXZ last=$lastXZ");
+                    $sprint = var_export($user->isSprinting, true);
+                    $user->sendMessage("diff=$equalness curr=$currentXZ last=$lastXZ sprint=$sprint");
                 }
             }
         }

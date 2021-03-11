@@ -11,6 +11,7 @@ use pocketmine\event\entity\EntityMotionEvent;
 use pocketmine\event\inventory\InventoryTransactionEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerQuitEvent;
+use pocketmine\event\server\CommandEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\math\Vector3;
@@ -23,6 +24,7 @@ use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\network\mcpe\protocol\types\PlayerMovementType;
+use pocketmine\Player;
 use pocketmine\Server;
 
 class MockingbirdListener implements Listener{
@@ -32,7 +34,7 @@ class MockingbirdListener implements Listener{
     }
 
     /** @priority HIGH */
-    public function onPacket(DataPacketReceiveEvent $event) : void{
+    function inbound(DataPacketReceiveEvent $event) : void{
         $packet = $event->getPacket();
         $player = $event->getPlayer();
         if($packet instanceof LoginPacket){
@@ -60,7 +62,7 @@ class MockingbirdListener implements Listener{
     }
 
     /** @priority HIGH */
-    public function onPacketSend(DataPacketSendEvent $event) : void{
+    function outbound(DataPacketSendEvent $event) : void{
         $packet = $event->getPacket();
         $user = UserManager::getInstance()->get($event->getPlayer());
         if($packet instanceof StartGamePacket){
@@ -91,7 +93,7 @@ class MockingbirdListener implements Listener{
     }
 
     // I hate it here
-    public function onTransaction(InventoryTransactionEvent $event) : void{
+    function transaction(InventoryTransactionEvent $event) : void{
         $user = UserManager::getInstance()->get($event->getTransaction()->getSource());
         if($user !== null){
             foreach($user->detections as $detection){
@@ -102,14 +104,14 @@ class MockingbirdListener implements Listener{
         }
     }
 
-    public function onMotion(EntityMotionEvent $event) : void{
+    function motion(EntityMotionEvent $event) : void{
         $motion = $event->getVector();
         if($motion->x >= 20 || $motion->y >= 20 || $motion->z >= 20){
             $event->setCancelled();
         }
     }
 
-    public function onLeave(PlayerQuitEvent $event) : void{
+    function leave(PlayerQuitEvent $event) : void{
         $player = $event->getPlayer();
         $user = UserManager::getInstance()->get($player);
         if($user !== null){

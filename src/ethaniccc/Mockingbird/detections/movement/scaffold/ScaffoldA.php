@@ -16,22 +16,19 @@ use pocketmine\math\Facing;
 
 class ScaffoldA extends Detection{
 
-    /** @var null|Block */
-    private $lastPlacedBlock;
-
     public function __construct(string $name, ?array $settings){
         parent::__construct($name, $settings);
     }
 
     public function handleReceive(DataPacket $packet, User $user): void{
         if($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ACTION_CLICK_BLOCK){
-            $clickedBlockPos = new Vector3($packet->trData->x, $packet->trData->y, $packet->trData->z);
-            $blockClicked = $user->player->getLevel()->getBlock($clickedBlockPos, false, false);
-            if($this->lastPlacedBlock !== null){
-                $prevDistXZ = MathUtils::hypot($packet->trData->playerPos->x - $this->lastPlacedBlock->x, $packet->trData->playerPos->z - $this->lastPlacedBlock->z);
-                $currDistXZ = MathUtils::hypot($packet->trData->playerPos->x - $blockClicked->x, $packet->trData->playerPos->z - $blockClicked->z);
+            $placedBlockPos = (new Vector3($packet->trData->x, $packet->trData->y, $packet->trData->z))->getSide($packet->trData->face);
+            $subVec = $placedBlockPos->subtract($user->moveData->location->asVector3()->floor());
+            if($subVec->y === -1 && $subVec->lengthSquared() === 1.0 && $packet->trData->clickPos->distanceSquared($user->zeroVector) === 0.0){
+                $this->fail($user);
             }
-            $this->lastPlacedBlock = $blockClicked;
+            if($this->isDebug($user))
+                $user->sendMessage("subVec=$subVec click={$packet->trData->clickPos}");
         }
     }
 

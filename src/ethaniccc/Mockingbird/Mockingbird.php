@@ -43,6 +43,7 @@ use ethaniccc\Mockingbird\threads\CalculationThread;
 use ethaniccc\Mockingbird\user\UserManager;
 use ethaniccc\Mockingbird\utils\MathUtils;
 use ethaniccc\MockingbirdPremiumLoader\Loader;
+use pocketmine\event\HandlerList;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\ClosureTask;
@@ -235,6 +236,8 @@ final class Mockingbird extends PluginBase{
     }
 
     public function onDisable(){
+        HandlerList::unregisterAll($this);
+        $this->calculationThread->quit();
         if($this->getConfig()->get('upload_debug')){
             $options = array(
                 'ssl' => array(
