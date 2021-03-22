@@ -124,6 +124,11 @@ Format with punishments enabled: `Detection Name => (currentViolations / maxViol
 Format with punishments disabled: `Detection Name => (currentViolations) @ Cheating Probability`
 
 ![LogsCommandExample](images/logsExample.png)
+
+## Mockingbird vs other similar anti-cheats
+Mockingbird is designed to be as light weight and clean as possible, compared to other ones found on pmmp.
+![HowWeStackUp](images/Untitled.png)
+
 ### Setting Alert Cooldown
 By default, alert cooldown is two seconds for every check the player flagging has, however, some may want
 this cooldown lowered to view every single alert, or to increase the alert cooldown because it's spamming chat.
