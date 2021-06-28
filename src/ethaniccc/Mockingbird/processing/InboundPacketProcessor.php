@@ -293,11 +293,11 @@ class InboundPacketProcessor extends Processor{
                         $this->handleClick($user);
                         break;
                     case InventoryTransactionPacket::TYPE_USE_ITEM:
-                        switch($packet->trData->actionType){
+                        switch($packet->actionType){
                             case InventoryTransactionPacket::USE_ITEM_ACTION_CLICK_BLOCK:
                                 /** @var Item $inHand */
-                                $inHand = $packet->trData->itemInHand;
-                                $clickedBlockPos = new Vector3($packet->trData->x, $packet->trData->y, $packet->trData->z);
+                                $inHand = $packet->itemInHand;
+                                $clickedBlockPos = new Vector3($packet->clickPos->x, $packet->clickPos->y, $packet->clickPos->z);
                                 $blockClicked = $user->player->getLevel()->getBlock($clickedBlockPos, false, false);
                                 $block = $inHand->getBlock();
                                 if($inHand->getId() < 0){
