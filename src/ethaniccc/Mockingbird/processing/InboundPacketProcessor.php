@@ -272,7 +272,7 @@ class InboundPacketProcessor extends Processor{
                 break;
             case InventoryTransactionPacket::NETWORK_ID:
                 /** @var InventoryTransactionPacket $packet */
-                switch($packet->transactionType){
+                switch($packet->trData->getTypeId()){
                     case InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY:
                         switch($packet->trData->actionType){
                             case InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK:
