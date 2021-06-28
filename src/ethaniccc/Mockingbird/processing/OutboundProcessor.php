@@ -93,7 +93,7 @@ class OutboundProcessor extends Processor{
                             }
                             // the block is going to be set to air, and it's position is one of the positions of the blocks the user placed..
                             // if($found) $user->sendMessage('runtime=' . $pk->blockRuntimeId . ' id=' . RuntimeBlockMapping::fromStaticRuntimeId($pk->blockRuntimeId)[0] . ' meta=' . RuntimeBlockMapping::fromStaticRuntimeId($pk->blockRuntimeId)[1] . ' flags=' . $pk->flags . ' data=' . $pk->dataLayerId . ' pos=(' . $pk->x . ',' . $pk->y . ',' . $pk->z . ')');
-                            if($pk->blockRuntimeId === 134 && $found){
+                            if($pk->blockRuntimeId === RuntimeBlockMapping::toStaticRuntimeId(BlockIds::AIR) && $found){
                                 foreach($user->placedBlocks as $search => $block){
                                     if($block->asVector3()->subtract($pos)->lengthSquared() === 0.0){
                                         $pK = new NetworkStackLatencyPacket();
@@ -107,7 +107,7 @@ class OutboundProcessor extends Processor{
                                         unset($user->placedBlocks[$search]);
                                     }
                                 }
-                            } elseif($pk->blockRuntimeId !== 134 && $found){
+                            } elseif($pk->blockRuntimeId !== RuntimeBlockMapping::toStaticRuntimeId(BlockIds::AIR) && $found){
                                 foreach($user->placedBlocks as $search => $block){
                                     if($block->asVector3()->subtract($pos)->lengthSquared() === 0.0){
                                         unset($user->placedBlocks[$search]);

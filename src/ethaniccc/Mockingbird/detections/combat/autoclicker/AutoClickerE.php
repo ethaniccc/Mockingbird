@@ -31,7 +31,7 @@ class AutoClickerE extends Detection{
     }
 
     public function handleReceive(DataPacket $packet, User $user) : void{
-        if(($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) || ($packet instanceof LevelSoundEventPacket && $packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE)){
+        if(($packet instanceof InventoryTransactionPacket && $packet->trData->getTypeId() === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) || ($packet instanceof LevelSoundEventPacket && $packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE)){
             if($user->clickData->tickSpeed <= 4 && ++$this->clicks === 20){
                 $speeds = $user->clickData->getTickSamples(20);
                 $deviation = sqrt(MathUtils::getVariance($speeds));

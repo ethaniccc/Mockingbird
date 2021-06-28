@@ -11,7 +11,7 @@
 # Go forth and destroy those pesky hackers!
 
 # PLEASE DO NOT CHANGE THIS #
-version: 2.5
+version: 2.5.1
 
 prefix: "§l§7[§cMocking§4bird§7]"
 # {tag} => explanation of tag

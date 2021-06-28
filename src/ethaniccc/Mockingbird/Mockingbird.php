@@ -185,7 +185,7 @@ final class Mockingbird extends PluginBase{
             new BadPacketD('BadPacketD', $this->getConfig()->get('BadPacketD', null)),
             new BadPacketE('BadPacketE', $this->getConfig()->get('BadPacketE', null)),
             // Timer checks
-            new TimerA('TimerA', $this->getConfig()->exists('TimerA') ? $this->getConfig()->get('TimerA') : null),
+            new TimerA('TimerA', $this->getConfig()->get('TimerA', null)),
             // new TimerB('TimerB', $this->getConfig()->exists('TimerB') ? $this->getConfig()->get('TimerB') : null),
             // ChestStealer checks
             // new ChestStealerA('ChestStealerA', $this->getConfig()->get('ChestStealerA', null)),
