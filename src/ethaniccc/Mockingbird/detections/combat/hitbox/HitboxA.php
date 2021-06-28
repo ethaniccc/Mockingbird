@@ -12,6 +12,7 @@ use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
+use pocketmine\network\mcpe\protocol\types\inventory\UseItemOnEntityTransactionData;
 
 /**
  * Class HitboxA
@@ -33,7 +34,7 @@ class HitboxA extends Detection{
         if($user->timeSinceJoin < 100 || !$user->loggedIn){
             return;
         }
-        if($packet instanceof InventoryTransactionPacket && $user->win10 && !$user->player->isCreative() && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK && $user->isDesktop && !$user->player->isCreative()){
+        if($packet instanceof InventoryTransactionPacket && $user->win10 && !$user->player->isCreative() && $packet->trData->getTypeId() === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->getActionType() === UseItemOnEntityTransactionData::ACTION_ATTACK && $user->isDesktop && !$user->player->isCreative()){
             if(count($user->tickData->targetLocations) >= 2){
                 $angleList = [];
                 foreach($user->tickData->targetLocations as $location){

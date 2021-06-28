@@ -25,6 +25,7 @@ use pocketmine\level\Location;
 use pocketmine\level\particle\DustParticle;
 use pocketmine\level\Position;
 use pocketmine\math\Vector3;
+use pocketmine\network\mcpe\convert\RuntimeBlockMapping;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
@@ -34,6 +35,8 @@ use pocketmine\network\mcpe\protocol\PlayerActionPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\network\mcpe\protocol\SetLocalPlayerAsInitializedPacket;
 use pocketmine\network\mcpe\protocol\types\DeviceOS;
+use pocketmine\network\mcpe\protocol\types\inventory\UseItemOnEntityTransactionData;
+use pocketmine\network\mcpe\protocol\types\inventory\UseItemTransactionData;
 use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
@@ -272,13 +275,13 @@ class InboundPacketProcessor extends Processor{
                 break;
             case InventoryTransactionPacket::NETWORK_ID:
                 /** @var InventoryTransactionPacket $packet */
-                switch($packet->transactionType){
+                switch($packet->trData->getTypeId()){
                     case InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY:
-                        switch($packet->trData->actionType){
-                            case InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK:
-                                $user->hitData->attackPos = $packet->trData->playerPos;
+                        switch($packet->trData->getActionType()){
+                            case UseItemOnEntityTransactionData::ACTION_ATTACK:
+                                $user->hitData->attackPos = $packet->trData->getPlayerPos();
                                 $user->hitData->lastTargetEntity = $user->hitData->targetEntity;
-                                $user->hitData->targetEntity = $user->player->getLevelNonNull()->getEntity($packet->trData->entityRuntimeId);
+                                $user->hitData->targetEntity = $user->player->getLevelNonNull()->getEntity($packet->trData->getEntityRuntimeId());
                                 $user->hitData->inCooldown = Server::getInstance()->getTick() - $user->hitData->lastTick < 10;
                                 if(!$user->hitData->inCooldown){
                                     $user->timeSinceAttack = 0;
@@ -293,11 +296,11 @@ class InboundPacketProcessor extends Processor{
                         $this->handleClick($user);
                         break;
                     case InventoryTransactionPacket::TYPE_USE_ITEM:
-                        switch($packet->trData->actionType){
-                            case InventoryTransactionPacket::USE_ITEM_ACTION_CLICK_BLOCK:
+                        switch($packet->trData->getActionType()){
+                            case UseItemTransactionData::ACTION_CLICK_BLOCK:
                                 /** @var Item $inHand */
-                                $inHand = $packet->trData->itemInHand;
-                                $clickedBlockPos = new Vector3($packet->trData->x, $packet->trData->y, $packet->trData->z);
+                                $inHand = $packet->trData->getItemInHand()->getItemStack();
+                                $clickedBlockPos = $packet->trData->getBlockPos();
                                 $blockClicked = $user->player->getLevel()->getBlock($clickedBlockPos, false, false);
                                 $block = $inHand->getBlock();
                                 if($inHand->getId() < 0){
@@ -306,7 +309,7 @@ class InboundPacketProcessor extends Processor{
                                 }
                                 if($block->canBePlaced() || $block instanceof UnknownBlock){
                                     $placeable = true;
-                                    $block->position(Position::fromObject($clickedBlockPos->getSide($packet->trData->face), $user->player->getLevel()));
+                                    $block->position(Position::fromObject($clickedBlockPos->getSide($packet->trData->getFace()), $user->player->getLevel()));
                                     $isGhostBlock = false;
                                     foreach($user->ghostBlocks as $ghostBlock){
                                         if($ghostBlock->asVector3()->distanceSquared($block->asVector3()) === 0.0){
@@ -314,7 +317,7 @@ class InboundPacketProcessor extends Processor{
                                             break;
                                         }
                                     }
-                                    if($block->canBePlacedAt($blockClicked, ($packet->trData->clickPos ?? new Vector3(0, 0, 0)), $packet->trData->face, true) && !$isGhostBlock){
+                                    if($block->canBePlacedAt($blockClicked, ($packet->trData->getClickPos() ?? new Vector3(0, 0, 0)), $packet->trData->getFace(), true) && !$isGhostBlock){
                                         $block->position($blockClicked->asPosition());
                                     } /* elseif($block->canBePlacedAt($blockClicked, ($packet->trData->clickPos ?? new Vector3(0, 0, 0)), $packet->trData->face, true) && $isGhostBlock){
                                         $user->sendMessage('ghost block placed on ghost block.');
@@ -329,7 +332,7 @@ class InboundPacketProcessor extends Processor{
                                     }
                                     if($placeable){
                                         $user->placedBlocks[] = $block;
-                                        $interactPos = $clickedBlockPos->getSide($packet->trData->face)->add($packet->trData->clickPos);
+                                        $interactPos = $clickedBlockPos->getSide($packet->trData->getFace())->add($packet->trData->getClickPos());
                                         $distance = $interactPos->distance($user->moveData->location->add($user->isSneaking ? 1.54 : 1.62));
                                         if($user->debugChannel === 'block-dist'){
                                             $user->sendMessage('dist=' . $distance);
@@ -341,24 +344,24 @@ class InboundPacketProcessor extends Processor{
                                     $blockClicked = $user->player->getLevel()->getBlock($clickedBlockPos);
                                     // the block can't be replaced and the block relative to the face can also not be replaced
                                     // water-logging blocks by placing the water under the transparent block... idot stuff
-                                    if(!$blockClicked->canBeReplaced() && !$user->player->getLevel()->getBlock($clickedBlockPos->getSide($packet->trData->face))->canBeReplaced()){
-                                        $pos = $clickedBlockPos->getSide($packet->trData->face);
+                                    if(!$blockClicked->canBeReplaced() && !$user->player->getLevel()->getBlock($clickedBlockPos->getSide($packet->trData->getFace()))->canBeReplaced()){
+                                        $pos = $clickedBlockPos->getSide($packet->trData->getFace());
                                     }
                                     $pk = new UpdateBlockPacket();
                                     $pk->x = $pos->x; $pk->y = $pos->y; $pk->z = $pos->z;
-                                    $pk->blockRuntimeId = 134; $pk->flags = UpdateBlockPacket::FLAG_NETWORK;
+                                    $pk->blockRuntimeId = RuntimeBlockMapping::toStaticRuntimeId(Block::AIR); $pk->flags = UpdateBlockPacket::FLAG_NETWORK;
                                     $pk->dataLayerId = UpdateBlockPacket::DATA_LAYER_LIQUID;
                                     foreach($user->player->getLevel()->getPlayers() as $v){
                                         $v->dataPacket($pk);
                                     }
                                     $user->player->dataPacket($pk);
-                                } elseif($block instanceof Transparent && $user->player->getLevel()->getBlock($clickedBlockPos->getSide($packet->trData->face), false, false) instanceof Water){
+                                } elseif($block instanceof Transparent && $user->player->getLevel()->getBlock($clickedBlockPos->getSide($packet->trData->getFace()), false, false) instanceof Water){
                                     // reverse-waterlogging?
                                     $pk = new UpdateBlockPacket();
-                                    $pos = $clickedBlockPos->getSide($packet->trData->face);
+                                    $pos = $clickedBlockPos->getSide($packet->trData->getFace());
                                     $pk->x = $pos->x; $pk->y = $pos->y; $pk->z = $pos->z;
                                     $pk->dataLayerId = UpdateBlockPacket::DATA_LAYER_LIQUID;
-                                    $pk->blockRuntimeId = 134; $pk->flags = UpdateBlockPacket::FLAG_NETWORK;
+                                    $pk->blockRuntimeId = RuntimeBlockMapping::toStaticRuntimeId(Block::AIR); $pk->flags = UpdateBlockPacket::FLAG_NETWORK;
                                     foreach($user->player->getLevel()->getPlayers() as $v){
                                         $v->dataPacket($pk);
                                     }

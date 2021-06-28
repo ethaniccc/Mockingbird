@@ -7,6 +7,7 @@ use ethaniccc\Mockingbird\user\User;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
+use pocketmine\network\mcpe\protocol\types\inventory\UseItemTransactionData;
 
 /**
  * Class NukerA
@@ -22,7 +23,7 @@ class NukerA extends Detection{
     }
 
     public function handleReceive(DataPacket $packet, User $user) : void{
-        if($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ACTION_BREAK_BLOCK){
+        if($packet instanceof InventoryTransactionPacket && $packet->trData->getTypeId() === InventoryTransactionPacket::TYPE_USE_ITEM && $packet->trData->getActionType() === UseItemTransactionData::ACTION_BREAK_BLOCK){
             ++$this->blocks;
         } elseif($packet instanceof PlayerAuthInputPacket){
             // PlayerAuthInputPacket on top
