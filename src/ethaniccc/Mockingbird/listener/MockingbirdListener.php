@@ -29,7 +29,7 @@ use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\SetActorMotionPacket;
-use pocketmine\network\mcpe\protocol\StartGamePacket;
+use pocketmine\network\mcpe\protocol\GamePacket;
 use pocketmine\network\mcpe\protocol\types\PlayerMovementType;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -72,7 +72,7 @@ class MockingbirdListener implements Listener{
     public function onPacketSend(DataPacketSendEvent $event) : void{
         $packet = $event->getPacket();
         $user = UserManager::getInstance()->get($event->getPlayer());
-        if($packet instanceof StartGamePacket){
+        if($packet instanceof GamePacket){
             if(ProtocolInfo::CURRENT_PROTOCOL >= 419){
                 $packet->playerMovementType = PlayerMovementType::SERVER_AUTHORITATIVE_V2_REWIND;
             } else {
