@@ -5,6 +5,7 @@ namespace ethaniccc\Mockingbird\threads;
 use ethaniccc\Mockingbird\utils\MathUtils;
 use pocketmine\Thread;
 use pocketmine\snooze\SleeperNotifier;
+use pocketmine\utils\Utils;
 
 class CalculationThread extends Thread{
 
@@ -32,6 +33,8 @@ class CalculationThread extends Thread{
 
     public function run(){
         $this->registerClassLoader();
+        gc_enable();
+        set_error_handler([Utils::class, "errorExceptionHandler"]);
         MathUtils::init();
         while($this->running){
             // results will be in batches
