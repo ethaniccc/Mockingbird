@@ -4,6 +4,7 @@ namespace ethaniccc\Mockingbird\listener;
 
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\Mockingbird;
+use ethaniccc\Mockingbird\packet\PlayerAuthInputPacket;
 use ethaniccc\Mockingbird\processing\Processor;
 use ethaniccc\Mockingbird\tasks\PacketLogWriteTask;
 use ethaniccc\Mockingbird\user\User;
@@ -26,11 +27,11 @@ use pocketmine\network\mcpe\protocol\MoveActorAbsolutePacket;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\network\mcpe\protocol\PacketPool;
-use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\SetActorMotionPacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\network\mcpe\protocol\types\PlayerMovementType;
+use pocketmine\network\mcpe\protocol\types\PlayerMovementSettings;
 use pocketmine\Player;
 use pocketmine\Server;
 
@@ -73,11 +74,7 @@ class MockingbirdListener implements Listener{
         $packet = $event->getPacket();
         $user = UserManager::getInstance()->get($event->getPlayer());
         if($packet instanceof StartGamePacket){
-            if(ProtocolInfo::CURRENT_PROTOCOL >= 419){
-                $packet->playerMovementType = PlayerMovementType::SERVER_AUTHORITATIVE_V2_REWIND;
-            } else {
-                $packet->isMovementServerAuthoritative = true;
-            }
+            $packet->playerMovementSettings = new PlayerMovementSettings(PlayerMovementType::SERVER_AUTHORITATIVE_V2_REWIND, 20, false);
         }
         if($packet instanceof BatchPacket){
             try{
@@ -86,7 +83,7 @@ class MockingbirdListener implements Listener{
                     $pk->decode();
                     // this is to prevent a glitch with Shulker boxes staying open and falsing movement checks
                     // if you have a plugin that properly implements Shulker boxes, then you should be fine.
-                    if($pk instanceof ContainerOpenPacket && $user->player->getLevel()->getBlock(new Vector3($pk->x, $pk->y, $pk->z)) instanceof UnknownBlock){
+                    if($pk instanceof ContainerOpenPacket && $user->player->getLevel()->getBlockAt($pk->x, $pk->y, $pk->z, false) instanceof UnknownBlock){
                         $event->setCancelled();
                     }
                 }

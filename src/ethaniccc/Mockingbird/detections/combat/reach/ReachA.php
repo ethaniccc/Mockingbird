@@ -9,6 +9,7 @@ use ethaniccc\Mockingbird\utils\EvictingList;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
+use pocketmine\network\mcpe\protocol\types\inventory\UseItemOnEntityTransactionData;
 use pocketmine\utils\TextFormat;
 
 /**
@@ -29,7 +30,7 @@ class ReachA extends Detection{
     }
 
     public function handleReceive(DataPacket $packet, User $user) : void{
-        if($packet instanceof InventoryTransactionPacket && !$user->player->isCreative() && !$this->awaitingMove && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->actionType === InventoryTransactionPacket::USE_ITEM_ON_ENTITY_ACTION_ATTACK && $user->hitData->targetEntity === $user->hitData->lastTargetEntity){
+        if($packet instanceof InventoryTransactionPacket && !$user->player->isCreative() && !$this->awaitingMove && $packet->trData->getTypeId() === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY && $packet->trData->getActionType() === UseItemOnEntityTransactionData::ACTION_ATTACK && $user->hitData->targetEntity === $user->hitData->lastTargetEntity){
             if(count($user->tickData->targetLocations) >= 2){
                 $this->awaitingMove = true;
             }
