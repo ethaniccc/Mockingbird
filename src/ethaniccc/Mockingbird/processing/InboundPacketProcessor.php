@@ -3,6 +3,7 @@
 namespace ethaniccc\Mockingbird\processing;
 
 use ethaniccc\Mockingbird\Mockingbird;
+use ethaniccc\Mockingbird\packet\PlayerAuthInputPacket;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\boundingbox\Ray;
@@ -32,9 +33,9 @@ use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\network\mcpe\protocol\PlayerActionPacket;
-use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 use pocketmine\network\mcpe\protocol\SetLocalPlayerAsInitializedPacket;
 use pocketmine\network\mcpe\protocol\types\DeviceOS;
+use pocketmine\network\mcpe\protocol\types\PlayerAuthInputFlags;
 use pocketmine\network\mcpe\protocol\types\inventory\UseItemOnEntityTransactionData;
 use pocketmine\network\mcpe\protocol\types\inventory\UseItemTransactionData;
 use pocketmine\Player;
@@ -269,6 +270,102 @@ class InboundPacketProcessor extends Processor{
                     }
                     $user->player->handleMovePlayer($movePacket);
                 }
+
+                if($packet->hasInputFlag(PlayerAuthInputFlags::START_SPRINTING)){
+                    $user->isSprinting = true;
+
+                    $pk = new PlayerActionPacket;
+                    $pk->entityRuntimeId = $user->player->getId();
+                    $pk->action = PlayerActionPacket::ACTION_START_SPRINT;
+                    $pk->x = $location->x;
+                    $pk->y = $location->y;
+                    $pk->z = $location->z;
+                    $pk->face = $user->player->getDirection();
+                    $user->player->handlePlayerAction($pk);
+                }
+                if($packet->hasInputFlag(PlayerAuthInputFlags::STOP_SPRINTING)){
+                    $user->isSprinting = false;
+
+                    $pk = new PlayerActionPacket;
+                    $pk->entityRuntimeId = $user->player->getId();
+                    $pk->action = PlayerActionPacket::ACTION_STOP_SPRINT;
+                    $pk->x = $location->x;
+                    $pk->y = $location->y;
+                    $pk->z = $location->z;
+                    $pk->face = $user->player->getDirection();
+                    $user->player->handlePlayerAction($pk);
+                }
+
+                if($packet->hasInputFlag(PlayerAuthInputFlags::START_SNEAKING)){
+                    $user->isSneaking = true;
+
+                    $pk = new PlayerActionPacket;
+                    $pk->entityRuntimeId = $user->player->getId();
+                    $pk->action = PlayerActionPacket::ACTION_START_SNEAK;
+                    $pk->x = $location->x;
+                    $pk->y = $location->y;
+                    $pk->z = $location->z;
+                    $pk->face = $user->player->getDirection();
+                    $user->player->handlePlayerAction($pk);
+                }
+                if($packet->hasInputFlag(PlayerAuthInputFlags::STOP_SNEAKING)){
+                    $user->isSneaking = false;
+
+                    $pk = new PlayerActionPacket;
+                    $pk->entityRuntimeId = $user->player->getId();
+                    $pk->action = PlayerActionPacket::ACTION_STOP_SNEAK;
+                    $pk->x = $location->x;
+                    $pk->y = $location->y;
+                    $pk->z = $location->z;
+                    $pk->face = $user->player->getDirection();
+                    $user->player->handlePlayerAction($pk);
+                }
+
+                if($packet->hasInputFlag(PlayerAuthInputFlags::START_JUMPING)){
+                    $pk = new PlayerActionPacket;
+                    $pk->entityRuntimeId = $user->player->getId();
+                    $pk->action = PlayerActionPacket::ACTION_JUMP;
+                    $pk->x = $location->x;
+                    $pk->y = $location->y;
+                    $pk->z = $location->z;
+                    $pk->face = $user->player->getDirection();
+                    $user->player->handlePlayerAction($pk);
+                }
+
+                if($packet->hasInputFlag(PlayerAuthInputFlags::START_GLIDING)){
+                    $user->player->setGenericFlag(Player::DATA_FLAG_GLIDING, true);
+                    $user->isGliding = true;
+                }
+                if($packet->hasInputFlag(PlayerAuthInputFlags::STOP_GLIDING)){
+                    $user->player->setGenericFlag(Player::DATA_FLAG_GLIDING, false);
+                    $user->isGliding = false;
+                }
+
+                if($packet->hasInputFlag(PlayerAuthInputFlags::PERFORM_BLOCK_ACTIONS)){
+                    foreach($packet->getBlockActions() as $blockAction){
+                        switch($blockAction->actionType){
+                            case PlayerActionPacket::ACTION_START_BREAK:
+                            case PlayerActionPacket::ACTION_ABORT_BREAK:
+                            case PlayerActionPacket::ACTION_CRACK_BREAK:
+                                $pk = new PlayerActionPacket;
+                                $pk->entityRuntimeId = $user->player->getId();
+                                $pk->action = $blockAction->actionType;
+                                $pk->x = $blockAction->x;
+                                $pk->y = $blockAction->y;
+                                $pk->z = $blockAction->z;
+                                $pk->face = $user->player->getDirection();
+                                $user->player->handlePlayerAction($pk);
+                        }
+                    }
+                }
+
+                if($packet->hasInputFlag(PlayerAuthInputFlags::PERFORM_ITEM_INTERACTION)){
+                    $pk = new InventoryTransactionPacket;
+                    $pk->requestId = $packet->getRequestId();
+                    $pk->requestChangedSlots = $packet->getRequestChangedSlots();
+                    $pk->trData = $packet->getTransactionData();
+                    $user->player->handleInventoryTransaction($pk);
+                }
                 $user->tickProcessor->process($packet, $user);
                 ++$this->tickSpeed;
                 // $user->testProcessor->process($packet, $user);
@@ -441,31 +538,6 @@ class InboundPacketProcessor extends Processor{
                     $id = $jwt['extraData']['titleId'];
                     $user->win10 = ($id === "896928775");
                 } catch(\Exception $e){}
-                break;
-            case PlayerActionPacket::NETWORK_ID:
-                /** @var PlayerActionPacket $packet */
-                switch($packet->action){
-                    case PlayerActionPacket::ACTION_START_SPRINT:
-                        $user->isSprinting = true;
-                        break;
-                    case PlayerActionPacket::ACTION_STOP_SPRINT:
-                        $user->isSprinting = false;
-                        break;
-                    case PlayerActionPacket::ACTION_START_SNEAK:
-                        $user->isSneaking = true;
-                        break;
-                    case PlayerActionPacket::ACTION_STOP_SNEAK:
-                        $user->isSneaking = false;
-                        break;
-                    case PlayerActionPacket::ACTION_START_GLIDE:
-                        $user->player->setGenericFlag(Player::DATA_FLAG_GLIDING, true);
-                        $user->isGliding = true;
-                        break;
-                    case PlayerActionPacket::ACTION_STOP_GLIDE:
-                        $user->player->setGenericFlag(Player::DATA_FLAG_GLIDING, false);
-                        $user->isGliding = false;
-                        break;
-                }
                 break;
             case SetLocalPlayerAsInitializedPacket::NETWORK_ID:
                 $user->loggedIn = true;

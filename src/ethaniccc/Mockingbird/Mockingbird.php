@@ -38,10 +38,12 @@ use ethaniccc\Mockingbird\detections\player\editionfaker\EditionFakerA;
 use ethaniccc\Mockingbird\detections\player\nuker\NukerA;
 use ethaniccc\Mockingbird\detections\PremiumLoader;
 use ethaniccc\Mockingbird\listener\MockingbirdListener;
+use ethaniccc\Mockingbird\packet\PlayerAuthInputPacket;
 use ethaniccc\Mockingbird\tasks\DebugWriteTask;
 use ethaniccc\Mockingbird\threads\CalculationThread;
 use ethaniccc\Mockingbird\user\UserManager;
 use ethaniccc\Mockingbird\utils\MathUtils;
+use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\snooze\SleeperNotifier;
@@ -117,6 +119,8 @@ final class Mockingbird extends PluginBase{
         }), 1);
         @mkdir($this->getDataFolder() . 'packet_logs');
         @mkdir($this->getDataFolder() . 'mouse_recordings');
+       
+        PacketPool::registerPacket(new PlayerAuthInputPacket);
     }
 
     public function getPrefix() : string{
