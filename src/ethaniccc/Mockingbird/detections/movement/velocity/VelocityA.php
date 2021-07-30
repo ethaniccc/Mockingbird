@@ -49,7 +49,7 @@ class VelocityA extends Detection implements CancellableMovement{
                 $collisionAABB->minY = $collisionAABB->maxY;
                 $collisionAABB->maxY += 0.2;
                 $collisionAABB->grow(-0.2, 0, -0.2);
-                if($percentage < 99.9999 && count($user->player->getLevel()->getCollisionBlocks($collisionAABB, true)) === 0 && $user->moveData->liquidTicks >= 10 && $user->moveData->cobwebTicks >= 10
+                if($percentage < 99.99 && count($user->player->getLevel()->getCollisionBlocks($collisionAABB, true)) === 0 && $user->moveData->liquidTicks >= 10 && $user->moveData->cobwebTicks >= 10
                     && $user->moveData->levitationTicks >= 10 && $user->timeSinceTeleport >= 10 && $user->timeSinceStoppedFlight >= 10 && $user->timeSinceStoppedGlide >= 10){
                     if(++$this->preVL >= 5){
                         $roundedPercentage = round($percentage, 3); $roundedBuffer = round($this->preVL, 2);
