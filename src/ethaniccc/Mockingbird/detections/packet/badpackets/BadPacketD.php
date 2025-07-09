@@ -4,6 +4,7 @@ namespace ethaniccc\Mockingbird\detections\packet\badpackets;
 
 use ethaniccc\Mockingbird\detections\NopDetection;
 use ethaniccc\Mockingbird\user\User;
+use pocketmine\item\ItemTypeIds;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
@@ -30,7 +31,7 @@ class BadPacketD extends NopDetection{
 
 			// TODO: Elytra is not implemented within PocketMine-MP.
 			// if($user->isGliding && $user->moveData->offGroundTicks >= 10
-			// 	&& $user->player->getArmorInventory()->getChestplate()->getTypeId() !== ItemTypeIds::ELTRA){
+			// 	&& $user->player->getArmorInventory()->getChestplate()->getTypeId() !== ItemTypeIds::ELYTRA){
 			// 	if(++$this->preVL >= 1.01){
 			// 		$this->fail($user, "glide=true chestplate={$user->player->getArmorInventory()->getChestplate()->getTypeId()}");
 			// 	}
