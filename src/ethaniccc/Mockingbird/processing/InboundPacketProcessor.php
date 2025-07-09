@@ -318,7 +318,7 @@ class InboundPacketProcessor extends Processor{
 				break;
 			case NetworkStackLatencyPacket::NETWORK_ID:
 				/** @var NetworkStackLatencyPacket $packet */
-                $timestamp = $packet->timestamp / ($user->player->getPlayerInfo()->getExtraData()["DeviceOS"] === DeviceOS::PLAYSTATION ? 1000 : 1000 * 1000);
+				$timestamp = $packet->timestamp / ($user->player->getPlayerInfo()->getExtraData()["DeviceOS"] === DeviceOS::PLAYSTATION ? 1000 : 1000 * 1000);
 				if($timestamp === $user->latencyPacket->timestamp){
 					$user->responded = true;
 					$user->transactionLatency = round((microtime(true) - $user->lastSentNetworkLatencyTime) * 1000, 0);
