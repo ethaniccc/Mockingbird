@@ -4,7 +4,6 @@ namespace ethaniccc\Mockingbird\detections\packet\badpackets;
 
 use ethaniccc\Mockingbird\detections\NopDetection;
 use ethaniccc\Mockingbird\user\User;
-use pocketmine\item\ItemTypeIds;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
 
