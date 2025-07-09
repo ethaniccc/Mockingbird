@@ -7,19 +7,17 @@ use ethaniccc\Mockingbird\user\UserManager;
 use pocketmine\scheduler\Task;
 
 class KickTask extends Task{
+	private User $user;
+	private string $message;
 
-    private $user;
-    private $message;
+	public function __construct(User $user, string $message){
+		$this->user = $user;
+		$this->message = $message;
+	}
 
-    public function __construct(User $user, string $message){
-        $this->user = $user;
-        $this->message = $message;
-    }
-
-    public function onRun(int $currentTick){
-        $player = $this->user->player;
-        $player->kick($this->message, false);
-        UserManager::getInstance()->unregister($player);
-    }
-
+	public function onRun() : void{
+		$player = $this->user->player;
+		$player->kick($this->message, false);
+		UserManager::getInstance()->unregister($player);
+	}
 }
