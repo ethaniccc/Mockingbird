@@ -318,7 +318,8 @@ class InboundPacketProcessor extends Processor{
 				break;
 			case NetworkStackLatencyPacket::NETWORK_ID:
 				/** @var NetworkStackLatencyPacket $packet */
-				if($packet->timestamp === $user->latencyPacket->timestamp){
+				$timestamp = $packet->timestamp / ($user->player->getPlayerInfo()->getExtraData()["DeviceOS"] === DeviceOS::PLAYSTATION ? 1000 : 1000 * 1000);
+				if($timestamp === $user->latencyPacket->timestamp){
 					$user->responded = true;
 					$user->transactionLatency = round((microtime(true) - $user->lastSentNetworkLatencyTime) * 1000, 0);
 					if($user->debugChannel === 'latency'){
@@ -329,38 +330,38 @@ class InboundPacketProcessor extends Processor{
 					$user->latencyPacket = $pk; */
 					$user->latencyPacket->timestamp = mt_rand(1, 10000000) * 1000;
 					$user->latencyPacket->encode(PacketSerializer::encoder());
-				}elseif($packet->timestamp === $user->chunkResponsePacket->timestamp){
+				}elseif($timestamp === $user->chunkResponsePacket->timestamp){
 					$user->hasReceivedChunks = true;
 					if($user->debugChannel === 'receive-chunk'){
 						$user->sendMessage('received chunks');
 					}
 					$user->chunkResponsePacket->timestamp = mt_rand(10, 10000000) * 1000;
 					$user->chunkResponsePacket->encode(PacketSerializer::encoder());
-				}elseif(isset($user->outboundProcessor->pendingMotions[$packet->timestamp])){
-					$motion = $user->outboundProcessor->pendingMotions[$packet->timestamp];
+				}elseif(isset($user->outboundProcessor->pendingMotions[$timestamp])){
+					$motion = $user->outboundProcessor->pendingMotions[$timestamp];
 					if($user->debugChannel === 'get-motion'){
-						$user->sendMessage('got ' . $packet->timestamp);
+						$user->sendMessage('got ' . $timestamp);
 					}
 					$user->timeSinceMotion = 0;
 					$user->moveData->lastMotion = $motion;
-					unset($user->outboundProcessor->pendingMotions[$packet->timestamp]);
-				}elseif(isset($user->outboundProcessor->pendingLocations[$packet->timestamp])){
-					$location = $user->outboundProcessor->pendingLocations[$packet->timestamp];
+					unset($user->outboundProcessor->pendingMotions[$timestamp]);
+				}elseif(isset($user->outboundProcessor->pendingLocations[$timestamp])){
+					$location = $user->outboundProcessor->pendingLocations[$timestamp];
 					$user->tickData->targetLocations[$user->tickData->currentTick] = $location;
 					$currentTick = $user->tickData->currentTick;
 					$user->tickData->targetLocations = array_filter($user->tickData->targetLocations, function(int $tick) use ($currentTick) : bool{
 						return $currentTick - $tick <= 4;
 					}, ARRAY_FILTER_USE_KEY);
 					if($user->debugChannel === 'get-location'){
-						$user->sendMessage('got ' . $packet->timestamp);
+						$user->sendMessage('got ' . $timestamp);
 					}
-					unset($user->outboundProcessor->pendingLocations[$packet->timestamp]);
-				}elseif(isset($user->ghostBlocks[$packet->timestamp])){
-					$block = $user->ghostBlocks[$packet->timestamp];
+					unset($user->outboundProcessor->pendingLocations[$timestamp]);
+				}elseif(isset($user->ghostBlocks[$timestamp])){
+					$block = $user->ghostBlocks[$timestamp];
 					if($user->debugChannel === 'ghost-block'){
 						$user->sendMessage('ghost block ' . $block->getTypeId() . ' removed with (x=' . $block->getPosition()->getX() . ' y=' . $block->getPosition()->getY() . ' z=' . $block->getPosition()->getZ() . ')');
 					}
-					unset($user->ghostBlocks[$packet->timestamp]);
+					unset($user->ghostBlocks[$timestamp]);
 				}
 				// $user->testProcessor->process($packet);
 				break;
