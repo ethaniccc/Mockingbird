@@ -28,7 +28,7 @@ class SpeedA extends NopDetection implements CancellableMovement{
 				$currentMoveDelta = $user->moveData->moveDelta;
 				$lastXZ = MathUtils::hypot($lastMoveDelta->x, $lastMoveDelta->z);
 				$currentXZ = MathUtils::hypot($currentMoveDelta->x, $currentMoveDelta->z);
-				$expectedXZ = $lastXZ * 0.91 + ($user->isSprinting ? 0.026 : 0.02);
+				$expectedXZ = $lastXZ * 0.91 + ($user->player->isSprinting() ? 0.026 : 0.02);
 				$equalness = $currentXZ - $expectedXZ;
 				if($equalness > $this->getSetting('max_breach')
 					&& $user->timeSinceStoppedFlight >= 20

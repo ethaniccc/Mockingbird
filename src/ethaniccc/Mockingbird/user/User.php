@@ -64,8 +64,6 @@ class User{
 	public NetworkStackLatencyPacket $latencyPacket;
 	public NetworkStackLatencyPacket $chunkResponsePacket;
 	public bool $isSneaking = false;
-	public bool $isSprinting = false;
-	public bool $isGliding = false;
 	public MoveData $moveData;
 	public ClickData $clickData;
 	public HitData $hitData;

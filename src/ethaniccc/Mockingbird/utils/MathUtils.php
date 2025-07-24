@@ -6,33 +6,21 @@ use ErrorException;
 use pocketmine\math\Vector3;
 
 class MathUtils{
-
 	private static array $SIN_TABLE = [];
-	private static array $SIN_TABLE_FAST = [];
-	// so I don't have to recode everything if I want to switch...
-	private const FAST_MATH = false;
 
 	// welcome to the fuckery of https://github.com/eldariamc/client/blob/c01d23eb05ed83abb4fee00f9bf603b6bc3e2e27/src/main/java/net/minecraft/util/MathHelper.java
 	public static function init() : void{
 		for($i = 0; $i < 65536; $i++){
 			self::$SIN_TABLE[$i] = sin($i * M_PI * 2 / 65536);
 		}
-		for($i = 0; $i < 4096; $i++){
-			self::$SIN_TABLE_FAST[(int)$i] = sin(($i + 0.5) / 4096 * (M_PI * 2));
-		}
-		for($i = 0; $i < 360; $i += 90){
-			self::$SIN_TABLE_FAST[(int)((int)($i * 11.377778) & 4095)] = sin($i * 0.017453292);
-		}
 	}
 
 	public static function sin(float $val) : float{
-		// see self::init()
-		return self::FAST_MATH ? self::$SIN_TABLE_FAST[(int)(($val * 651.8986) & 4095)] : self::$SIN_TABLE[(int)(($val * 10430.378) & 65535)];
+		return self::$SIN_TABLE[(int)($val * 10430.378) & 65535];
 	}
 
 	public static function cos(float $val) : float{
-		// see self::init()
-		return self::FAST_MATH ? self::$SIN_TABLE_FAST[(int)((($val + (M_PI / 2)) * 651.8986) & 4095)] : self::$SIN_TABLE[(int)((($val * 10430.378 + 16384.0) & 65535))];
+		return self::$SIN_TABLE[(int)($val * 10430.378 + 16384.0) & 65535];
 	}
 
 	public static function hypot(float $p1, float $p2) : float{
@@ -59,12 +47,8 @@ class MathUtils{
 	}
 
 	public static function vectorAngle(Vector3 $a, Vector3 $b) : float{
-		try{
-			$dot = $a->dot($b) / ($a->length() * $b->length());
-			return acos($dot);
-		}catch(ErrorException $e){
-			return -1;
-		}
+		$dot = $a->dot($b) / ($a->length() * $b->length());
+		return acos($dot);
 	}
 
 	// see https://github.com/eldariamc/client/blob/c01d23eb05ed83abb4fee00f9bf603b6bc3e2e27/src/main/java/net/minecraft/entity/EntityLivingBase.java#L2129
@@ -77,52 +61,44 @@ class MathUtils{
 	}
 
 	public static function getKurtosis(array $data) : float{
-		try{
-			$sum = array_sum($data);
-			$count = count($data);
+		$sum = array_sum($data);
+		$count = count($data);
 
-			if($count < 3){
-				return 0;
-			}
+		if($count < 3){
+			return 0;
+		}
 
-			$efficiencyFirst = $count * ($count + 1) / (($count - 1) * ($count - 2) * ($count - 3));
-			$efficiencySecond = 3 * pow($count - 1, 2) / (($count - 2) * ($count - 3));
-			$average = $sum / $count;
+		$efficiencyFirst = $count * ($count + 1) / (($count - 1) * ($count - 2) * ($count - 3));
+		$efficiencySecond = 3 * pow($count - 1, 2) / (($count - 2) * ($count - 3));
+		$average = $sum / $count;
 
-			$variance = 0.0;
-			$varianceSquared = 0.0;
+		$variance = 0.0;
+		$varianceSquared = 0.0;
 
-			foreach($data as $number){
-				$variance += pow($average - $number, 2);
-				$varianceSquared += pow($average - $number, 4);
-			}
+		foreach($data as $number){
+			$variance += pow($average - $number, 2);
+			$varianceSquared += pow($average - $number, 4);
+		}
 
-			if($variance === 0.0){
-				return 0.0;
-			}
-
-			return $efficiencyFirst * ($varianceSquared / pow($variance / $sum, 2)) - $efficiencySecond;
-		}catch(ErrorException $e){
+		if($variance === 0.0){
 			return 0.0;
 		}
+
+		return $efficiencyFirst * ($varianceSquared / pow($variance / $sum, 2)) - $efficiencySecond;
 	}
 
 	public static function getSkewness(array $data) : float{
-		try{
-			$sum = array_sum($data);
-			$count = count($data);
+		$sum = array_sum($data);
+		$count = count($data);
 
-			$numbers = $data;
-			sort($numbers);
+		$numbers = $data;
+		sort($numbers);
 
-			$mean = $sum / $count;
-			$median = ($count % 2 !== 0) ? $numbers[$count / 2] : ($numbers[($count - 1) / 2] + $numbers[$count / 2]) / 2;
-			$variance = self::getVariance($data);
+		$mean = $sum / $count;
+		$median = ($count % 2 !== 0) ? $numbers[$count / 2] : ($numbers[($count - 1) / 2] + $numbers[$count / 2]) / 2;
+		$variance = self::getVariance($data);
 
-			return $variance > 0 ? 3 * ($mean - $median) / $variance : 0;
-		}catch(ErrorException $e){
-			return 0.0;
-		}
+		return $variance > 0 ? 3 * ($mean - $median) / $variance : 0;
 	}
 
 	public static function getVariance(array $data) : float{

@@ -118,7 +118,7 @@ class InboundPacketProcessor extends Processor{
 				}else{
 					$user->timeSinceStoppedFlight = 0;
 				}
-				if($user->isGliding || $user->player->isSpectator() || $user->player->hasNoClientPredictions()){
+				if($user->player->isGliding() || $user->player->isSpectator() || $user->player->hasNoClientPredictions()){
 					$user->timeSinceStoppedGlide = 0;
 				}else{
 					++$user->timeSinceStoppedGlide;

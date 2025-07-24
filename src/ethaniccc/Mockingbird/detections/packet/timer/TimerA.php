@@ -17,7 +17,7 @@ use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
  */
 class TimerA extends NopDetection{
 	private ?float $lastTime;
-	private int $balance = 0;
+	private float $balance = 0;
 
 	public function __construct(string $name, ?array $settings){
 		parent::__construct($name, $settings);
@@ -33,25 +33,29 @@ class TimerA extends NopDetection{
 				return;
 			}
 			$currentTime = microtime(true) * 1000;
-			if($this->lastTime === null){
+			if ($this->lastTime === null) {
 				$this->lastTime = $currentTime;
 				return;
 			}
-			// convert the time difference into ticks (round this value to detect lower timer values).
+
 			$timeDiff = round(($currentTime - $this->lastTime) / 50, 2);
-			// there should be a one tick difference between the two packets
-			$this->balance -= 1;
-			// add the time difference between the two packet (this should be near one tick - which evens out the subtraction of one)
-			$this->balance += (int)$timeDiff;
-			// if the balance is too low (the time difference is usually less than one tick)
-			if($this->balance <= -5){
+
+			$this->balance--;
+			$this->balance += $timeDiff;
+
+			if ($this->balance <= -3) {
 				$this->fail($user);
 				$this->balance = 0;
 			}
+
+			if ($this->balance >= 200) {
+				$this->balance = 0;
+			}
+
+			$this->lastTime = $currentTime;
 			if($this->isDebug($user)){
 				$user->sendMessage("balance={$this->balance}");
 			}
-			$this->lastTime = $currentTime;
 		}
 	}
 }
