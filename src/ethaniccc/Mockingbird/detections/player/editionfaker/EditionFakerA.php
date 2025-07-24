@@ -2,7 +2,7 @@
 
 namespace ethaniccc\Mockingbird\detections\player\editionfaker;
 
-use ethaniccc\Mockingbird\detections\Detection;
+use ethaniccc\Mockingbird\detections\NopDetection;
 use ethaniccc\Mockingbird\user\User;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
@@ -13,26 +13,25 @@ use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
  * @package ethaniccc\Mockingbird\detections\player\editionfaker
  * EditionFakerA checks if a Windows 10 user is faking their edition.
  */
-class EditionFakerA extends Detection{
+class EditionFakerA extends NopDetection{
+	private bool $faking = false;
+	private mixed $givenOS;
 
-    private $faking = false;
-    private $givenOS;
-    // private $realOS = ['win10' => '896928775', 'mobile' => '1739947436', 'Nintendo' => '2047319603'];
+	// private $realOS = ['win10' => '896928775', 'mobile' => '1739947436', 'Nintendo' => '2047319603'];
 
-    public function __construct(string $name, ?array $settings){
-        parent::__construct($name, $settings);
-    }
+	public function __construct(string $name, ?array $settings){
+		parent::__construct($name, $settings);
+	}
 
-    public function handleReceive(DataPacket $packet, User $user): void{
-        if($packet instanceof LoginPacket){
-            // finally the reign of using Horion's EditionFaker to fucking bypass some combat checks is finally over
-            if($user->win10 && !$user->isDesktop){
-                $this->faking = true;
-            }
-            $this->givenOS = $packet->clientData["DeviceOS"];
-        } elseif($packet instanceof PlayerAuthInputPacket && $this->faking && $user->loggedIn){
-            $this->fail($user, "givenOS={$this->givenOS} realOS=win10");
-        }
-    }
-
+	public function handleReceive(DataPacket $packet, User $user) : void{
+		if($packet instanceof LoginPacket){
+			// finally the reign of using Horion's EditionFaker to fucking bypass some combat checks is finally over
+			if($user->win10 && !$user->isDesktop){
+				$this->faking = true;
+			}
+			$this->givenOS = $packet->clientData["DeviceOS"];
+		}elseif($packet instanceof PlayerAuthInputPacket && $this->faking && $user->loggedIn){
+			$this->fail($user, "givenOS={$this->givenOS} realOS=win10");
+		}
+	}
 }

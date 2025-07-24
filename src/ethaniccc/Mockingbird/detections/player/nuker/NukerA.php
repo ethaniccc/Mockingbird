@@ -2,7 +2,7 @@
 
 namespace ethaniccc\Mockingbird\detections\player\nuker;
 
-use ethaniccc\Mockingbird\detections\Detection;
+use ethaniccc\Mockingbird\detections\NopDetection;
 use ethaniccc\Mockingbird\user\User;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
@@ -14,28 +14,31 @@ use pocketmine\network\mcpe\protocol\types\inventory\UseItemTransactionData;
  * @package ethaniccc\Mockingbird\detections\player\nuker
  * NukerA checks if the user is breaking too many blocks within a tick.
  */
-class NukerA extends Detection{
+class NukerA extends NopDetection{
+	private int $blocks = 0;
 
-    private $blocks = 0;
+	public function __construct(string $name, ?array $settings){
+		parent::__construct($name, $settings);
+	}
 
-    public function __construct(string $name, ?array $settings){
-        parent::__construct($name, $settings);
-    }
-
-    public function handleReceive(DataPacket $packet, User $user) : void{
-        if($packet instanceof InventoryTransactionPacket && $packet->trData->getTypeId() === InventoryTransactionPacket::TYPE_USE_ITEM && $packet->trData->getActionType() === UseItemTransactionData::ACTION_BREAK_BLOCK){
-            ++$this->blocks;
-        } elseif($packet instanceof PlayerAuthInputPacket){
-            // PlayerAuthInputPacket on top
-            if($this->blocks >= (int) $this->getSetting('max_blocks')){
-                $this->fail($user, "blocks={$this->blocks}");
-            } else {
-                if($this->blocks > 0){
-                    $this->reward($user, 0.05);
-                }
-            }
-            $this->blocks = 0;
-        }
-    }
-
+	public function handleReceive(DataPacket $packet, User $user) : void{
+		if($packet instanceof InventoryTransactionPacket &&
+			$packet->trData instanceof UseItemTransactionData){
+			$trData = $packet->trData;
+			if($trData->getActionType() !== UseItemTransactionData::ACTION_BREAK_BLOCK){
+				return;
+			}
+			++$this->blocks;
+		}elseif($packet instanceof PlayerAuthInputPacket){
+			// PlayerAuthInputPacket on top
+			if($this->blocks >= (int) $this->getSetting('max_blocks')){
+				$this->fail($user, "blocks={$this->blocks}");
+			}else{
+				if($this->blocks > 0){
+					$this->reward($user, 0.05);
+				}
+			}
+			$this->blocks = 0;
+		}
+	}
 }

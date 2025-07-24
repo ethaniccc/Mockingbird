@@ -6,33 +6,32 @@ use pocketmine\scheduler\AsyncTask;
 
 class DebugWriteTask extends AsyncTask{
 
-    private $data = '';
-    private $debugPath;
-    private $shouldOverwrite = false;
+	private string $data = '';
+	private string $debugPath;
+	private bool $shouldOverwrite = false;
 
-    public function __construct(string $debugPath){
-        $this->debugPath = $debugPath;
-    }
+	public function __construct(string $debugPath){
+		$this->debugPath = $debugPath;
+	}
 
-    public function addData(string $data) : void{
-        $this->data .= $data . PHP_EOL;
-    }
+	public function addData(string $data) : void{
+		$this->data .= $data . PHP_EOL;
+	}
 
-    public function setShouldOverwrite(bool $val = true) : void{
-        $this->shouldOverwrite = $val;
-    }
+	public function setShouldOverwrite(bool $val = true) : void{
+		$this->shouldOverwrite = $val;
+	}
 
-    public function onRun(){
-        if($this->data !== ''){
-            if($this->shouldOverwrite){
-                @file_put_contents($this->debugPath, $this->data);
-            } else {
-                $log = @fopen($this->debugPath, 'a');
-                @fwrite($log, $this->data);
-                @fclose($log);
-                $this->data = '';
-            }
-        }
-    }
-
+	public function onRun() : void{
+		if($this->data !== ''){
+			if($this->shouldOverwrite){
+				@file_put_contents($this->debugPath, $this->data);
+			}else{
+				$log = @fopen($this->debugPath, 'a');
+				@fwrite($log, $this->data);
+				@fclose($log);
+				$this->data = '';
+			}
+		}
+	}
 }

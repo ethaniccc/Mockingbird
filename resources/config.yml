@@ -1,3 +1,4 @@
+---
 #   __  __            _    _             _     _         _
 #  |  \/  |          | |  (_)           | |   (_)       | |
 #  | \  / | ___   ___| | ___ _ __   __ _| |__  _ _ __ __| |
@@ -11,7 +12,7 @@
 # Go forth and destroy those pesky hackers!
 
 # PLEASE DO NOT CHANGE THIS #
-version: 2.5.1
+version: 2.6.0
 
 prefix: "§l§7[§cMocking§4bird§7]"
 # {tag} => explanation of tag
@@ -40,7 +41,7 @@ alerts_default: true
 # by someone cheating in the chat.
 default_alert_delay: 2
 # When this option is enabled, every time Mockingbird is disabled, it will upload the debug log into a server so I can read for potential falses.
-upload_debug: true
+upload_debug: false
 
 #   _____                 _           _
 #  /  __ \               | |         | |
@@ -295,3 +296,4 @@ TimerB:
   punish: false
   punishment_type: kick
   max_violations: 20
+...
