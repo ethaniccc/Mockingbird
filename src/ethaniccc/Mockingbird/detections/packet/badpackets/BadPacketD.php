@@ -28,15 +28,14 @@ class BadPacketD extends NopDetection{
 			// the player is gliding without anything to glide with along with being off ground - invalid.
 			// TODO: While testing ONCE, this check false flagged - make some hack to fix (fml).
 
-			// TODO: Elytra is not implemented within PocketMine-MP.
-			// if($user->isGliding && $user->moveData->offGroundTicks >= 10
-			// 	&& $user->player->getArmorInventory()->getChestplate()->getTypeId() !== ItemTypeIds::ELYTRA){
-			// 	if(++$this->preVL >= 1.01){
-			// 		$this->fail($user, "glide=true chestplate={$user->player->getArmorInventory()->getChestplate()->getTypeId()}");
-			// 	}
-			// }else{
-			// 	$this->preVL = max($this->preVL - 0.05, 0);
-			// }
+			if($user->player->isGliding() && $user->moveData->offGroundTicks >= 10
+				&& $user->player->getArmorInventory()->getChestplate()->getVanillaName() !== "Elytra"){
+				if(++$this->preVL >= 1.01){
+					$this->fail($user, "glide=true chestplate={$user->player->getArmorInventory()->getChestplate()->getVanillaName()}");
+				}
+			}else{
+				$this->preVL = max($this->preVL - 0.05, 0);
+			}
 		}
 	}
 }

@@ -17,7 +17,7 @@ use pocketmine\utils\TextFormat;
 abstract class Detection{
 
 	public mixed $maxVL;
-	public int $preVL = 0;
+	public float $preVL = 0;
 	public mixed $alerts;
 	public mixed $suppression;
 	public mixed $punishType;
