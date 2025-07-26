@@ -6,6 +6,7 @@ use ethaniccc\Mockingbird\detections\NopDetection;
 use ethaniccc\Mockingbird\user\User;
 use ethaniccc\Mockingbird\utils\boundingbox\AABB;
 use ethaniccc\Mockingbird\utils\EvictingList;
+use pocketmine\entity\effect\VanillaEffects;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
@@ -17,11 +18,20 @@ use pocketmine\utils\TextFormat;
  * @package ethaniccc\Mockingbird\detections\combat\reach
  * ReachA uses locations the client has received of the entity and
  * creates bounding boxes from those locations. With those bounding boxes, we get the distance from the user's
- * current eye pos and last eye pos to the bounding boc [@see AABB::distanceFromVector()] and store that in a list, then gets the minimum distance in the list.
+ * current eye pos and last eye pos to the bounding box [@see AABB::distanceFromVector()] and store that in a list, then gets the minimum distance in the list.
  * If the distance exceeds a threshold and the buffer exceeds a level, flag.
  */
+
 class ReachA extends NopDetection{
 	private bool $awaitingMove = false;
+	
+	private const BASE_THRESHOLD = 3.075;
+	private const SPEED_MULTIPLIERS = [
+		0 => 1.0,
+		1 => 1.05,
+		2 => 1.12,
+		3 => 1.20
+	];
 
 	public function __construct(string $name, ?array $settings){
 		parent::__construct($name, $settings);
@@ -43,17 +53,35 @@ class ReachA extends NopDetection{
 			}
 			$distance = $list->minOrElse(-1.0);
 			if($distance !== -1.0){
-				if($distance >= 3.075){
+				$speedLevel = 0;
+				$speedEffect = $user->player->getEffects()->get(VanillaEffects::SPEED());
+				if($speedEffect !== null){
+					$speedLevel = min($speedEffect->getAmplifier() + 1, 3);
+				}
+				
+				$dynamicThreshold = self::BASE_THRESHOLD * (self::SPEED_MULTIPLIERS[$speedLevel] ?? 1.0);
+				
+				if($speedLevel >= 2){
+					$dynamicThreshold += 0.05 * ($speedLevel - 1);
+				}
+				
+				if($distance >= $dynamicThreshold){
 					if(++$this->preVL >= 4){
 						$roundedDist = round($distance, 2);
-						$this->fail($user, 'dist=' . $distance . ' buff=' . $this->preVL, 'dist=' . $roundedDist);
+						$this->fail($user, 
+							'dist=' . $distance . ' buff=' . $this->preVL . ' speed=' . $speedLevel, 
+							'dist=' . $roundedDist . ' speed=' . $speedLevel
+						);
 						$this->preVL = min($this->preVL, 5);
 					}
 				}else{
-					$this->preVL = max($this->preVL - 0.025, 0);
+					$reduction = $speedLevel > 0 ? 0.035 : 0.025;
+					$this->preVL = max($this->preVL - $reduction, 0);
 				}
+				
 				if($this->isDebug($user)){
-					$user->sendMessage($distance > 3.05 ? TextFormat::RED . 'dist=' . $distance . ' buff=' . $this->preVL : 'dist=' . $distance . ' buff=' . $this->preVL);
+					$color = $distance > $dynamicThreshold ? TextFormat::RED : TextFormat::WHITE;
+					$user->sendMessage($color . 'dist=' . round($distance, 3) . ' buff=' . $this->preVL . ' threshold=' . round($dynamicThreshold, 3) . ' speed=' . $speedLevel);
 				}
 			}
 			$this->awaitingMove = false;
