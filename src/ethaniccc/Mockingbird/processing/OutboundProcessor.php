@@ -36,9 +36,9 @@ class OutboundProcessor extends Processor{
 			case SetActorMotionPacket::NETWORK_ID:
 				/** @var SetActorMotionPacket $packet */
 				if($packet->actorRuntimeId === $user->player->getId()){
-                    $nsl = new NetworkStackLatencyPacket();
-                    $nsl->timestamp = ($timestamp = mt_rand(10, 10000000) * 1000);
-                    $nsl->needResponse = true;
+					$nsl = new NetworkStackLatencyPacket();
+					$nsl->timestamp = ($timestamp = mt_rand(10, 10000000) * 1000);
+					$nsl->needResponse = true;
 					$user->player->getNetworkSession()->sendDataPacket($nsl);
 					$this->pendingMotions[$timestamp] = $packet->motion;
 					if($user->debugChannel === 'get-motion'){
@@ -55,9 +55,9 @@ class OutboundProcessor extends Processor{
 				/** @var MovePlayerPacket|MoveActorAbsolutePacket $packet */
 				if($user->hitData->targetEntity !== null && $packet->actorRuntimeId === $user->hitData->targetEntity->getId()){
 					$location = $packet->pid() === MovePlayerPacket::NETWORK_ID ? $packet->position->subtract(0, 1.62, 0) : $packet->position;
-                    $nsl = new NetworkStackLatencyPacket();
-                    $nsl->timestamp = ($timestamp = mt_rand(10, 10000000) * 1000);
-                    $nsl->needResponse = true;
+					$nsl = new NetworkStackLatencyPacket();
+					$nsl->timestamp = ($timestamp = mt_rand(10, 10000000) * 1000);
+					$nsl->needResponse = true;
 					$user->player->getNetworkSession()->sendDataPacket($nsl);
 					$this->pendingLocations[$timestamp] = $location;
 					if($user->debugChannel === 'get-location'){
@@ -85,8 +85,8 @@ class OutboundProcessor extends Processor{
 					foreach($user->placedBlocks as $search => $block){
 						if($block->getPosition()->subtractVector($pos)->lengthSquared() === 0.0){
 							$nsl = new NetworkStackLatencyPacket();
-                            $nsl->timestamp = mt_rand(10, 10000000) * 1000;
-                            $nsl->needResponse = true;
+							$nsl->timestamp = mt_rand(10, 10000000) * 1000;
+							$nsl->needResponse = true;
 							$user->player->getNetworkSession()->sendDataPacket($nsl);
 							$user->ghostBlocks[$nsl->timestamp] = $block;
 							if($user->debugChannel === 'ghost-block'){
