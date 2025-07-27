@@ -285,27 +285,25 @@ class InboundPacketProcessor extends Processor{
 				break;
 			case InventoryTransactionPacket::NETWORK_ID:
 				/** @var InventoryTransactionPacket $packet */
-				switch($packet->trData->getTypeId()){
-					case InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY:
-						switch($packet->trData->getActionType()){
-							case UseItemOnEntityTransactionData::ACTION_ATTACK:
-								$user->hitData->attackPos = $packet->trData->getPlayerPos();
-								$user->hitData->lastTargetEntity = $user->hitData->targetEntity;
-								$user->hitData->targetEntity = $user->player->getWorld()->getEntity($packet->trData->getEntityRuntimeId());
-								$user->hitData->inCooldown = Server::getInstance()->getTick() - $user->hitData->lastTick < 10;
-								if(!$user->hitData->inCooldown){
-									$user->timeSinceAttack = 0;
-									$user->hitData->lastTick = Server::getInstance()->getTick();
-								}
-								if($user->hitData->targetEntity !== $user->hitData->lastTargetEntity){
-									$user->tickData->targetLocations = [];
-									$user->outboundProcessor->pendingLocations = [];
-								}
-								break;
-						}
-						$this->handleClick($user);
-						break;
-				}
+                $trData = $packet->trData;
+				if ($trData->getTypeId() == InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) {
+                    if ($trData->getActionType() == UseItemOnEntityTransactionData::ACTION_ATTACK) {
+                        /** @var UseItemOnEntityTransactionData $trData */
+                        $user->hitData->attackPos = $trData->getPlayerPosition();
+                        $user->hitData->lastTargetEntity = $user->hitData->targetEntity;
+                        $user->hitData->targetEntity = $user->player->getWorld()->getEntity($trData->getActorRuntimeId());
+                        $user->hitData->inCooldown = Server::getInstance()->getTick() - $user->hitData->lastTick < 10;
+                        if (!$user->hitData->inCooldown) {
+                            $user->timeSinceAttack = 0;
+                            $user->hitData->lastTick = Server::getInstance()->getTick();
+                        }
+                        if ($user->hitData->targetEntity !== $user->hitData->lastTargetEntity) {
+                            $user->tickData->targetLocations = [];
+                            $user->outboundProcessor->pendingLocations = [];
+                        }
+                    }
+                    $this->handleClick($user);
+                }
 				// $user->testProcessor->process($packet);
 				break;
 			case LevelSoundEventPacket::NETWORK_ID:
