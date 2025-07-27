@@ -41,7 +41,7 @@ class VelocityA extends NopDetection implements CancellableMovement{
 				$collisionAABB = clone $user->moveData->AABB;
 				$collisionAABB->minY = $collisionAABB->maxY;
 				$collisionAABB->maxY += 0.2;
-				$collisionAABB->grow(-0.2, 0, -0.2);
+				$collisionAABB->grow(-0.2, 0.2, -0.2);
 				$pmmpAABB = AABB::toPMMPAABB($collisionAABB);
 				if($percentage < 99.99 && count($user->player->getWorld()->getCollisionBlocks($pmmpAABB, true)) === 0 && $user->moveData->liquidTicks >= 10 && $user->moveData->cobwebTicks >= 10
 					&& $user->moveData->levitationTicks >= 10 && $user->timeSinceTeleport >= 10 && $user->timeSinceStoppedFlight >= 10 && $user->timeSinceStoppedGlide >= 10){

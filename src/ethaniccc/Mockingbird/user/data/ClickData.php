@@ -9,7 +9,6 @@ class ClickData{
 	public EvictingList $timeSamples;
 	public EvictingList $tickSamples;
 	public int $tickSpeed = 0;
-	public int $timeSpeed = 0;
 	public int $cps = 0;
 
 	public function __construct(){
