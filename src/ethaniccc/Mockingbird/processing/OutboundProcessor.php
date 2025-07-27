@@ -36,10 +36,10 @@ class OutboundProcessor extends Processor{
 			case SetActorMotionPacket::NETWORK_ID:
 				/** @var SetActorMotionPacket $packet */
 				if($packet->actorRuntimeId === $user->player->getId()){
-					$packet = new NetworkStackLatencyPacket();
-					$packet->timestamp = ($timestamp = mt_rand(10, 10000000) * 1000);
-					$packet->needResponse = true;
-					$user->player->getNetworkSession()->sendDataPacket($packet);
+					$nsl = new NetworkStackLatencyPacket();
+					$nsl->timestamp = ($timestamp = mt_rand(10, 10000000) * 1000);
+					$nsl->needResponse = true;
+					$user->player->getNetworkSession()->sendDataPacket($nsl);
 					$this->pendingMotions[$timestamp] = $packet->motion;
 					if($user->debugChannel === 'get-motion'){
 						$user->sendMessage('sent ' . $timestamp . ' with motion ' . $packet->motion);
@@ -55,10 +55,10 @@ class OutboundProcessor extends Processor{
 				/** @var MovePlayerPacket|MoveActorAbsolutePacket $packet */
 				if($user->hitData->targetEntity !== null && $packet->actorRuntimeId === $user->hitData->targetEntity->getId()){
 					$location = $packet->pid() === MovePlayerPacket::NETWORK_ID ? $packet->position->subtract(0, 1.62, 0) : $packet->position;
-					$packet = new NetworkStackLatencyPacket();
-					$packet->timestamp = ($timestamp = mt_rand(10, 10000000) * 1000);
-					$packet->needResponse = true;
-					$user->player->getNetworkSession()->sendDataPacket($packet);
+					$nsl = new NetworkStackLatencyPacket();
+					$nsl->timestamp = ($timestamp = mt_rand(10, 10000000) * 1000);
+					$nsl->needResponse = true;
+					$user->player->getNetworkSession()->sendDataPacket($nsl);
 					$this->pendingLocations[$timestamp] = $location;
 					if($user->debugChannel === 'get-location'){
 						$user->sendMessage('sent ' . $timestamp . ' with position ' . $location);
@@ -84,11 +84,11 @@ class OutboundProcessor extends Processor{
 				if($packet->blockRuntimeId === $blockTranslator->internalIdToNetworkId(VanillaBlocks::AIR()->getStateId()) && $found){
 					foreach($user->placedBlocks as $search => $block){
 						if($block->getPosition()->subtractVector($pos)->lengthSquared() === 0.0){
-							$packet = new NetworkStackLatencyPacket();
-							$packet->timestamp = mt_rand(10, 10000000) * 1000;
-							$packet->needResponse = true;
-							$user->player->getNetworkSession()->sendDataPacket($packet);
-							$user->ghostBlocks[$packet->timestamp] = $block;
+							$nsl = new NetworkStackLatencyPacket();
+							$nsl->timestamp = mt_rand(10, 10000000) * 1000;
+							$nsl->needResponse = true;
+							$user->player->getNetworkSession()->sendDataPacket($nsl);
+							$user->ghostBlocks[$nsl->timestamp] = $block;
 							if($user->debugChannel === 'ghost-block'){
 								$user->sendMessage('ghost block ' . $block->getTypeId() . ' client-side with (x=' . $block->getPosition()->getX() . ' y=' . $block->getPosition()->getY() . ' z=' . $block->getPosition()->getZ() . ')');
 							}
