@@ -285,35 +285,30 @@ class InboundPacketProcessor extends Processor{
 				break;
 			case InventoryTransactionPacket::NETWORK_ID:
 				/** @var InventoryTransactionPacket $packet */
-				switch($packet->trData->getTypeId()){
-					case InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY:
-						switch($packet->trData->getActionType()){
-							case UseItemOnEntityTransactionData::ACTION_ATTACK:
-								$user->hitData->attackPos = $packet->trData->getPlayerPos();
-								$user->hitData->lastTargetEntity = $user->hitData->targetEntity;
-								$user->hitData->targetEntity = $user->player->getWorld()->getEntity($packet->trData->getEntityRuntimeId());
-								$user->hitData->inCooldown = Server::getInstance()->getTick() - $user->hitData->lastTick < 10;
-								if(!$user->hitData->inCooldown){
-									$user->timeSinceAttack = 0;
-									$user->hitData->lastTick = Server::getInstance()->getTick();
-								}
-								if($user->hitData->targetEntity !== $user->hitData->lastTargetEntity){
-									$user->tickData->targetLocations = [];
-									$user->outboundProcessor->pendingLocations = [];
-								}
-								break;
+				$trData = $packet->trData;
+				if ($trData instanceof UseItemOnEntityTransactionData) {
+					if ($trData->getActionType() == UseItemOnEntityTransactionData::ACTION_ATTACK) {
+						$user->hitData->attackPos = $trData->getPlayerPosition();
+						$user->hitData->lastTargetEntity = $user->hitData->targetEntity;
+						$user->hitData->targetEntity = $user->player->getWorld()->getEntity($trData->getActorRuntimeId());
+						$user->hitData->inCooldown = Server::getInstance()->getTick() - $user->hitData->lastTick < 10;
+						if (!$user->hitData->inCooldown) {
+							$user->timeSinceAttack = 0;
+							$user->hitData->lastTick = Server::getInstance()->getTick();
 						}
-						$this->handleClick($user);
-						break;
+						if ($user->hitData->targetEntity !== $user->hitData->lastTargetEntity) {
+							$user->tickData->targetLocations = [];
+							$user->outboundProcessor->pendingLocations = [];
+						}
+					}
+					$this->handleClick($user);
 				}
 				// $user->testProcessor->process($packet);
 				break;
 			case LevelSoundEventPacket::NETWORK_ID:
 				/** @var LevelSoundEventPacket $packet */
-				switch($packet->sound){
-					case LevelSoundEvent::ATTACK_NODAMAGE:
-						$this->handleClick($user);
-						break;
+				if ($packet->sound == LevelSoundEvent::ATTACK_NODAMAGE) {
+					$this->handleClick($user);
 				}
 				break;
 			case NetworkStackLatencyPacket::NETWORK_ID:
@@ -365,18 +360,20 @@ class InboundPacketProcessor extends Processor{
 				}
 				// $user->testProcessor->process($packet);
 				break;
-			case LoginPacket::NETWORK_ID:
-				/** @var LoginPacket $packet */
-				$user->isDesktop = !in_array($packet->clientData["DeviceOS"], [DeviceOS::AMAZON, DeviceOS::ANDROID, DeviceOS::IOS]);
-				try{
-					$data = $packet->chainData;
-					$parts = explode(".", $data['chain'][2]);
-					$jwt = json_decode(base64_decode($parts[1]), true);
-					$id = $jwt['extraData']['titleId'];
-					$user->win10 = ($id === "896928775");
-				}catch(Exception $e){
-				}
-				break;
+			// Due to the way PM handles stages now, this will never be called.
+			// Jack what the fuck
+			//case LoginPacket::NETWORK_ID:
+			//	/** @var LoginPacket $packet */
+			//	$user->isDesktop = !in_array($packet->clientData["DeviceOS"], [DeviceOS::AMAZON, DeviceOS::ANDROID, DeviceOS::IOS]);
+			//	try{
+			//		$data = $packet->chainData;
+			//		$parts = explode(".", $data['chain'][2]);
+			//		$jwt = json_decode(base64_decode($parts[1]), true);
+			//		$id = $jwt['extraData']['titleId'];
+			//		$user->win10 = ($id === "896928775");
+			//	}catch(Exception $e){
+			//	}
+			//	break;
 			case SetLocalPlayerAsInitializedPacket::NETWORK_ID:
 				$user->loggedIn = true;
 				if($user->player->hasPermission('mockingbird.alerts') && Mockingbird::getInstance()->getConfig()->get('alerts_default')){
@@ -401,7 +398,6 @@ class InboundPacketProcessor extends Processor{
 		});
 		$user->clickData->cps = count($this->clicks);
 		$clickTime = microtime(true) - $this->lastTime;
-		$user->clickData->timeSpeed = $clickTime;
 		$this->lastTime = microtime(true);
 		$user->clickData->tickSpeed = $this->tickSpeed;
 		if($user->clickData->tickSpeed <= 4){
