@@ -17,6 +17,7 @@ use ethaniccc\Mockingbird\detections\combat\hitbox\HitboxA;
 use ethaniccc\Mockingbird\detections\combat\killaura\KillAuraA;
 use ethaniccc\Mockingbird\detections\combat\killaura\KillAuraB;
 use ethaniccc\Mockingbird\detections\combat\reach\ReachA;
+use ethaniccc\Mockingbird\detections\combat\reach\ReachB;
 use ethaniccc\Mockingbird\detections\Detection;
 use ethaniccc\Mockingbird\detections\movement\fly\FlyA;
 use ethaniccc\Mockingbird\detections\movement\fly\FlyB;
@@ -136,6 +137,7 @@ final class Mockingbird extends PluginBase{
 			new KillAuraB('KillAuraB', $this->getConfig()->get('KillAuraB', null)),
 
 			new ReachA('ReachA', $this->getConfig()->get('ReachA', null)),
+			new ReachB('ReachB', $this->getConfig()->get('ReachB', null)),
 
 			new FlyA('FlyA', $this->getConfig()->get('FlyA', null)),
 			new FlyB('FlyB', $this->getConfig()->get('FlyB', null)),
