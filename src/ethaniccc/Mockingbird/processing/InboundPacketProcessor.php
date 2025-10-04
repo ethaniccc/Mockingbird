@@ -26,7 +26,7 @@ use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
-use pocketmine\network\mcpe\protocol\serializer\PacketSerializer;
+use pmmp\encoding\ByteBufferWriter;
 use pocketmine\network\mcpe\protocol\SetLocalPlayerAsInitializedPacket;
 use pocketmine\network\mcpe\protocol\types\DeviceOS;
 use pocketmine\network\mcpe\protocol\types\inventory\UseItemOnEntityTransactionData;
@@ -324,14 +324,14 @@ class InboundPacketProcessor extends Processor{
 					$pk->needResponse = true; $pk->timestamp = mt_rand(100000, 10000000) * 1000;
 					$user->latencyPacket = $pk; */
 					$user->latencyPacket->timestamp = mt_rand(1, 10000000) * 1000;
-					$user->latencyPacket->encode(PacketSerializer::encoder());
+					$user->latencyPacket->encode(new ByteBufferWriter());
 				}elseif($timestamp === $user->chunkResponsePacket->timestamp){
 					$user->hasReceivedChunks = true;
 					if($user->debugChannel === 'receive-chunk'){
 						$user->sendMessage('received chunks');
 					}
 					$user->chunkResponsePacket->timestamp = mt_rand(10, 10000000) * 1000;
-					$user->chunkResponsePacket->encode(PacketSerializer::encoder());
+					$user->chunkResponsePacket->encode(new ByteBufferWriter());
 				}elseif(isset($user->outboundProcessor->pendingMotions[$timestamp])){
 					$motion = $user->outboundProcessor->pendingMotions[$timestamp];
 					if($user->debugChannel === 'get-motion'){
