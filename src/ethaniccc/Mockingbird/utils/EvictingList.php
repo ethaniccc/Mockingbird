@@ -57,9 +57,28 @@ class EvictingList{
 		return count($this->array) > 0 ? max($this->array) : $fallback;
 	}
 
+<<<<<<< HEAD
 	public function duplicates(int $sort = SORT_STRING) : int{
 		return count($this->array) - count(array_unique($this->array, $sort));
 	}
+=======
+    public function duplicates(int $sort = SORT_STRING) : int{
+        return count($this->array) - count(array_unique($this->array, $sort));
+    }
+
+    public function shift(){
+        return array_shift($this->array);
+    }
+
+    public function reverse(bool $referenced = false) : EvictingList{
+        if($referenced){
+            $this->array = array_reverse($this->array);
+            return $this;
+        } else {
+            return self::fromArray(array_reverse($this->array));
+        }
+    }
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65
 
 	public function reverse(bool $referenced = false) : EvictingList{
 		if($referenced){

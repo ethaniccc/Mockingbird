@@ -9,6 +9,7 @@ use pocketmine\Server;
 
 class MouseRecorder extends AsyncTask{
 
+<<<<<<< HEAD
 	public bool $isRunning;
 
 	private int $width;
@@ -33,6 +34,19 @@ class MouseRecorder extends AsyncTask{
 		$this->origin = new Pair($this->width, $this->height);
 		$this->isRunning = false;
 	}
+=======
+    public $isRunning;
+    private $maxTicks;
+    private $runTicks = 0;
+    private $rotations = [];
+    private static $adminStorage = [];
+
+    public function __construct(User $admin, int $seconds){
+        self::$adminStorage[spl_object_hash($this)] = $admin;
+        $this->maxTicks = $seconds * 20;
+        $this->isRunning = false;
+    }
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65
 
 	public function start() : void{
 		$this->isRunning = true;
@@ -43,6 +57,7 @@ class MouseRecorder extends AsyncTask{
 		++$this->runTicks;
 	}
 
+<<<<<<< HEAD
 	public function handleClick() : void{
 		$this->clicks[] = ($var = count($this->rotations) - 1) > 0 ? $var : 0;
 	}
@@ -50,6 +65,11 @@ class MouseRecorder extends AsyncTask{
 	public function getPercentage() : float{
 		return ($this->runTicks / $this->maxTicks) * 100;
 	}
+=======
+    public function getPercentage() : float{
+        return ($this->runTicks / $this->maxTicks) * 100;
+    }
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65
 
 	public function isFinished() : bool{
 		return $this->runTicks >= $this->maxTicks;
@@ -65,6 +85,7 @@ class MouseRecorder extends AsyncTask{
 		return $this->isRunning ? self::$adminStorage[spl_object_hash($this)] : null;
 	}
 
+<<<<<<< HEAD
 	public function onRun() : void{
 		$image = imagecreate($this->width, $this->height);
 		$backgroundColor = imagecolorallocate($image, 0, 0, 0);
@@ -101,6 +122,36 @@ class MouseRecorder extends AsyncTask{
 			}
 		}
 	}
+=======
+    public function onRun(){
+        $values = [];
+        foreach((array)$this->rotations as $pair){
+            /** @var Pair $pair */
+            $values[] = [$pair->getX(), $pair->getY()];
+        }
+        $options = array(
+            'ssl' => array(
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+            ),
+            'http' => array(
+                'http' => "Content-type: application/x-www-form-urlencoded\r\n",
+                'method' => 'POST',
+                'content' => http_build_query(['data' => serialize($values)])
+            )
+        );
+        $response = @file_get_contents("https://mb-debug-logs.000webhostapp.com/create_graph.php", false, stream_context_create($options));
+        $this->setResult($response);
+    }
+
+    public function onCompletion(Server $server){
+        [$u, $admin] = $this->fetchLocal();
+        $result = $this->getResult();
+        $admin->sendMessage($result);
+        // kermit
+        $u->mouseRecorder = null;
+    }
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65
 
 	public function onCompletion() : void{
 		[$u, $admin] = $this->fetchLocal("data");

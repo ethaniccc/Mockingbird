@@ -60,9 +60,25 @@ class MathUtils{
 		return new Vector3($var3 * $var4, $var5, $var2 * $var4);
 	}
 
+<<<<<<< HEAD
 	public static function getKurtosis(array $data) : float{
 		$sum = array_sum($data);
 		$count = count($data);
+=======
+    // see https://github.com/eldariamc/client/blob/c01d23eb05ed83abb4fee00f9bf603b6bc3e2e27/src/main/java/net/minecraft/entity/EntityLivingBase.java#L2129
+    public static function directionVectorFromValues(float $yaw, float $pitch) : Vector3{
+        $var2 = cos(-$yaw * 0.017453292 - M_PI);
+        $var3 = sin(-$yaw * 0.017453292 - M_PI);
+        $var4 = -(cos(-$pitch * 0.017453292));
+        $var5 = sin(-$pitch * 0.017453292);
+        return new Vector3($var3 * $var4, $var5, $var2 * $var4);
+        /* $y = -sin(deg2rad($pitch));
+        $xz = cos(deg2rad($pitch));
+        $x = -$xz * sin(deg2rad($yaw));
+        $z = $xz * cos(deg2rad($yaw));
+        return (new Vector3($x, $y, $z))->normalize(); */
+    }
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65
 
 		if($count < 3){
 			return 0;
@@ -116,9 +132,15 @@ class MathUtils{
 		$q1 = self::getMedian(array_splice($collection, 0, (int) ceil(count($collection) / 2)));
 		$q3 = self::getMedian(array_splice($collection, (int) ceil(count($collection) / 2), count($collection)));
 
+<<<<<<< HEAD
 		$iqr = abs($q1 - $q3);
 		$lowThreshold = $q1 - 1.5 * $iqr;
 		$highThreshold = $q3 + 1.5 * $iqr;
+=======
+    public static function getOutliers(array $collection) : float{
+        $q1 = self::getMedian(array_splice($collection, 0, (int) ceil(count($collection) / 2)));
+        $q3 = self::getMedian(array_splice($collection, (int) ceil(count($collection) / 2), count($collection)));
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65
 
 		$x = [];
 		$y = [];
@@ -134,6 +156,7 @@ class MathUtils{
 		return new Pair($x, $y);
 	}
 
+<<<<<<< HEAD
 	public static function getMedian(array $data) : float{
 		if(count($data) % 2 === 0){
 			return ($data[count($data) / 2] + $data[count($data) / 2 - 1]) / 2;
@@ -141,6 +164,10 @@ class MathUtils{
 			return $data[count($data) / 2];
 		}
 	}
+=======
+        return count($x) + count($y);
+    }
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65
 
 	public static function getGCD(float $a, float $b) : float{
 		if($a < $b){

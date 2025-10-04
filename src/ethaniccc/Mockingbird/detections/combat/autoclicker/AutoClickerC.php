@@ -20,12 +20,50 @@ use pocketmine\network\mcpe\protocol\types\LevelSoundEvent;
 class AutoClickerC extends NopDetection{
 	private int $clicks = 0;
 
+<<<<<<< HEAD
 	public function __construct(string $name, ?array $settings){
 		parent::__construct($name, $settings);
 		$this->vlSecondCount = 45;
 		$this->lowMax = 2;
 		$this->mediumMax = 4;
 	}
+=======
+    private $clicks = 0;
+
+    public function __construct(string $name, ?array $settings){
+        parent::__construct($name, $settings);
+        $this->vlSecondCount = 45;
+        $this->lowMax = 2;
+        $this->mediumMax = 4;
+    }
+
+    public function handleReceive(DataPacket $packet, User $user): void{
+        if(($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) || ($packet instanceof LevelSoundEventPacket && $packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE)){
+            if($user->clickData->tickSpeed <= 4){
+                if(++$this->clicks >= $this->getSetting('samples')){
+                    $samples = $user->clickData->getTickSamples($this->getSetting('samples'));
+                    $kurtosis = MathUtils::getKurtosis($samples); $skewness = MathUtils::getSkewness($samples);
+                    $outliers = MathUtils::getOutliers($samples);
+                    if($user->clickData->cps >= 10 && $kurtosis <= $this->getSetting('kurtosis') && $skewness <= $this->getSetting('skewness') && $outliers <= $this->getSetting('outliers')){
+                        if(++$this->preVL >= 1.2){
+                            $this->fail($user, "kurtosis=$kurtosis skewness=$skewness outliers=$outliers cps={$user->clickData->cps}", "cps={$user->clickData->cps}");
+                        }
+                    } elseif($kurtosis === 0.0 && $skewness === 0.0 && $outliers === 0.0){
+                        // impossible consistency
+                        $this->fail($user, "kurtosis, skewness, outliers=0 cps={$user->clickData->cps}", "cps={$user->clickData->cps}");
+                    } else {
+                        $this->preVL = max($this->preVL - 0.2, 0);
+                        $this->reward($user, 0.2);
+                    }
+                    if($this->isDebug($user)){
+                        $user->sendMessage("kurtosis=$kurtosis skewness=$skewness outliers=$outliers cps={$user->clickData->cps} buff={$this->preVL}");
+                    }
+                    $this->clicks = 0;
+                }
+            }
+        }
+    }
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65
 
 	public function handleReceive(DataPacket $packet, User $user) : void{
 		if(($packet instanceof InventoryTransactionPacket && $packet->trData->getTypeId() === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) || ($packet instanceof LevelSoundEventPacket && $packet->sound === LevelSoundEvent::ATTACK_NODAMAGE)){

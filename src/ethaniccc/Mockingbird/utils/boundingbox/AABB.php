@@ -13,6 +13,7 @@ class AABB{
 	public float $maxX, $maxY, $maxZ;
 	public Vector3 $minVector, $maxVector;
 
+<<<<<<< HEAD
 	public function __construct(float $minX, $minY, float $minZ, float $maxX, float $maxY, float $maxZ){
 		$this->minX = $minX;
 		$this->minY = $minY;
@@ -23,6 +24,22 @@ class AABB{
 		$this->minVector = new Vector3($this->minX, $this->minY, $this->minZ);
 		$this->maxVector = new Vector3($this->maxX, $this->maxY, $this->maxZ);
 	}
+=======
+    public const NO_INTERSECTION = -69.0;
+
+    public function __construct(float $minX, $minY, float $minZ, float $maxX, float $maxY, float $maxZ) {
+        // TODO: Why is minY sometimes zero? Refer to issue 
+        parent::__construct($minX, $minY ?? 0.0, $minZ, $maxX, $maxX, $maxZ);
+        $this->minX = $minX;
+        $this->minY = $minY;
+        $this->minZ = $minZ;
+        $this->maxX = $maxX;
+        $this->maxY = $maxY;
+        $this->maxZ = $maxZ;
+        $this->minVector = new Vector3($this->minX, $this->minY, $this->minZ);
+        $this->maxVector = new Vector3($this->maxX, $this->maxY, $this->maxZ);
+    }
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65
 
 	public static function from(User $user) : AABB{
 		$pos = $user->moveData->location;
@@ -108,6 +125,7 @@ class AABB{
 		return sqrt(($distX ** 2) + ($distY ** 2) + ($distZ ** 2));
 	}
 
+<<<<<<< HEAD
 	public function collidesRay(Ray $ray, float $tmin, float $tmax) : float{
 		for($i = 0; $i < 3; ++$i){
 			$d = 1 / ($ray->direction($i) ?: 0.01);
@@ -125,6 +143,30 @@ class AABB{
 		}
 		return $tmin;
 	}
+=======
+    public function collidesRay(Ray $ray, float $tmin, float $tmax) : float{
+        if($this->isVectorInside($ray->origin)){
+            return 0.0;
+        } else {
+            return ($result = $this->calculateIntercept($ray->traverse($tmin), $ray->traverse($tmax))) !== null ? $ray->origin->distance($result->getHitVector()) : self::NO_INTERSECTION;
+        }
+        /* for($i = 0; $i < 3; ++$i) {
+            $d = 1 / ($ray->direction($i) ?: 0.01);
+            $t0 = ($this->min($i) - $ray->origin($i)) * $d;
+            $t1 = ($this->max($i) - $ray->origin($i)) * $d;
+            if($d < 0) {
+                $t = $t0;
+                $t0 = $t1;
+                $t1 = $t;
+            }
+            $tmin = $t0 > $tmin ? $t0 : $tmin;
+            $tmax = $t1 < $tmax ? $t1 : $tmax;
+            if($tmax <= $tmin)
+                return -69.0;
+        }
+        return $tmin; */
+    }
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65
 
 	// Converts this AABB to a PocketMine AxisAlignedBB
 	public static function toPMMPAABB(self $aabb) : AxisAlignedBB{

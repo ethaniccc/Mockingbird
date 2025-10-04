@@ -10,7 +10,11 @@ use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
+<<<<<<< HEAD
 use pocketmine\plugin\PluginOwned;
+=======
+use pocketmine\scheduler\ClosureTask;
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 
@@ -64,6 +68,7 @@ class UserDebugCommand extends Command implements PluginOwned{
                     $pk->entityRuntimeId = (int) $selectedCheat;
                     $sender->dataPacket($pk);
                     return;
+<<<<<<< HEAD
                 } */elseif($selectedUser === '--record-mouse' && $sender instanceof Player){
 					// mbdebug --record-mouse coEthaniccc 30 2
 					$u = UserManager::getInstance()->get($sender);
@@ -89,6 +94,37 @@ class UserDebugCommand extends Command implements PluginOwned{
 			}
 		}
 	}
+=======
+                } */ elseif($selectedUser === '--record-mouse' && $sender instanceof Player){
+                    // mbdebug --record-mouse coEthaniccc 30 2
+                    $u = UserManager::getInstance()->get($sender);
+                    $p = $sender->getServer()->getPlayer($selectedCheat);
+                    if($p !== null && $u !== null && ($tu = UserManager::getInstance()->get($p)) !== null){
+                        $tu->mouseRecorder = new MouseRecorder($u, (int) ($args[2] ?? 25));
+                        $tu->mouseRecorder->start();
+                        $u->sendMessage('You have started a mouse recording for ' . $p->getName() . ' lasting ' . ($args[2] ?? 25) . ' seconds');
+                    } elseif($p === null){
+                        $sender->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RED . ' Could not find the player ' . $selectedCheat);
+                    }
+                    return;
+                }
+                if($user === null){
+                    $sender->sendMessage($this->getPlugin()->getPrefix() . TextFormat::RED . " Could not find the user $selectedUser");
+                } else {
+                    $selectedCheat = strtolower($selectedCheat);
+                    $sender->sendMessage(TextFormat::BOLD . TextFormat::RED . 'DEBUG DATA' . PHP_EOL . TextFormat::RESET . ($user->debugCache[$selectedCheat] ?? 'NO DATA'));
+                }
+            }
+        }
+    }
+
+    /**
+     * @return Mockingbird
+     */
+    public function getPlugin(): Plugin{
+        return $this->plugin;
+    }
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65
 
 	/**
 	 * @return Mockingbird

@@ -1,10 +1,16 @@
 ---
 name: Mockingbird
+<<<<<<< HEAD
 version: 2.6.0
+=======
+description: An anti-cheat made for PocketMine-MP
+version: 2.5
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65
 main: ethaniccc\Mockingbird\Mockingbird
 api: 5.0.0
 
 permissions:
+<<<<<<< HEAD
   mockingbird.alerts:
     description: Get Mockingbird anti-cheat alerts.
     default: op
@@ -18,3 +24,20 @@ permissions:
     description: Bypass all Mockingbird punishments
     default: op
 ...
+=======
+  mockingbird:
+    children:
+      mockingbird.alerts:
+        description: Get Mockingbird anti-cheat alerts.
+        default: op
+      mockingbird.debug:
+        description: Get Mockingbird debug messages in-game
+        default: op
+      mockingbird.logs:
+        description: Get the anti-cheat logs of a player
+        default: op
+      mockingbird.bypass:
+        description: Bypass Mockingbird punishments
+        default: op
+...
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65

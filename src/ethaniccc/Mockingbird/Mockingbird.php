@@ -23,6 +23,7 @@ use ethaniccc\Mockingbird\detections\movement\fly\FlyB;
 use ethaniccc\Mockingbird\detections\movement\fly\FlyC;
 use ethaniccc\Mockingbird\detections\movement\fly\FlyD;
 use ethaniccc\Mockingbird\detections\movement\omnisprint\OmniSprintA;
+use ethaniccc\Mockingbird\detections\movement\scaffold\ScaffoldA;
 use ethaniccc\Mockingbird\detections\movement\speed\SpeedA;
 use ethaniccc\Mockingbird\detections\movement\speed\SpeedB;
 use ethaniccc\Mockingbird\detections\movement\velocity\VelocityA;
@@ -38,14 +39,23 @@ use ethaniccc\Mockingbird\listener\MockingbirdListener;
 use ethaniccc\Mockingbird\tasks\DebugWriteTask;
 use ethaniccc\Mockingbird\user\UserManager;
 use ethaniccc\Mockingbird\utils\MathUtils;
+use ethaniccc\MockingbirdPremiumLoader\Loader;
+use pocketmine\event\HandlerList;
+use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\ClosureTask;
+<<<<<<< HEAD
 use pocketmine\utils\SingletonTrait;
+=======
+use pocketmine\Server;
+use pocketmine\snooze\SleeperNotifier;
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65
 use pocketmine\utils\TextFormat;
 
 final class Mockingbird extends PluginBase{
 	use SingletonTrait;
 
+<<<<<<< HEAD
 	/** @var Detection[] - A list of detections that will be used. */
 	public array $availableChecks;
 	/** Debug information is written to the debug log with this task. */
@@ -90,11 +100,82 @@ final class Mockingbird extends PluginBase{
 		@mkdir($this->getDataFolder() . 'packet_logs');
 		@mkdir($this->getDataFolder() . 'mouse_recordings');
 	}
+=======
+    /** @var Mockingbird */
+    private static $instance;
+    /** @var Detection[] - A list of detections that will be used. */
+    public $availableChecks;
+    /** @var DebugWriteTask - Debug information is written to the debug log with this task. */
+    public $debugTask;
+    /** @var CalculationThread - Thread where calculations that have long execution times go. (NOT USED AS OF NOW) */
+    public $calculationThread;
+    /** @var Player[] - Updated every 20 ticks */
+    public $toNotify = [];
+
+    /**
+     * @return Mockingbird
+     */
+    public static function getInstance() : ?Mockingbird{
+        return self::$instance;
+    }
+
+    public function onEnable() : void{
+        if(self::$instance !== null){
+            return;
+        }
+        $notifier = new SleeperNotifier();
+        $this->calculationThread = new CalculationThread($this->getServer()->getLogger(), $notifier);
+        $this->calculationThread->start(PTHREADS_INHERIT_NONE);
+        $this->getServer()->getTickSleeper()->addNotifier($notifier, function() : void{
+            $this->calculationThread->finish();
+        });
+        $this->debugTask = new DebugWriteTask($this->getDataFolder() . 'debug_log.txt');
+        file_put_contents($this->getDataFolder() . 'debug_log.txt', 'This server is using version ' . $this->getDescription()->getVersion() . ' of Mockingbird' . PHP_EOL);
+        self::$instance = $this;
+        if(((float) $this->getDescription()->getVersion()) !== $this->getConfig()->get('version')){
+            if($this->updateConfig()){
+                $this->getLogger()->debug('Mockingbird config has been updated');
+                $this->getConfig()->reload();
+            } else {
+                $this->getLogger()->alert('Something went wrong while updating the config, please go manually edit the new config.');
+            }
+        }
+        UserManager::init();
+        MathUtils::init();
+        new MockingbirdListener();
+        $this->loadDefaultChecks();
+        try{
+            Loader::loadChecks();
+        } catch(\Error $e){
+            $this->getLogger()->debug($e->getMessage());
+        }
+        $this->registerCommands();
+        $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(function(int $currentTick) : void{
+            // first handle things with user tick processors
+            foreach(UserManager::getInstance()->getUsers() as $user){
+                $user->tickProcessor->run($user);
+            }
+            if($currentTick % 400 === 0){
+                $this->getServer()->getAsyncPool()->submitTask($this->debugTask);
+                $this->debugTask = new DebugWriteTask($this->getDataFolder() . 'debug_log.txt');
+            }
+            if($currentTick % 20 === 0){
+                $this->toNotify = array_filter(Server::getInstance()->getOnlinePlayers(), function(Player $p) : bool{
+                    $user = UserManager::getInstance()->get($p);
+                    return $p->hasPermission('mockingbird.alerts') && $user->alerts;
+                });
+            }
+            $this->calculationThread->handleServerTick();
+        }), 1);
+        @mkdir($this->getDataFolder() . 'packet_logs');
+    }
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65
 
 	public function getPrefix() : string{
 		return $this->getConfig()->get('prefix') . TextFormat::RESET;
 	}
 
+<<<<<<< HEAD
 	/**
 	 * @param Detection[] $detections
 	 * This function was made for any external plugins that want to add custom checks.
@@ -108,6 +189,21 @@ final class Mockingbird extends PluginBase{
 			$this->availableChecks[] = $detection;
 		}
 	}
+=======
+    /**
+     * @param Detection[] $detections
+     * This function was made for any external plugins that want to add custom checks.
+     * These custom checks must be constructed with their name for the first parameter, and
+     * the second parameter null, unless there is a config for those checks in the plugin using this
+     * function.
+     */
+    public function registerCustomChecks(array $detections) : void{
+        foreach($detections as $detection){
+            $this->getLogger()->debug('Registering custom detection ' . $detection->name . ' class ' . get_class($detection));
+            $this->availableChecks[] = $detection;
+        }
+    }
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65
 
 	private function registerCommands() : void{
 		$commands = [
@@ -119,10 +215,63 @@ final class Mockingbird extends PluginBase{
 		$this->getServer()->getCommandMap()->registerAll($this->getName(), $commands);
 	}
 
+<<<<<<< HEAD
 	private function loadDefaultChecks() : void{
 		$this->availableChecks = [
 			new AimAssistA('AimAssistA', $this->getConfig()->get('AimAssistA', null)),
 			new AimAssistB('AimAssistB', $this->getConfig()->get('AimAssistB', null)),
+=======
+    private function loadDefaultChecks() : void{
+        // hardcode checks because why not?
+        $this->availableChecks = [
+            // AimAssist checks
+            new AimAssistA('AimAssistA', $this->getConfig()->get('AimAssistA', null)),
+            new AimAssistB('AimAssistB', $this->getConfig()->get('AimAssistB', null)),
+            // AutoClicker checks
+            new AutoClickerA('AutoClickerA', $this->getConfig()->get('AutoClickerA', null)),
+            new AutoClickerB('AutoClickerB', $this->getConfig()->get('AutoClickerB', null)),
+            new AutoClickerC('AutoClickerC', $this->getConfig()->get('AutoClickerC', null)),
+            new AutoClickerD('AutoClickerD', $this->getConfig()->get('AutoClickerD', null)),
+            new AutoClickerE('AutoClickerE', $this->getConfig()->get('AutoClickerE', null)),
+            // Hitbox Checks
+            new HitboxA('HitboxA', $this->getConfig()->get('HitboxA', null)),
+            // KillAura Checks
+            new KillAuraA('KillAuraA', $this->getConfig()->get('KillAuraA', null)),
+            new KillAuraB('KillAuraB', $this->getConfig()->get('KillAuraB', null)),
+            // Reach checks
+            new ReachA('ReachA', $this->getConfig()->get('ReachA', null)),
+            // Fly checks
+            new FlyA('FlyA', $this->getConfig()->get('FlyA', null)),
+            new FlyB('FlyB', $this->getConfig()->get('FlyB', null)),
+            new FlyC('FlyC', $this->getConfig()->get('FlyC', null)),
+            new FlyD('FlyD', $this->getConfig()->get('FlyD', null)),
+            // Speed checks
+            new SpeedA('SpeedA', $this->getConfig()->get('SpeedA', null)),
+            new SpeedB('SpeedB', $this->getConfig()->get('SpeedB', null)),
+            // Velocity checks
+            new VelocityA('VelocityA', $this->getConfig()->get('VelocityA', null)),
+            // OmiSprint checks
+            new OmniSprintA('OmniSprintA', $this->getConfig()->get('OmniSprintA', null)),
+            // Scaffold checks
+            // new ScaffoldA('ScaffoldA', $this->getConfig()->get('ScaffoldA', null)),
+            // BadPacket Checks
+            new BadPacketA('BadPacketA', $this->getConfig()->get('BadPacketA', null)),
+            new BadPacketB('BadPacketB', $this->getConfig()->get('BadPacketB', null)),
+            new BadPacketC('BadPacketC', $this->getConfig()->get('BadPacketC', null)),
+            new BadPacketD('BadPacketD', $this->getConfig()->get('BadPacketD', null)),
+            new BadPacketE('BadPacketE', $this->getConfig()->get('BadPacketE', null)),
+            // Timer checks
+            new TimerA('TimerA', $this->getConfig()->exists('TimerA') ? $this->getConfig()->get('TimerA') : null),
+            // new TimerB('TimerB', $this->getConfig()->exists('TimerB') ? $this->getConfig()->get('TimerB') : null),
+            // ChestStealer checks
+            // new ChestStealerA('ChestStealerA', $this->getConfig()->get('ChestStealerA', null)),
+            // EditionFaker checks
+            new EditionFakerA('EditionFakerA', $this->getConfig()->get('EditionFakerA', null)),
+            // Nuker checks
+            new NukerA('NukerA', $this->getConfig()->get('NukerA', null)),
+        ];
+    }
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65
 
 			new AutoClickerA('AutoClickerA', $this->getConfig()->get('AutoClickerA', null)),
 			new AutoClickerB('AutoClickerB', $this->getConfig()->get('AutoClickerB', null)),
@@ -130,7 +279,30 @@ final class Mockingbird extends PluginBase{
 			new AutoClickerD('AutoClickerD', $this->getConfig()->get('AutoClickerD', null)),
 			new AutoClickerE('AutoClickerE', $this->getConfig()->get('AutoClickerE', null)),
 
+<<<<<<< HEAD
 			new HitboxA('HitboxA', $this->getConfig()->get('HitboxA', null)),
+=======
+    public function onDisable(){
+        HandlerList::unregisterAll($this);
+        $this->calculationThread->quit();
+        if($this->getConfig()->get('upload_debug')){
+            $options = array(
+                'ssl' => array(
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                ),
+                'http' => array(
+                    'http' => "Content-type: application/x-www-form-urlencoded\r\n",
+                    'method' => 'POST',
+                    'content' => http_build_query(['data' => base64_encode(file_get_contents($this->getDataFolder() . 'debug_log.txt'))]),
+                    'timeout' => 3,
+                )
+            );
+            $response = @file_get_contents('https://mb-debug-logs.000webhostapp.com/', false, stream_context_create($options));
+            $this->getLogger()->debug("Response: $response");
+        }
+    }
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65
 
 			new KillAuraA('KillAuraA', $this->getConfig()->get('KillAuraA', null)),
 			new KillAuraB('KillAuraB', $this->getConfig()->get('KillAuraB', null)),

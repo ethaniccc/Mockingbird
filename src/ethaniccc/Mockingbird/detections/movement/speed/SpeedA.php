@@ -17,9 +17,55 @@ use pocketmine\network\mcpe\protocol\PlayerAuthInputPacket;
  */
 class SpeedA extends NopDetection implements CancellableMovement{
 
+<<<<<<< HEAD
 	public function __construct(string $name, ?array $settings){
 		parent::__construct($name, $settings);
 	}
+=======
+    public function __construct(string $name, ?array $settings){
+        parent::__construct($name, $settings);
+    }
+
+    public function handleReceive(DataPacket $packet, User $user): void{
+        if($packet instanceof PlayerAuthInputPacket){
+            if($user->moveData->offGroundTicks > 3){
+                $lastMoveDelta = $user->moveData->lastMoveDelta;
+                $currentMoveDelta = $user->moveData->moveDelta;
+                $lastXZ = MathUtils::hypot($lastMoveDelta->x, $lastMoveDelta->z);
+                $currentXZ = MathUtils::hypot($currentMoveDelta->x, $currentMoveDelta->z);
+                // going to leave this at 0.026 - removing support for all previous versions once .210 PMMP update comes out
+                $expectedXZ = $lastXZ * 0.91 + 0.026;
+                $equalness = $currentXZ - $expectedXZ;
+                if($equalness > $this->getSetting('max_breach')
+                && $user->timeSinceStoppedFlight >= 20
+                && $user->timeSinceTeleport >= 2
+                && $user->timeSinceMotion >= 10 && !$user->player->isSpectator() && $user->timeSinceStoppedGlide >= 10
+                && $user->moveData->ticksSinceInVoid >= 10
+                && $user->hasReceivedChunks){
+                    $canFlag = true;
+                    foreach($user->player->getArmorInventory()->getContents() as $item){
+                        if($item->hasEnchantment(Enchantment::DEPTH_STRIDER) && $user->moveData->liquidTicks < 10){
+                            $canFlag = false;
+                            break;
+                        }
+                    }
+                    if($canFlag && ++$this->preVL >= 3){
+                        $this->fail($user, "e=$equalness cXZ=$currentXZ lXZ=$lastXZ");
+                    }
+                } else {
+                    if($user->hasReceivedChunks){
+                        $this->preVL = 0;
+                        $this->reward($user, 0.01);
+                    }
+                }
+                if($this->isDebug($user)){
+                    $sprint = var_export($user->isSprinting, true);
+                    $user->sendMessage("diff=$equalness curr=$currentXZ last=$lastXZ sprint=$sprint");
+                }
+            }
+        }
+    }
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65
 
 	public function handleReceive(DataPacket $packet, User $user) : void{
 		if($packet instanceof PlayerAuthInputPacket){

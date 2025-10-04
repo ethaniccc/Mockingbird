@@ -23,12 +23,51 @@ class AutoClickerE extends NopDetection{
 	private int $clicks = 0;
 	private int $trust = 1;
 
+<<<<<<< HEAD
 	public function __construct(string $name, ?array $settings){
 		parent::__construct($name, $settings);
 		$this->vlSecondCount = 20;
 		$this->lowMax = 2;
 		$this->mediumMax = 3;
 	}
+=======
+    private $clicks = 0;
+    private $trust = 1;
+
+    public function __construct(string $name, ?array $settings){
+        parent::__construct($name, $settings);
+        $this->vlSecondCount = 20;
+        $this->lowMax = 2;
+        $this->mediumMax = 3;
+    }
+
+    public function handleReceive(DataPacket $packet, User $user) : void{
+        if(($packet instanceof InventoryTransactionPacket && $packet->transactionType === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) || ($packet instanceof LevelSoundEventPacket && $packet->sound === LevelSoundEventPacket::SOUND_ATTACK_NODAMAGE)){
+            if($user->clickData->tickSpeed <= 4 && ++$this->clicks === 20){
+                $speeds = $user->clickData->getTickSamples(20);
+                $deviation = sqrt(MathUtils::getVariance($speeds));
+                $outliers = MathUtils::getOutliers($speeds);
+                $skewness = MathUtils::getSkewness($speeds);
+                // Skewness was added to here to prevent false-flags when butterfly clicking consistently, as
+                // jitter clicking tends to have a skewness lower than 0, and butterfly clicking has higher skewness.
+                if($user->clickData->cps >= 10 && $deviation <= 0.45 && $skewness <= 0.0 && $outliers <= 1){
+                    $this->trust = max($this->trust - 0.25, 0);
+                    if(++$this->preVL >= 3){
+                        $this->preVL = min($this->preVL, 6);
+                        $this->fail($user, "deviation=$deviation skewness=$skewness outliers=$outliers cps={$user->clickData->cps} buff={$this->preVL}", "cps={$user->clickData->cps}");
+                    }
+                } else {
+                    $this->preVL = max($this->preVL - $this->trust, 0);
+                    $this->trust = min($this->trust + 0.05, 3);
+                }
+                if($this->isDebug($user)){
+                    $user->sendMessage("deviation=$deviation skewness=$skewness outliers=$outliers cps={$user->clickData->cps} trust={$this->trust} buff={$this->preVL}");
+                }
+                $this->clicks = 0;
+            }
+        }
+    }
+>>>>>>> 65e40d1669fcf4de3afd3d52050ca3cc552fad65
 
 	public function handleReceive(DataPacket $packet, User $user) : void{
 		if(($packet instanceof InventoryTransactionPacket && $packet->trData->getTypeId() === InventoryTransactionPacket::TYPE_USE_ITEM_ON_ENTITY) || ($packet instanceof LevelSoundEventPacket && $packet->sound === LevelSoundEvent::ATTACK_NODAMAGE)){
